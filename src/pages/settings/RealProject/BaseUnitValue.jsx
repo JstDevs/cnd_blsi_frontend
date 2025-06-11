@@ -1,7 +1,7 @@
 import { useState } from "react";
 import FormField from "@/components/common/FormField";
 import Modal from "@/components/common/Modal";
-import { Button } from "@/components/common/Button";
+import Button from "@/components/common/Button";
 import { Trash2, Pencil, Plus } from "lucide-react";
 const dummyData = [
   {
