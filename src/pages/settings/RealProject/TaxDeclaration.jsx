@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Button from "@/components/common/Button";
 import { Plus, Trash2 } from "lucide-react";
 
-export default function TaxDeclarationPage() {
+export default function TaxDeclaration() {
   const [formData, setFormData] = useState({
     tdNo: "",
     propertyId: "",
