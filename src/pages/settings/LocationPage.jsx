@@ -1,9 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import FormField from '../../components/common/FormField';
-import { regionSchema, provinceSchema, municipalitySchema, barangaySchema } from '../../utils/validationSchemas';
+import {
+  regionSchema,
+  provinceSchema,
+  municipalitySchema,
+  barangaySchema,
+} from '../../utils/validationSchemas';
 
 function LocationPage() {
   const [activeTab, setActiveTab] = useState('region');
@@ -11,28 +18,26 @@ function LocationPage() {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState(null);
-  
-  // Mock data for locations
+
   const mockData = {
     regions: [
-      { id: 1, code: 'REG001', name: 'Region I', description: 'Ilocos Region', status: 'Active' },
-      { id: 2, code: 'REG002', name: 'Region II', description: 'Cagayan Valley', status: 'Active' },
+      { id: 1, name: 'Region I' },
+      { id: 2, name: 'Region II' },
     ],
     provinces: [
-      { id: 1, code: 'PRV001', name: 'Ilocos Norte', regionId: 1, regionName: 'Region I', status: 'Active' },
-      { id: 2, code: 'PRV002', name: 'Ilocos Sur', regionId: 1, regionName: 'Region I', status: 'Active' },
+      { id: 1, name: 'Ilocos Norte', regionId: 1, regionName: 'Region I' },
+      { id: 2, name: 'Ilocos Sur', regionId: 1, regionName: 'Region I' },
     ],
-    municipalities: [
-      { id: 1, code: 'MUN001', name: 'Laoag City', provinceId: 1, provinceName: 'Ilocos Norte', status: 'Active' },
-      { id: 2, code: 'MUN002', name: 'Batac City', provinceId: 1, provinceName: 'Ilocos Norte', status: 'Active' },
+    municipalitys: [
+      { id: 1, name: 'Laoag City', provinceId: 1, provinceName: 'Ilocos Norte', regionId: 1, regionName: 'Region I' },
+      { id: 2, name: 'Batac City', provinceId: 1, provinceName: 'Ilocos Norte', regionId: 1, regionName: 'Region I' },
     ],
     barangays: [
-      { id: 1, code: 'BRG001', name: 'Barangay 1', municipalityId: 1, municipalityName: 'Laoag City', status: 'Active' },
-      { id: 2, code: 'BRG002', name: 'Barangay 2', municipalityId: 1, municipalityName: 'Laoag City', status: 'Active' },
+      { id: 1, name: 'Barangay 1', provinceId: 1, provinceName: 'Ilocos Norte', municipalityId: 1, municipalityName: 'Laoag City', regionId: 1, regionName: 'Region I' },
+      { id: 2, name: 'Barangay 2', provinceId: 1, provinceName: 'Ilocos Norte', municipalityId: 1, municipalityName: 'Laoag City', regionId: 1, regionName: 'Region I' },
     ],
   };
 
-  // Get validation schema based on active tab
   const getValidationSchema = () => {
     switch (activeTab) {
       case 'region':
@@ -48,98 +53,35 @@ function LocationPage() {
     }
   };
 
-  // Get columns based on active tab
   const getColumns = () => {
-    const baseColumns = [
-      {
-        key: 'code',
-        header: 'Code',
-        sortable: true,
-        className: 'font-medium text-neutral-900',
-      },
-      {
-        key: 'name',
-        header: 'Name',
-        sortable: true,
-      },
-    ];
-
     switch (activeTab) {
-      case 'barangay':
+      case 'region':
+        return [{ key: 'name', header: 'Region', sortable: true }];
+      case 'province':
         return [
-          ...baseColumns,
-          { key: 'municipalityName', header: 'Municipality', sortable: true },
-          {
-            key: 'status',
-            header: 'Status',
-            sortable: true,
-            render: (value) => (
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                value === 'Active' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-              }`}>
-                {value}
-              </span>
-            ),
-          },
+          { key: 'regionName', header: 'Region', sortable: true },
+          { key: 'name', header: 'Province', sortable: true },
         ];
       case 'municipality':
         return [
-          ...baseColumns,
-          { key: 'provinceName', header: 'Province', sortable: true },
-          {
-            key: 'status',
-            header: 'Status',
-            sortable: true,
-            render: (value) => (
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                value === 'Active' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-              }`}>
-                {value}
-              </span>
-            ),
-          },
-        ];
-      case 'province':
-        return [
-          ...baseColumns,
           { key: 'regionName', header: 'Region', sortable: true },
-          {
-            key: 'status',
-            header: 'Status',
-            sortable: true,
-            render: (value) => (
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                value === 'Active' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-              }`}>
-                {value}
-              </span>
-            ),
-          },
+          { key: 'provinceName', header: 'Province', sortable: true },
+          { key: 'name', header: 'Municipality', sortable: true },
+        ];
+      case 'barangay':
+        return [
+          { key: 'regionName', header: 'Region', sortable: true },
+          { key: 'provinceName', header: 'Province', sortable: true },
+          { key: 'municipalityName', header: 'Municipality', sortable: true },
+          { key: 'name', header: 'Barangay', sortable: true },
         ];
       default:
-        return [
-          ...baseColumns,
-          { key: 'description', header: 'Description', sortable: true },
-          {
-            key: 'status',
-            header: 'Status',
-            sortable: true,
-            render: (value) => (
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                value === 'Active' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-              }`}>
-                {value}
-              </span>
-            ),
-          },
-        ];
+        return [];
     }
   };
 
-  // Get data based on active tab
   const getData = () => mockData[`${activeTab}s`] || [];
 
-  // Actions for table rows
   const actions = [
     {
       icon: PencilIcon,
@@ -172,105 +114,173 @@ function LocationPage() {
 
   const confirmDelete = () => {
     if (locationToDelete) {
-      // Handle delete logic here
       setIsDeleteModalOpen(false);
       setLocationToDelete(null);
     }
   };
 
-  // Get form fields based on active tab
+  useEffect(() => {
+    if (isModalOpen) {
+      formik.resetForm({
+        values: currentLocation || {
+          name: '',
+          regionId: '',
+          provinceId: '',
+          municipalityId: '',
+        }
+      });
+    }
+  }, [isModalOpen, currentLocation]);
+
+  const formik = useFormik({
+    initialValues: currentLocation || {
+      name: '',
+      regionId: '',
+      provinceId: '',
+      municipalityId: '',
+    },
+    enableReinitialize: true,
+    validationSchema: getValidationSchema(),
+    // onSubmit: (values) => {
+    //   console.log('Submitted:', values);
+    //   setIsModalOpen(false);
+    // },
+    onSubmit: async (values, { setSubmitting }) => {
+    console.log('Submitted:', values);
+    setIsModalOpen(false);
+    setSubmitting(false);
+  },
+  });
+
   const getFormFields = () => {
-    const baseFields = (
-      <>
-        <FormField
-          className='p-3 focus:outline-none'
-          label="Code"
-          name="code"
-          type="text"
-          required
-          placeholder={`Enter ${activeTab} code`}
-        />
-        
-        <FormField
-          className='p-3 focus:outline-none'
-          label="Name"
-          name="name"
-          type="text"
-          required
-          placeholder={`Enter ${activeTab} name`}
-        />
-      </>
-    );
+    const commonProps = {
+      formik,
+      onChange: formik.handleChange,
+      onBlur: formik.handleBlur,
+      required: true,
+    };
 
     switch (activeTab) {
       case 'region':
         return (
-          <>
-            {baseFields}
-            <FormField
-              className='p-3 focus:outline-none'
-              label="Description"
-              name="description"
-              type="textarea"
-              required
-              placeholder="Enter region description"
-              rows={3}
-            />
-          </>
+          <FormField
+            label="Region"
+            name="name"
+            type="text"
+            placeholder="Enter region name"
+            value={formik.values.name}
+            error={formik.errors.name}
+            touched={formik.touched.name}
+            {...commonProps}
+          />
         );
       case 'province':
         return (
           <>
-            {baseFields}
             <FormField
-              className='p-3 focus:outline-none'
+              label="Province"
+              name="name"
+              type="text"
+              placeholder="Enter province name"
+              value={formik.values.name}
+              error={formik.errors.name}
+              touched={formik.touched.name}
+              {...commonProps}
+            />
+            <FormField
               label="Region"
               name="regionId"
               type="select"
-              required
-              options={mockData.regions.map(region => ({
-                value: region.id,
-                label: region.name
-              }))}
+              options={mockData.regions.map(r => ({ value: r.id, label: r.name }))}
+              value={formik.values.regionId}
+              error={formik.errors.regionId}
+              touched={formik.touched.regionId}
+              {...commonProps}
             />
           </>
         );
       case 'municipality':
         return (
           <>
-            {baseFields}
             <FormField
-              className='p-3 focus:outline-none'
+              label="Municipality"
+              name="name"
+              type="text"
+              value={formik.values.name}
+              error={formik.errors.name}
+              touched={formik.touched.name}
+              placeholder="Enter municipality name"
+              {...commonProps}
+            />
+            <FormField
               label="Province"
               name="provinceId"
               type="select"
-              required
-              options={mockData.provinces.map(province => ({
-                value: province.id,
-                label: province.name
-              }))}
+              options={mockData.provinces.map(p => ({ value: p.id, label: p.name }))}
+              value={formik.values.provinceId}
+              error={formik.errors.provinceId}
+              touched={formik.touched.provinceId}
+              {...commonProps}
+            />
+            <FormField
+              label="Region"
+              name="regionId"
+              type="select"
+              options={mockData.regions.map(r => ({ value: r.id, label: r.name }))}
+              value={formik.values.regionId}
+              error={formik.errors.regionId}
+              touched={formik.touched.regionId}
+              {...commonProps}
             />
           </>
         );
       case 'barangay':
         return (
           <>
-            {baseFields}
             <FormField
-              className='p-3 focus:outline-none'
+              label="Barangay"
+              name="name"
+              type="text"
+              value={formik.values.name}
+              error={formik.errors.name}
+              touched={formik.touched.name}
+              placeholder="Enter barangay name"
+              {...commonProps}
+            />
+            <FormField
               label="Municipality"
               name="municipalityId"
               type="select"
-              required
-              options={mockData.municipalities.map(municipality => ({
-                value: municipality.id,
-                label: municipality.name
-              }))}
+              options={mockData.municipalitys.map(m => ({ value: m.id, label: m.name }))}
+              value={formik.values.municipalityId}
+              error={formik.errors.municipalityId}
+              touched={formik.touched.municipalityId}
+              {...commonProps}
+            />
+            <FormField
+              label="Province"
+              name="provinceId"
+              type="select"
+              options={mockData.provinces.map(p => ({ value: p.id, label: p.name }))}
+              value={formik.values.provinceId}
+              error={formik.errors.provinceId}
+              touched={formik.touched.provinceId}
+              {...commonProps}
+            />
+            <FormField
+              label="Region"
+              name="regionId"
+              type="select"
+              options={mockData.regions.map(r => ({ value: r.id, label: r.name }))}
+              value={formik.values.regionId}
+              error={formik.errors.regionId}
+              touched={formik.touched.regionId}
+              {...commonProps}
             />
           </>
         );
       default:
-        return baseFields;
+        return null;
     }
   };
 
@@ -293,25 +303,24 @@ function LocationPage() {
         </div>
       </div>
 
-      <div className="mb-6 border-b border-neutral-200">
-        <nav className="-mb-px flex space-x-8">
+      <div className="flex mb-6 border-b border-neutral-200">
+        <nav className="-mb-px flex flex-wrap gap-x-10 gap-y-0">
           {['region', 'province', 'municipality', 'barangay'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`
-                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-                ${activeTab === tab
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === tab
                   ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'}
-              `}
+                  : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+              }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}s
             </button>
           ))}
         </nav>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={getColumns()}
@@ -320,27 +329,14 @@ function LocationPage() {
           pagination={true}
         />
       </div>
-      
+
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentLocation ? `Edit ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}` : `New ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`}
+        title={currentLocation ? `Edit ${activeTab}` : `New ${activeTab}`}
       >
-        <div className="p-4 space-y-4">
+        <form onSubmit={formik.handleSubmit} className="p-4 space-y-4">
           {getFormFields()}
-          
-          <FormField
-            className='p-3 focus:outline-none'
-            label="Status"
-            name="status"
-            type="select"
-            required
-            options={[
-              { value: 'Active', label: 'Active' },
-              { value: 'Inactive', label: 'Inactive' },
-            ]}
-          />
-          
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button
               type="button"
@@ -352,13 +348,14 @@ function LocationPage() {
             <button
               type="submit"
               className="btn btn-primary"
+              disabled={formik.isSubmitting}
             >
-              {currentLocation ? 'Update' : 'Save'}
+              {formik.isSubmitting ? 'Saving...' : currentLocation ? 'Update' : 'Save'}
             </button>
           </div>
-        </div>
+        </form>
       </Modal>
-      
+
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -371,7 +368,6 @@ function LocationPage() {
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
           </p>
-          
           <div className="flex justify-end space-x-3 pt-4 mt-4 border-t border-neutral-200">
             <button
               type="button"

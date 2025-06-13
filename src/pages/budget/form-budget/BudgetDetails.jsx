@@ -30,7 +30,7 @@ const BudgetDetails = () => {
   const [filterAccount, setFilterAccount] = useState("all");
   const [filterFund, setFilterFund] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // new code
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -415,7 +415,7 @@ const BudgetDetails = () => {
             </button>
           </div>
           <button
-            onClick={() => setShowAddForm(true)}
+            onClick={() => setIsModalOpen(true)}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -773,8 +773,8 @@ const BudgetDetails = () => {
 
       {/* Search and Filters */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex-1">
+        <div className="flex flex-col gap-2">
+          <div className="flex-1 pb-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -786,7 +786,7 @@ const BudgetDetails = () => {
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-1">
             <select
               value={filterDepartment}
               onChange={(e) => setFilterDepartment(e.target.value)}
@@ -1017,10 +1017,11 @@ const BudgetDetails = () => {
 
       {/* Form Modal */}
       <Modal
+        className="w-full"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={selectedRecord ? 'Edit Budget' : 'Add New Budget'}
-        className="max-w-4xl w-full"
+        size="xl"
       >
         <BudgetForm
           initialData={selectedRecord}

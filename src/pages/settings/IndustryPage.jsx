@@ -62,16 +62,6 @@ function IndustryPage() {
 
   const columns = [
     {
-      key: 'code',
-      header: 'Code',
-      sortable: true
-    },
-    {
-      key: 'name',
-      header: 'Name',
-      sortable: true
-    },
-    {
       key: 'industryType',
       header: 'Industry Type',
       sortable: true

@@ -68,91 +68,91 @@ export default function UserAccessPage() {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <input
-          type="text"
-          placeholder="Search role..."
-          className="border px-3 py-2 rounded-md w-60"
-        />
-        {/* Controls */}
-        <div className="flex gap-2">
-          {["Add", "Save"].map((action) => (
-            <button
-              key={action}
-              className={`px-4 py-2 rounded text-white ${
-                action === "Close"
-                  ? "bg-red-600"
-                  : action === "Save"
-                  ? "bg-green-600"
-                  : "bg-blue-500"
-              }`}
-            >
-              {action}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-12 gap-4">
-        {/* Role List */}
-        <div className="col-span-3 bg-white border rounded shadow">
-          <div className="border-b p-2 bg-blue-100 font-medium text-center">
-            Roles
-          </div>
-          <ul>
-            {roles.map((role) => (
-              <li
-                key={role}
-                onClick={() => setSelectedRole(role)}
-                className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                  role === selectedRole ? "bg-blue-200 font-semibold" : ""
-                }`}
-              >
-                {role}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Module Permissions */}
-        <div className="col-span-9 overflow-auto bg-white border rounded shadow">
-          <div className="border-b p-2 bg-blue-100 font-medium text-center">
-            Permissions for: {selectedRole}
-          </div>
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-2">Module</th>
-                <th className="px-2">View</th>
-                <th className="px-2">Add</th>
-                <th className="px-2">Edit</th>
-                <th className="px-2">Delete</th>
-                <th className="px-2">Print</th>
-                <th className="px-2">Mayor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {modules.map((mod) => (
-                <tr key={mod} className="border-t">
-                  <td className="px-4 py-1">{mod}</td>
-                  {["view", "add", "edit", "delete", "print", "mayor"].map(
-                    (perm) => (
-                      <td key={perm} className="text-center">
-                        <input
-                          type="checkbox"
-                          checked={permissions[mod][perm]}
-                          onChange={() => togglePermission(mod, perm)}
-                          className="accent-blue-600"
-                        />
-                      </td>
-                    )
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+  {/* Header: search + actions */}
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <input
+      type="text"
+      placeholder="Search role..."
+      className="border px-3 py-2 rounded-md w-full sm:w-60"
+    />
+    <div className="flex gap-2">
+      {["Save"].map((action) => (
+        <button
+          key={action}
+          className={`px-4 py-2 rounded text-white ${
+            action === "Close"
+              ? "bg-red-600"
+              : action === "Save"
+              ? "bg-green-600"
+              : "bg-blue-500"
+          }`}
+        >
+          {action}
+        </button>
+      ))}
     </div>
+  </div>
+
+  {/* Main Content */}
+  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+    {/* Role List */}
+    <div className="lg:col-span-3 bg-white border rounded shadow">
+      <div className="border-b p-2 bg-blue-100 font-medium text-center">
+        Roles
+      </div>
+      <ul>
+        {roles.map((role) => (
+          <li
+            key={role}
+            onClick={() => setSelectedRole(role)}
+            className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
+              role === selectedRole ? "bg-blue-200 font-semibold" : ""
+            }`}
+          >
+            {role}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    {/* Module Permissions Table */}
+    <div className="lg:col-span-9 bg-white border rounded shadow overflow-x-auto">
+      <div className="border-b p-2 bg-blue-100 font-medium text-center">
+        Permissions for: {selectedRole}
+      </div>
+      <table className="min-w-[700px] w-full text-sm text-left">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-4 py-2">Module</th>
+            <th className="px-2">View</th>
+            <th className="px-2">Add</th>
+            <th className="px-2">Edit</th>
+            <th className="px-2">Delete</th>
+            <th className="px-2">Print</th>
+            <th className="px-2">Mayor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {modules.map((mod) => (
+            <tr key={mod} className="border-t">
+              <td className="px-4 py-1">{mod}</td>
+              {["view", "add", "edit", "delete", "print", "mayor"].map((perm) => (
+                <td key={perm} className="text-center">
+                  <input
+                    type="checkbox"
+                    checked={permissions[mod][perm]}
+                    onChange={() => togglePermission(mod, perm)}
+                    className="accent-blue-600"
+                  />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
   );
 }

@@ -28,13 +28,13 @@ const StatementComparison = () => {
           </div>
 
           <div className="flex flex-wrap gap-3 md:col-span-2">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+            <button className="bg-blue-600 mt-2 sm:mt-0 text-white px-4 py-2 rounded-md hover:bg-blue-700">
               View
             </button>
-            <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+            <button className="bg-green-600 mt-2 sm:mt-0 text-white px-4 py-2 rounded-md hover:bg-green-700">
               Generate Journal
             </button>
-            <button className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-800">
+            <button className="bg-gray-700 mt-2 sm:mt-0 text-white px-4 py-2 rounded-md hover:bg-gray-800">
               Export to Excel
             </button>
           </div>

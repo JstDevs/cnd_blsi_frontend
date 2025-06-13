@@ -230,11 +230,13 @@ const BudgetReport = () => {
             Comprehensive budget analysis and reporting dashboard
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-y-2 sm:gap-x-3 w-full sm:w-auto">
+          {/* Summary/Detailed Toggle - full width on mobile */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1 w-full sm:w-auto">
             <button
               onClick={() => setViewMode("summary")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`w-1/2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 viewMode === "summary"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -244,7 +246,7 @@ const BudgetReport = () => {
             </button>
             <button
               onClick={() => setViewMode("detailed")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`w-1/2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 viewMode === "detailed"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -253,22 +255,27 @@ const BudgetReport = () => {
               Detailed
             </button>
           </div>
-          <button
-            onClick={handlePrintReport}
-            className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            <Printer className="w-4 h-4 mr-2" />
-            Print
-          </button>
-          <button
-            onClick={handleExportToExcel}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </button>
+
+          {/* Buttons row - side-by-side even on mobile */}
+          <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+            <button
+              onClick={handlePrintReport}
+              className="flex-1 sm:flex-initial flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
+            >
+              <Printer className="w-4 h-4 mr-2" />
+              Print
+            </button>
+            <button
+              onClick={handleExportToExcel}
+              className="flex-1 sm:flex-initial flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </button>
+          </div>
         </div>
       </div>
+
 
       {/* Summary Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -655,8 +662,8 @@ const BudgetReport = () => {
 
       {/* Summary Footer */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-between text-sm text-gray-600 gap-y-4 sm:items-center">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-y-2 sm:gap-x-4">
             <span>
               Report for {selectedDepartment} - {selectedFiscalYear}
             </span>
@@ -665,11 +672,12 @@ const BudgetReport = () => {
             </span>
             <span>Fund: {selectedFund}</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-y-2 sm:gap-x-4">
             <span>Showing {filteredData.length} accounts</span>
             <span>Generated on {new Date().toLocaleDateString()}</span>
           </div>
         </div>
+
       </div>
     </div>
   );

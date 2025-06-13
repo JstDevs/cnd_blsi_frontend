@@ -2,9 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Mock Data
 const mockIndustries = [
-  { id: '1', code: 'TECH', name: 'Technology', industryType: 'Software' },
-  { id: '2', code: 'FIN', name: 'Finance', industryType: 'Banking' },
-  { id: '3', code: 'HEALTH', name: 'Healthcare', industryType: 'Pharmaceuticals' },
+  { id: '1', industryType: 'Software' },
+  { id: '2', industryType: 'Banking' },
+  { id: '3', industryType: 'Pharmaceuticals' },
 ];
 
 // Async Thunks (Mock API calls)

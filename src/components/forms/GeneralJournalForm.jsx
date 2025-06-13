@@ -59,12 +59,11 @@ function GeneralJournalForm({ initialData, onSubmit, onExport, onClose }) {
 
           <div className="flex justify-end space-x-4 pt-4 border-t border-neutral-200">
             <button
-              type="button"
-              onClick={() => handleExport(values)}
-              className="btn btn-success"
+              type="submit"
+              className="btn btn-primary"
               disabled={isSubmitting}
             >
-              Export to Excel
+              {isSubmitting ? 'Loading...' : 'View'}
             </button>
             <button
               type="button"
@@ -74,11 +73,12 @@ function GeneralJournalForm({ initialData, onSubmit, onExport, onClose }) {
               Generate
             </button>
             <button
-              type="submit"
-              className="btn btn-primary"
+              type="button"
+              onClick={() => handleExport(values)}
+              className="btn btn-outline"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Loading...' : 'View'}
+              Export to Excel
             </button>
           </div>
         </Form>

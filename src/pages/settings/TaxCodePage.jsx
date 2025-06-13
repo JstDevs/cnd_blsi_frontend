@@ -83,7 +83,7 @@ function TaxCodePage() {
       key: 'rate',
       header: 'Rate (%)',
       sortable: true,
-      render: (value) => `${(value * 100).toFixed(2)}%`
+      render: (value) => `${value} %`
     }
   ];
 

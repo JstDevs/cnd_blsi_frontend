@@ -69,21 +69,24 @@ export default function BaseUnitValue() {
                 <td className="px-4 py-2 border">{record.actualUse}</td>
                 <td className="px-4 py-2 border">{record.subClass}</td>
                 <td className="px-4 py-2 border">{record.price}</td>
-                <td className="px-4 py-2 border space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => openModal(record)}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => deleteRecord(index)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                
+                <td className="px-4 py-2 border">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openModal(record)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteRecord(index)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}

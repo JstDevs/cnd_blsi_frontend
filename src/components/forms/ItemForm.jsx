@@ -153,16 +153,18 @@ const ItemForm = ({ item, onClose }) => {
               error={errors.ewt}
               touched={touched.ewt}
             />
-             <FormField
-              label="Vatable"
-              name="vatable"
-              type="checkbox"
-              checked={values.vatable}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.vatable}
-              touched={touched.vatable}
-            />
+            <div className="flex items-center mt-5">
+              <FormField
+                label="Vatable"
+                name="vatable"
+                type="checkbox"
+                checked={values.vatable}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.vatable}
+                touched={touched.vatable}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">

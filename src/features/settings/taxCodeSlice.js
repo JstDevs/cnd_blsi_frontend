@@ -2,9 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Mock Data
 const mockTaxCodes = [
-  { id: '1', code: 'VAT', name: 'Value Added Tax', rate: 0.12 },
-  { id: '2', code: 'EWT', name: 'Expanded Withholding Tax', rate: 0.02 },
-  { id: '3', code: 'NONE', name: 'No Tax', rate: 0.00 },
+  { id: '1', type: 'vat', code: '001', name: 'Value Added Tax', rate: 12, natureOfPayment: 'Goods and Services' },
+  { id: '2', type: 'ewt', code: '002', name: 'Expanded Withholding Tax', rate: 2, natureOfPayment: 'Withholding Tax' },
+  { id: '3', type: 'other', code: '101', name: 'Service Tax', rate: 18, natureOfPayment: 'Service Tax' },
 ];
 
 // Async Thunks (Mock API calls)

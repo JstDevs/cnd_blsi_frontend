@@ -204,45 +204,25 @@ export const barangaySchema = Yup.object().shape({
 });
 
 export const municipalitySchema = Yup.object().shape({
-  code: Yup.string()
-    .required(messages.required)
-    .matches(/^MUN\d{3}$/, 'Invalid municipality code format (e.g., MUN001)'),
   name: Yup.string()
     .required(messages.required)
     .max(100, 'Name too long'),
-  type: Yup.string()
-    .required(messages.required),
   province: Yup.string()
-    .required(messages.required),
-  status: Yup.string()
     .required(messages.required),
 });
 
 export const provinceSchema = Yup.object().shape({
-  code: Yup.string()
-    .required(messages.required)
-    .matches(/^PRV\d{3}$/, 'Invalid province code format (e.g., PRV001)'),
   name: Yup.string()
     .required(messages.required)
     .max(100, 'Name too long'),
   region: Yup.string()
     .required(messages.required),
-  status: Yup.string()
-    .required(messages.required),
 });
 
 export const regionSchema = Yup.object().shape({
-  code: Yup.string()
-    .required(messages.required)
-    .matches(/^REG\d{3}[A-Z]?$/, 'Invalid region code format (e.g., REG003 or REG004A)'),
   name: Yup.string()
     .required(messages.required)
     .max(100, 'Name too long'),
-  description: Yup.string()
-    .required(messages.required)
-    .max(200, 'Description too long'),
-  status: Yup.string()
-    .required(messages.required),
 });
 
 // Common validation functions

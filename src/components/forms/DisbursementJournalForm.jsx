@@ -95,7 +95,7 @@ function DisbursementJournalForm({ initialData, onSubmit, onExport, onClose }) {
 
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">Disbursement Type <span className="text-error-500">*</span></label>
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {disbursementTypeOptions.map((option) => (
                   <label key={option.value} className="inline-flex items-center">
                     <input
@@ -104,7 +104,7 @@ function DisbursementJournalForm({ initialData, onSubmit, onExport, onClose }) {
                       value={option.value}
                       className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-neutral-300"
                     />
-                    <span className="ml-2 text-sm text-neutral-600">{option.label}</span>
+                    <span className="ml-1 text-sm text-neutral-600">{option.label}</span>
                   </label>
                 ))}
               </div>
