@@ -1,32 +1,34 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock initial data
-const initialEmployees = [
-  {
-    id: 1,
-    employeeCode: 'E001',
-    firstName: 'John',
-    lastName: 'Smith',
-    middleName: 'David',
-    birthDate: '1990-01-01',
-    gender: 'Male',
-    civilStatus: 'Married',
-    address: '123 Employee St., City',
-    contactNumber: '09123456789',
-    email: 'john.smith@lgu.gov.ph',
-    departmentId: 1,
-    departmentName: 'Information Technology Department',
-    position: 'Administrative Officer III',
-    employmentStatus: 'Regular',
-    dateHired: '2020-01-01',
-    tin: '123-456-789-000',
-    sssNumber: '12-3456789-0',
-    philHealthNumber: '12-345678901-2',
-    pagIbigNumber: '1234-5678-9012',
-    status: 'Active',
-  },
-  // Add more mock employees as needed
-];
+const initialEmployees = []
+// const initialEmployees = [
+//   {
+//     id: 1,
+//     employeeCode: 'E001',
+//     firstName: 'John',
+//     lastName: 'Smith',
+//     middleName: 'David',
+//     birthDate: '1990-01-01',
+//     gender: 'Male',
+//     civilStatus: 'Married',
+//     address: '123 Employee St., City',
+//     contactNumber: '09123456789',
+//     email: 'john.smith@lgu.gov.ph',
+//     departmentId: 1,
+//     departmentName: 'Information Technology Department',
+//     position: 'Administrative Officer III',
+//     employmentStatus: 'Regular',
+//     dateHired: '2020-01-01',
+//     tin: '123-456-789-000',
+//     sssNumber: '12-3456789-0',
+//     philHealthNumber: '12-345678901-2',
+//     pagIbigNumber: '1234-5678-9012',
+//     status: 'Active',
+//   },
+//   // Add more mock employees as needed
+// ];
 
 const initialState = {
   employees: initialEmployees,
@@ -56,17 +58,22 @@ export const addEmployee = createAsyncThunk(
   'employees/addEmployee',
   async (employee, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const newEmployee = {
-            ...employee,
-            id: Date.now(),
-            employeeCode: `E${String(Math.floor(Math.random() * 900) + 100)}`,
-          };
-          resolve(newEmployee);
-        }, 500);
+      const response = await fetch(`${API_URL}/employee`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(employee),
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add employee');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

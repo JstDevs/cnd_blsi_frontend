@@ -19,6 +19,9 @@ import UserPage from "./pages/settings/UserPage";
 import ChartOfAccountsPage from "./pages/settings/ChartOfAccountsPage";
 import VendorPage from "./pages/settings/VendorPage";
 import EmployeePage from "./pages/settings/EmployeePage";
+import EmploymentStatus from "./pages/settings/EmploymentStatus";
+import PositionPage from "./pages/settings/PositionPage";
+import NationalitiesPage from "./pages/settings/NationalitiesPage";
 import LocationPage from "./pages/settings/LocationPage";
 import PPEPage from "./pages/settings/PPE/PPEPage";
 import ApprovalMatrixPage from "./pages/settings/ApprovalMatrixPage";
@@ -206,6 +209,9 @@ function App() {
           />
           <Route path="/settings/vendors" element={<VendorPage />} />
           <Route path="/settings/employees" element={<EmployeePage />} />
+          <Route path="/settings/employmentStatus" element={<EmploymentStatus />} />
+          <Route path="/settings/positions" element={<PositionPage />} />
+          <Route path="/settings/nationalities" element={<NationalitiesPage />} />
           <Route path="/settings/locations" element={<LocationPage />} />
           <Route path="/settings/ppe" element={<PPEPage />} />
           <Route

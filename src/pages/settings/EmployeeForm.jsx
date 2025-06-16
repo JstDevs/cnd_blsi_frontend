@@ -1,31 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../../components/common/FormField';
 import { addEmployee, updateEmployee } from '../../features/settings/employeeSlice';
+import { fetchDepartments } from '../../features/settings/departmentSlice';
+import { fetchPositions } from '../../features/settings/positionSlice';
+import { fetchEmploymentStatuses } from '../../features/settings/employmentStatusSlice';
 
 // Mock data for dropdowns
-const departments = [
-  { value: 1, label: 'Office of the Mayor' },
-  { value: 2, label: 'Accounting Department' },
-  { value: 3, label: 'Treasury Department' },
-  { value: 4, label: 'IT Department' },
-];
+// const departments = [
+//   { value: '1', label: 'Office of the Mayor' },
+//   { value: '2', label: 'Accounting Department' },
+//   { value: '3', label: 'Treasury Department' },
+//   { value: '4', label: 'IT Department' },
+// ];
 
-const positions = [
-  { value: 'Administrative Officer III', label: 'Administrative Officer III' },
-  { value: 'Administrative Officer IV', label: 'Administrative Officer IV' },
-  { value: 'Department Head I', label: 'Department Head I' },
-  { value: 'Department Head II', label: 'Department Head II' },
-];
+// const positions = [
+//   { value: '1', label: 'Administrative Officer III' },
+//   { value: '2', label: 'Administrative Officer IV' },
+//   { value: '3', label: 'Department Head I' },
+//   { value: '4', label: 'Department Head II' },
+// ];
 
-const employmentStatuses = [
-  { value: 'Regular', label: 'Regular' },
-  { value: 'Casual', label: 'Casual' },
-  { value: 'Job Order', label: 'Job Order' },
-  { value: 'Contract of Service', label: 'Contract of Service' },
-];
+// const employmentStatuses = [
+//   { value: '1', label: 'Regular' },
+//   { value: '2', label: 'Casual' },
+//   { value: '3', label: 'Job Order' },
+//   { value: '4', label: 'Contract of Service' },
+// ];
 
 // Validation schema
 const employeeSchema = Yup.object().shape({
@@ -79,6 +82,33 @@ const employeeSchema = Yup.object().shape({
 
 function EmployeeForm({ initialData, onClose }) {
   const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchDepartments());
+    dispatch(fetchPositions());
+    dispatch(fetchEmploymentStatuses());
+  }, [dispatch]);
+
+  const { departments } = useSelector((state) => state.departments);
+  const isLoadingDepartments = useSelector((state) => state.departments.isLoading);
+  const departmentOptions = departments.map((dept) => ({
+    value: dept.ID,
+    label: dept.Name,
+  }));
+
+  const { positions } = useSelector((state) => state.positions);
+  const isLoadingPositions = useSelector((state) => state.positions.isLoading);
+  const positionOptions = positions.map((pos) => ({
+    value: pos.ID,
+    label: pos.Name,
+  }));
+
+  const { employmentStatuses } = useSelector((state) => state.employmentStatuses);
+  const isLoadingEmploymentStatuses = useSelector((state) => state.employmentStatuses.isLoading);
+  const employmentStatusOptions = employmentStatuses.map((status) => ({
+    value: status.ID,
+    label: status.Name,
+  }));
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues = initialData ? { ...initialData } : {
@@ -289,7 +319,8 @@ function EmployeeForm({ initialData, onClose }) {
               onBlur={handleBlur}
               error={errors.departmentId}
               touched={touched.departmentId}
-              options={departments}
+              options={departmentOptions}
+              disabled={isLoadingDepartments}
             />
             
             <FormField
@@ -303,7 +334,8 @@ function EmployeeForm({ initialData, onClose }) {
               onBlur={handleBlur}
               error={errors.position}
               touched={touched.position}
-              options={positions}
+              options={positionOptions}
+              disabled={isLoadingPositions}
             />
           </div>
           
@@ -319,7 +351,8 @@ function EmployeeForm({ initialData, onClose }) {
               onBlur={handleBlur}
               error={errors.employmentStatus}
               touched={touched.employmentStatus}
-              options={employmentStatuses}
+              options={employmentStatusOptions}
+              disabled={isLoadingEmploymentStatuses}
             />
             
             <FormField

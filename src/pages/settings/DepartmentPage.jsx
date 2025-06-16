@@ -10,10 +10,10 @@ import { fetchDepartments, addDepartment, updateDepartment, deleteDepartment } f
 
 // Validation schema for department form
 const departmentSchema = Yup.object().shape({
-  departmentCode: Yup.string()
+  Code: Yup.string()
     .required('Department code is required')
     .max(10, 'Department code must be at most 10 characters'),
-  departmentName: Yup.string()
+  Name: Yup.string()
     .required('Department name is required')
     .max(100, 'Department name must be at most 100 characters'),
 });
@@ -48,15 +48,17 @@ function DepartmentPage() {
   
   const confirmDelete = () => {
     if (departmentToDelete) {
-      dispatch(deleteDepartment(departmentToDelete.id));
+      dispatch(deleteDepartment(departmentToDelete.ID));
       setIsDeleteModalOpen(false);
       setDepartmentToDelete(null);
     }
   };
   
   const handleSubmit = (values, { resetForm }) => {
+    console.log('Submitting department:', values);
+    console.log('Current department:', currentDepartment);
     if (currentDepartment) {
-      dispatch(updateDepartment({ ...values, id: currentDepartment.id }));
+      dispatch(updateDepartment({ ...values, ID: currentDepartment.ID }));
     } else {
       dispatch(addDepartment(values));
     }
@@ -67,13 +69,13 @@ function DepartmentPage() {
   // Table columns definition
   const columns = [
     {
-      key: 'code',
+      key: 'Code',
       header: 'Code',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
     {
-      key: 'name',
+      key: 'Name',
       header: 'Department Name',
       sortable: true,
     },
@@ -131,8 +133,8 @@ function DepartmentPage() {
       >
         <Formik
           initialValues={{
-            departmentCode: currentDepartment?.departmentCode || '',
-            departmentName: currentDepartment?.departmentName || '',
+            Code: currentDepartment?.Code || '',
+            Name: currentDepartment?.Name || '',
           }}
           validationSchema={departmentSchema}
           onSubmit={handleSubmit}
@@ -142,28 +144,28 @@ function DepartmentPage() {
               <FormField
                 className='p-3 focus:outline-none'
                 label="Department Code"
-                name="departmentCode"
+                name="Code"
                 type="text"
                 required
                 placeholder="Enter department code"
-                value={values.departmentCode}
+                value={values.Code}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.departmentCode}
-                touched={touched.departmentCode}
+                error={errors.Code}
+                touched={touched.Code}
               />
               <FormField
                 className='p-3 focus:outline-none'
                 label="Department Name"
-                name="departmentName"
+                name="Name"
                 type="text"
                 required
                 placeholder="Enter department name"
-                value={values.departmentName}
+                value={values.Name}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.departmentName}
-                touched={touched.departmentName}
+                error={errors.Name}
+                touched={touched.Name}
               />
               <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
                 <button

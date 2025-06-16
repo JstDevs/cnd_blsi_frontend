@@ -11,13 +11,13 @@ import { fetchDepartments } from '../../features/settings/departmentSlice';
 
 // Validation schema for subdepartment form
 const subdepartmentSchema = Yup.object().shape({
-  subdepartmentCode: Yup.string()
+  Code: Yup.string()
     .required('Subdepartment code is required')
     .max(15, 'Subdepartment code must be at most 15 characters'),
-  subdepartmentName: Yup.string()
+  Name: Yup.string()
     .required('Subdepartment name is required')
     .max(100, 'Subdepartment name must be at most 100 characters'),
-  departmentId: Yup.number()
+  DepartmentID: Yup.number()
     .required('Department is required'),
 });
 
@@ -35,6 +35,11 @@ function SubdepartmentPage() {
     dispatch(fetchSubdepartments());
     dispatch(fetchDepartments());
   }, [dispatch]);
+
+  const enrichedSubdepartments = subdepartments.map(sub => ({
+    ...sub,
+    departmentName: sub.Department?.Name || ''
+  }));
   
   const handleAddSubdepartment = () => {
     setCurrentSubdepartment(null);
@@ -53,23 +58,22 @@ function SubdepartmentPage() {
   
   const confirmDelete = () => {
     if (subdepartmentToDelete) {
-      dispatch(deleteSubdepartment(subdepartmentToDelete.id));
+      dispatch(deleteSubdepartment(subdepartmentToDelete.ID));
       setIsDeleteModalOpen(false);
       setSubdepartmentToDelete(null);
     }
   };
   
   const handleSubmit = (values, { resetForm }) => {
-    const departmentName = departments.find(d => d.id === Number(values.departmentId))?.departmentName || '';
-    
+    const departmentName = departments.find(d => d.ID === Number(values.DepartmentID))?.Name || '';
+
     const submissionData = {
       ...values,
-      departmentId: Number(values.departmentId),
       departmentName
     };
     
     if (currentSubdepartment) {
-      dispatch(updateSubdepartment({ ...submissionData, id: currentSubdepartment.id }));
+      dispatch(updateSubdepartment({ ...submissionData, ID: currentSubdepartment.ID }));
     } else {
       dispatch(addSubdepartment(submissionData));
     }
@@ -80,13 +84,13 @@ function SubdepartmentPage() {
   // Table columns definition
   const columns = [
     {
-      key: 'subdepartmentCode',
+      key: 'Code',
       header: 'Code',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
     {
-      key: 'subdepartmentName',
+      key: 'Name',
       header: 'Subdepartment Name',
       sortable: true,
     },
@@ -135,7 +139,7 @@ function SubdepartmentPage() {
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={subdepartments}
+          data={enrichedSubdepartments}
           actions={actions}
           loading={isLoading}
         />
@@ -149,9 +153,9 @@ function SubdepartmentPage() {
       >
         <Formik
           initialValues={{
-            subdepartmentCode: currentSubdepartment?.subdepartmentCode || '',
-            subdepartmentName: currentSubdepartment?.subdepartmentName || '',
-            departmentId: currentSubdepartment?.departmentId || '',
+            Code: currentSubdepartment?.Code || '',
+            Name: currentSubdepartment?.Name || '',
+            DepartmentID: currentSubdepartment?.DepartmentID || '',
           }}
           validationSchema={subdepartmentSchema}
           onSubmit={handleSubmit}
@@ -161,43 +165,43 @@ function SubdepartmentPage() {
               <FormField
                 className='p-3 focus:outline-none'
                 label="Subdepartment Code"
-                name="subdepartmentCode"
+                name="Code"
                 type="text"
                 required
                 placeholder="Enter subdepartment code"
-                value={values.subdepartmentCode}
+                value={values.Code}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.subdepartmentCode}
-                touched={touched.subdepartmentCode}
+                error={errors.Code}
+                touched={touched.Code}
               />
               <FormField
                 className='p-3 focus:outline-none'
                 label="Subdepartment Name"
-                name="subdepartmentName"
+                name="Name"
                 type="text"
                 required
                 placeholder="Enter subdepartment name"
-                value={values.subdepartmentName}
+                value={values.Name}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.subdepartmentName}
-                touched={touched.subdepartmentName}
+                error={errors.Name}
+                touched={touched.Name}
               />
               <FormField
                 className='p-3 focus:outline-none'
                 label="Department"
-                name="departmentId"
+                name="DepartmentID"
                 type="select"
                 required
-                value={values.departmentId}
+                value={values.DepartmentID}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.departmentId}
-                touched={touched.departmentId}
+                error={errors.DepartmentID}
+                touched={touched.DepartmentID}
                 options={departments.map(dept => ({
-                  value: dept.id,
-                  label: dept.departmentName
+                  value: dept.ID,
+                  label: dept.Name
                 }))}
               />
               <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">

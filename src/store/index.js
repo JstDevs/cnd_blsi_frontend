@@ -25,6 +25,10 @@ import { taxCodesReducer } from '../features/settings/taxCodeSlice';
 import { modeOfPaymentsReducer } from '../features/settings/modeOfPaymentSlice';
 import { paymentTermsReducer } from '../features/settings/paymentTermsSlice';
 import { industryReducer } from '../features/settings/industrySlice';
+import { employmentStatusReducer } from '../features/settings/employmentStatusSlice';
+import { positionReducer } from '../features/settings/positionSlice';
+import { nationalityReducer } from '../features/settings/nationalitiesSlice';
+
 import communityTaxReducer from '../features/communityTax/communityTaxSlice';
 import generalServiceReceiptsReducer from '../features/collections/generalServiceReceiptsSlice';
 import disbursementJournalReducer from '../features/disbursement/disbursementJournalSlice';
@@ -60,6 +64,9 @@ export const store = configureStore({
     modeOfPayments: modeOfPaymentsReducer,
     paymentTerms: paymentTermsReducer,
     industries: industryReducer,
+    employmentStatuses: employmentStatusReducer,
+    positions: positionReducer,
+    nationalities: nationalityReducer,
     communityTax: communityTaxReducer,
     generalServiceReceipts: generalServiceReceiptsReducer,
     disbursementJournal: disbursementJournalReducer,

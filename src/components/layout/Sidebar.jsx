@@ -86,7 +86,15 @@ const navigation = [
       { name: "Customer", href: "/settings/customer" },
       { name: "Chart of Accounts", href: "/settings/chart-of-accounts" },
       { name: "Vendors", href: "/settings/vendors" },
-      { name: "Employees", href: "/settings/employees" },
+      {
+        name: "Employees",
+        submenu: [
+          { name: "Employees", href: "/settings/employees" },
+          { name: "Employment Status", href: "/settings/employmentStatus" },
+          { name: "Positions", href: "/settings/positions" },
+          { name: "Nationalities", href: "/settings/nationalities" },
+        ],
+      },
       { name: "PPE", href: "/settings/ppe" },
       { name: "LGU Maintenance", href: "/settings/lgu-maintenance" },
     ],

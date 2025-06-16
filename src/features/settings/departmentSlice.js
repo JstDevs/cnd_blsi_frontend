@@ -3,40 +3,41 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock initial data
-const initialDepartments = [
-  { 
-    id: 1, 
-    departmentCode: "MAYOR", 
-    departmentName: "Office of the Mayor", 
-    description: "The executive office of the LGU", 
-    headOfDepartment: "Mayor John Santos",
-    status: "Active" 
-  },
-  { 
-    id: 2, 
-    departmentCode: "ACCTG", 
-    departmentName: "Accounting Department", 
-    description: "Handles financial records and reporting", 
-    headOfDepartment: "Maria Garcia",
-    status: "Active" 
-  },
-  { 
-    id: 3, 
-    departmentCode: "TREAS", 
-    departmentName: "Treasury Department", 
-    description: "Manages LGU funds and collections", 
-    headOfDepartment: "Robert Reyes",
-    status: "Active" 
-  },
-  { 
-    id: 4, 
-    departmentCode: "IT", 
-    departmentName: "Information Technology Department", 
-    description: "Manages technology infrastructure and systems", 
-    headOfDepartment: "James Rodriguez",
-    status: "Active" 
-  },
-];
+const initialDepartments = [];
+// const initialDepartments = [
+//   { 
+//     ID: 1, 
+//     Code: "MAYOR", 
+//     Name: "Office of the Mayor", 
+//     description: "The executive office of the LGU", 
+//     headOfDepartment: "Mayor John Santos",
+//     status: "Active" 
+//   },
+//   { 
+//     ID: 2, 
+//     Code: "ACCTG", 
+//     Name: "Accounting Department", 
+//     description: "Handles financial records and reporting", 
+//     headOfDepartment: "Maria Garcia",
+//     status: "Active" 
+//   },
+//   { 
+//     ID: 3, 
+//     Code: "TREAS", 
+//     Name: "Treasury Department", 
+//     description: "Manages LGU funds and collections", 
+//     headOfDepartment: "Robert Reyes",
+//     status: "Active" 
+//   },
+//   { 
+//     ID: 4, 
+//     Code: "IT", 
+//     Name: "Information Technology Department", 
+//     description: "Manages technology infrastructure and systems", 
+//     headOfDepartment: "James Rodriguez",
+//     status: "Active" 
+//   },
+// ];
 
 const initialState = {
   departments: initialDepartments,
@@ -51,7 +52,7 @@ export const fetchDepartments = createAsyncThunk(
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/settings/departments`, {
+      const response = await fetch(`${API_URL}/department`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -62,10 +63,10 @@ export const fetchDepartments = createAsyncThunk(
       const res = await response.json();
 
       if (!response.ok) {
-        throw new Error(res.message || 'Failed to fetch departments');
+        throw new Error(res.message || 'Failed to fetch');
       }
 
-      return res.data;
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -92,7 +93,7 @@ export const addDepartment = createAsyncThunk(
   'departments/addDepartment',
   async (department, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/settings/addDepartment`, {
+      const response = await fetch(`${API_URL}/department`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,10 +105,10 @@ export const addDepartment = createAsyncThunk(
       const res = await response.json();
 
       if (!response.ok) {
-        throw new Error(res.message || 'Failed to add department');
+        throw new Error(res.message || 'Failed to add');
       }
 
-      return res.data; // Return new department data from backend
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -139,7 +140,7 @@ export const updateDepartment = createAsyncThunk(
   'departments/updateDepartment',
   async (department, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/settings/updateDepartment/${department.id}`, {
+      const response = await fetch(`${API_URL}/department/${department.ID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -151,10 +152,10 @@ export const updateDepartment = createAsyncThunk(
       const res = await response.json();
 
       if (!response.ok) {
-        throw new Error(res.message || 'Failed to update department');
+        throw new Error(res.message || 'Failed to update');
       }
 
-      return res.data; // Updated department from backend
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -178,10 +179,10 @@ export const updateDepartment = createAsyncThunk(
 // );
 
 export const deleteDepartment = createAsyncThunk(
-  'departments/deleteDepartment',
-  async (id, thunkAPI) => {
+  'department/deleteDepartment',
+  async (ID, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/settings/deleteDepartment/${id}`, {
+      const response = await fetch(`${API_URL}/department/${ID}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -191,10 +192,10 @@ export const deleteDepartment = createAsyncThunk(
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete department');
+        throw new Error(errorData.message || 'Failed to delete');
       }
 
-      return id; // Return ID so you can remove it from Redux state
+      return ID; // Return ID so you can remove it from Redux state
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -263,7 +264,7 @@ const departmentSlice = createSlice({
       .addCase(updateDepartment.fulfilled, (state, action) => {
         state.isLoading = false;
         const index = state.departments.findIndex(
-          (department) => department.id === action.payload.id
+          (department) => department.ID === action.payload.ID
         );
         if (index !== -1) {
           state.departments[index] = action.payload;
@@ -281,7 +282,7 @@ const departmentSlice = createSlice({
       .addCase(deleteDepartment.fulfilled, (state, action) => {
         state.isLoading = false;
         state.departments = state.departments.filter(
-          (department) => department.id !== action.payload
+          (department) => department.ID !== action.payload
         );
         state.error = null;
       })
