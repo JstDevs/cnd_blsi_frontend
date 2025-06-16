@@ -6,7 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    allowedHosts: ["cddemo.testthelink.online"],
+    // allowedHosts: ["cddemo.testthelink.online"],
+    allowedHosts: 'all', // Allow all incoming hostnames
     open: false,
   },
   resolve: {
