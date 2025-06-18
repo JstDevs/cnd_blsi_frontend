@@ -18,18 +18,19 @@ import {
   deleteUser,
 } from "@/features/settings/userSlice";
 import { fetchEmployees } from '../../features/settings/employeeSlice';
-import EmployeeForm from "./EmployeeForm";
+// import EmployeeForm from "./EmployeeForm";
+import { fetchUserroles } from "../../features/settings/userrolesSlice";
 
 // User Access options
-const userAccessOptions = [
-  { value: "Accounting admin", label: "Accounting admin" },
-  { value: "Administrator", label: "Administrator" },
-  { value: "Budget Head", label: "Budget Head" },
-  { value: "Check Printing", label: "Check Printing" },
-  { value: "Melvin's Access", label: "Melvin's Access" },
-  { value: "Non Acounting Access", label: "Non Acounting Access" },
-  { value: "Special Access", label: "Special Access" },
-];
+// const userAccessOptions = [
+//   { value: "Accounting admin", label: "Accounting admin" },
+//   { value: "Administrator", label: "Administrator" },
+//   { value: "Budget Head", label: "Budget Head" },
+//   { value: "Check Printing", label: "Check Printing" },
+//   { value: "Melvin's Access", label: "Melvin's Access" },
+//   { value: "Non Acounting Access", label: "Non Acounting Access" },
+//   { value: "Special Access", label: "Special Access" },
+// ];
 // const employeeOptions = [
 //   { value: "emp1", label: "John Doe" },
 //   { value: "emp2", label: "Jane Smith" },
@@ -65,7 +66,16 @@ function UserPage() {
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchEmployees());
+    dispatch(fetchUserroles());
   }, [dispatch]);
+
+  const { userroles, isLoading: isLoadingRoles } = useSelector((state) => state.userroles);
+
+
+  const userAccessOptions = userroles.map((role) => ({
+    value: role.ID,
+    label: role.Description,
+  }));
 
   const { employees } = useSelector((state) => state.employees);
   const isLoadingEmployees = useSelector((state) => state.employees.isLoading);
@@ -102,25 +112,58 @@ function UserPage() {
     }
   };
 
-  const handleSubmit = (values, { resetForm }) => {
-    // const departmentName =
-    //   departments.find((d) => d.ID === Number(values.departmentId))
-    //     ?.departmentName || "";
+  // const handleSubmit = (values, { resetForm }) => {
+  //   // const departmentName =
+  //   //   departments.find((d) => d.ID === Number(values.departmentId))
+  //   //     ?.departmentName || "";
 
-    const submissionData = {
-      ...values,
-      // departmentId: Number(values.departmentId),
-      // departmentName,
-    };
+  //   const submissionData = {
+  //     ...values,
+  //     // departmentId: Number(values.departmentId),
+  //     // departmentName,
+  //   };
 
+  //   if (currentUser) {
+  //     dispatch(updateUser({ ...submissionData, ID: currentUser.ID }));
+  //   } else {
+  //     dispatch(addUser(submissionData));
+  //   }
+  //   setIsModalOpen(false);
+  //   resetForm();
+  // };
+
+  const handleSubmit = async (values, { resetForm, setErrors, setSubmitting }) => {
+  const submissionData = { ...values };
+
+  try {
     if (currentUser) {
-      dispatch(updateUser({ ...submissionData, ID: currentUser.ID }));
+      const result = await dispatch(updateUser({ ...submissionData, ID: currentUser.ID }));
+
+      if (updateUser.fulfilled.match(result)) {
+        setIsModalOpen(false);
+        resetForm();
+      } else if (updateUser.rejected.match(result)) {
+        setErrors({ general: result.payload || "Failed to update user." });
+      }
     } else {
-      dispatch(addUser(submissionData));
+      const result = await dispatch(addUser(submissionData));
+
+      if (addUser.fulfilled.match(result)) {
+        setIsModalOpen(false);
+        resetForm();
+      } else if (addUser.rejected.match(result)) {
+        setErrors({ general: result.payload || "Failed to add user." });
+      }
     }
-    setIsModalOpen(false);
-    resetForm();
-  };
+  } catch (error) {
+    setErrors({ general: "Unexpected error occurred." });
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+
+
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -207,6 +250,11 @@ function UserPage() {
             isSubmitting,
           }) => (
             <Form className="space-y-4">
+              {errors.general && (
+                <div className="text-red-600 bg-red-50 p-2 rounded text-sm">
+                  {errors.general}
+                </div>
+              )}
               <FormField
                 className="p-3 focus:outline-none"
                 label="User Name"

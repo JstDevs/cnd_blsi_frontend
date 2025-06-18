@@ -26,6 +26,7 @@ const navigation = [
     submenu: [
       { name: "Departments", href: "/settings/departments" },
       { name: "Subdepartments", href: "/settings/subdepartments" },
+      { name: "Modules", href: "/settings/modules" },
       {
         name: "Users",
         submenu: [
@@ -100,7 +101,14 @@ const navigation = [
           { name: "Sub Major Account Group", href: "/settings/sub-major-account-group" },
         ],
       },
-      { name: "Vendors", href: "/settings/vendors" },
+      {
+        name: "Vendors",
+        submenu: [
+          { name: "Vendor Details", href: "/settings/vendors" },
+          { name: "Vendor Customer Type", href: "/settings/vendor-customer-type" },
+          { name: "Vendor Type", href: "/settings/vendor-type" },
+        ],
+      },
       {
         name: "Employees",
         submenu: [
@@ -110,7 +118,14 @@ const navigation = [
           { name: "Nationalities", href: "/settings/nationalities" },
         ],
       },
-      { name: "PPE", href: "/settings/ppe" },
+      {
+        name: "PPE Settings",
+        submenu: [
+          { name: "PPE List", href: "/settings/ppe" },
+          { name: "PPE Categories", href: "/settings/ppe-categories" },
+          { name: "PPE Suppliers", href: "/settings/ppe-suppliers" },
+        ],
+      },
       { name: "LGU Maintenance", href: "/settings/lgu-maintenance" },
     ],
   },
@@ -189,7 +204,7 @@ const navigation = [
       { name: "Budget Transfer", href: "/budget/transfer" },
       { name: "Budget Report", href: "/budget/report" },
       { name: "Funds", href: "/budget/funds" },
-      // { name: 'Sub-funds', href: '/budget/sub-funds' },
+      { name: "Sub-funds", href: "/budget/sub-funds" },
       { name: "Fund Transfer", href: "/budget/fund-transfer" },
       { name: "Statement of Comparison", href: "/budget/statement-comparison" },
       {

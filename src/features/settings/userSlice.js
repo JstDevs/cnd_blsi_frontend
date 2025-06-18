@@ -132,9 +132,8 @@ export const addUser = createAsyncThunk(
       });
 
       const res = await response.json();
-
-      if (!response.ok) {
-        throw new Error(res.message || 'Failed to add user');
+      if (!response.ok ) {
+        throw new Error(res.message || res.error || 'Failed to add user');
       }
 
       return res;
@@ -176,7 +175,7 @@ export const updateUser = createAsyncThunk(
       const res = await response.json();
 
       if (!response.ok) {
-        throw new Error(res.message || 'Failed to update');
+        throw new Error(res.message || res.error || 'Failed to update user');
       }
 
       return res;

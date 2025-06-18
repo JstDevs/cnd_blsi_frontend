@@ -34,6 +34,16 @@ import { positionReducer } from '../features/settings/positionSlice';
 import { documentTypeCategoriesReducer } from '../features/settings/documentTypeCategoriesSlice';
 import { userrolesReducer } from '../features/settings/userrolesSlice';
 import { nationalityReducer } from '../features/settings/nationalitiesSlice';
+import { vendorCustomerTypesReducer } from '../features/settings/vendorCustomerTypeSlice';
+import { vendorTypesReducer } from '../features/settings/vendorTypeSlice';
+import { generalRevisionsReducer } from '../features/settings/generalRevisionSlice';
+import { modulesReducer } from '../features/settings/modulesSlice';
+import { ppeCategoriesReducer } from '../features/settings/ppeCategoriesSlice';
+import { ppeSuppliersReducer } from '../features/settings/ppeSuppliersSlice';
+
+import { subFundsReducer } from '../features/budget/subFundsSlice';
+import { budgetDashboardReducer } from '../features/budget/budgetDashboardSlice';
+import { vendorDetailsReducer } from '../features/settings/vendorDetailsSlice';
 
 import communityTaxReducer from '../features/communityTax/communityTaxSlice';
 import generalServiceReceiptsReducer from '../features/collections/generalServiceReceiptsSlice';
@@ -60,6 +70,8 @@ export const store = configureStore({
     travelOrders: travelOrderReducer,
     generalReceipts: generalReceiptReducer,
     ppes: ppeReducer,
+    ppeCategories: ppeCategoriesReducer,
+    ppeSuppliers: ppeSuppliersReducer,
     approvalMatrix: approvalMatrixReducer,
     banks: bankReducer,
     documentDetails: documentDetailsReducer,
@@ -79,12 +91,19 @@ export const store = configureStore({
     positions: positionReducer,
     userroles: userrolesReducer,
     nationalities: nationalityReducer,
+    vendorCustomerTypes: vendorCustomerTypesReducer,
+    vendorTypes: vendorTypesReducer,
+    generalRevisions: generalRevisionsReducer,
+    modules: modulesReducer,
     communityTax: communityTaxReducer,
     generalServiceReceipts: generalServiceReceiptsReducer,
     disbursementJournal: disbursementJournalReducer,
     generalJournal: generalJournalReducer,
     realPropertyTax: realPropertyTaxReducer,
     budget: budgetReducer,
+    subFunds: subFundsReducer,
+    budgetDashboard: budgetDashboardReducer,
+    vendorDetails: vendorDetailsReducer,
   },
   middleware: (getDefaultMiddleware) => 
     getDefaultMiddleware({

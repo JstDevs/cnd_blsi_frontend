@@ -21,7 +21,11 @@ import ChartOfAccountsPage from "./pages/settings/ChartOfAccountsPage";
 import AccountGroupPage from "./pages/settings/AccountGroupPage";
 import MajorAccountGroupPage from "./pages/settings/MajorAccountGroupPage";
 import SubMajorAccountGroupPage from "./pages/settings/SubMajorAccountGroupPage";
-import VendorPage from "./pages/settings/VendorPage";
+import VendorDetailsPage from "./pages/settings/VendorDetailsPage";
+import VendorCustomerTypePage from "./pages/settings/VendorCustomerTypePage";
+import VendorTypePage from "./pages/settings/VendorTypePage";
+import ModulesPage from "./pages/settings/ModulesPage";
+
 import EmployeePage from "./pages/settings/EmployeePage";
 import EmploymentStatus from "./pages/settings/EmploymentStatus";
 import PositionPage from "./pages/settings/PositionPage";
@@ -29,6 +33,9 @@ import UserrolesPage from "./pages/settings/UserrolesPage";
 import NationalitiesPage from "./pages/settings/NationalitiesPage";
 import LocationPage from "./pages/settings/LocationPage";
 import PPEPage from "./pages/settings/PPE/PPEPage";
+import PpeCategoriesPage from "./pages/settings/PpeCategoriesPage";
+import PpeSuppliersPage from "./pages/settings/PpeSuppliersPage";
+
 import ApprovalMatrixPage from "./pages/settings/ApprovalMatrixPage";
 import BankPage from "./pages/settings/BankPage";
 import DocumentDetailsPage from "./pages/settings/DocumentDetailsPage";
@@ -82,6 +89,7 @@ import NewBudgetPage from "./pages/budget/newBudget";
 import BudgetSummary from "./pages/budget/form-budget/BudgetSummary";
 import BudgetSupplemental from "./pages/budget/form-budget/BudgetSupplemental";
 import FundsManagement from "./pages/budget/form-budget/FundsManagement";
+import SubFundsPage from "./pages/budget/SubFundsPage";
 import FundTransfer from "./pages/budget/form-budget/FundTransfer";
 import TrialBalance from "./pages/budget/form-budget/TrialBalance";
 import BudgetPage from "./pages/budget/BudgetPage";
@@ -103,6 +111,9 @@ import BirReportPage from "./pages/reports/BirReportPage";
 import UserAccessPage from "./pages/userAccess";
 import ChangePassword from "./pages/auth/ChangePassword";
 import UserProfilePage from './pages/userProfile';
+import BudgetDashboardPage from './pages/budget/BudgetDashboardPage';
+import DisbursementDashboardPage from './pages/disbursement/DisbursementDashboardPage';
+import CollectionDashboardPage from './pages/collections/CollectionDashboardPage';
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -195,6 +206,9 @@ function App() {
 
           {/* user profile */}
           <Route path="/profile" element={<UserProfilePage />} />
+          <Route path="/budget-dashboard" element={<BudgetDashboardPage />} />
+          <Route path="/disbursement-dashboard" element={<DisbursementDashboardPage />} />
+          <Route path="/collection-dashboard" element={<CollectionDashboardPage />} />
 
           {/*-------------------------- Settings module-------------------- */}
           <Route path="/settings/departments" element={<DepartmentPage />} />
@@ -207,6 +221,7 @@ function App() {
             path="/settings/subdepartments"
             element={<SubdepartmentPage />}
           />
+          <Route path="/settings/modules" element={<ModulesPage />} />
           <Route path="/settings/users" element={<UserPage />} />
           <Route path="/settings/user-roles" element={<UserrolesPage />} />
           <Route path="/settings/user-access" element={<UserAccessPage />} />
@@ -226,13 +241,18 @@ function App() {
             path="/settings/sub-major-account-group"
             element={<SubMajorAccountGroupPage />}
           />
-          <Route path="/settings/vendors" element={<VendorPage />} />
+          <Route path="/settings/vendors" element={<VendorDetailsPage />} />
+          <Route path="/settings/vendor-customer-type" element={<VendorCustomerTypePage />} />
+          <Route path="/settings/vendor-type" element={<VendorTypePage />} />
           <Route path="/settings/employees" element={<EmployeePage />} />
           <Route path="/settings/employmentStatus" element={<EmploymentStatus />} />
           <Route path="/settings/positions" element={<PositionPage />} />
           <Route path="/settings/nationalities" element={<NationalitiesPage />} />
           <Route path="/settings/locations" element={<LocationPage />} />
           <Route path="/settings/ppe" element={<PPEPage />} />
+          <Route path="/settings/ppe-categories" element={<PpeCategoriesPage />} />
+          <Route path="/settings/ppe-suppliers" element={<PpeSuppliersPage />} />
+
           <Route
             path="/settings/approval-matrix"
             element={<ApprovalMatrixPage />}
@@ -376,6 +396,7 @@ function App() {
           <Route path="/budget/transfer" element={<BudgetTransfer />} />
           <Route path="/budget/report" element={<BudgetReport />} />
           <Route path="/budget/funds" element={<FundsManagement />} />
+          <Route path="/budget/sub-funds" element={<SubFundsPage />} />
 
           <Route path="/budget/fund-transfer" element={<FundTransfer />} />
           <Route
