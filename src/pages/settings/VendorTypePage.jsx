@@ -133,7 +133,7 @@ function VendorTypePage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the vendor type "{vendorTypeToDelete?.name}"?
+            Are you sure you want to delete the vendor type "{vendorTypeToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

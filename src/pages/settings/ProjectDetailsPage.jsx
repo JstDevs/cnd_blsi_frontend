@@ -14,10 +14,6 @@ import {
 function ProjectDetailsPage() {
   const dispatch = useDispatch();
   const { projectDetails, isLoading } = useSelector(state => state.projectDetails);
-  
-  // Add console log to check state after render
-  console.log('ProjectDetailsPage - projectDetails:', projectDetails);
-  console.log('ProjectDetailsPage - isLoading:', isLoading);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProject, setCurrentProject] = useState(null);
@@ -25,7 +21,6 @@ function ProjectDetailsPage() {
   const [projectToDelete, setProjectToDelete] = useState(null);
   
   useEffect(() => {
-    console.log('ProjectDetailsPage - useEffect: Fetching project details');
     dispatch(fetchProjectDetails());
   }, [dispatch]);
   
@@ -47,7 +42,7 @@ function ProjectDetailsPage() {
   const confirmDelete = async () => {
     if (projectToDelete) {
       try {
-        await dispatch(deleteProjectDetail(projectToDelete.id)).unwrap();
+        await dispatch(deleteProjectDetail(projectToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setProjectToDelete(null);
       } catch (error) {
@@ -58,7 +53,7 @@ function ProjectDetailsPage() {
   
   const handleSubmit = (values) => {
     if (currentProject) {
-      dispatch(updateProjectDetail({ ...values, id: currentProject.id }));
+      dispatch(updateProjectDetail({ ...values, ID: currentProject.ID }));
     } else {
       dispatch(addProjectDetail(values));
     }
@@ -67,30 +62,30 @@ function ProjectDetailsPage() {
 
   const columns = [
     {
-      key: 'projectTitle',
+      key: 'Title',
       header: 'Project Title',
       sortable: true
     },
     {
-      key: 'startDate',
+      key: 'StartDate',
       header: 'Start Date',
       sortable: true,
       // Optional: Add render function to format date if needed
     },
     {
-      key: 'endDate',
+      key: 'EndDate',
       header: 'End Date',
       sortable: true,
       // Optional: Add render function to format date if needed
     },
     {
-      key: 'projectType',
+      key: 'ProjectTypeID',
       header: 'Project Type',
       sortable: true,
       // Optional: Add render function to display label instead of value if needed
     },
      {
-      key: 'description',
+      key: 'Description',
       header: 'Description',
       sortable: false // Description might be long, sorting might not be useful
     }

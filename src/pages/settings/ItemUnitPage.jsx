@@ -42,7 +42,7 @@ function ItemUnitPage() {
   const confirmDelete = async () => {
     if (itemUnitToDelete) {
       try {
-        await dispatch(deleteItemUnit(itemUnitToDelete.id)).unwrap();
+        await dispatch(deleteItemUnit(itemUnitToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setItemUnitToDelete(null);
       } catch (error) {
@@ -53,7 +53,7 @@ function ItemUnitPage() {
   
   const handleSubmit = (values) => {
     if (currentItemUnit) {
-      dispatch(updateItemUnit({ ...values, id: currentItemUnit.id }));
+      dispatch(updateItemUnit({ ...values, ID: currentItemUnit.ID }));
     } else {
       dispatch(addItemUnit(values));
     }
@@ -62,12 +62,12 @@ function ItemUnitPage() {
 
   const columns = [
     {
-      key: 'code',
+      key: 'Code',
       header: 'Code',
       sortable: true
     },
     {
-      key: 'name',
+      key: 'Name',
       header: 'Name',
       sortable: true
     }

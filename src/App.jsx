@@ -44,7 +44,7 @@ import ItemPage from "./pages/settings/ItemPage";
 import InvoiceChargeAccountsPage from "./pages/settings/InvoiceChargeAccountsPage";
 import ItemUnitPage from "./pages/settings/ItemUnitPage";
 import ProjectTypePage from "./pages/settings/Accounting/Project/ProjectTypePage";
-import ProjectDetails from "./pages/settings/Accounting/Project/ProjectDetails";
+import ProjectDetailsPage from "./pages/settings/ProjectDetailsPage";
 import FinancialStatementPage from "./pages/settings/FinancialStatementPage";
 import FiscalYearPage from "./pages/settings/FiscalYearPage";
 import TaxCodePage from "./pages/settings/TaxCodePage";
@@ -291,7 +291,7 @@ function App() {
           <Route path="/settings/industry" element={<IndustryPage />} />
           <Route
             path="/settings/project-details"
-            element={<ProjectDetails />}
+            element={<ProjectDetailsPage />}
           />
           {/* ---SETTING--REAL--PROJECT------> */}
           <Route

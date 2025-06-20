@@ -42,7 +42,7 @@ function FinancialStatementPage() {
   const confirmDelete = async () => {
     if (statementToDelete) {
       try {
-        await dispatch(deleteFinancialStatement(statementToDelete.id)).unwrap();
+        await dispatch(deleteFinancialStatement(statementToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setStatementToDelete(null);
       } catch (error) {
@@ -53,7 +53,7 @@ function FinancialStatementPage() {
   
   const handleSubmit = (values) => {
     if (currentStatement) {
-      dispatch(updateFinancialStatement({ ...values, id: currentStatement.id }));
+      dispatch(updateFinancialStatement({ ...values, ID: currentStatement.ID }));
     } else {
       dispatch(addFinancialStatement(values));
     }
@@ -62,12 +62,12 @@ function FinancialStatementPage() {
 
   const columns = [
     {
-      key: 'code',
+      key: 'Code',
       header: 'Code',
       sortable: true
     },
     {
-      key: 'name',
+      key: 'Name',
       header: 'Name',
       sortable: true
     }
@@ -138,7 +138,7 @@ function FinancialStatementPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the financial statement "{statementToDelete?.name}"?
+            Are you sure you want to delete the financial statement "{statementToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

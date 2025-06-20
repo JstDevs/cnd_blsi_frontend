@@ -62,13 +62,28 @@ function FiscalYearPage() {
 
   const columns = [
     {
-      key: 'startDate',
-      header: 'Start Date',
+      key: 'Code',
+      header: 'Code',
       sortable: true
     },
     {
-      key: 'endDate',
-      header: 'End Date',
+      key: 'Name',
+      header: 'Name',
+      sortable: true
+    },
+    {
+      key: 'Year',
+      header: 'Year',
+      sortable: true
+    },
+    {
+      key: 'MonthStart',
+      header: 'Month Start',
+      sortable: true
+    },
+    {
+      key: 'MonthEnd',
+      header: 'Month End',
       sortable: true
     }
   ];
@@ -138,7 +153,7 @@ function FiscalYearPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the fiscal year starting "{fiscalYearToDelete?.startDate}"?
+            Are you sure you want to delete the fiscal year "{fiscalYearToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

@@ -44,7 +44,7 @@ function ProjectTypePage() {
   const confirmDelete = async () => {
     if (projectTypeToDelete) {
       try {
-        await dispatch(deleteProjectType(projectTypeToDelete.id)).unwrap();
+        await dispatch(deleteProjectType(projectTypeToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setProjectTypeToDelete(null);
       } catch (error) {
@@ -55,7 +55,7 @@ function ProjectTypePage() {
 
   const handleSubmit = (values) => {
     if (currentProjectType) {
-      dispatch(updateProjectType({ ...values, id: currentProjectType.id }));
+      dispatch(updateProjectType({ ...values, ID: currentProjectType.ID }));
     } else {
       dispatch(addProjectType(values));
     }
@@ -64,13 +64,13 @@ function ProjectTypePage() {
 
   const columns = [
     {
-      key: "code",
-      header: "Code",
+      key: "Type",
+      header: "Type",
       sortable: true,
     },
     {
-      key: "name",
-      header: "Name",
+      key: "Description",
+      header: "Description",
       sortable: true,
     },
   ];
@@ -143,7 +143,7 @@ function ProjectTypePage() {
         <div className="py-3">
           <p className="text-neutral-700">
             Are you sure you want to delete the project type "
-            {projectTypeToDelete?.name}"?
+            {projectTypeToDelete?.Type}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

@@ -18,12 +18,12 @@ import ppeReducer from '../features/settings/ppeSlice';
 import approvalMatrixReducer from '../features/settings/approvalMatrixSlice';
 import bankReducer from '../features/settings/bankSlice';
 import {documentDetailsReducer} from '../features/settings/documentDetailsSlice';
-import itemReducer from '../features/settings/itemSlice';
+import {itemReducer} from '../features/settings/itemSlice';
 import invoiceChargeAccountsReducer from '../features/settings/invoiceChargeAccountsSlice';
 import { itemUnitsReducer } from '../features/settings/itemUnitsSlice';
 import { projectDetailsReducer } from '../features/settings/projectDetailsSlice';
 import { projectTypesReducer } from '../features/settings/projectTypesSlice';
-import { financialStatementsReducer } from '../features/settings/financialStatementSlice';
+import financialStatementReducer from '../features/settings/financialStatementSlice';
 import { fiscalYearsReducer } from '../features/settings/fiscalYearSlice';
 import { taxCodesReducer } from '../features/settings/taxCodeSlice';
 import { modeOfPaymentsReducer } from '../features/settings/modeOfPaymentSlice';
@@ -85,7 +85,7 @@ export const store = configureStore({
     itemUnits: itemUnitsReducer,
     projectDetails: projectDetailsReducer,
     projectTypes: projectTypesReducer,
-    financialStatements: financialStatementsReducer,
+    financialStatements: financialStatementReducer,
     fiscalYears: fiscalYearsReducer,
     taxCodes: taxCodesReducer,
     modeOfPayments: modeOfPaymentsReducer,

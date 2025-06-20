@@ -4,13 +4,13 @@ import FormField from '../common/FormField';
 
 function FinancialStatementForm({ initialData, onSubmit, onClose }) {
   const validationSchema = Yup.object({
-    code: Yup.string().required('Code is required'),
-    name: Yup.string().required('Name is required'),
+    Code: Yup.string().required('Code is required'),
+    Name: Yup.string().required('Name is required'),
   });
 
   return (
     <Formik
-      initialValues={initialData || { code: '', name: '' }}
+      initialValues={initialData || { Code: '', Name: '' }}
       validationSchema={validationSchema}
       onSubmit={onSubmit}
       enableReinitialize
@@ -27,24 +27,24 @@ function FinancialStatementForm({ initialData, onSubmit, onClose }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField
             label="Code"
-            name="code"
+            name="Code"
             type="text"
-            value={values.code}
+            value={values.Code}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.code}
-            touched={touched.code}
+            error={errors.Code}
+            touched={touched.Code}
             required
           />
           <FormField
             label="Name"
-            name="name"
+            name="Name"
             type="text"
-            value={values.name}
+            value={values.Name}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.name}
-            touched={touched.name}
+            error={errors.Name}
+            touched={touched.Name}
             required
           />
 

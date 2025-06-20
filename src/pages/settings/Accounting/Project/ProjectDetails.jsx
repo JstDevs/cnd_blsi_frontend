@@ -150,6 +150,7 @@ function ProjectDetails() {
                 onBlur={handleBlur}
                 error={errors.title}
                 touched={touched.title}
+                required
               />
 
               <FormField
@@ -165,18 +166,7 @@ function ProjectDetails() {
                 onBlur={handleBlur}
                 error={errors.type}
                 touched={touched.type}
-              />
-
-              <FormField
-                label="Description"
-                name="description"
-                type="textarea"
-                rows={3}
-                value={values.description}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={errors.description}
-                touched={touched.description}
+                required
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,6 +179,7 @@ function ProjectDetails() {
                   onBlur={handleBlur}
                   error={errors.startDate}
                   touched={touched.startDate}
+                  required
                 />
 
                 <FormField
@@ -200,8 +191,22 @@ function ProjectDetails() {
                   onBlur={handleBlur}
                   error={errors.endDate}
                   touched={touched.endDate}
+                  required
                 />
               </div>
+
+              <FormField
+                label="Description"
+                name="description"
+                type="textarea"
+                rows={3}
+                value={values.description}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.description}
+                touched={touched.description}
+                required
+              />
 
               <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
                 <button

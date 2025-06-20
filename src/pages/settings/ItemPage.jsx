@@ -36,7 +36,7 @@ const ItemPage = () => {
   const confirmDelete = async () => {
     if (itemToDelete) {
       try {
-        await dispatch(deleteItem(itemToDelete.id)).unwrap();
+        await dispatch(deleteItem(itemToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setItemToDelete(null);
       } catch (error) {
@@ -48,42 +48,37 @@ const ItemPage = () => {
 
   const columns = [
     {
-      key: 'code',
+      key: 'Code',
       header: 'Code',
       sortable: true
     },
     {
-      key: 'name',
+      key: 'Name',
       header: 'Name',
       sortable: true
     },
     {
-      key: 'chargeAccount',
-      header: 'Charge Account',
-      sortable: true
-    },
-    {
-      key: 'type',
+      key: 'PurchaseOrSales',
       header: 'Type',
       sortable: true
     },
     {
-      key: 'taxCode',
+      key: 'TAXCodeID',
       header: 'Tax Code',
       sortable: true
     },
     {
-      key: 'taxRate',
+      key: 'TaxRateID',
       header: 'Tax Rate',
       sortable: true
     },
     {
-      key: 'ewt',
+      key: 'EWT',
       header: 'EWT',
       sortable: true
     },
     {
-      key: 'vatable',
+      key: 'Vatable',
       header: 'Vatable',
       sortable: true,
       render: (value) => (

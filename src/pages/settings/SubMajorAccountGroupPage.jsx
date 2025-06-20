@@ -17,8 +17,8 @@ const subMajorAccountGroupSchema = Yup.object().shape({
   Name: Yup.string()
     .required('Name is required')
     .max(100, 'Name must be at most 100 characters'),
-  AccountTypeID: Yup.number()
-    .required('Account Type is required'),
+  AccountSubTypeID: Yup.number()
+    .required('Account Sub Type is required'),
 });
 
 function SubMajorAccountGroupPage() {
@@ -38,7 +38,7 @@ function SubMajorAccountGroupPage() {
 
   const enrichedSubMajorAccountGroups = subMajorAccountGroups.map(group => ({
     ...group,
-    accountTypeName: group.AccountType?.Name || ''
+    accountSubTypeName: group.AccountSubType?.Name || ''
   }));
 
   const handleAddSubMajorAccountGroup = () => {
@@ -65,11 +65,11 @@ function SubMajorAccountGroupPage() {
   };
   
   const handleSubmit = (values, { resetForm }) => {
-    const accountTypeName = majorAccountGroups.find(d => d.ID === Number(values.AccountTypeID))?.Name || '';
+    const accountSubTypeName = majorAccountGroups.find(d => d.ID === Number(values.AccountSubTypeID))?.Name || '';
 
     const submissionData = {
       ...values,
-      accountTypeName
+      accountSubTypeName
     };
 
     if (currentSubMajorAccountGroup) {
@@ -95,7 +95,7 @@ function SubMajorAccountGroupPage() {
       sortable: true,
     },
     {
-      key: 'accountTypeName',
+      key: 'accountSubTypeName',
       header: 'Account Type',
       sortable: true,
     },
@@ -191,14 +191,14 @@ function SubMajorAccountGroupPage() {
               <FormField
                 className='p-3 focus:outline-none'
                 label="Account Type"
-                name="AccountTypeID"
+                name="AccountSubTypeID"
                 type="select"
                 required
-                value={values.AccountTypeID}
+                value={values.AccountSubTypeID}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.AccountTypeID}
-                touched={touched.AccountTypeID}
+                error={errors.AccountSubTypeID}
+                touched={touched.AccountSubTypeID}
                 options={majorAccountGroups.map(type => ({
                   value: type.ID,
                   label: type.Name
