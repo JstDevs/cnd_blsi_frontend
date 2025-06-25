@@ -69,7 +69,7 @@ function BusinessPermitPage() {
         }`}>
           {value}
         </span>
-      ),
+      )
     },
     {
       key: 'issueDate',
@@ -112,9 +112,9 @@ function BusinessPermitPage() {
   };
   
   const handleEditPermit = (permit) => {
-    setCurrentPermit(permit);
-    setIsModalOpen(true);
-  };
+    setCurrentPermit(permit)
+    setIsModalOpen(true)
+  }
 
   return (
     <div>
@@ -125,11 +125,11 @@ function BusinessPermitPage() {
             <p>Manage business permits and licenses</p>
           </div>
           <button
-            type="button"
+            type='button'
             onClick={handleCreatePermit}
             className="btn btn-primary flex items-center"
           >
-            <PlusIcon className="h-5 w-5 mr-2" />
+            <PlusIcon className='h-5 w-5 mr-2' />
             New Permit
           </button>
         </div>
@@ -221,9 +221,9 @@ function BusinessPermitPage() {
           
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button
-              type="button"
+              type='button'
               onClick={() => setIsModalOpen(false)}
-              className="btn btn-outline"
+              className='btn btn-outline'
             >
               Cancel
             </button>
