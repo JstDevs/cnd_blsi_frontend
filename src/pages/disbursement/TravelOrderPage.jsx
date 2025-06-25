@@ -4,8 +4,9 @@ import { PlusIcon, EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import { fetchTravelOrders } from '../../features/disbursement/travelOrderSlice';
-import TravelOrderForm from './TravelOrderForm';
+import TravelOrderForm from '../../components/forms/TravelOrderForm';
 import TravelOrderDetails from './TravelOrderDetails';
+
 
 function TravelOrderPage() {
   const dispatch = useDispatch();
@@ -183,7 +184,7 @@ function TravelOrderPage() {
         isOpen={isCreateModalOpen}
         onClose={handleCloseCreateModal}
         title={currentTravelOrder ? "Edit Travel Order" : "Create Travel Order"}
-        size="lg"
+        size="xl"
       >
         <TravelOrderForm 
           initialData={currentTravelOrder} 
@@ -206,6 +207,8 @@ function TravelOrderPage() {
               setIsViewModalOpen(false);
               setIsCreateModalOpen(true);
             }}
+            officeOptions={[]} // Replace with actual office options if needed
+            employeeOptions={[]} // Replace with actual employee options if needed
           />
         )}
       </Modal>

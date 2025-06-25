@@ -443,7 +443,7 @@ const BudgetDetails = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">
@@ -480,7 +480,7 @@ const BudgetDetails = () => {
             </div>
             <PieChart className="w-8 h-8 text-blue-600" />
           </div>
-        </div>
+        </div> */}
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">

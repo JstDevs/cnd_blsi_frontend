@@ -1,120 +1,112 @@
-import { useState } from 'react';
-import { Formik, Form, FieldArray } from 'formik';
-import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
-import FormField from '../../components/common/FormField';
-import { journalEntrySchema } from '../../utils/validationSchemas';
+import JournalEntryForm from '../../components/forms/JournalEntryForm';
+import {
+  fetchJournalEntries,
+  addJournalEntry,
+  updateJournalEntry,
+  deleteJournalEntry
+} from '../../features/disbursement/journalEntrySlice';
 
 function JournalEntryPage() {
+  const typeOptions = [
+    { label: 'Cash Disbursement', value: 'Cash Disbursement' },
+    { label: 'Check Disbursement', value: 'Check Disbursement' },
+    { label: 'Collection', value: 'Collection' },
+    { label: 'Others', value: 'Others' }
+  ];
+  const fundOptions = [
+    { label: 'General Fund', value: 'General Fund' },
+    { label: 'Trust Fund', value: 'Trust Fund' },
+    { label: 'Special Education Fund', value: 'Special Education Fund' }
+  ];
+  const centerOptions = [
+    { label: 'Finance Department', value: 'finance' },
+    { label: 'Human Resources', value: 'hr' },
+    { label: 'IT Services', value: 'it' },
+    { label: 'Procurement Division', value: 'procurement' },
+  ];
+
+  const accountOptions = [
+    { label: '101 - Cash in Bank', value: '101' },
+    { label: '201 - Accounts Payable', value: '201' },
+    { label: '301 - Office Supplies', value: '301' },
+    { label: '401 - Travel Expenses', value: '401' },
+  ];
+
+  const dispatch = useDispatch();
+  const { journalEntries, isLoading } = useSelector(state => state.journalEntries);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentEntry, setCurrentEntry] = useState(null);
-  
-  // Mock data for table
-  const entries = [
-    {
-      id: 1,
-      date: '2024-01-15',
-      reference: 'JEV-2024-01-0001',
-      particulars: 'To record collection of real property tax',
-      totalAmount: 50000,
-      status: 'Posted',
-      postedBy: 'John Smith',
-      postedDate: '2024-01-15T10:30:00',
-    },
-    {
-      id: 2,
-      date: '2024-01-16',
-      reference: 'JEV-2024-01-0002',
-      particulars: 'To record payment of office supplies',
-      totalAmount: 15000,
-      status: 'Draft',
-      postedBy: null,
-      postedDate: null,
-    },
-  ];
-  
-  // Format amount as Philippine Peso
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
-    }).format(amount);
-  };
-  
-  // Table columns
-  const columns = [
-    {
-      key: 'reference',
-      header: 'Reference',
-      sortable: true,
-      className: 'font-medium text-neutral-900',
-    },
-    {
-      key: 'date',
-      header: 'Date',
-      sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: 'particulars',
-      header: 'Particulars',
-      sortable: true,
-    },
-    {
-      key: 'totalAmount',
-      header: 'Amount',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      sortable: true,
-      render: (value) => (
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-          value === 'Posted' ? 'bg-success-100 text-success-800' : 'bg-warning-100 text-warning-800'
-        }`}>
-          {value}
-        </span>
-      ),
-    },
-    {
-      key: 'postedBy',
-      header: 'Posted By',
-      sortable: true,
-      render: (value) => value || '-',
-    },
-    {
-      key: 'postedDate',
-      header: 'Posted Date',
-      sortable: true,
-      render: (value) => value ? new Date(value).toLocaleString() : '-',
-    },
-  ];
-  
-  const handleCreateEntry = () => {
-    setCurrentEntry(null);
+  const [currentJournalEntry, setCurrentJournalEntry] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [journalEntryToDelete, setJournalEntryToDelete] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchJournalEntries());
+  }, [dispatch]);
+
+  const handleAdd = () => {
+    setCurrentJournalEntry(null);
     setIsModalOpen(true);
   };
-  
-  const handleEditEntry = (entry) => {
-    setCurrentEntry(entry);
+
+  const handleEdit = (journalEntry) => {
+    setCurrentJournalEntry(journalEntry);
     setIsModalOpen(true);
   };
-  
-  const handleSubmit = async (values, { setSubmitting }) => {
-    try {
-      await journalEntrySchema.validate(values, { abortEarly: false });
-      console.log('Form data:', values);
-      setIsModalOpen(false);
-    } catch (err) {
-      console.error('Validation errors:', err.errors);
-    } finally {
-      setSubmitting(false);
+
+  const handleDelete = (journalEntry) => {
+    setJournalEntryToDelete(journalEntry);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (journalEntryToDelete) {
+      try {
+        await dispatch(deleteJournalEntry(journalEntryToDelete.ID)).unwrap();
+        setIsDeleteModalOpen(false);
+        setJournalEntryToDelete(null);
+      } catch (error) {
+        console.error('Failed to delete journal entry:', error);
+      }
     }
   };
+
+  const handleSubmit = (values) => {
+    if (currentJournalEntry) {
+      dispatch(updateJournalEntry({ ...values, ID: currentJournalEntry.ID }));
+    } else {
+      dispatch(addJournalEntry(values));
+    }
+    setIsModalOpen(false);
+  };
+
+  const columns = [
+    {
+      key: 'Name',
+      header: 'Name',
+      sortable: true
+    }
+  ];
+
+  const actions = [
+    {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEdit,
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+    },
+    {
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: handleDelete,
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+    }
+  ];
 
   return (
     <div>
@@ -122,264 +114,77 @@ function JournalEntryPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1>Journal Entries</h1>
-            <p>Record and manage journal entries</p>
+            <p>Manage Journal Entries</p>
           </div>
           <button
             type="button"
-            onClick={handleCreateEntry}
+            onClick={handleAdd}
             className="btn btn-primary flex items-center"
           >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            New Entry
+            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+            Add Journal Entry
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={entries}
-          pagination={true}
+          data={journalEntries}
+          actions={actions}
+          loading={isLoading}
+          emptyMessage="No journal entries found. Click 'Add Journal Entry' to create one."
         />
       </div>
-      
+
+      {/* Form Modal */}
       <Modal
+        size="xxxl"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentEntry ? "Edit Journal Entry" : "New Journal Entry"}
-        size="lg"
+        title={currentJournalEntry ? "Edit Journal Entry" : "Add Journal Entry"}
       >
-        <Formik
-          initialValues={{
-            date: new Date().toISOString().split('T')[0],
-            reference: '',
-            particulars: '',
-            debitEntries: [{ accountCode: '', amount: '' }],
-            creditEntries: [{ accountCode: '', amount: '' }],
-            ...currentEntry,
-          }}
+        <JournalEntryForm
+          typeOptions={typeOptions}
+          fundOptions={fundOptions}
+          centerOptions={centerOptions}
+          accountOptions={accountOptions}
+          initialData={currentJournalEntry}
+          onClose={() => setIsModalOpen(false)}
           onSubmit={handleSubmit}
-        >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
-            <Form className="p-4 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  label="Date"
-                  name="date"
-                  type="date"
-                  required
-                  value={values.date}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={errors.date}
-                  touched={touched.date}
-                />
-                
-                <FormField
-                  label="Reference"
-                  name="reference"
-                  type="text"
-                  placeholder="Enter reference number"
-                  value={values.reference}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={errors.reference}
-                  touched={touched.reference}
-                />
-              </div>
-              
-              <FormField
-                label="Particulars"
-                name="particulars"
-                type="textarea"
-                required
-                placeholder="Enter transaction details"
-                value={values.particulars}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={errors.particulars}
-                touched={touched.particulars}
-                rows={3}
-              />
-              
-              {/* Debit Entries */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">Debit Entries</label>
-                <FieldArray name="debitEntries">
-                  {({ push, remove }) => (
-                    <div className="space-y-2">
-                      {values.debitEntries.map((_, index) => (
-                        <div key={index} className="flex gap-4">
-                          <div className="flex-1">
-                            <FormField
-                              name={`debitEntries.${index}.accountCode`}
-                              type="select"
-                              placeholder="Select account"
-                              value={values.debitEntries[index].accountCode}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={
-                                errors.debitEntries?.[index]?.accountCode
-                              }
-                              touched={
-                                touched.debitEntries?.[index]?.accountCode
-                              }
-                              options={[
-                                { value: '1-01-01-010', label: '1-01-01-010 - Cash in Bank' },
-                                { value: '1-01-02-020', label: '1-01-02-020 - Cash - Treasury' },
-                              ]}
-                            />
-                          </div>
-                          <div className="w-48">
-                            <FormField
-                              name={`debitEntries.${index}.amount`}
-                              type="number"
-                              placeholder="Amount"
-                              value={values.debitEntries[index].amount}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={
-                                errors.debitEntries?.[index]?.amount
-                              }
-                              touched={
-                                touched.debitEntries?.[index]?.amount
-                              }
-                              min="0"
-                              step="0.01"
-                            />
-                          </div>
-                          {index > 0 && (
-                            <button
-                              type="button"
-                              onClick={() => remove(index)}
-                              className="text-error-600 hover:text-error-800"
-                            >
-                              <TrashIcon className="h-5 w-5" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => push({ accountCode: '', amount: '' })}
-                        className="text-sm text-primary-600 hover:text-primary-800"
-                      >
-                        + Add Debit Entry
-                      </button>
-                    </div>
-                  )}
-                </FieldArray>
-              </div>
-              
-              {/* Credit Entries */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">Credit Entries</label>
-                <FieldArray name="creditEntries">
-                  {({ push, remove }) => (
-                    <div className="space-y-2">
-                      {values.creditEntries.map((_, index) => (
-                        <div key={index} className="flex gap-4">
-                          <div className="flex-1">
-                            <FormField
-                              name={`creditEntries.${index}.accountCode`}
-                              type="select"
-                              placeholder="Select account"
-                              value={values.creditEntries[index].accountCode}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={
-                                errors.creditEntries?.[index]?.accountCode
-                              }
-                              touched={
-                                touched.creditEntries?.[index]?.accountCode
-                              }
-                              options={[
-                                { value: '1-01-01-010', label: '1-01-01-010 - Cash in Bank' },
-                                { value: '1-01-02-020', label: '1-01-02-020 - Cash - Treasury' },
-                              ]}
-                            />
-                          </div>
-                          <div className="w-48">
-                            <FormField
-                              name={`creditEntries.${index}.amount`}
-                              type="number"
-                              placeholder="Amount"
-                              value={values.creditEntries[index].amount}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={
-                                errors.creditEntries?.[index]?.amount
-                              }
-                              touched={
-                                touched.creditEntries?.[index]?.amount
-                              }
-                              min="0"
-                              step="0.01"
-                            />
-                          </div>
-                          {index > 0 && (
-                            <button
-                              type="button"
-                              onClick={() => remove(index)}
-                              className="text-error-600 hover:text-error-800"
-                            >
-                              <TrashIcon className="h-5 w-5" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => push({ accountCode: '', amount: '' })}
-                        className="text-sm text-primary-600 hover:text-primary-800"
-                      >
-                        + Add Credit Entry
-                      </button>
-                    </div>
-                  )}
-                </FieldArray>
-              </div>
-              
-              <div className="mt-4 p-4 bg-neutral-50 rounded-lg border border-neutral-200">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-neutral-600">Total Debits</p>
-                    <p className="text-lg font-semibold">
-                      {formatCurrency(
-                        values.debitEntries.reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-neutral-600">Total Credits</p>
-                    <p className="text-lg font-semibold">
-                      {formatCurrency(
-                        values.creditEntries.reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="btn btn-outline"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="btn btn-primary"
-                >
-                  {isSubmitting ? 'Saving...' : currentEntry ? 'Update' : 'Save'}
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
+        />
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Delete"
+      >
+        <div className="py-3">
+          <p className="text-neutral-700">
+            Are you sure you want to delete the journal entry "{journalEntryToDelete?.Name}"?
+          </p>
+          <p className="text-sm text-neutral-500 mt-2">
+            This action cannot be undone.
+          </p>
+        </div>
+        <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(false)}
+            className="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmDelete}
+            className="btn btn-danger"
+          >
+            Delete
+          </button>
+        </div>
       </Modal>
     </div>
   );

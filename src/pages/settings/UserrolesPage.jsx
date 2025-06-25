@@ -30,11 +30,19 @@ function UserrolesPage() {
   };
 
   const handleEdit = (userrole) => {
+      if (userrole.Description == 'Administrator') {
+        alert("The 'Administrator' role cannot be edited.");
+        return;
+      }
     setCurrentUserrole(userrole);
     setIsModalOpen(true);
   };
 
   const handleDelete = (userrole) => {
+      if (userrole.Description == 'Administrator') {
+        alert("The 'Administrator' role cannot be deleted.");
+        return;
+      }
     setUserroleToDelete(userrole);
     setIsDeleteModalOpen(true);
   };
@@ -79,8 +87,8 @@ function UserrolesPage() {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (

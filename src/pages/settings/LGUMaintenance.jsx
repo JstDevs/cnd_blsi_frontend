@@ -118,19 +118,19 @@ const LGUMaintenance = () => {
 
   const [lgu, setLgu] = useState({
     ID: "1",
-    Code: "LGU001",
-    Name: "Sample LGU",
-    TIN: "123-456-789",
-    RDO: "RDO123",
-    StreetAddress: "123 Main Street",
-    BarangayName: "Sample Barangay",
-    MunicipalityName: "Sample Municipality",
-    ProvinceName: "Sample Province",
-    RegionName: "Sample Region",
-    ZIPCode: "1234",
-    PhoneNumber: "123-4567",
-    EmailAddress: "info@samplelgu.gov.ph",
-    Website: "www.samplelgu.gov.ph",
+    Code: "",
+    Name: "",
+    TIN: "",
+    RDO: "",
+    StreetAddress: "",
+    BarangayName: "",
+    MunicipalityName: "",
+    ProvinceName: "",
+    RegionName: "",
+    ZIPCode: "",
+    PhoneNumber: "",
+    EmailAddress: "",
+    Website: "",
   });
 
   const [image, setImage] = useState("https://placehold.co/150x150?text=LGU+Logo");

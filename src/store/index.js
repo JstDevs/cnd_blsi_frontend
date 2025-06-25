@@ -36,6 +36,7 @@ import { userrolesReducer } from '../features/settings/userrolesSlice';
 import { nationalityReducer } from '../features/settings/nationalitiesSlice';
 import { vendorCustomerTypesReducer } from '../features/settings/vendorCustomerTypeSlice';
 import { vendorTypesReducer } from '../features/settings/vendorTypeSlice';
+import { journalEntriesReducer } from '../features/disbursement/journalEntrySlice';
 import { taxDeclarationsReducer } from '../features/settings/taxDeclarationSlice';
 import { baseUnitsReducer } from '../features/settings/baseUnitSlice';
 import { regionsReducer } from '../features/settings/regionsSlice';
@@ -100,6 +101,7 @@ export const store = configureStore({
     nationalities: nationalityReducer,
     vendorCustomerTypes: vendorCustomerTypesReducer,
     vendorTypes: vendorTypesReducer,
+    journalEntries: journalEntriesReducer,
     taxDeclarations: taxDeclarationsReducer,
     baseUnits: baseUnitsReducer,
     regions: regionsReducer,

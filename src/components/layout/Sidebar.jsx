@@ -91,7 +91,7 @@ const navigation = [
         ],
       },
       { name: "Locations", href: "/settings/locations" },
-      { name: "Customer", href: "/settings/customer" },
+      { name: "Individual/Citizen", href: "/settings/customer" },
       {
         name: "Chart of Accounts Settings",
         submenu: [
@@ -148,7 +148,7 @@ const navigation = [
       { name: "Beginning Balance", href: "/disbursement/beginning-balance" },
       { name: "Purchase Request", href: "/disbursement/purchase-requests" },
       {
-        name: "Fund Utilization Request",
+        name: "Fund Utilization Requests and Status",
         href: "/disbursement/fund-utilization-requests",
       },
     ],

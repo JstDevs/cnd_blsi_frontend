@@ -46,7 +46,7 @@ function Customer() {
         setIsDeleteModalOpen(false);
         setCustomerToDelete(null);
       } catch (error) {
-        console.error('Failed to delete customer:', error);
+        console.error('Failed to delete Individual/Citizen:', error);
       }
     }
   };
@@ -138,8 +138,8 @@ function Customer() {
       <div className="page-header">
         <div className="flex justify-between items-center">
           <div>
-            <h1>Customers</h1>
-            <p>Manage Customers</p>
+            <h1>Individuals/Citizens</h1>
+            <p>Manage Individuals/Citizens</p>
           </div>
           <button
             type="button"
@@ -147,7 +147,7 @@ function Customer() {
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Customer
+            Add Individual/Citizen
           </button>
         </div>
       </div>
@@ -158,7 +158,7 @@ function Customer() {
           data={customers}
           actions={actions}
           loading={isLoading}
-          emptyMessage="No customers found. Click 'Add Customer' to create one."
+          emptyMessage="No individuals/citizens found. Click 'Add Individual/Citizen' to create one."
         />
       </div>
 
@@ -166,7 +166,7 @@ function Customer() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentCustomer ? "Edit Customer" : "Add Customer"}
+        title={currentCustomer ? "Edit Individual/Citizen" : "Add Individual/Citizen"}
       >
         <CustomerForm
           initialData={currentCustomer}
@@ -183,7 +183,7 @@ function Customer() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the customer "{customerToDelete?.name}"?
+            Are you sure you want to delete the individual/citizen "{customerToDelete?.name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

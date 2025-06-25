@@ -15,6 +15,7 @@ function Modal({
     md: "sm:max-w-xl",
     lg: "sm:max-w-2xl",
     xl: "sm:max-w-4xl",
+    xxxl: "sm:max-w-7xl",
     full: "sm:max-w-full sm:h-screen",
   };
 
