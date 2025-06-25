@@ -2,8 +2,7 @@
 node_modules/
 
 # Vite cache
-dist/
-.env
+dist
 
 package-lock.json
 .vite/
