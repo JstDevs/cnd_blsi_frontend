@@ -3,91 +3,116 @@ import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
-import FiscalYearForm from '../../components/forms/FiscalYearForm';
+import TaxDeclarationForm from '../../components/forms/TaxDeclarationForm';
 import {
-  fetchFiscalYears,
-  addFiscalYear,
-  updateFiscalYear,
-  deleteFiscalYear
-} from '../../features/settings/fiscalYearSlice';
+  fetchTaxDeclarations,
+  addTaxDeclaration,
+  updateTaxDeclaration,
+  deleteTaxDeclaration
+} from '../../features/settings/taxDeclarationSlice';
 
-function FiscalYearPage() {
+function TaxDeclarationPage() {
   const dispatch = useDispatch();
-  const { fiscalYears, isLoading } = useSelector(state => state.fiscalYears);
-  
+  const { taxDeclarations, isLoading } = useSelector(state => state.taxDeclarations);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentFiscalYear, setCurrentFiscalYear] = useState(null);
+  const [currentTaxDeclaration, setCurrentTaxDeclaration] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [fiscalYearToDelete, setFiscalYearToDelete] = useState(null);
-  
+  const [taxDeclarationToDelete, setTaxDeclarationToDelete] = useState(null);
+
   useEffect(() => {
-    dispatch(fetchFiscalYears());
+    dispatch(fetchTaxDeclarations());
   }, [dispatch]);
-  
+
   const handleAdd = () => {
-    setCurrentFiscalYear(null);
+    setCurrentTaxDeclaration(null);
     setIsModalOpen(true);
   };
-  
-  const handleEdit = (fiscalYear) => {
-    setCurrentFiscalYear(fiscalYear);
+
+  const handleEdit = (taxDeclaration) => {
+    setCurrentTaxDeclaration(taxDeclaration);
     setIsModalOpen(true);
   };
-  
-  const handleDelete = (fiscalYear) => {
-    setFiscalYearToDelete(fiscalYear);
+
+  const handleDelete = (taxDeclaration) => {
+    setTaxDeclarationToDelete(taxDeclaration);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = async () => {
-    if (fiscalYearToDelete) {
+    if (taxDeclarationToDelete) {
       try {
-        await dispatch(deleteFiscalYear(fiscalYearToDelete.ID)).unwrap();
+        await dispatch(deleteTaxDeclaration(taxDeclarationToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
-        setFiscalYearToDelete(null);
+        setTaxDeclarationToDelete(null);
       } catch (error) {
-        console.error('Failed to delete fiscal year:', error);
+        console.error('Failed to delete tax declaration:', error);
       }
     }
   };
-  
+
   const handleSubmit = (values) => {
-    if (currentFiscalYear) {
-      dispatch(updateFiscalYear({ ...values, id: currentFiscalYear.ID }));
+    if (currentTaxDeclaration) {
+      dispatch(updateTaxDeclaration({ ...values, ID: currentTaxDeclaration.ID }));
     } else {
-      dispatch(addFiscalYear(values));
+      dispatch(addTaxDeclaration(values));
     }
     setIsModalOpen(false);
   };
 
   const columns = [
     {
-      key: 'Code',
-      header: 'Code',
+      key: 'T_D_No',
+      header: 'Tax Declaration No.',
       sortable: true
     },
     {
-      key: 'Name',
-      header: 'Name',
+      key: 'PropertyID',
+      header: 'Property ID',
       sortable: true
     },
     {
-      key: 'Year',
-      header: 'Year',
+      key: 'OwnerID',
+      header: 'Owner ID',
       sortable: true
     },
     {
-      key: 'MonthStart',
-      header: 'Month Start',
+      key: 'OwnerTIN',
+      header: 'Owner TIN',
       sortable: true
     },
     {
-      key: 'MonthEnd',
-      header: 'Month End',
+      key: 'OwnerAddress',
+      header: 'Owner Address',
+      sortable: true
+    },
+    {
+      key: 'OwnerTelephoneNumber',
+      header: 'Owner Telephone No.',
+      sortable: true
+    },
+    {
+      key: 'BeneficialorAdminUserID',
+      header: 'Beneficial/Administrator User',
+      sortable: true
+    },
+    {
+      key: 'BeneficialorAdminTIN',
+      header: 'Beneficial/Administrator TIN',
+      sortable: true
+    },
+    {
+      key: 'BeneficialorAdminAddress',
+      header: 'Beneficial/Administrator Address',
+      sortable: true
+    },
+    {
+      key: 'BeneficialorAdminTelephoneNumber',
+      header: 'Beneficial/Administrator Telephone No.',
       sortable: true
     }
   ];
-  
+
   const actions = [
     {
       icon: PencilIcon,
@@ -108,8 +133,8 @@ function FiscalYearPage() {
       <div className="page-header">
         <div className="flex justify-between items-center">
           <div>
-            <h1>Fiscal Years</h1>
-            <p>Manage fiscal years</p>
+            <h1>Tax Declarations</h1>
+            <p>Manage Tax Declarations</p>
           </div>
           <button
             type="button"
@@ -117,34 +142,35 @@ function FiscalYearPage() {
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Fiscal Year
+            Add Tax Declaration
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={fiscalYears}
+          data={taxDeclarations}
           actions={actions}
           loading={isLoading}
-          emptyMessage="No fiscal years found. Click 'Add Fiscal Year' to create one."
+          emptyMessage="No tax declarations found. Click 'Add Tax Declaration' to create one."
         />
       </div>
-      
+
       {/* Form Modal */}
       <Modal
+        size='xl'
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentFiscalYear ? "Edit Fiscal Year" : "Add Fiscal Year"}
+        title={currentTaxDeclaration ? "Edit Tax Declaration" : "Add Tax Declaration"}
       >
-        <FiscalYearForm
-          initialData={currentFiscalYear}
+        <TaxDeclarationForm
+          initialData={currentTaxDeclaration}
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleSubmit}
         />
       </Modal>
-      
+
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -153,7 +179,7 @@ function FiscalYearPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the fiscal year "{fiscalYearToDelete?.Name}"?
+            Are you sure you want to delete the tax declaration "{taxDeclarationToDelete?.T_D_No}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -180,4 +206,4 @@ function FiscalYearPage() {
   );
 }
 
-export default FiscalYearPage; 
+export default TaxDeclarationPage;
