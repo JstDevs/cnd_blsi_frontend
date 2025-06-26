@@ -1,8 +1,7 @@
 # Node modules
 node_modules/
 
-# Vite cache
-dist
+
 
 package-lock.json
 .vite/
