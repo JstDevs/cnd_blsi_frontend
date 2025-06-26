@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Plus,
   Search,
@@ -16,7 +16,7 @@ import {
   Save,
   X,
   Check,
-} from "lucide-react";
+} from 'lucide-react';
 import BudgetForm from '../../../components/forms/BudgetForm';
 import Modal from '../../../components/common/Modal';
 
@@ -24,14 +24,15 @@ const BudgetDetails = () => {
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterDepartment, setFilterDepartment] = useState("all");
-  const [filterSubDepartment, setFilterSubDepartment] = useState("all");
-  const [filterAccount, setFilterAccount] = useState("all");
-  const [filterFund, setFilterFund] = useState("all");
-  const [viewMode, setViewMode] = useState("grid");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterDepartment, setFilterDepartment] = useState('all');
+  const [filterSubDepartment, setFilterSubDepartment] = useState('all');
+  const [filterAccount, setFilterAccount] = useState('all');
+  const [filterFund, setFilterFund] = useState('all');
+  const [viewMode, setViewMode] = useState('grid');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+  const [isExcelModalOpen, setIsExcelModalOpen] = useState(false);
+
   // new code
   const [selectedRecord, setSelectedRecord] = useState(null);
   const handleAddNew = () => {
@@ -67,15 +68,15 @@ const BudgetDetails = () => {
 
   const budgetItems = [
     {
-      id: "1",
-      code: "CASH-001",
-      name: "Cash - Local Treasury",
-      fiscalYear: "January to December",
-      department: "Office of the Mayor",
-      subDepartment: "Network Operations",
-      chartOfAccounts: "Cash - Local Treasury",
-      fund: "General Fund",
-      project: "No Project",
+      id: '1',
+      code: 'CASH-001',
+      name: 'Cash - Local Treasury',
+      fiscalYear: 'January to December',
+      department: 'Office of the Mayor',
+      subDepartment: 'Network Operations',
+      chartOfAccounts: 'Cash - Local Treasury',
+      fund: 'General Fund',
+      project: 'No Project',
       appropriation: 0,
       appropriationBalance: 0,
       totalAmount: 10000,
@@ -85,19 +86,19 @@ const BudgetDetails = () => {
       preEncumbrance: 0,
       encumbrance: 0,
       monthlyAllocations: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      status: "active",
-      lastModified: "2024-01-15",
+      status: 'active',
+      lastModified: '2024-01-15',
     },
     {
-      id: "2",
-      code: "INV-001",
-      name: "Investments",
-      fiscalYear: "Feb Aug",
-      department: "Accounting",
-      subDepartment: "Payroll",
-      chartOfAccounts: "Investments",
-      fund: "General Fund",
-      project: "No Project",
+      id: '2',
+      code: 'INV-001',
+      name: 'Investments',
+      fiscalYear: 'Feb Aug',
+      department: 'Accounting',
+      subDepartment: 'Payroll',
+      chartOfAccounts: 'Investments',
+      fund: 'General Fund',
+      project: 'No Project',
       appropriation: 80000000,
       appropriationBalance: 80000000,
       totalAmount: 80000000,
@@ -110,19 +111,19 @@ const BudgetDetails = () => {
         0, 6666666.67, 6666666.67, 6666666.67, 6666666.67, 6666666.67,
         6666666.67, 0, 0, 0, 0, 0,
       ],
-      status: "active",
-      lastModified: "2024-01-14",
+      status: 'active',
+      lastModified: '2024-01-14',
     },
     {
-      id: "3",
-      code: "ALL-001",
-      name: "Allowance for Bad Debts",
-      fiscalYear: "Fiscal Year",
-      department: "Office of the Mayor",
-      subDepartment: "Network Operations",
-      chartOfAccounts: "Allowance for Bad Debts",
-      fund: "Trust Fund",
-      project: "No Project",
+      id: '3',
+      code: 'ALL-001',
+      name: 'Allowance for Bad Debts',
+      fiscalYear: 'Fiscal Year',
+      department: 'Office of the Mayor',
+      subDepartment: 'Network Operations',
+      chartOfAccounts: 'Allowance for Bad Debts',
+      fund: 'Trust Fund',
+      project: 'No Project',
       appropriation: 124141240,
       appropriationBalance: 123021240,
       totalAmount: 123141240,
@@ -136,19 +137,19 @@ const BudgetDetails = () => {
         10345103.33, 10345103.33, 10345103.33, 10345103.33, 10345103.33,
         10345103.33, 10345103.33,
       ],
-      status: "active",
-      lastModified: "2024-01-13",
+      status: 'active',
+      lastModified: '2024-01-13',
     },
     {
-      id: "4",
-      code: "PREP-001",
-      name: "Prepaid Registration",
-      fiscalYear: "January to December",
-      department: "Treasury",
-      subDepartment: "No Subdepartments",
-      chartOfAccounts: "Prepaid Registration",
-      fund: "General Fund",
-      project: "No Project",
+      id: '4',
+      code: 'PREP-001',
+      name: 'Prepaid Registration',
+      fiscalYear: 'January to December',
+      department: 'Treasury',
+      subDepartment: 'No Subdepartments',
+      chartOfAccounts: 'Prepaid Registration',
+      fund: 'General Fund',
+      project: 'No Project',
       appropriation: 10000000,
       appropriationBalance: 0,
       totalAmount: 10000000,
@@ -161,19 +162,19 @@ const BudgetDetails = () => {
         833333.33, 833333.33, 833333.33, 833333.33, 833333.33, 833333.33,
         833333.33, 833333.33, 833333.33, 833333.33, 833333.33, 833333.33,
       ],
-      status: "active",
-      lastModified: "2024-01-12",
+      status: 'active',
+      lastModified: '2024-01-12',
     },
     {
-      id: "5",
-      code: "WEL-001",
-      name: "Welfare Goods",
-      fiscalYear: "January to December",
-      department: "Municipal Social Welfare",
-      subDepartment: "No Subdepartments",
-      chartOfAccounts: "Welfare Goods",
-      fund: "General Fund",
-      project: "No Project",
+      id: '5',
+      code: 'WEL-001',
+      name: 'Welfare Goods',
+      fiscalYear: 'January to December',
+      department: 'Municipal Social Welfare',
+      subDepartment: 'No Subdepartments',
+      chartOfAccounts: 'Welfare Goods',
+      fund: 'General Fund',
+      project: 'No Project',
       appropriation: 1000000,
       appropriationBalance: 720000,
       totalAmount: 970000,
@@ -186,19 +187,19 @@ const BudgetDetails = () => {
         83333.33, 83333.33, 83333.33, 83333.33, 83333.33, 83333.33, 83333.33,
         83333.33, 83333.33, 83333.33, 83333.33, 83333.33,
       ],
-      status: "active",
-      lastModified: "2024-01-11",
+      status: 'active',
+      lastModified: '2024-01-11',
     },
     {
-      id: "6",
-      code: "OFF-001",
-      name: "Office Equipment",
-      fiscalYear: "January to December",
-      department: "Municipal Engineering",
-      subDepartment: "Network Operations",
-      chartOfAccounts: "Office Equipment",
-      fund: "General Fund",
-      project: "No Project",
+      id: '6',
+      code: 'OFF-001',
+      name: 'Office Equipment',
+      fiscalYear: 'January to December',
+      department: 'Municipal Engineering',
+      subDepartment: 'Network Operations',
+      chartOfAccounts: 'Office Equipment',
+      fund: 'General Fund',
+      project: 'No Project',
       appropriation: 1000000,
       appropriationBalance: 750000,
       totalAmount: 1000000,
@@ -211,19 +212,19 @@ const BudgetDetails = () => {
         83333.33, 83333.33, 83333.33, 83333.33, 83333.33, 83333.33, 83333.33,
         83333.33, 83333.33, 83333.33, 83333.33, 83333.33,
       ],
-      status: "active",
-      lastModified: "2024-01-10",
+      status: 'active',
+      lastModified: '2024-01-10',
     },
     {
-      id: "7",
-      code: "OFC-001",
-      name: "Office Equipment",
-      fiscalYear: "January to December",
-      department: "Accounting",
-      subDepartment: "No Subdepartments",
-      chartOfAccounts: "Office Equipment",
-      fund: "General Fund",
-      project: "No Project",
+      id: '7',
+      code: 'OFC-001',
+      name: 'Office Equipment',
+      fiscalYear: 'January to December',
+      department: 'Accounting',
+      subDepartment: 'No Subdepartments',
+      chartOfAccounts: 'Office Equipment',
+      fund: 'General Fund',
+      project: 'No Project',
       appropriation: 100000,
       appropriationBalance: 0,
       totalAmount: 100000,
@@ -236,19 +237,19 @@ const BudgetDetails = () => {
         8333.33, 8333.33, 8333.33, 8333.33, 8333.33, 8333.33, 8333.33, 8333.33,
         8333.33, 8333.33, 8333.33, 8333.33,
       ],
-      status: "active",
-      lastModified: "2024-01-09",
+      status: 'active',
+      lastModified: '2024-01-09',
     },
     {
-      id: "8",
-      code: "DUE-001",
-      name: "Due to LGUs",
-      fiscalYear: "Feb Aug",
-      department: "Accounting",
-      subDepartment: "Payroll",
-      chartOfAccounts: "Due to LGUs",
-      fund: "General Fund",
-      project: "No Project",
+      id: '8',
+      code: 'DUE-001',
+      name: 'Due to LGUs',
+      fiscalYear: 'Feb Aug',
+      department: 'Accounting',
+      subDepartment: 'Payroll',
+      chartOfAccounts: 'Due to LGUs',
+      fund: 'General Fund',
+      project: 'No Project',
       appropriation: 0,
       appropriationBalance: 0,
       totalAmount: 0,
@@ -258,74 +259,74 @@ const BudgetDetails = () => {
       preEncumbrance: 0,
       encumbrance: 0,
       monthlyAllocations: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      status: "inactive",
-      lastModified: "2024-01-08",
+      status: 'inactive',
+      lastModified: '2024-01-08',
     },
   ];
 
   const departments = [
-    "all",
-    "Office of the Mayor",
-    "Accounting",
-    "Treasury",
-    "Municipal Social Welfare",
-    "Municipal Engineering",
+    'all',
+    'Office of the Mayor',
+    'Accounting',
+    'Treasury',
+    'Municipal Social Welfare',
+    'Municipal Engineering',
   ];
   const subDepartments = [
-    "all",
-    "Network Operations",
-    "Payroll",
-    "No Subdepartments",
+    'all',
+    'Network Operations',
+    'Payroll',
+    'No Subdepartments',
   ];
   const accounts = [
-    "all",
-    "Cash - Local Treasury",
-    "Investments",
-    "Allowance for Bad Debts",
-    "Prepaid Registration",
-    "Welfare Goods",
-    "Office Equipment",
-    "Due to LGUs",
+    'all',
+    'Cash - Local Treasury',
+    'Investments',
+    'Allowance for Bad Debts',
+    'Prepaid Registration',
+    'Welfare Goods',
+    'Office Equipment',
+    'Due to LGUs',
   ];
   const funds = [
-    "all",
-    "General Fund",
-    "Trust Fund",
-    "Special Fund",
-    "Capital Fund",
+    'all',
+    'General Fund',
+    'Trust Fund',
+    'Special Fund',
+    'Capital Fund',
   ];
-  const fiscalYears = ["all", "January to December", "Feb Aug", "Fiscal Year"];
+  const fiscalYears = ['all', 'January to December', 'Feb Aug', 'Fiscal Year'];
 
   const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "inactive":
-        return "bg-gray-100 text-gray-800";
-      case "suspended":
-        return "bg-red-100 text-red-800";
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'inactive':
+        return 'bg-gray-100 text-gray-800';
+      case 'suspended':
+        return 'bg-red-100 text-red-800';
       default:
-        return "bg-gray-100 text-gray-800";
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getUtilizationPercentage = (allocated, utilized) => {
-    return allocated > 0 ? ((utilized / allocated) * 100).toFixed(1) : "0";
+    return allocated > 0 ? ((utilized / allocated) * 100).toFixed(1) : '0';
   };
 
   const filteredItems = budgetItems.filter((item) => {
@@ -334,13 +335,13 @@ const BudgetDetails = () => {
       item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.department.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDepartment =
-      filterDepartment === "all" || item.department === filterDepartment;
+      filterDepartment === 'all' || item.department === filterDepartment;
     const matchesSubDepartment =
-      filterSubDepartment === "all" ||
+      filterSubDepartment === 'all' ||
       item.subDepartment === filterSubDepartment;
     const matchesAccount =
-      filterAccount === "all" || item.chartOfAccounts === filterAccount;
-    const matchesFund = filterFund === "all" || item.fund === filterFund;
+      filterAccount === 'all' || item.chartOfAccounts === filterAccount;
+    const matchesFund = filterFund === 'all' || item.fund === filterFund;
 
     return (
       matchesSearch &&
@@ -370,7 +371,7 @@ const BudgetDetails = () => {
   const handleSave = () => {
     if (isEditing) {
       setIsEditing(false);
-      console.log("Saving changes...");
+      console.log('Saving changes...');
     }
   };
 
@@ -394,21 +395,21 @@ const BudgetDetails = () => {
         <div className="flex items-center gap-3">
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
-              onClick={() => setViewMode("grid")}
+              onClick={() => setViewMode('grid')}
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === "grid"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600"
+                viewMode === 'grid'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600'
               }`}
             >
               Grid
             </button>
             <button
-              onClick={() => setViewMode("table")}
+              onClick={() => setViewMode('table')}
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === "table"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600"
+                viewMode === 'table'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600'
               }`}
             >
               Table
@@ -420,6 +421,13 @@ const BudgetDetails = () => {
           >
             <Plus className="w-4 h-4 mr-2" />
             New Budget
+          </button>
+          <button
+            onClick={() => setIsExcelModalOpen(true)}
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Upload Excel
           </button>
         </div>
       </div>
@@ -435,7 +443,7 @@ const BudgetDetails = () => {
               </p>
               <p className="text-sm text-green-600 mt-1">
                 <TrendingUp className="w-3 h-3 inline mr-1" />
-                {filteredItems.filter((b) => b.status === "active").length}{" "}
+                {filteredItems.filter((b) => b.status === 'active').length}{' '}
                 active
               </p>
             </div>
@@ -597,7 +605,7 @@ const BudgetDetails = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
                   >
                     {fiscalYears
-                      .filter((y) => y !== "all")
+                      .filter((y) => y !== 'all')
                       .map((year) => (
                         <option key={year} value={year}>
                           {year}
@@ -615,7 +623,7 @@ const BudgetDetails = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
                   >
                     {departments
-                      .filter((d) => d !== "all")
+                      .filter((d) => d !== 'all')
                       .map((dept) => (
                         <option key={dept} value={dept}>
                           {dept}
@@ -633,7 +641,7 @@ const BudgetDetails = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
                   >
                     {subDepartments
-                      .filter((s) => s !== "all")
+                      .filter((s) => s !== 'all')
                       .map((subDept) => (
                         <option key={subDept} value={subDept}>
                           {subDept}
@@ -651,7 +659,7 @@ const BudgetDetails = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
                   >
                     {accounts
-                      .filter((a) => a !== "all")
+                      .filter((a) => a !== 'all')
                       .map((account) => (
                         <option key={account} value={account}>
                           {account}
@@ -669,7 +677,7 @@ const BudgetDetails = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
                   >
                     {funds
-                      .filter((f) => f !== "all")
+                      .filter((f) => f !== 'all')
                       .map((fund) => (
                         <option key={fund} value={fund}>
                           {fund}
@@ -745,7 +753,7 @@ const BudgetDetails = () => {
                         className="w-full bg-blue-600 rounded-t hover:bg-blue-700 transition-colors cursor-pointer relative"
                         style={{
                           height: `${height}%`,
-                          minHeight: amount > 0 ? "4px" : "0px",
+                          minHeight: amount > 0 ? '4px' : '0px',
                         }}
                         title={`${months[index]}: $${amount.toLocaleString()}`}
                       >
@@ -794,7 +802,7 @@ const BudgetDetails = () => {
             >
               {departments.map((dept) => (
                 <option key={dept} value={dept}>
-                  {dept === "all" ? "All Departments" : dept}
+                  {dept === 'all' ? 'All Departments' : dept}
                 </option>
               ))}
             </select>
@@ -805,7 +813,7 @@ const BudgetDetails = () => {
             >
               {subDepartments.map((subDept) => (
                 <option key={subDept} value={subDept}>
-                  {subDept === "all" ? "All Sub Departments" : subDept}
+                  {subDept === 'all' ? 'All Sub Departments' : subDept}
                 </option>
               ))}
             </select>
@@ -816,7 +824,7 @@ const BudgetDetails = () => {
             >
               {accounts.map((account) => (
                 <option key={account} value={account}>
-                  {account === "all" ? "All Accounts" : account}
+                  {account === 'all' ? 'All Accounts' : account}
                 </option>
               ))}
             </select>
@@ -827,7 +835,7 @@ const BudgetDetails = () => {
             >
               {funds.map((fund) => (
                 <option key={fund} value={fund}>
-                  {fund === "all" ? "All Funds" : fund}
+                  {fund === 'all' ? 'All Funds' : fund}
                 </option>
               ))}
             </select>
@@ -842,7 +850,7 @@ const BudgetDetails = () => {
       </div>
 
       {/* Budget Items List */}
-      {viewMode === "grid" ? (
+      {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
             <div
@@ -850,8 +858,8 @@ const BudgetDetails = () => {
               onClick={() => setSelectedBudget(item)}
               className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-all ${
                 selectedBudget?.id === item.id
-                  ? "ring-2 ring-blue-500 border-blue-500"
-                  : ""
+                  ? 'ring-2 ring-blue-500 border-blue-500'
+                  : ''
               }`}
             >
               <div className="flex items-start justify-between mb-4">
@@ -952,8 +960,8 @@ const BudgetDetails = () => {
                     key={item.id}
                     className={`hover:bg-gray-50 transition-colors cursor-pointer ${
                       selectedBudget?.id === item.id
-                        ? "bg-blue-50 border-l-4 border-blue-500"
-                        : ""
+                        ? 'bg-blue-50 border-l-4 border-blue-500'
+                        : ''
                     }`}
                     onClick={() => setSelectedBudget(item)}
                   >
@@ -1028,6 +1036,50 @@ const BudgetDetails = () => {
           onSubmit={handleSubmit}
           onClose={() => setIsModalOpen(false)}
         />
+      </Modal>
+      {/* /// EXCEL MODAL  */}
+      <Modal
+        className="w-full max-w-md" // Adjusted width to better fit this content
+        isOpen={isExcelModalOpen}
+        onClose={() => setIsExcelModalOpen(false)}
+        title="Excel Tool"
+        size="xl"
+      >
+        <div className="p-6">
+          <div className="flex justify-between mb-6">
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              Create Excel
+            </button>
+            <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              Start Upload
+            </button>
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Upload File:
+            </label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                className="hidden"
+                id="excel-upload"
+              />
+              <label
+                htmlFor="excel-upload"
+                className="cursor-pointer text-gray-500 hover:text-gray-700"
+              >
+                Drag and drop your Excel file here or click to browse
+              </label>
+            </div>
+          </div>
+
+          <div className="text-center py-4">
+            {/* <p className="text-gray-500">Loading...</p> */}
+            {/* Replace with actual loading spinner if needed */}
+          </div>
+        </div>
       </Modal>
     </div>
   );
