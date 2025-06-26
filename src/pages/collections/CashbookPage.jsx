@@ -9,46 +9,46 @@ const mockCashbookData = [
     date: '2024-03-01',
     reference: 'OR-2024-001',
     description: 'Collection - Community Tax',
-    debit: 5000.00,
-    credit: 0.00,
-    balance: 5000.00
+    debit: 5000.0,
+    credit: 0.0,
+    balance: 5000.0,
   },
   {
     id: 2,
     date: '2024-03-02',
     reference: 'DV-2024-001',
     description: 'Payment - Office Supplies',
-    debit: 0.00,
-    credit: 2500.00,
-    balance: 2500.00
+    debit: 0.0,
+    credit: 2500.0,
+    balance: 2500.0,
   },
   {
     id: 3,
     date: '2024-03-03',
     reference: 'OR-2024-002',
     description: 'Collection - Burial Service',
-    debit: 3000.00,
-    credit: 0.00,
-    balance: 5500.00
+    debit: 3000.0,
+    credit: 0.0,
+    balance: 5500.0,
   },
   {
     id: 4,
     date: '2024-03-04',
     reference: 'DV-2024-002',
     description: 'Payment - Utility Bills',
-    debit: 0.00,
-    credit: 1500.00,
-    balance: 4000.00
+    debit: 0.0,
+    credit: 1500.0,
+    balance: 4000.0,
   },
   {
     id: 5,
     date: '2024-03-05',
     reference: 'OR-2024-003',
     description: 'Collection - Marriage Service',
-    debit: 2000.00,
-    credit: 0.00,
-    balance: 6000.00
-  }
+    debit: 2000.0,
+    credit: 0.0,
+    balance: 6000.0,
+  },
 ];
 
 function CashbookPage() {
@@ -82,37 +82,43 @@ function CashbookPage() {
   };
 
   const columns = [
-    { 
-      header: 'Date', 
-      accessor: 'date',
-      cell: ({ value }) => new Date(value).toLocaleDateString()
+    { header: 'Year', accessor: 'year' },
+    { header: 'Officer', accessor: 'officer' },
+    { header: 'Fund', accessor: 'fund' },
+    {
+      header: 'Invoice Date',
+      accessor: 'invoiceDate',
+      cell: ({ value }) => new Date(value).toLocaleDateString(),
     },
-    { header: 'Reference', accessor: 'reference' },
-    { header: 'Description', accessor: 'description' },
-    { 
-      header: 'Debit', 
+    { header: 'AP AR', accessor: 'apAr' },
+    { header: 'Invoice number', accessor: 'invoiceNumber' },
+    {
+      header: 'Debit',
       accessor: 'debit',
-      cell: ({ value }) => value.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'PHP'
-      })
+      cell: ({ value }) =>
+        value.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'PHP',
+        }),
     },
-    { 
-      header: 'Credit', 
+    {
+      header: 'Credit',
       accessor: 'credit',
-      cell: ({ value }) => value.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'PHP'
-      })
+      cell: ({ value }) =>
+        value.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'PHP',
+        }),
     },
-    { 
-      header: 'Balance', 
+    {
+      header: 'Balance',
       accessor: 'balance',
-      cell: ({ value }) => value.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'PHP'
-      })
-    }
+      cell: ({ value }) =>
+        value.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'PHP',
+        }),
+    },
   ];
 
   return (
@@ -137,4 +143,4 @@ function CashbookPage() {
   );
 }
 
-export default CashbookPage; 
+export default CashbookPage;

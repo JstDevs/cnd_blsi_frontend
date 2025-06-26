@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   DocumentCheckIcon,
   CurrencyDollarIcon,
@@ -7,10 +7,10 @@ import {
   ArrowUpIcon,
   ArrowDownIcon,
   ClockIcon,
-} from "@heroicons/react/24/outline";
-import RevenueChart from "../components/dashboard/RevenueChart";
-import BudgetStatusChart from "../components/dashboard/BudgetStatusChart";
-import { Link } from "react-router-dom";
+} from '@heroicons/react/24/outline';
+import RevenueChart from '../components/dashboard/RevenueChart';
+import BudgetStatusChart from '../components/dashboard/BudgetStatusChart';
+import { Link } from 'react-router-dom';
 import {
   HomeIcon,
   Cog6ToothIcon,
@@ -19,43 +19,43 @@ import {
   ClipboardDocumentIcon,
   ChartBarIcon,
   DocumentTextIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
 const sections = [
   {
-    name: "Settings",
+    name: 'Settings',
     icon: <Cog6ToothIcon className="h-6 w-6" />,
-    path: "/settings/departments",
+    path: '/settings/departments',
   },
   {
-    name: "Disbursement",
+    name: 'Disbursement',
     icon: <BanknotesIcon className="h-6 w-6" />,
-    path: "/disbursement/obligation-requests",
+    path: '/disbursement/obligation-requests',
   },
   {
-    name: "Collections",
+    name: 'Collections',
     icon: <FolderOpenIcon className="h-6 w-6" />,
-    path: "/collections/community-tax",
+    path: '/collections/community-tax',
   },
   {
-    name: "Budget",
+    name: 'Budget',
     icon: <ClipboardDocumentIcon className="h-6 w-6" />,
-    path: "/budget/details",
+    path: '/budget/details',
   },
   {
-    name: "Applications",
+    name: 'Applications',
     icon: <ClipboardDocumentIcon className="h-6 w-6" />,
-    path: "/applications/business-permits",
+    path: '/applications/business-permits',
   },
   {
-    name: "Reports",
+    name: 'Reports',
     icon: <ChartBarIcon className="h-6 w-6" />,
-    path: "/reports/general-ledger",
+    path: '/reports/general-ledger',
   },
   {
-    name: "BIR Reports",
+    name: 'BIR Reports',
     icon: <DocumentTextIcon className="h-6 w-6" />,
-    path: "/reports/bir",
+    path: '/reports/bir',
   },
 ];
 // Dashboard card component
@@ -90,16 +90,16 @@ const StatCard = ({
                   {trendValue && (
                     <div
                       className={`ml-2 flex items-baseline text-sm font-semibold ${
-                        trend === "up" ? "text-success-600" : "text-error-600"
+                        trend === 'up' ? 'text-success-600' : 'text-error-600'
                       }`}
                     >
-                      {trend === "up" ? (
+                      {trend === 'up' ? (
                         <ArrowUpIcon className="self-center flex-shrink-0 h-4 w-4 text-success-500" />
                       ) : (
                         <ArrowDownIcon className="self-center flex-shrink-0 h-4 w-4 text-error-500" />
                       )}
                       <span className="sr-only">
-                        {trend === "up" ? "Increased" : "Decreased"} by
+                        {trend === 'up' ? 'Increased' : 'Decreased'} by
                       </span>
                       {trendValue}
                     </div>
@@ -124,13 +124,13 @@ const ActivityItem = ({ title, description, date, status, icon: Icon }) => (
       className={`
       flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center mr-3
       ${
-        status === "pending"
-          ? "bg-warning-100 text-warning-600"
-          : status === "approved"
-          ? "bg-success-100 text-success-600"
-          : status === "rejected"
-          ? "bg-error-100 text-error-600"
-          : "bg-neutral-100 text-neutral-600"
+        status === 'pending'
+          ? 'bg-warning-100 text-warning-600'
+          : status === 'approved'
+          ? 'bg-success-100 text-success-600'
+          : status === 'rejected'
+          ? 'bg-error-100 text-error-600'
+          : 'bg-neutral-100 text-neutral-600'
       }
     `}
     >
@@ -164,34 +164,34 @@ function DashboardPage() {
   const recentActivities = [
     {
       id: 1,
-      title: "New Obligation Request",
-      description: "ORS-2024-01-0023 needs your approval",
-      date: "Just now",
-      status: "pending",
+      title: 'New Obligation Request',
+      description: 'ORS-2024-01-0023 needs your approval',
+      date: 'Just now',
+      status: 'pending',
       icon: DocumentCheckIcon,
     },
     {
       id: 2,
-      title: "Disbursement Voucher Approved",
-      description: "DV-2024-01-0015 was approved by Mayor Santos",
-      date: "2 hours ago",
-      status: "approved",
+      title: 'Disbursement Voucher Approved',
+      description: 'DV-2024-01-0015 was approved by Mayor Santos',
+      date: '2 hours ago',
+      status: 'approved',
       icon: CurrencyDollarIcon,
     },
     {
       id: 3,
-      title: "Business Permit Application",
-      description: "New application from ABC Company",
-      date: "Yesterday",
-      status: "pending",
+      title: 'Business Permit Application',
+      description: 'New application from ABC Company',
+      date: 'Yesterday',
+      status: 'pending',
       icon: DocumentCheckIcon,
     },
     {
       id: 4,
-      title: "Collection Report Generated",
-      description: "January 2024 collection report is ready for review",
-      date: "2 days ago",
-      status: "completed",
+      title: 'Collection Report Generated',
+      description: 'January 2024 collection report is ready for review',
+      date: '2 days ago',
+      status: 'completed',
       icon: ReceiptPercentIcon,
     },
   ];
@@ -201,7 +201,8 @@ function DashboardPage() {
       <div className="page-header">
         <h1 className="text-2xl font-bold text-neutral-900">Dashboard</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Welcome back, {user?.first_name} {user?.middle_name} {user?.last_name}!
+          Welcome back
+          {/* , {user?.first_name} {user?.middle_name} {user?.last_name}! */}
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
