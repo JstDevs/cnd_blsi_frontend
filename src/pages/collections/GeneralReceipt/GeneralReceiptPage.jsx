@@ -156,7 +156,7 @@ function GeneralReceiptPage() {
       <div className="page-header">
         <div className="flex justify-between items-center">
           <div>
-            <h1>General Receipts</h1>
+            <h1>General Service Receipt</h1>
             <p>Manage official receipts and collections</p>
           </div>
           <div className="flex space-x-2">

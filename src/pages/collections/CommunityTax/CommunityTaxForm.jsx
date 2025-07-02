@@ -107,6 +107,25 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                 className="border-blue-200 focus:border-blue-500 focus:ring-blue-500 font-bold text-blue-600"
               />
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <FormField
+                label="TIN (if Any)"
+                name="taxpayerTIN"
+                value={formData.taxpayerTIN}
+                onChange={(e) =>
+                  handleInputChange('taxpayerTIN', e.target.value)
+                }
+                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+              />
+
+              {/* Empty columns to push the label to the right */}
+              <div className="hidden md:block"></div>
+              <div className="hidden lg:block"></div>
+
+              <div className="bg-gray-100 text-center px-3 py-1 text-sm font-medium flex items-center justify-center">
+                TAXPAYER'S COPY
+              </div>
+            </div>
           </div>
         </div>
 
@@ -265,21 +284,31 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
           <div className="p-6 pt-2 ">
             <div className="space-y-6">
               {/* Basic Community Tax */}
-              <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="bg-blue-50 p-4 rounded-lg ">
                 <h3 className="font-semibold text-lg text-blue-900 mb-4">
                   A. Basic Community Tax (₱5.00) or Exempted (₱1.00)
                 </h3>
-                <div className="flex justify-end">
-                  <div className="w-32">
-                    <FormField
-                      name="basicTax"
-                      value={formData.basicTax}
-                      onChange={(e) =>
-                        handleInputChange('basicTax', e.target.value)
-                      }
-                      className="text-right font-mono border-blue-200 focus:border-blue-500"
-                    />
-                  </div>
+
+                <div className="flex justify-end gap-3 ">
+                  <FormField
+                    name="basicTax"
+                    label={`Taxable Amount: `}
+                    value={formData.basicTax}
+                    onChange={(e) =>
+                      handleInputChange('basicTax', e.target.value)
+                    }
+                    className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
+                  />
+                  {/* TODO CHANGE THIS TO ACTUAL FOR FIELD NAME */}
+                  <FormField
+                    name="basicTax"
+                    label={`Community Due Amount: `}
+                    value={formData.basicTax}
+                    onChange={(e) =>
+                      handleInputChange('basicTax', e.target.value)
+                    }
+                    className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
+                  />
                 </div>
               </div>
 
@@ -303,12 +332,14 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                         onChange={(e) =>
                           handleInputChange('grossReceipts', e.target.value)
                         }
+                        label={`Taxable Amount: `}
                         className="text-right font-mono border-blue-200 focus:border-blue-500"
                         placeholder="Amount"
                       />
                       <FormField
                         name="grossReceiptsTax"
                         value={formData.grossReceiptsTax}
+                        label={`Community Due Amount: `}
                         onChange={(e) =>
                           handleInputChange('grossReceiptsTax', e.target.value)
                         }
@@ -333,12 +364,14 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                         onChange={(e) =>
                           handleInputChange('salaries', e.target.value)
                         }
+                        label={`Taxable Amount: `}
                         className="text-right font-mono border-blue-200 focus:border-blue-500"
                         placeholder="Amount"
                       />
                       <FormField
                         name="salariesTax"
                         value={formData.salariesTax}
+                        label={`Community Due Amount: `}
                         onChange={(e) =>
                           handleInputChange('salariesTax', e.target.value)
                         }
@@ -361,12 +394,14 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                         onChange={(e) =>
                           handleInputChange('realProperty', e.target.value)
                         }
+                        label={`Taxable Amount: `}
                         className="text-right font-mono border-blue-200 focus:border-blue-500"
                         placeholder="Amount"
                       />
                       <FormField
                         name="realPropertyTax"
                         value={formData.realPropertyTax}
+                        label={`Community Due Amount: `}
                         onChange={(e) =>
                           handleInputChange('realPropertyTax', e.target.value)
                         }

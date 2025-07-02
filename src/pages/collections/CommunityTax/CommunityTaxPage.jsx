@@ -9,6 +9,8 @@ import {
 } from '@heroicons/react/24/outline';
 import DataTable from '@/components/common/DataTable';
 import CommunityTaxForm from './CommunityTaxForm';
+import SearchableDropdown from '@/components/common/SearchableDropDown';
+import Modal from '@/components/common/Modal';
 // import CommunityTaxDetails from './CommunityTaxDetails';
 // import { fetchCommunityTaxCertificates } from '@/features/tax/communityTaxSlice';
 // Add sample data (will be used if Redux state is empty)
@@ -58,6 +60,7 @@ function CommunityTaxPage() {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentCertificate, setCurrentCertificate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showListModal, setShowListModal] = useState(false);
   // Use sample data if Redux state is empty
   const certificates =
     reduxCertificates && reduxCertificates.length > 0
@@ -215,7 +218,25 @@ function CommunityTaxPage() {
     //     'text-gray-600 hover:text-gray-900 p-1 rounded-full hover:bg-gray-50',
     // },
   ];
+  const fruits = [
+    'Apple',
+    'Banana',
+    'Cherry',
+    'Date',
+    'Elderberry',
+    'Fig',
+    'Grape',
+    'Honeydew',
+    'Kiwi',
+    'Lemon',
+  ];
+  const handleShowList = () => {
+    setShowListModal(true);
+  };
 
+  const handleCloseListModal = () => {
+    setShowListModal(false);
+  };
   return (
     <div className="container mx-auto p-2 sm:px-4 sm:py-8">
       {currentView === 'list' && (
@@ -223,7 +244,7 @@ function CommunityTaxPage() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
-                Community Tax Certificates
+                Community Tax Certificate
               </h1>
               <p className="text-gray-600">Manage community tax certificates</p>
             </div>
@@ -281,7 +302,7 @@ function CommunityTaxPage() {
 
       {currentView === 'form' && (
         <div>
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-start mb-6 flex-col  gap-8">
             <div className="flex items-center">
               <button
                 onClick={handleBackToList}
@@ -292,8 +313,8 @@ function CommunityTaxPage() {
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">
                   {currentCertificate
-                    ? 'Edit Community Tax Certificate'
-                    : 'Create Community Tax Certificate'}
+                    ? 'Edit Community Tax Certificate (INDIVIDUAL)'
+                    : 'Community Tax Certificate (INDIVIDUAL)'}
                 </h1>
                 <p className="text-gray-600">
                   {currentCertificate
@@ -301,6 +322,24 @@ function CommunityTaxPage() {
                     : 'Fill out the form to create a new certificate'}
                 </p>
               </div>
+            </div>
+            <div className="flex items-end gap-2 justify-end w-full">
+              <SearchableDropdown
+                options={fruits}
+                placeholder="Choose Citizen"
+              />
+
+              <button
+                type="button"
+                onClick={handleShowList}
+                className="btn btn-secondary flex-initial"
+              >
+                Show List
+              </button>
+              <button className="btn btn-primary flex-initial">
+                Add Attachments
+              </button>
+              <button className="btn btn-outline flex-initial">Print</button>
             </div>
           </div>
 
@@ -361,6 +400,91 @@ function CommunityTaxPage() {
           </div>
         </div>
       )}
+      {/* Modal for General Ledger View */}
+      <Modal
+        isOpen={showListModal}
+        onClose={handleCloseListModal}
+        title="General Ledger View"
+        size="lg"
+      >
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fund Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ledger Item
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Account Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Account Code
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Debit
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Credit
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Document Type Name
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              <tr>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  General Fund
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Community Tax
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Community Tax
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  4-01-01-050
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  0
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  96.00
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Community Tax
+                </td>
+              </tr>
+              <tr>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  General Fund
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Cash - Local Tr...
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Cash - Local Tr...
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  1-01-01-010
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  96.00
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  0
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Community Tax
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Modal>
     </div>
   );
 }

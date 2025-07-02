@@ -2,6 +2,8 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
 import { useState } from 'react';
+import { DocumentIcon } from '@heroicons/react/24/outline';
+import { TrashIcon } from 'lucide-react';
 
 const BURIAL_RECEIPT_SCHEMA = Yup.object().shape({
   title: Yup.string().required('Title is required'),
@@ -30,7 +32,7 @@ const BURIAL_RECEIPT_SCHEMA = Yup.object().shape({
 
 function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
-
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const initialValues = initialData || {
     title: 'mr',
     name: '',
@@ -53,7 +55,7 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
 
   const handleServiceTypeChange = (e, setFieldValue) => {
     const value = e.target.value;
-    setFieldValue('serviceType', value);
+    // setFieldValue('serviceType', value);
     setShowAdditionalFields(value !== 'inter');
   };
   // Sample names data - replace with your actual data source
@@ -63,215 +65,312 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
     { value: 'jane_smith', label: 'Smith, Jane' },
     // Add more names as needed
   ];
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files).map((file) => ({
+        file,
+        id: Math.random().toString(36).substring(2, 9),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      }));
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+    }
+  };
+
+  const handleDeleteFile = (id) => {
+    setSelectedFiles((prev) => prev.filter((file) => file.id !== id));
+  };
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={BURIAL_RECEIPT_SCHEMA}
-      onSubmit={onSubmit}
-      enableReinitialize
-    >
-      {({ values, errors, touched, handleChange, setFieldValue }) => (
-        <Form className="space-y-4 p-4 bg-white rounded-lg">
-          {/* Attachments Section */}
-          <div>
-            <h2 className="font-bold mb-2">Attachments</h2>
-            <input
-              type="file"
-              className="block w-full text-sm text-gray-500
+    <div className="space-y-4">
+      <div className="w-full pt-4 flex justify-end gap-4 items-center">
+        <button
+          type="button"
+          // onClick={handleShowList}
+          className="btn btn-secondary flex-initial"
+        >
+          Show List
+        </button>
+        <button className="btn btn-outline flex-initial">Print</button>
+      </div>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={BURIAL_RECEIPT_SCHEMA}
+        onSubmit={onSubmit}
+        enableReinitialize
+      >
+        {({ values, errors, touched, handleChange, setFieldValue }) => (
+          <Form className="space-y-4 p-4 bg-white rounded-lg">
+            {/* Attachments Section */}
+            <div className="mb-4">
+              <div>
+                <h2 className="font-bold mb-2">Attachments</h2>
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
                 file:text-sm file:font-medium
                 file:bg-blue-50 file:text-blue-700
                 hover:file:bg-blue-100"
-            />
-          </div>
+                />
+              </div>
+              {selectedFiles.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <h3 className="text-sm font-medium text-gray-700">
+                    Selected Files:
+                  </h3>
+                  <ul className="divide-y divide-gray-200">
+                    {selectedFiles.map((file) => (
+                      <li
+                        key={file.id}
+                        className="py-2 flex justify-between items-center"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <DocumentIcon className="h-5 w-5 text-gray-400" />
+                          <span className="text-sm text-gray-600 truncate max-w-xs">
+                            {file.name}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            ({formatFileSize(file.size)})
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteFile(file.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
 
-          {/* Receipt Header */}
-          <div className="text-center">
-            {/* <h2 className="font-bold">
+            {/* Receipt Header */}
+            <div className="text-center">
+              {/* <h2 className="font-bold">
               CITY/MUNICIPAL BURIAL PERMIT AND FREE RECEIPT
             </h2> */}
-            <FormField
-              // label="No."
-              name="receiptNumber"
-              type="text"
-              // required
-              value="BU-RE-36AL-CEIPT"
-              readOnly
-              className="font-bold text-center"
-            />
-          </div>
-
-          {/* Title and Name */}
-          {/* Name Section */}
-          <div>
-            {/* <label className="block font-medium">MR. / MRS.</label> */}
-            <FormField
-              label="MR. / MRS."
-              name="name"
-              type="select"
-              options={NAME_OPTIONS}
-              placeholder="Select name"
-              required
-            />
-          </div>
-
-          {/* Deceased Information */}
-          <div className="space-y-4">
-            <FormField label="Name" name="deceasedName" type="text" required />
-            <FormField
-              label="Nationality"
-              name="nationality"
-              type="text"
-              required
-            />
-            <FormField label="Age" name="age" type="number" required />
-            <FormField
-              label="Date of Death"
-              name="dateOfDeath"
-              type="date"
-              required
-            />
-            <FormField
-              label="Cause of Death"
-              name="causeOfDeath"
-              type="text"
-              required
-            />
-            <FormField
-              label="Name of Cemetery"
-              name="cemeteryName"
-              type="text"
-              required
-            />
-          </div>
-
-          {/* Service Type Radio Buttons */}
-          <div className="space-y-2">
-            <label className="block font-medium">Service Type</label>
-            <div className="flex space-x-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="serviceType"
-                  value="inter"
-                  checked={values.serviceType === 'inter'}
-                  onChange={(e) => handleServiceTypeChange(e, setFieldValue)}
-                  className="form-radio"
-                />
-                <span className="ml-2">INTER</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="serviceType"
-                  value="disinter"
-                  checked={values.serviceType === 'disinter'}
-                  onChange={(e) => handleServiceTypeChange(e, setFieldValue)}
-                  className="form-radio"
-                />
-                <span className="ml-2">DISINTER</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="serviceType"
-                  value="remove"
-                  checked={values.serviceType === 'remove'}
-                  onChange={(e) => handleServiceTypeChange(e, setFieldValue)}
-                  className="form-radio"
-                />
-                <span className="ml-2">REMOVE</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Additional Fields (shown when not INTER) */}
-          {showAdditionalFields && (
-            <div className="space-y-4 pl-6 border-l-2 border-gray-200">
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isInfectious"
-                    checked={values.isInfectious}
-                    onChange={handleChange}
-                    className="form-checkbox"
-                  />
-                  <span className="ml-2">Infectious</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isEmbalmed"
-                    checked={values.isEmbalmed}
-                    onChange={handleChange}
-                    className="form-checkbox"
-                  />
-                  <span className="ml-2">Embalmed</span>
-                </label>
-              </div>
               <FormField
-                label="Disposition of Remains"
-                name="dispositionRemarks"
-                type="textarea"
-                rows={2}
-                required={values.serviceType !== 'inter'}
+                // label="No."
+                name="receiptNumber"
+                type="text"
+                // required
+                value="BU-RE-36AL-CEIPT"
+                readOnly
+                className="font-bold text-center"
               />
             </div>
-          )}
 
-          {/* Payment Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Invoice Date"
-              name="invoiceDate"
-              type="date"
-              required
-            />
-            <FormField
-              label="Payment Method"
-              name="paymentMethod"
-              type="text"
-              required
-            />
-            <FormField
-              label="Amount Received"
-              name="amountReceived"
-              type="number"
-              required
-              min="0"
-            />
-            <FormField
-              label="Reference Number"
-              name="referenceNumber"
-              type="text"
-            />
-          </div>
+            {/* Title and Name */}
+            {/* Name Section */}
+            <div>
+              {/* <label className="block font-medium">MR. / MRS.</label> */}
+              <FormField
+                label="MR. / MRS."
+                name="name"
+                type="select"
+                options={NAME_OPTIONS}
+                placeholder="Select name"
+                required
+              />
+            </div>
 
-          {/* Remarks */}
-          <FormField label="Remarks" name="remarks" type="textarea" rows={2} />
+            {/* Deceased Information */}
+            <div className="space-y-4">
+              <FormField
+                label="Name"
+                name="deceasedName"
+                type="select"
+                options={NAME_OPTIONS}
+                required
+              />
+              <FormField
+                label="Nationality"
+                name="nationality"
+                type="select"
+                options={[
+                  { value: 'filipino', label: 'Filipino' },
+                  { value: 'non-filipino', label: 'Non-Filipino' },
+                ]}
+                required
+              />
+              <FormField label="Age" name="age" type="number" required />
+              <FormField
+                label="Sex"
+                name="sex"
+                type="select"
+                options={[
+                  { value: 'male', label: 'Male' },
+                  { value: 'non-filipino', label: 'Female' },
+                ]}
+                required
+              />
+              <FormField
+                label="Date of Death"
+                name="dateOfDeath"
+                type="date"
+                required
+              />
+              <FormField
+                label="Cause of Death"
+                name="causeOfDeath"
+                type="text"
+                required
+              />
+              <FormField
+                label="Name of Cemetery"
+                name="cemeteryName"
+                type="text"
+                required
+              />
+            </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Submit
-            </button>
-          </div>
-        </Form>
-      )}
-    </Formik>
+            {/* Service Type Radio Buttons */}
+            <div className="space-y-2">
+              <label className="block font-medium">Service Type</label>
+              <div className="flex space-x-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="serviceType"
+                    value="inter"
+                    checked={values.serviceType === 'inter'}
+                    onChange={(e) => handleServiceTypeChange(e, setFieldValue)}
+                    className="form-radio"
+                  />
+                  <span className="ml-2">INTER</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="serviceType"
+                    value="disinter"
+                    checked={values.serviceType === 'disinter'}
+                    onChange={(e) => handleServiceTypeChange(e, setFieldValue)}
+                    className="form-radio"
+                  />
+                  <span className="ml-2">DISINTER</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="serviceType"
+                    value="remove"
+                    checked={values.serviceType === 'remove'}
+                    onChange={(e) => handleServiceTypeChange(e, setFieldValue)}
+                    className="form-radio"
+                  />
+                  <span className="ml-2">REMOVE</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Additional Fields (shown when not INTER) */}
+            {showAdditionalFields && (
+              <div className="space-y-4 pl-6 border-l-2 border-gray-200">
+                <div className="flex items-center space-x-4">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="isInfectious"
+                      checked={values.isInfectious}
+                      onChange={handleChange}
+                      className="form-checkbox"
+                    />
+                    <span className="ml-2">Infectious</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="isEmbalmed"
+                      checked={values.isEmbalmed}
+                      onChange={handleChange}
+                      className="form-checkbox"
+                    />
+                    <span className="ml-2">Embalmed</span>
+                  </label>
+                </div>
+                <FormField
+                  label="Disposition of Remains"
+                  name="dispositionRemarks"
+                  type="textarea"
+                  rows={2}
+                  required={values.serviceType !== 'inter'}
+                />
+              </div>
+            )}
+
+            {/* Payment Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="Invoice Date"
+                name="invoiceDate"
+                type="date"
+                required
+              />
+              <FormField
+                label="Payment Method"
+                name="paymentMethod"
+                type="text"
+                required
+              />
+              <FormField
+                label="Amount Received"
+                name="amountReceived"
+                type="number"
+                required
+                min="0"
+              />
+              <FormField
+                label="Reference Number"
+                name="referenceNumber"
+                type="text"
+              />
+            </div>
+
+            {/* Remarks */}
+            <FormField
+              label="Remarks"
+              name="remarks"
+              type="textarea"
+              rows={2}
+            />
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Submit
+              </button>
+            </div>
+          </Form>
+        )}
+      </Formik>
+    </div>
   );
 }
 
 export default BurialServiceReceiptForm;
+// Helper function to format file size
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}

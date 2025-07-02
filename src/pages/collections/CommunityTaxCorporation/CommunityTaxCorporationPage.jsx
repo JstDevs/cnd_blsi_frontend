@@ -12,6 +12,8 @@ import DataTable from '@/components/common/DataTable';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import CTCForm from './CTCForm';
+import SearchableDropdown from '@/components/common/SearchableDropDown';
+import Modal from '@/components/common/Modal';
 
 // Sample data for demonstration
 // Updated sample data to match the image structure
@@ -82,7 +84,7 @@ function CommunityTaxCorporationPage() {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentCertificate, setCurrentCertificate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-
+  const [showListModal, setShowListModal] = useState(false);
   // Use sample data (replace with Redux when implemented)
   const certificates = sampleCertificates;
 
@@ -241,7 +243,25 @@ function CommunityTaxCorporationPage() {
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
   ];
+  const fruits = [
+    'Apple',
+    'Banana',
+    'Cherry',
+    'Date',
+    'Elderberry',
+    'Fig',
+    'Grape',
+    'Honeydew',
+    'Kiwi',
+    'Lemon',
+  ];
+  const handleShowList = () => {
+    setShowListModal(true);
+  };
 
+  const handleCloseListModal = () => {
+    setShowListModal(false);
+  };
   return (
     <div className="container mx-auto  sm:px-4 sm:py-8">
       {currentView === 'list' && (
@@ -249,7 +269,7 @@ function CommunityTaxCorporationPage() {
           <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
-                Corporation Tax Certificates
+                Corporation Tax Certificate
               </h1>
               <p className="text-gray-600">
                 Manage corporation tax certificates
@@ -309,7 +329,7 @@ function CommunityTaxCorporationPage() {
 
       {currentView === 'form' && (
         <div>
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-start mb-6 flex-col  gap-8">
             <div className="flex items-center">
               <button
                 onClick={handleBackToList}
@@ -320,8 +340,8 @@ function CommunityTaxCorporationPage() {
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">
                   {currentCertificate
-                    ? 'Edit Corporation Certificate'
-                    : 'Create Corporation Certificate'}
+                    ? 'Edit Community Tax Certificate (CORPORATE)'
+                    : 'Community Tax Certificate (CORPORATE)'}
                 </h1>
                 <p className="text-gray-600">
                   {currentCertificate
@@ -329,6 +349,24 @@ function CommunityTaxCorporationPage() {
                     : 'Fill out the form to create a new certificate'}
                 </p>
               </div>
+            </div>
+            <div className="flex items-end gap-2 justify-end w-full">
+              <SearchableDropdown
+                options={fruits}
+                placeholder="Choose Vendors"
+              />
+
+              <button
+                type="button"
+                onClick={handleShowList}
+                className="btn btn-secondary flex-initial"
+              >
+                Show List
+              </button>
+              <button className="btn btn-primary flex-initial">
+                Add Attachments
+              </button>
+              <button className="btn btn-outline flex-initial">Print</button>
             </div>
           </div>
 
@@ -390,6 +428,92 @@ function CommunityTaxCorporationPage() {
           </div>
         </div>
       )}
+
+      {/* Modal for General Ledger View */}
+      <Modal
+        isOpen={showListModal}
+        onClose={handleCloseListModal}
+        title="General Ledger View"
+        size="lg"
+      >
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fund Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ledger Item
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Account Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Account Code
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Debit
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Credit
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Document Type Name
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              <tr>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  General Fund
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Community Tax
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Community Tax
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  4-01-01-050
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  0
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  96.00
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Community Tax
+                </td>
+              </tr>
+              <tr>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  General Fund
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Cash - Local Tr...
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Cash - Local Tr...
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  1-01-01-010
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  96.00
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  0
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  Community Tax
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Modal>
     </div>
   );
 }

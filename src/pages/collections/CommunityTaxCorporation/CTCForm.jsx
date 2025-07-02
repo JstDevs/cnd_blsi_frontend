@@ -226,17 +226,27 @@ const CTCForm = ({ initialData, readOnly, onBack }) => {
                 <h3 className="font-semibold text-lg text-blue-900 mb-4">
                   A. BASIC COMMUNITY TAX (₱ 500.00)
                 </h3>
-                <div className="flex justify-end">
-                  <div className="w-32">
-                    <FormField
-                      name="basicCommunityTax"
-                      value={formData.basicCommunityTax}
-                      onChange={(e) =>
-                        handleInputChange('basicCommunityTax', e.target.value)
-                      }
-                      className="text-right font-mono border-blue-200 focus:border-blue-500"
-                    />
-                  </div>
+
+                <div className="flex justify-end gap-3 ">
+                  <FormField
+                    name="basicCommunityTax"
+                    value={formData.basicCommunityTax}
+                    onChange={(e) =>
+                      handleInputChange('basicCommunityTax', e.target.value)
+                    }
+                    label={`Taxable Amount: `}
+                    className="text-right font-mono border-blue-200 focus:border-blue-500"
+                  />
+                  {/* TODO CHANGE THIS TO ACTUAL FOR FIELD NAME */}
+                  <FormField
+                    name="basicTax"
+                    label={`Community Due Amount: `}
+                    value={formData.basicTax}
+                    onChange={(e) =>
+                      handleInputChange('basicTax', e.target.value)
+                    }
+                    className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
+                  />
                 </div>
               </div>
 
@@ -263,6 +273,7 @@ const CTCForm = ({ initialData, readOnly, onBack }) => {
                             e.target.value
                           )
                         }
+                        label={`Taxable Amount: `}
                         className="text-right font-mono border-blue-200 focus:border-blue-500"
                         placeholder="Amount"
                       />
@@ -272,6 +283,7 @@ const CTCForm = ({ initialData, readOnly, onBack }) => {
                         onChange={(e) =>
                           handleInputChange('assessedValueTax', e.target.value)
                         }
+                        label={`Community Due Amount: `}
                         className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
                         placeholder="Tax"
                       />
@@ -293,6 +305,7 @@ const CTCForm = ({ initialData, readOnly, onBack }) => {
                         onChange={(e) =>
                           handleInputChange('grossReceipts', e.target.value)
                         }
+                        label={`Taxable Amount: `}
                         className="text-right font-mono border-blue-200 focus:border-blue-500"
                         placeholder="Amount"
                       />
@@ -302,6 +315,7 @@ const CTCForm = ({ initialData, readOnly, onBack }) => {
                         onChange={(e) =>
                           handleInputChange('grossReceiptsTax', e.target.value)
                         }
+                        label={`Community Due Amount: `}
                         className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
                         placeholder="Tax"
                       />

@@ -89,6 +89,19 @@ function GeneralServiceReceiptModal({
       }
       size="xl"
     >
+      <div className="w-full py-4 flex justify-end gap-4 items-center">
+        <button
+          type="button"
+          // onClick={handleShowList}
+          className="btn btn-secondary flex-initial"
+        >
+          Show List
+        </button>
+        <button className="btn btn-primary flex-initial">
+          Add Attachments
+        </button>
+        <button className="btn btn-outline flex-initial">Print</button>
+      </div>
       <Formik
         initialValues={initialValues}
         validationSchema={generalServiceReceiptSchema}

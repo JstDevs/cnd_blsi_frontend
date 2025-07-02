@@ -165,6 +165,12 @@ const RealPropertyTaxForm = () => {
                   Payment
                 </th>
                 <th className="border border-gray-300 p-2 text-sm font-medium">
+                  Full Payment
+                </th>
+                <th className="border border-gray-300 p-2 text-sm font-medium">
+                  Penalty
+                </th>
+                <th className="border border-gray-300 p-2 text-sm font-medium">
                   Actions
                 </th>
               </tr>
@@ -362,6 +368,11 @@ const RealPropertyTaxForm = () => {
               <FormField
                 label="Owner"
                 name="owner"
+                type="select"
+                options={[
+                  { value: 'owner1', label: 'Owner 1' },
+                  { value: 'owner2', label: 'Owner 2' },
+                ]}
                 value={formData.owner}
                 onChange={(e) => handleInputChange('owner', e.target.value)}
                 className="border-green-200 focus:border-green-500 focus:ring-green-500"
@@ -409,6 +420,17 @@ const RealPropertyTaxForm = () => {
               <FormField
                 label="Tax Declaration Number"
                 name="taxDeclarationNumber"
+                type="select"
+                options={[
+                  {
+                    value: 'taxDeclarationNumber1',
+                    label: 'Tax Declaration Number 1',
+                  },
+                  {
+                    value: 'taxDeclarationNumber2',
+                    label: 'Tax Declaration Number 2',
+                  },
+                ]}
                 value={formData.taxDeclarationNumber}
                 onChange={(e) =>
                   handleInputChange('taxDeclarationNumber', e.target.value)
@@ -448,7 +470,7 @@ const RealPropertyTaxForm = () => {
             </h3>
           </div>
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
               <FormField
                 label="Land Values"
                 name="previousLandValues"
@@ -485,23 +507,49 @@ const RealPropertyTaxForm = () => {
                 }
                 className="border-gray-200 focus:border-green-500 focus:ring-green-500"
               />
-              <div className="flex flex-col gap-2">
-                <FormField
-                  label="General Revision (Year)"
-                  name="dueDateYear"
-                  value={formData.dueDateYear}
-                  onChange={(e) =>
-                    handleInputChange('dueDateYear', e.target.value)
-                  }
-                  className="border-gray-200 focus:border-green-500 focus:ring-green-500"
-                />
-                <FormField
-                  label="Payment"
-                  name="payment"
-                  value={formData.payment}
-                  onChange={(e) => handleInputChange('payment', e.target.value)}
-                  className="border-gray-200 focus:border-green-500 focus:ring-green-500"
-                />
+              <FormField
+                label="General Revision (Year)"
+                name="dueDateYear"
+                type="select"
+                options={[
+                  {
+                    value: '2024',
+                    label: '2024',
+                  },
+                  {
+                    value: '2025',
+                    label: '2025',
+                  },
+                  {
+                    value: '2026',
+                    label: '2026',
+                  },
+                ]}
+                value={formData.dueDateYear}
+                onChange={(e) =>
+                  handleInputChange('dueDateYear', e.target.value)
+                }
+                className="border-gray-200 focus:border-green-500 focus:ring-green-500"
+              />
+              <FormField
+                label="Due Date (Year)"
+                name="dueDateYear"
+                value={formData.dueDateYear}
+                onChange={(e) =>
+                  handleInputChange('dueDateYear', e.target.value)
+                }
+                className="border-gray-200 focus:border-green-500 focus:ring-green-500"
+              />
+              <FormField
+                label="Payment"
+                name="payment"
+                value={formData.payment}
+                onChange={(e) => handleInputChange('payment', e.target.value)}
+                className="border-gray-200 focus:border-green-500 focus:ring-green-500"
+              />
+              <div className="flex items-center gap-2">
+                <button className="btn btn-primary ">Add</button>
+                <button className="btn btn-outline">Remove</button>
               </div>
             </div>
           </div>
