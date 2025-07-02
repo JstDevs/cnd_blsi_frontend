@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import DataTable from '@/components/common/DataTable';
 import CommunityTaxForm from './CommunityTaxForm';
-import SearchableDropdown from '@/components/common/SearchableDropDown';
+import SearchableDropdown from '@/components/common/SearchableDropdown';
 import Modal from '@/components/common/Modal';
 // import CommunityTaxDetails from './CommunityTaxDetails';
 // import { fetchCommunityTaxCertificates } from '@/features/tax/communityTaxSlice';

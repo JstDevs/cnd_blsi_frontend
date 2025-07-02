@@ -12,7 +12,7 @@ import DataTable from '@/components/common/DataTable';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import CTCForm from './CTCForm';
-import SearchableDropdown from '@/components/common/SearchableDropDown';
+import SearchableDropdown from '@/components/common/SearchableDropdown';
 import Modal from '@/components/common/Modal';
 
 // Sample data for demonstration
