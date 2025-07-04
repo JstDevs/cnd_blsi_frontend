@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import FormField from '../../components/common/FormField';
 import { obligationRequestItemsCalculator } from '../../utils/obligationRequestItemsCalculator';
 
-function ObligationRequestAddItemForm({
+function FundUtilizationAddItemForm({
   onSubmit,
   onClose,
   responsibilityOptions = [],
@@ -314,4 +314,4 @@ function ObligationRequestAddItemForm({
   );
 }
 
-export default ObligationRequestAddItemForm;
+export default FundUtilizationAddItemForm;
