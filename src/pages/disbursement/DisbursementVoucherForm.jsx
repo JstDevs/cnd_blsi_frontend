@@ -119,7 +119,6 @@ function DisbursementVoucherForm({ initialData, onClose, employeeOptions = [], v
     responsibilityCenter:
       initialData?.responsibilityCenter || '',
     requestForPayment: initialData?.requestForPayment || '',
-    modeOfPayment: initialData?.modeOfPayment || '',
     items:
       Array.isArray(initialData?.items) && initialData.items.length > 0
         ? initialData.items
@@ -144,11 +143,11 @@ function DisbursementVoucherForm({ initialData, onClose, employeeOptions = [], v
       ? initialData.Attachments
       : [],
     OBR_LinkID: initialData?.OBR_LinkID || '',
-    contraAccount: '',
-modeOfPayment: '',
-bank: '',
-checkNumber: '',
-receivedPaymentBy: '',
+    contraAccount: initialData?.contraAccount || '',
+    modeOfPayment: initialData?.modeOfPayment || '',
+    bank: initialData?.bank || '',
+    checkNumber: initialData?.checkNumber || '',
+    receivedPaymentBy: initialData?.receivedPaymentBy || '',
   };
 
   const handleSubmit = (values) => {
