@@ -57,6 +57,7 @@ export function obligationRequestItemsCalculator({
     subtotalTaxExcluded,
     withheld,
     ewt,
+    ewtrate,
     totalDeduction,
     subtotal,
   };

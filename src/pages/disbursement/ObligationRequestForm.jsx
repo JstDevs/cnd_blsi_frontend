@@ -45,7 +45,7 @@ const disbursementVoucherSchema = Yup.object().shape({
 function ObligationRequestForm({ initialData, onClose, employeeOptions = [], vendorOptions = [], individualOptions = [], employeeData = [], vendorData = [], individualData = [], departmentOptions = [], fundOptions = [], projectOptions = [], fiscalYearOptions = [], particularsOptions = [],
   unitOptions = [],
   taxCodeOptions = [],
-  chartOfAccountsOptions = [],
+  budgetOptions = [],
 taxCodeFull = [] }) {
   const dispatch = useDispatch();
   const formikRef = useRef(null); 
@@ -221,7 +221,6 @@ taxCodeFull = [] }) {
       })
       .catch((error) => {
         toast.error(error?.message || 'Failed to submit');
-        console.error('Error submitting DV:', error);
       })
       .finally(() => {
         setIsSubmitting(false);
@@ -262,8 +261,6 @@ taxCodeFull = [] }) {
             isValid,
           }) => {
             
-    console.log("ERRORS:", errors);
-    console.log("Toucher:", touched);
             const { grossAmount, totalTaxes, netAmount } = calculateTotals(
               values.items,
               values.taxes
@@ -317,39 +314,6 @@ taxCodeFull = [] }) {
               // setFieldValue('responsibilityCenter', payee.responsibilityCenter);
             };
 
-            const handleRequestTypeChange = (type) => {
-              setSelectedRequest(null);
-              setFieldValue('requestForPayment', type);
-              setFieldValue('items', [defaultItem]);
-            };
-
-            const handleRequestSelect = (request) => {
-              setSelectedRequest(request);
-              const requestItems = request.items.map((item) => ({
-                description: item.item,
-                amount: item.amount,
-                accountCode: item.accountCode,
-                remarks: item.remarks,
-                fpp: item.fpp,
-                amountDue: item.amountDue,
-                account: item.account,
-                fundCode: item.fundCode,
-              }));
-              setFieldValue('items', requestItems);
-            };
-
-            const handleTaxTypeChange = (index, value) => {
-              const selectedTax = taxTypes.find((tax) => tax.value === value);
-              if (selectedTax) {
-                setFieldValue(`taxes.${index}.taxType`, selectedTax.value);
-                setFieldValue(`taxes.${index}.rate`, selectedTax.rate);
-                setFieldValue(
-                  `taxes.${index}.amount`,
-                  (grossAmount * selectedTax.rate).toFixed(2)
-                );
-              }
-            };
-
             const getPayeeOptions = (type) => {
               switch (type) {
                 case 'Employee':
@@ -364,57 +328,6 @@ taxCodeFull = [] }) {
               }
             };
 
-            const handleItemAmountChange = (index, value) => {
-              setFieldValue(`items.${index}.amount`, value);
-              // Recalculate tax amounts when item amounts change
-              values.taxes.forEach((tax, taxIndex) => {
-                if (tax.taxType) {
-                  const selectedTax = taxTypes.find(
-                    (t) => t.value === tax.taxType
-                  );
-                  if (selectedTax) {
-                    const newGrossAmount = values.items.reduce((sum, item, i) => {
-                      const amount =
-                        i === index
-                          ? Number(value || 0)
-                          : Number(item.amount || 0);
-                      return sum + amount;
-                    }, 0);
-                    setFieldValue(
-                      `taxes.${taxIndex}.amount`,
-                      (newGrossAmount * selectedTax.rate).toFixed(2)
-                    );
-                  }
-                }
-              });
-            };
-            const handleContraAccountAmountChange = (index, value) => {
-              setFieldValue(`contraAccounts.${index}.amount`, value);
-              // Recalculate tax amounts when contra account amounts change
-              values.taxes.forEach((tax, taxIndex) => {
-                if (tax.taxType) {
-                  const selectedTax = taxTypes.find(
-                    (t) => t.value === tax.taxType
-                  );
-                  if (selectedTax) {
-                    const newGrossAmount = values.contraAccounts.reduce(
-                      (sum, account, i) => {
-                        const amount =
-                          i === index
-                            ? Number(value || 0)
-                            : Number(account.amount || 0);
-                        return sum + amount;
-                      },
-                      0
-                    );
-                    setFieldValue(
-                      `taxes.${taxIndex}.amount`,
-                      (newGrossAmount * selectedTax.rate).toFixed(2)
-                    );
-                  }
-                }
-              });
-            };
             return (
               <Form className="space-y-8">
                 {/* Payee Type Selection */}
@@ -461,7 +374,7 @@ taxCodeFull = [] }) {
 
                         <Select
                           options={getPayeeOptions(values.payeeType)}
-                          value={selectedPayeeType}
+                          value={getPayeeOptions(values.payeeType).find(p => p.value === values.payeeId) || null}
                           onChange={(option) => handlePayeeSelect(option.value)}
                           className="react-select-container"
                           classNamePrefix="react-select"
@@ -701,7 +614,7 @@ taxCodeFull = [] }) {
                           particularsOptions={particularsOptions}
                           unitOptions={unitOptions}
                           taxCodeOptions={taxCodeOptions}
-                          chartOfAccountsOptions={chartOfAccountsOptions}
+                          budgetOptions={budgetOptions}
                           taxCodeFull={taxCodeFull}
                           onClose={() => setShowEntryModal(false)}
                           onSubmit={(entry) => {
@@ -714,9 +627,9 @@ taxCodeFull = [] }) {
                     </>
                   )}
                 </FieldArray>
-{errors.accountingEntries && (
-  <p className="mt-1 text-sm text-red-600">{errors.accountingEntries}</p>
-)}
+                {errors.accountingEntries && (
+                  <p className="mt-1 text-sm text-red-600">{errors.accountingEntries}</p>
+                )}
                   
                 <hr />
 

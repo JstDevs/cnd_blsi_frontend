@@ -1,34 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Generate mock ORS data
-const generateMockObligationRequests = () => {
-  const statuses = ['Pending', 'Certified Budget Available', 'Approved', 'Obligated', 'Cancelled'];
-  const departments = ['Office of the Mayor', 'Accounting Department', 'Treasury Department', 'IT Department'];
-  const descriptions = [
-    'Purchase of office supplies',
-    'Payment for consulting services',
-    'Monthly internet subscription',
-    'Office equipment maintenance',
-    'Seminar expenses',
-  ];
-
-  return Array.from({ length: 10 }, (_, i) => ({
-    id: i + 1,
-    orsNumber: `OBR-2024-01-${String(i + 1).padStart(4, '0')}`,
-    orsDate: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
-    payeeName: `Vendor ${i + 1}`,
-    requestingOffice: departments[Math.floor(Math.random() * departments.length)],
-    particulars: descriptions[Math.floor(Math.random() * descriptions.length)],
-    totalAmount: Math.floor(Math.random() * 100000) + 10000,
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    preparedBy: 'John Smith',
-    dateCreated: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString(),
-  }));
-};
-
 const initialState = {
-  obligationRequests: generateMockObligationRequests(),
+  obligationRequests: [],
   obligationRequest: null,
   isLoading: false,
   error: null,

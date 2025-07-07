@@ -8,8 +8,19 @@ import {
 } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import DisbursementVoucherForm from './DisbursementVoucherForm';
-import DisbursementVoucherDetails from './DisbursementVoucherDetails';
 import { fetchDisbursementVouchers } from '@/features/disbursement/disbursementVoucherSlice';
+import { fetchEmployees } from '../../features/settings/employeeSlice';
+import { fetchCustomers } from '@/features/settings/customersSlice';
+import { fetchVendorDetails } from '@/features/settings/vendorDetailsSlice';
+import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { fetchProjectDetails } from '@/features/settings/projectDetailsSlice';
+import { fetchFunds } from '@/features/budget/fundsSlice';
+import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
+import { fetchItems } from '@/features/settings/itemSlice';
+import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
+import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
+import { fetchBudgets } from '@/features/budget/budgetSlice';
+import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 
 function DisbursementVoucherPage() {
   const dispatch = useDispatch();
@@ -17,12 +28,37 @@ function DisbursementVoucherPage() {
     (state) => state.disbursementVouchers
   );
 
+  const { employees } = useSelector(state => state.employees);
+  const { customers } = useSelector(state => state.customers);
+  const { vendorDetails } = useSelector(state => state.vendorDetails);
+  const { departments } = useSelector(state => state.departments);
+  const { projectDetails } = useSelector(state => state.projectDetails);
+  const { funds } = useSelector(state => state.funds);
+  const { fiscalYears } = useSelector(state => state.fiscalYears);
+  const { items } = useSelector(state => state.items);
+  const { taxCodes } = useSelector(state => state.taxCodes);
+  const { itemUnits } = useSelector(state => state.itemUnits);
+  const { budgets } = useSelector(state => state.budget);
+  const chartOfAccounts = useSelector(state => state.chartOfAccounts?.accounts || []);
+
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentDisbursementVoucher, setCurrentDisbursementVoucher] =
     useState(null);
 
   useEffect(() => {
     dispatch(fetchDisbursementVouchers());
+    dispatch(fetchEmployees());
+    dispatch(fetchCustomers());
+    dispatch(fetchVendorDetails());
+    dispatch(fetchDepartments());
+    dispatch(fetchProjectDetails());
+    dispatch(fetchFunds());
+    dispatch(fetchFiscalYears());
+    dispatch(fetchItems());
+    dispatch(fetchTaxCodes());
+    dispatch(fetchItemUnits());
+    dispatch(fetchBudgets());
+    dispatch(fetchAccounts());
   }, [dispatch]);
 
   const handleCreateDV = () => {
@@ -55,56 +91,16 @@ function DisbursementVoucherPage() {
 
   // Table columns definition
   const columns = [
+    
     {
-      key: 'dvNumber',
-      header: 'DV Number',
-      sortable: true,
-      className: 'font-medium text-neutral-900',
-    },
-    {
-      key: 'dvDate',
-      header: 'Date',
-      sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: 'payeeName',
-      header: 'Payee',
-      sortable: true,
-    },
-    {
-      key: 'orsNumber',
-      header: 'ORS Number',
-      sortable: true,
-    },
-    {
-      key: 'modeOfPayment',
-      header: 'Mode of Payment',
-      sortable: true,
-    },
-    {
-      key: 'grossAmount',
-      header: 'Gross Amount',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'netAmount',
-      header: 'Net Amount',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'status',
+      key: 'Status',
       header: 'Status',
       sortable: true,
       render: (value) => {
         let bgColor = 'bg-neutral-100 text-neutral-800';
 
         switch (value) {
-          case 'Pending Certification':
+          case 'Requested':
             bgColor = 'bg-warning-100 text-warning-800';
             break;
           case 'Pending Approval':
@@ -131,25 +127,61 @@ function DisbursementVoucherPage() {
         );
       },
     },
+    {
+      key: 'InvoiceDate',
+      header: 'Invoice Date',
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
+      key: 'InvoiceNumber',
+      header: 'Invoice Number',
+      sortable: true,
+    },
+    {
+      key: 'ResponsibilityCenterName',
+      header: 'Responsibility Center',
+      sortable: true,
+    },
+    {
+      key: 'Total',
+      header: 'Total',
+      sortable: true,
+    },
+    {
+      key: 'FiscalYearName',
+      header: 'Fiscal Year',
+      sortable: true,
+    },
+    {
+      key: 'ProjectName',
+      header: 'Project',
+      sortable: true,
+    },
+    {
+      key: 'CustomerID',
+      header: 'CustomerID',
+      sortable: true,
+    },
   ];
 
   // Actions for table rows
-  const actions = [
-    {
-      icon: EyeIcon,
-      title: 'View',
-      onClick: handleViewDV,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEditDV,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-  ];
+  // const actions = [
+  //   {
+  //     icon: EyeIcon,
+  //     title: 'View',
+  //     onClick: handleViewDV,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEditOR,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  // ];
 
   return (
     <div>
@@ -159,7 +191,7 @@ function DisbursementVoucherPage() {
             <div className="flex justify-between items-center">
               <div>
                 <h1>Disbursement Vouchers</h1>
-                <p>Manage disbursement vouchers and payments</p>
+                <p>Manage disbursement vouchers</p>
               </div>
               <button
                 type="button"
@@ -176,9 +208,22 @@ function DisbursementVoucherPage() {
             <DataTable
               columns={columns}
               data={disbursementVouchers}
-              actions={actions}
+              actions={(row) => {
+                const actionList = [];
+
+                if (row.Transaction?.Status === 'Rejected') {
+                  actionList.push({
+                    icon: PencilIcon,
+                    title: 'Edit',
+                    onClick: () => handleEditOR(row),
+                    className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+                  });
+                }
+
+                return actionList;
+              }}
               loading={isLoading}
-              onRowClick={handleViewDV}
+              // onRowClick={handleViewOR}
             />
           </div>
         </div>
@@ -214,8 +259,61 @@ function DisbursementVoucherPage() {
           <div className="mt-4">
             <DisbursementVoucherForm
               initialData={currentDisbursementVoucher}
+              employeeOptions={employees.map(emp => ({
+                value: emp.ID,
+                label: emp.FirstName + ' ' + emp.MiddleName + ' ' + emp.LastName,
+              }))}
+              vendorOptions={vendorDetails.map(vendor => ({
+                value: vendor.ID,
+                label: vendor.Name,
+              }))}
+              individualOptions={customers.map(customer => ({
+                value: customer.ID,
+                label: customer.Name,
+              }))}
+              chartOfAccountsOptions={(chartOfAccounts || []).map(account => ({
+                value: account.ID,
+                label: account.AccountCode + ' - ' + account.Name,
+              }))}
+              employeeData={employees}
+              vendorData={vendorDetails}
+              individualData={customers}
+              departmentOptions={departments.map(dept => ({
+                value: dept.ID,
+                label: dept.Name,
+              }))}
+              fundOptions={funds.map(fund => ({
+                value: fund.ID,
+                label: fund.Name,
+              }))}
+              projectOptions={projectDetails.map(project => ({
+                value: project.ID,
+                label: project.Title,
+              }))}
+              fiscalYearOptions={fiscalYears.map(fiscalYear => ({
+                value: fiscalYear.ID,
+                label: fiscalYear.Name,
+              }))}
+              particularsOptions={items.map(item => ({
+                value: item.ID,
+                label: item.Name,
+              }))}
+              unitOptions={itemUnits.map(unit => ({
+                value: unit.ID,
+                label: unit.Name,
+              }))}
+              taxCodeOptions={taxCodes.map(code => ({
+                value: code.ID,
+                label: code.Name,
+              }))}
+              budgetOptions={budgets.map(code => ({
+                value: code.ID,
+                label: code.Name,
+              }))}
+              taxCodeFull = {taxCodes}
               onCancel={handleBackToList}
               onSubmitSuccess={handleBackToList}
+              onClose={handleBackToList}
             />
           </div>
         </div>
@@ -246,13 +344,6 @@ function DisbursementVoucherPage() {
                 Edit DV
               </button>
             </div>
-          </div>
-
-          <div className="mt-4">
-            <DisbursementVoucherDetails
-              dv={currentDisbursementVoucher}
-              onBack={handleBackToList}
-            />
           </div>
         </div>
       )}

@@ -10,8 +10,8 @@ export const fetchBudgets = createAsyncThunk(
         resolve({
           data: [
             {
-              id: 1,
-              budgetName: '2024 Operating Budget',
+              ID: 1,
+              Name: '2024 Operating Budget',
               fiscalYear: '2024',
               department: 'Department 1',
               subDepartment: 'Sub-Department 1',
@@ -25,8 +25,8 @@ export const fetchBudgets = createAsyncThunk(
               status: 'active',
             },
             {
-              id: 2,
-              budgetName: '2024 Capital Budget',
+              ID: 2,
+              Name: '2024 Capital Budget',
               fiscalYear: '2024',
               department: 'Department 2',
               subDepartment: 'Sub-Department 2',

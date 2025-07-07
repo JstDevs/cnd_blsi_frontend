@@ -1,9 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Formik, Form, FieldArray, Field, ErrorMessage } from 'formik';
-import Select from 'react-select';
+import { Formik, Form, FieldArray, Field, ErrorMessage,useFormikContext } from 'formik';
 import * as Yup from 'yup';
+import Select from 'react-select';
 import FormField from '../../components/common/FormField';
+import ObligationRequestAddItemForm from './ObligationRequestAddItemForm';
+import Modal from '../../components/common/Modal';
+import Button from '../../components/common/Button';
+import { convertAmountToWords } from '../../utils/amountToWords';
+import { Trash2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import {
   BuildingOfficeIcon,
   DocumentCheckIcon,
@@ -13,124 +20,11 @@ import {
 import {
   createDisbursementVoucher,
   updateDisbursementVoucher,
+  fetchRequestOptions,
 } from '../../features/disbursement/disbursementVoucherSlice';
 import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
-
-// Mock data for request for payment
-const requestForPaymentData = {
-  Salary: [
-    {
-      id: 'SAL001',
-      name: 'Monthly Salary Payment - March 2025',
-      items: [
-        {
-          item: 'Basic Salary',
-          remarks: 'March 2025',
-          fpp: 'FPP-2025-007',
-          amount: 450000.0,
-          amountDue: 450000.0,
-          account: 'Salaries',
-          accountCode: '1.02-05-994',
-          fundCode: 'GF-004',
-        },
-        {
-          item: '13th Month Pay',
-          remarks: 'Prorated amount',
-          fpp: 'FPP-2025-008',
-          amount: 75000.0,
-          amountDue: 75000.0,
-          account: 'Salaries',
-          accountCode: '1.02-05-994',
-          fundCode: 'GF-004',
-        },
-      ],
-    },
-  ],
-  Travel: [
-    {
-      id: 'TRV001',
-      name: 'Travel Expenses Reimbursement',
-      items: [
-        {
-          item: 'Transportation Allowance',
-          remarks: 'Manila to Cebu',
-          fpp: 'FPP-2025-003',
-          amount: 8500.0,
-          amountDue: 8500.0,
-          account: 'Travel Expenses',
-          accountCode: '1.02-05-991',
-          fundCode: 'GF-002',
-        },
-        {
-          item: 'Accommodation',
-          remarks: '3 days hotel stay',
-          fpp: 'FPP-2025-004',
-          amount: 12000.0,
-          amountDue: 12000.0,
-          account: 'Travel Expenses',
-          accountCode: '1.02-05-991',
-          fundCode: 'GF-002',
-        },
-      ],
-    },
-  ],
-  Supplies: [
-    {
-      id: 'SUP001',
-      name: 'Office Supplies Purchase - Q1 2025',
-      items: [
-        {
-          item: 'Bond Paper A4 - 500 sheets',
-          remarks: 'White, 80gsm',
-          fpp: 'FPP-2025-001',
-          amount: 2500.0,
-          amountDue: 2500.0,
-          account: 'Office Supplies',
-          accountCode: '1.02-05-992',
-          fundCode: 'GF-001',
-        },
-        {
-          item: 'Ballpoint Pens - Blue',
-          remarks: '1 box (50 pcs)',
-          fpp: 'FPP-2025-002',
-          amount: 750.0,
-          amountDue: 750.0,
-          account: 'Office Supplies',
-          accountCode: '1.02-05-992',
-          fundCode: 'GF-001',
-        },
-      ],
-    },
-  ],
-  Maintenance: [
-    {
-      id: 'MNT001',
-      name: 'Equipment Maintenance - Quarterly',
-      items: [
-        {
-          item: 'Air Conditioning Unit Servicing',
-          remarks: '4 units, quarterly maintenance',
-          fpp: 'FPP-2025-005',
-          amount: 15000.0,
-          amountDue: 15000.0,
-          account: 'Maintenance',
-          accountCode: '1.02-05-993',
-          fundCode: 'GF-003',
-        },
-        {
-          item: 'Generator Maintenance',
-          remarks: 'Annual servicing',
-          fpp: 'FPP-2025-006',
-          amount: 25000.0,
-          amountDue: 25000.0,
-          account: 'Maintenance',
-          accountCode: '1.02-05-993',
-          fundCode: 'GF-003',
-        },
-      ],
-    },
-  ],
-};
+import { current } from '@reduxjs/toolkit';
+import { obligationRequestItemsCalculator } from '../../utils/obligationRequestItemsCalculator';
 
 const payeeTypes = [
   { value: 'Employee', label: 'Employee' },
@@ -138,151 +32,51 @@ const payeeTypes = [
   { value: 'Individual', label: 'Individual' },
 ];
 
-const paymentRequests = [
-  { value: 'Salary', label: 'Obligation Request' },
-  { value: 'Travel', label: 'FURS' },
+const requestTypes = [
+  { value: 'Obligation Request', label: 'Obligation Request' },
+  { value: 'FURS', label: 'FURS' },
+  { value: 'Standalone Request', label: 'Standalone Request' },
 ];
 
-const paymentModes = [
-  { value: 'Cash', label: 'Cash' },
-  { value: 'Cheque', label: 'Cheque' },
-  { value: 'Bank Transfer', label: 'Bank Transfer' },
-];
-
-const taxTypes = [
-  { value: 'Withholding Tax', label: 'Withholding Tax (2%)', rate: 0.02 },
-  { value: 'VAT', label: 'VAT (12%)', rate: 0.12 },
-  {
-    value: 'Expanded Withholding',
-    label: 'Expanded Withholding Tax (1%)',
-    rate: 0.01,
-  },
-];
-
-const accountCodes = [
-  { value: '1.02-05-991', label: '1.02-05-991 - Travel Expenses' },
-  { value: '1.02-05-992', label: '1.02-05-992 - Office Supplies' },
-  { value: '1.02-05-993', label: '1.02-05-993 - Maintenance' },
-  { value: '1.02-05-994', label: '1.02-05-994 - Salaries' },
-];
-const contraAccountCodes = [
-  // ASSETS (1000000)
-  // Current Assets - Cash and Cash Equivalents
-  {
-    code: '1010101',
-    account: 'Cash - General Fund',
-    normalBalance: 'Debit',
-    category: 'Assets',
-  },
-  {
-    code: '1010102',
-    account: 'Cash - Special Education Fund',
-    normalBalance: 'Debit',
-    category: 'Assets',
-  },
-  {
-    code: '1010103',
-    account: 'Cash - Local Development Fund',
-    normalBalance: 'Debit',
-    category: 'Assets',
-  },
-  {
-    code: '1010201',
-    account: 'Petty Cash Fund',
-    normalBalance: 'Debit',
-    category: 'Assets',
-  },
-  {
-    code: '1010301',
-    account: 'Cash in Bank - Current Account',
-    normalBalance: 'Debit',
-    category: 'Assets',
-  },
-  {
-    code: '1010302',
-    account: 'Cash in Bank - Savings Account',
-    normalBalance: 'Debit',
-    category: 'Assets',
-  },
-
-  // Receivables
-  {
-    code: '1020101',
-    account: 'Accounts Receivable',
-    normalBalance: 'Debit',
-    category: 'Assets',
-  },
-  {
-    code: '1020201',
-    account: 'Due from National Government',
-    normalBalance: 'Debit',
-    category: 'Assets',
-  },
-  {
-    code: '1020301',
-    account: 'Advances to Officers and Employees',
-    normalBalance: 'Debit',
-    category: 'Assets',
-  },
-];
 // Validation schema
 const disbursementVoucherSchema = Yup.object().shape({
-  dvDate: Yup.date().required('Date is required'),
-  paymentDate: Yup.date().required('Payment date is required'),
+  // obrNo: Yup.string().required('OBR No. is required'),
+  // obrDate: Yup.date().required('Date is required'),
   payeeType: Yup.string().required('Payee type is required'),
-  payeeName: Yup.string().required('Payee name is required'),
-  payeeId: Yup.string().required('Payee ID is required'),
-  payeeAddress: Yup.string().required('Address is required'),
-  officeUnitProject: Yup.string().required('Office/Unit/Project is required'),
-  orsNumber: Yup.string().required('ORS Number is required'),
-  responsibilityCenter: Yup.string().required(
-    'Responsibility Center is required'
-  ),
-  requestForPayment: Yup.string().required('Request for Payment is required'),
-  modeOfPayment: Yup.string().required('Mode of payment is required'),
-  items: Yup.array()
-    .of(
-      Yup.object().shape({
-        description: Yup.string().required('Item description is required'),
-        amount: Yup.number()
-          .required('Amount is required')
-          .min(0, 'Amount must be greater than 0'),
-        accountCode: Yup.string().required('Account code is required'),
-      })
-    )
-    .min(1, 'At least one item is required'),
-  taxes: Yup.array().of(
-    Yup.object().shape({
-      taxType: Yup.string().required('Tax type is required'),
-      rate: Yup.number().required('Rate is required'),
-      amount: Yup.number()
-        .required('Amount is required')
-        .min(0, 'Amount must be greater than 0'),
-    })
-  ),
-  contraAccounts: Yup.array()
-    .of(
-      Yup.object().shape({
-        code: Yup.string().required('Account code is required'),
-        account: Yup.string().required('Account name is required'),
-        amount: Yup.number()
-          .required('Amount is required')
-          .min(0, 'Amount must be greater than 0'),
-        normalBalance: Yup.string().required('Normal balance is required'),
-      })
-    )
-    .min(1, 'At least one contra account is required'),
+  payeeId: Yup.string().required('Payee selection is required'),
+  // responsibilityCenter: Yup.string().required('Responsibility Center is required'),
+  // fund: Yup.string().required('Fund is required'),
+  // fiscalYear: Yup.string().required('Fiscal Year is required'),
+  // project: Yup.string().required('Project is required'),
+  accountingEntries: Yup.array().min(1, 'At least one item is required'),
+  contraAccount: Yup.string().required('Contra Account is required'),
+  modeOfPayment: Yup.string().required('Mode of Payment is required'),
+  bank: Yup.string().required('Bank is required'),
+  checkNumber: Yup.string().required('Check Number is required'),
+  receivedPaymentBy: Yup.string().required('Received Payment By is required'),
 });
 
-function DisbursementVoucherForm({ initialData, onClose }) {
+function DisbursementVoucherForm({ initialData, onClose, employeeOptions = [], vendorOptions = [], individualOptions = [], employeeData = [], vendorData = [], individualData = [], departmentOptions = [], fundOptions = [], projectOptions = [], fiscalYearOptions = [], particularsOptions = [],
+  unitOptions = [],
+  taxCodeOptions = [],
+  budgetOptions = [],
+  taxCodeFull = [],
+  chartOfAccountsOptions = [] }) {
   const dispatch = useDispatch();
-  const { employees } = useSelector((state) => state.employees);
-  const { customers } = useSelector((state) => state.customers);
-  const { vendorDetails } = useSelector((state) => state.vendorDetails);
-
+  const formikRef = useRef(null); 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPayee, setSelectedPayee] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
+
+  const [showEntryModal, setShowEntryModal] = useState(false);
+  const [accountingEntries, setAccountingEntries] = useState([]);
+  const handleAddEntry = (entry) => {
+    setAccountingEntries([...accountingEntries, entry]);
+  };
+
+  const { requestOptions, requestOptionsLoading, requestOptionsError } = useSelector(
+    state => state.disbursementVouchers
+  );
 
   const calculateTotals = (items, taxes) => {
     const grossAmount = items.reduce(
@@ -311,6 +105,8 @@ function DisbursementVoucherForm({ initialData, onClose }) {
   };
 
   const initialValues = {
+    obrNo:           initialData?.obrNo   || '',
+    obrDate:         initialData?.obrDate || new Date().toISOString().split('T')[0],
     dvDate: initialData?.dvDate || new Date().toISOString().split('T')[0],
     paymentDate:
       initialData?.paymentDate || new Date().toISOString().split('T')[0],
@@ -321,7 +117,7 @@ function DisbursementVoucherForm({ initialData, onClose }) {
     officeUnitProject: initialData?.officeUnitProject || '',
     orsNumber: initialData?.orsNumber || '',
     responsibilityCenter:
-      initialData?.responsibilityCenter || 'Treasury Office',
+      initialData?.responsibilityCenter || '',
     requestForPayment: initialData?.requestForPayment || '',
     modeOfPayment: initialData?.modeOfPayment || '',
     items:
@@ -341,6 +137,18 @@ function DisbursementVoucherForm({ initialData, onClose }) {
               normalBalance: '',
             },
           ],
+    accountingEntries: Array.isArray(initialData?.accountingEntries)
+      ? initialData.accountingEntries
+      : [],
+    Attachments: Array.isArray(initialData?.Attachments)
+      ? initialData.Attachments
+      : [],
+    OBR_LinkID: initialData?.OBR_LinkID || '',
+    contraAccount: '',
+modeOfPayment: '',
+bank: '',
+checkNumber: '',
+receivedPaymentBy: '',
   };
 
   const handleSubmit = (values) => {
@@ -350,28 +158,92 @@ function DisbursementVoucherForm({ initialData, onClose }) {
       values.items,
       values.taxes
     );
-    const dataToSubmit = {
-      ...values,
-      grossAmount,
-      totalTaxes,
-      netAmount,
-    };
+
+
+    const fd = new FormData();
+
+    if(values.payeeType === 'Employee') {
+      fd.append('EmployeeID', values.payeeId);
+      fd.append('VendorID', '');
+      fd.append('CustomerID', '');
+    }
+    else if(values.payeeType === 'Vendor') {
+      fd.append('EmployeeID', '');
+      fd.append('VendorID', values.payeeId);
+      fd.append('CustomerID', '');
+    }
+    else if(values.payeeType === 'Individual') {
+      fd.append('EmployeeID', '');
+      fd.append('VendorID', '');
+      fd.append('CustomerID', values.payeeId);
+    }
+
+    fd.append('PayeeType',         values.payeeType);
+    fd.append('Payee',         selectedPayee?.Name || (selectedPayee?.FirstName + ' ' + selectedPayee?.MiddleName + ' ' + selectedPayee?.LastName) || '');
+    fd.append('Address',      selectedPayee?.StreetAddress || '');
+    fd.append('InvoiceNumber',         values.obrNo);
+    fd.append('InvoiceDate',         values.obrDate);
+    fd.append('ResponsibilityCenter', values.responsibilityCenter);
+
+    const total = values.accountingEntries.reduce((sum, e) => sum + Number(e.subtotal || 0), 0);
+    const ewt = values.accountingEntries.reduce((sum, e) => sum + Number(e.ewt || 0), 0);
+    const withheldAmount = values.accountingEntries.reduce((sum, e) => sum + Number(e.withheld || 0), 0);
+    const vat = values.accountingEntries.reduce((sum, e) => sum + Number(e.vat || 0), 0);
+    const discounts = values.accountingEntries.reduce((sum, e) => sum + Number(e.discount || 0), 0);
+
+    fd.append('Total', total.toFixed(2));
+    fd.append('EWT', ewt.toFixed(2));
+    fd.append('WithheldAmount', withheldAmount.toFixed(2));
+    fd.append('Vat_Total', vat.toFixed(2));
+    fd.append('Discounts', discounts.toFixed(2));
+
+    fd.append('FundsID', values.fund);
+    fd.append('FiscalYearID', values.fiscalYear);
+    fd.append('ProjectID', values.project);
+
+    fd.append('TravelID', '');
+
+    /* ⬇︎ Totals */
+    // fd.append('grossAmount',  grossAmount);
+    // fd.append('totalTaxes',   totalTaxes);
+    // fd.append('netAmount',    netAmount);
+
+    /* ⬇︎ Complex arrays → stringify */
+    fd.append('Items',            JSON.stringify(values.accountingEntries));
+    // fd.append('taxes',            JSON.stringify(values.taxes));
+    // fd.append('contraAccounts',   JSON.stringify(values.contraAccounts));
+    // fd.append('accountingEntries',JSON.stringify(values.accountingEntries));
+
+    /* ⬇︎ Attachments (handle files or IDs) */
+    values.Attachments.forEach((att, idx) => {
+      if (att.File) {
+        fd.append(`Attachments[${idx}].File`, att.File);
+      } else if (att.ID) {
+        fd.append(`Attachments[${idx}].ID`, att.ID);
+      }
+    });
+
+    fd.append('OBR_LinkID', values.OBR_LinkID || '');
+
+    fd.append('ContraAccountID', values.contraAccount);
+fd.append('ModeOfPayment', values.modeOfPayment);
+fd.append('BankID', values.bank);
+fd.append('CheckNumber', values.checkNumber);
+fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
+
 
     const action = initialData
-      ? updateDisbursementVoucher({
-          ...dataToSubmit,
-          id: initialData.id,
-          dvNumber: initialData.dvNumber,
-        })
-      : createDisbursementVoucher(dataToSubmit);
+      ? updateDisbursementVoucher({ formData: fd, id: initialData.ID })
+      : createDisbursementVoucher(fd);
 
     dispatch(action)
       .unwrap()
       .then(() => {
+        toast.success('Success');
         onClose();
       })
       .catch((error) => {
-        console.error('Error submitting DV:', error);
+        toast.error(error?.message || 'Failed to submit');
       })
       .finally(() => {
         setIsSubmitting(false);
@@ -382,992 +254,698 @@ function DisbursementVoucherForm({ initialData, onClose }) {
     switch (type) {
       case 'Employee':
         return <UsersIcon className="w-5 h-5" />;
-      case 'Supplier':
+      case 'Vendor':
         return <BuildingOfficeIcon className="w-5 h-5" />;
-      case 'Contractor':
-        return <BuildingOfficeIcon className="w-5 h-5" />;
-      case 'Government':
+      case 'Individual':
         return <UserIcon className="w-5 h-5" />;
       default:
         return null;
     }
   };
-  // console.log({ selectedPayee });
+
   return (
-    <div className="max-w-7xl mx-auto p-2 sm:p-6 bg-white">
-      <Formik
-        initialValues={initialValues}
-        validationSchema={disbursementVoucherSchema}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleChange,
-          handleBlur,
-          setFieldValue,
-          isValid,
-        }) => {
-          const { grossAmount, totalTaxes, netAmount } = calculateTotals(
-            values.items,
-            values.taxes
-          );
+    <div>
+      <div className="max-w-7xl mx-auto p-2 sm:p-6 bg-white">
+        <Formik
+          innerRef={formikRef}
+          initialValues={initialValues}
+          validationSchema={disbursementVoucherSchema}
+          onSubmit={handleSubmit}
+          enableReinitialize
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            setFieldValue,
+            setFieldTouched,
+            isValid,
+          }) => {
+            
+            const { grossAmount, totalTaxes, netAmount } = calculateTotals(
+              values.items,
+              values.taxes
+            );
 
-          const handlePayeeTypeChange = (type) => {
-            setSelectedPayee(null);
-            setFieldValue('payeeType', type);
-            setFieldValue('payeeName', '');
-            setFieldValue('payeeId', '');
-            setFieldValue('payeeAddress', '');
-            setFieldValue('officeUnitProject', '');
-            setFieldValue('orsNumber', '');
-          };
-
-          const handlePayeeSelect = (payee) => {
-            // setSelectedPayee(payee);
-            // setFieldValue('payeeName', payee.name);
-            // setFieldValue('payeeId', payee.tin);
-            // setFieldValue('payeeAddress', payee.address);
-            // setFieldValue('officeUnitProject', payee.officeUnitProject);
-            // setFieldValue('orsNumber', payee.obligationRequestNo);
-            // setFieldValue('responsibilityCenter', payee.responsibilityCenter);
-
-            let selectedItem = null;
-            switch (values.payeeType) {
-              case 'Employee':
-                selectedItem = employees.find((item) => item.ID === payee);
-                break;
-              case 'Vendor':
-                selectedItem = vendorDetails.find((item) => item.ID === payee);
-                break;
-              case 'Individual':
-                selectedItem = customers.find((item) => item.ID === payee);
-                break;
-              default:
-                break;
-            }
-            setSelectedPayee(selectedItem);
-            setFieldValue('payeeName', selectedItem?.Name);
-            setFieldValue('payeeId', selectedItem?.ID);
-          };
-
-          const handleRequestTypeChange = (type) => {
-            setSelectedRequest(null);
-            setFieldValue('requestForPayment', type);
-            setFieldValue('items', [defaultItem]);
-          };
-
-          const handleRequestSelect = (request) => {
-            setSelectedRequest(request);
-            const requestItems = request.items.map((item) => ({
-              description: item.item,
-              amount: item.amount,
-              accountCode: item.accountCode,
-              remarks: item.remarks,
-              fpp: item.fpp,
-              amountDue: item.amountDue,
-              account: item.account,
-              fundCode: item.fundCode,
+            
+            const payeeTypeOptions = payeeTypes.map((type) => ({
+              value: type.value,
+              label: type.label,
             }));
-            setFieldValue('items', requestItems);
-          };
 
-          const handleTaxTypeChange = (index, value) => {
-            const selectedTax = taxTypes.find((tax) => tax.value === value);
-            if (selectedTax) {
-              setFieldValue(`taxes.${index}.taxType`, selectedTax.value);
-              setFieldValue(`taxes.${index}.rate`, selectedTax.rate);
-              setFieldValue(
-                `taxes.${index}.amount`,
-                (grossAmount * selectedTax.rate).toFixed(2)
-              );
-            }
-          };
+            // Get the selected value object
+            const selectedPayeeType = payeeTypeOptions.find(
+              (opt) => opt.value === values.payeeType
+            );
 
-          const handleItemAmountChange = (index, value) => {
-            setFieldValue(`items.${index}.amount`, value);
-            // Recalculate tax amounts when item amounts change
-            values.taxes.forEach((tax, taxIndex) => {
-              if (tax.taxType) {
-                const selectedTax = taxTypes.find(
-                  (t) => t.value === tax.taxType
-                );
-                if (selectedTax) {
-                  const newGrossAmount = values.items.reduce((sum, item, i) => {
-                    const amount =
-                      i === index
-                        ? Number(value || 0)
-                        : Number(item.amount || 0);
-                    return sum + amount;
-                  }, 0);
-                  setFieldValue(
-                    `taxes.${taxIndex}.amount`,
-                    (newGrossAmount * selectedTax.rate).toFixed(2)
-                  );
-                }
-              }
-            });
-          };
-          const handleContraAccountAmountChange = (index, value) => {
-            setFieldValue(`contraAccounts.${index}.amount`, value);
-            // Recalculate tax amounts when contra account amounts change
-            values.taxes.forEach((tax, taxIndex) => {
-              if (tax.taxType) {
-                const selectedTax = taxTypes.find(
-                  (t) => t.value === tax.taxType
-                );
-                if (selectedTax) {
-                  const newGrossAmount = values.contraAccounts.reduce(
-                    (sum, account, i) => {
-                      const amount =
-                        i === index
-                          ? Number(value || 0)
-                          : Number(account.amount || 0);
-                      return sum + amount;
-                    },
-                    0
-                  );
-                  setFieldValue(
-                    `taxes.${taxIndex}.amount`,
-                    (newGrossAmount * selectedTax.rate).toFixed(2)
-                  );
-                }
-              }
-            });
-          };
-          const getPayeeOptions = (type) => {
-            // console.log({ type, vendorDetails, customers });
-            switch (type) {
-              case 'Employee':
-                return employees?.map((emp) => ({
-                  label:
-                    emp.FirstName + ' ' + emp.MiddleName + ' ' + emp.LastName,
-                  value: emp.ID,
-                })); // must be an array of { label, value }
-              case 'Vendor':
-                return vendorDetails?.map((vendor) => ({
-                  label: vendor.Name,
-                  value: vendor.ID,
+            const handlePayeeTypeChange = (type) => {
+              setSelectedPayee(null);
+              setFieldValue('payeeType', type);
+              setFieldValue('payeeName', '');
+              setFieldValue('payeeId', '');
+              setFieldValue('payeeAddress', '');
+              setFieldValue('officeUnitProject', '');
+              setFieldValue('orsNumber', '');
+            };
+            
+
+            const handleRequestTypeChange = (type) => {
+              setSelectedRequest(null);
+              setFieldValue('requestType', type);
+
+              if (values.payeeType && values.payeeId && type) {
+                dispatch(fetchRequestOptions({
+                  requestType: type,
+                  payeeType:   values.payeeType,
+                  payeeId:     values.payeeId,
                 }));
-              case 'Individual':
-                return customers?.map((customer) => ({
-                  label:
-                    customer.FirstName +
-                    ' ' +
-                    customer.MiddleName +
-                    ' ' +
-                    customer.LastName,
-                  value: customer.ID,
-                }));
-              // Add more as needed
-              default:
-                return [];
-            }
-          };
-          // console.log(payeeTypes[values.payeeType]);
-          return (
-            <Form className="space-y-8">
-              {/* Payee Type Selection */}
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Payee Information
-                </h2>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Payee Type Buttons */}
-                  <div className="lg:col-span-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Payee Type <span className="text-red-500">*</span>
-                    </label>
-                    <div className="space-y-2">
-                      {payeeTypes.map((type) => (
-                        <button
-                          key={type.value}
-                          type="button"
-                          onClick={() => handlePayeeTypeChange(type.value)}
-                          className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
-                            values.payeeType === type.value
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-300 hover:border-gray-400 text-gray-700'
-                          }`}
-                        >
-                          <PayeeTypeIcon type={type.value} />
-                          <span className="ml-3 font-medium">{type.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                    {errors.payeeType && touched.payeeType && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.payeeType}
-                      </p>
-                    )}
-                  </div>
+              }
+            };
 
-                  {/* Payee Select */}
-                  {values.payeeType && (
+            
+            const handleRequestSelect = (option) => {
+              setSelectedRequest(option);
+
+              const entriesFromRequest = option?.raw?.TransactionItemsAll || [];
+
+              // Add mapped fields for display (without losing raw data)
+              const enrichedEntries = entriesFromRequest.map(item => {
+                /* 1. build “vals” from the raw item */
+                const vals = {
+                  Price:         item.Price        ?? 0,
+                  Quantity:      item.Quantity     ?? 1,
+                  DiscountRate:  item.DiscountRate ?? 0,
+                  Vatable:       item.Vatable,
+                  withheldEWT:   item.EWTRate      ?? 0,
+                };
+
+                /* 2. call your helper */
+                const computed = obligationRequestItemsCalculator({
+                  price:    vals.Price,
+                  quantity: vals.Quantity,
+                  taxRate:  item.TaxRate || 0,
+                  discountPercent: vals.DiscountRate,
+                  vatable: vals.Vatable,
+                  ewtRate: vals.withheldEWT,
+                });
+
+                /* 3. return the full enriched record */
+                return {
+                  ...item,                         // raw DB record
+                  ...computed,                     // whatever fields the calculator returns
+                  itemName:     item.Item?.Name || '',
+                  subtotal:     item.AmountDue || 0,
+                  Remarks:      item.Remarks || '',
+                  FPP:          item.FPP || '',
+                  accountCode:  item.ChargeAccount?.ChartofAccounts?.AccountCode || '',
+                  accountName:  item.ChargeAccount?.ChartofAccounts?.Name || '',
+                  fundCode:     option?.raw?.sourceFunds?.Code || '',
+                };
+              });
+
+
+              if (formikRef.current) {
+                // Append enriched full raw records
+                formikRef.current.setFieldValue('accountingEntries', enrichedEntries);
+                formikRef.current.setFieldValue('OBR_LinkID', option?.raw?.LinkID || '');
+              }
+            };
+
+
+
+            const handlePayeeSelect = (payee) => {
+              let selectedItem = null;
+              switch (values.payeeType) {
+                case 'Employee':
+                  selectedItem = employeeData.find((item) => item.ID === payee);
+                  break;
+                case 'Vendor':
+                  selectedItem = vendorData.find((item) => item.ID === payee);
+                  break;
+                case 'Individual':
+                  selectedItem = individualData.find((item) => item.ID === payee);
+                  break;
+                default:
+                  break;
+              }
+              setSelectedPayee(selectedItem);
+              setFieldValue('payeeName', selectedItem?.Name);
+              setFieldValue('payeeId', selectedItem?.ID);
+            };
+
+            const getPayeeOptions = (type) => {
+              switch (type) {
+                case 'Employee':
+                  return employeeOptions; // must be an array of { label, value }
+                case 'Vendor':
+                  return vendorOptions;
+                case 'Individual':
+                  return individualOptions;
+                // Add more as needed
+                default:
+                  return [];
+              }
+            };
+
+            const getRequestOptions = (type) => {
+              switch (type) {
+                case 'Obligation Request':
+                  return employeeOptions; // must be an array of { label, value }
+                case 'FURS':
+                  return vendorOptions;
+                default:
+                  return [];
+              }
+            };
+
+            return (
+              <Form className="space-y-8">
+                {/* Payee Type Selection */}
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    Payee Information
+                  </h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Payee Type Buttons */}
                     <div className="lg:col-span-1">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select {values.payeeType}{' '}
-                        <span className="text-red-500">*</span>
+                        Payee Type <span className="text-red-500">*</span>
                       </label>
-                      <Select
-                        options={getPayeeOptions(values.payeeType)}
-                        value={getPayeeOptions(values.payeeType).find(
-                          (option) => option.value === values.payeeType
-                        )}
-                        onChange={(option) => handlePayeeSelect(option.value)}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                        placeholder={`Select ${values.payeeType}`}
-                        // isLoading={!payeeTypes[values.payeeType]}
-                        // isDisabled={!payeeTypes[values.payeeType]}
-                      />
-                      {errors.payeeId && touched.payeeId && (
+                      <div className="space-y-2">
+                        {payeeTypes.map((type) => (
+                          <button
+                            key={type.value}
+                            type="button"
+                            onClick={() => handlePayeeTypeChange(type.value)}
+                            className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
+                              values.payeeType === type.value
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                            }`}
+                          >
+                            <PayeeTypeIcon type={type.value} />
+                            <span className="ml-3 font-medium">{type.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                      {errors.payeeType && touched.payeeType && (
                         <p className="mt-1 text-sm text-red-600">
-                          {errors.payeeId}
+                          {errors.payeeType}
                         </p>
                       )}
                     </div>
-                  )}
 
-                  {/* Payee Details */}
-                  {selectedPayee && (
-                    <div className="lg:col-span-1">
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                        <div className="mb-4">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                            Request for Payment
-                          </h3>
-                          <h4 className="text-md font-medium text-gray-700">
-                            Disbursement Voucher
-                          </h4>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4">
-                          <div className="space-y-3">
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium text-gray-600">
-                                Payee:
-                              </span>
-                              <span className="text-sm text-gray-900 text-right">
-                                {selectedPayee.Name ||
-                                  `${selectedPayee.FirstName || ''} ${
-                                    selectedPayee.LastName || ''
-                                  }`.trim()}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium text-gray-600">
-                                Address:
-                              </span>
-                              <span className="text-sm text-gray-900 text-right max-w-xs">
-                                {selectedPayee.Address ||
-                                  selectedPayee.StreetAddress}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium text-gray-600">
-                                TIN/EMPLOYEE No.:
-                              </span>
-                              <span className="text-sm text-gray-900">
-                                {selectedPayee.TIN ||
-                                  selectedPayee.EmployeeNumber}
-                              </span>
-                            </div>
-                            {selectedPayee.Office && (
-                              <div className="flex justify-between">
-                                <span className="text-sm font-medium text-gray-600">
-                                  Office/Unit/Project:
-                                </span>
-                                <span className="text-sm text-gray-900 text-right">
-                                  {selectedPayee.Office}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="border-t border-gray-300 pt-3 mt-3">
-                            <div className="space-y-2">
-                              <div className="flex justify-between">
-                                <span className="text-sm font-medium text-gray-600">
-                                  DV NO:
-                                </span>
-                                <span className="text-sm text-gray-900">
-                                  {values.dvNumber || '-'}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-sm font-medium text-gray-600">
-                                  DATE:
-                                </span>
-                                <span className="text-sm text-gray-900">
-                                  {values.dvDate
-                                    ? new Date(
-                                        values.dvDate
-                                      ).toLocaleDateString('en-GB')
-                                    : '-'}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-sm font-medium text-gray-600">
-                                  PAYMENT:
-                                </span>
-                                <span className="text-sm text-gray-900">
-                                  {values.paymentDate
-                                    ? new Date(
-                                        values.paymentDate
-                                      ).toLocaleDateString('en-GB')
-                                    : '-'}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Request for Payment Section */}
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Request for Payment
-                </h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Request Type Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Request Type <span className="text-red-500">*</span>
-                    </label>
-                    <div className="space-y-2">
-                      {paymentRequests.map((request) => (
-                        <button
-                          key={request.value}
-                          type="button"
-                          onClick={() => handleRequestTypeChange(request.value)}
-                          className={`w-full flex items-center justify-between px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
-                            values.requestForPayment === request.value
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-300 hover:border-gray-400 text-gray-700'
-                          }`}
-                        >
-                          <span className="font-medium">{request.label}</span>
-                          <ChevronDownIcon className="w-5 h-5" />
-                        </button>
-                      ))}
-                    </div>
-                    {errors.requestForPayment && touched.requestForPayment && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.requestForPayment}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Request List */}
-                  {values.requestForPayment &&
-                    requestForPaymentData[values.requestForPayment] && (
-                      <div>
+                    {/* Payee List */}
+                    {values.payeeType && (
+                      <div className="lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Select {values.requestForPayment}
+                          Select {selectedPayeeType?.label} <span className="text-red-500">*</span>
                         </label>
-                        <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-lg">
-                          {requestForPaymentData[values.requestForPayment].map(
-                            (request) => (
-                              <button
-                                key={request.id}
-                                type="button"
-                                onClick={() => handleRequestSelect(request)}
-                                className={`w-full text-left px-4 py-3 border-b border-gray-200 last:border-b-0 transition-colors duration-200 ${
-                                  selectedRequest?.id === request.id
-                                    ? 'bg-blue-50 text-blue-700'
-                                    : 'hover:bg-gray-50'
-                                }`}
-                              >
-                                <div className="font-medium">
-                                  {request.name}
+
+                        <Select
+                          options={getPayeeOptions(values.payeeType)}
+                          onChange={(option) => handlePayeeSelect(option.value)}
+                          value={getPayeeOptions(values.payeeType).find(p => p.value === values.payeeId) || null}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                        />
+                        {errors.payeeType && touched.payeeType && (
+                          <p className="mt-1 text-sm text-red-600">{errors.payeeType}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Payee Details */}
+                    {selectedPayee && (
+                      <div className="lg:col-span-1">
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                          <div className="grid grid-cols-1 gap-4">
+                            <div className="space-y-3">
+                              <div>
+                                <div className="text-sm font-medium text-gray-600">
+                                  Payee:
                                 </div>
-                                <div className="text-sm text-gray-500">
-                                  {request.id}
+                                <div className="text-sm text-gray-900">
+                                  {selectedPayeeType?.label === 'Employee'
+                                    ? `${selectedPayee.FirstName || ''} ${selectedPayee.MiddleName || ''} ${selectedPayee.LastName || ''}`.trim()
+                                    : selectedPayeeType?.label === 'Vendor'
+                                    ? selectedPayee.Name
+                                    : selectedPayeeType?.label === 'Individual'
+                                    ? selectedPayee.Name
+                                    : selectedPayee.Name}
                                 </div>
-                              </button>
-                            )
-                          )}
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-600">
+                                  Address:
+                                </div>
+                                <div className="text-sm text-gray-900">
+                                  {selectedPayeeType?.label === 'Employee'
+                                    ? selectedPayee.StreetAddress
+                                    : selectedPayeeType?.label === 'Vendor'
+                                    ? selectedPayee.StreetAddress
+                                    : selectedPayeeType?.label === 'Individual'
+                                    ? selectedPayee.StreetAddress
+                                    : selectedPayee.StreetAddress}
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
                         </div>
                       </div>
                     )}
-                </div>
-
-                {/* Request Details Table */}
-                {selectedRequest && (
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                      Request Details
-                    </h3>
-                    <div className="overflow-x-auto border border-gray-300 rounded-lg">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Item
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Remarks
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              FPP
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Amount
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Amount Due
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Account
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Account Code
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Fund Code
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {selectedRequest.items.map((item, index) => (
-                            <tr key={index} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {item.item}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {item.remarks}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {item.fpp}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                ₱
-                                {item.amount.toLocaleString('en-PH', {
-                                  minimumFractionDigits: 2,
-                                })}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                ₱
-                                {item.amountDue.toLocaleString('en-PH', {
-                                  minimumFractionDigits: 2,
-                                })}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {item.account}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {item.accountCode}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {item.fundCode}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
                   </div>
-                )}
-              </div>
-
-              {/* Items Section */}
-              {/* <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">Items</h2>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFieldValue('items', [
-                        ...values.items,
-                        { ...defaultItem },
-                      ])
-                    }
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <PlusIcon className="w-4 h-4 mr-2" />
-                    Add Item
-                  </button>
                 </div>
-
-                <div className="overflow-x-auto border border-gray-300 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Description
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Amount
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Account Code
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {values.items.map((item, index) => (
-                        <tr key={index}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Field
-                              name={`items.${index}.description`}
-                              as="textarea"
-                              rows="2"
-                              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              placeholder="Enter item description"
-                            />
-                            <ErrorMessage
-                              name={`items.${index}.description`}
-                              component="p"
-                              className="mt-1 text-sm text-red-600"
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Field
-                              name={`items.${index}.amount`}
-                              type="number"
-                              step="0.01"
-                              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              placeholder="0.00"
-                              onChange={(e) =>
-                                handleItemAmountChange(index, e.target.value)
-                              }
-                            />
-                            <ErrorMessage
-                              name={`items.${index}.amount`}
-                              component="p"
-                              className="mt-1 text-sm text-red-600"
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Field
-                              name={`items.${index}.accountCode`}
-                              type="text"
-                              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              placeholder="Account code"
-                            />
-                            <ErrorMessage
-                              name={`items.${index}.accountCode`}
-                              component="p"
-                              className="mt-1 text-sm text-red-600"
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            {values.items.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newItems = values.items.filter(
-                                    (_, i) => i !== index
-                                  );
-                                  setFieldValue('items', newItems);
-                                }}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <TrashIcon className="w-4 h-4" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div> */}
-              {/* Contra Account Section */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    Contra Account
+                
+                <hr />
+                
+                
+                {/* Payee Type Selection */}
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    Request for Payment
                   </h2>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFieldValue('contraAccounts', [
-                        ...values.contraAccounts,
-                        {
-                          code: '',
-                          account: '',
-                          amount: '',
-                          normalBalance: '',
-                        },
-                      ])
-                    }
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <PlusIcon className="w-4 h-4 mr-2" />
-                    Add Contra Account
-                  </button>
-                </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Payee Type Buttons */}
+                    <div className="lg:col-span-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Request Type <span className="text-red-500">*</span>
+                      </label>
+                      <div className="space-y-2">
+                        {requestTypes.map((type) => (
+                          <button
+                            key={type.value}
+                            type="button"
+                            onClick={() => handleRequestTypeChange(type.value)}
+                            className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
+                              values.requestType === type.value
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                            }`}
+                          >
+                            <span className="ml-3 font-medium">{type.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                      {errors.requestType && touched.requestType && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {errors.requestType}
+                        </p>
+                      )}
+                    </div>
 
-                <div className="overflow-x-auto border border-gray-300 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Code
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Account
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Amount
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Normal Balance
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {values.contraAccounts.map((contraAccount, index) => (
-                        <tr key={index}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Field
-                              name={`contraAccounts.${index}.code`}
-                              as="select"
-                              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              onChange={(e) => {
-                                const selectedAccount = contraAccountCodes.find(
-                                  (acc) => acc.code === e.target.value
-                                );
-                                if (selectedAccount) {
-                                  setFieldValue(
-                                    `contraAccounts.${index}.code`,
-                                    selectedAccount.code
-                                  );
-                                  setFieldValue(
-                                    `contraAccounts.${index}.account`,
-                                    selectedAccount.account
-                                  );
-                                  setFieldValue(
-                                    `contraAccounts.${index}.normalBalance`,
-                                    selectedAccount.normalBalance
-                                  );
-                                }
-                              }}
-                            >
-                              <option value="">Select Account Code</option>
-                              {contraAccountCodes.map((account) => (
-                                <option key={account.code} value={account.code}>
-                                  {account.code} - {account.account}
-                                </option>
-                              ))}
-                            </Field>
-                            <ErrorMessage
-                              name={`contraAccounts.${index}.code`}
-                              component="p"
-                              className="mt-1 text-sm text-red-600"
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm text-gray-900">
-                              {contraAccount.account}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Field
-                              name={`contraAccounts.${index}.amount`}
-                              type="number"
-                              step="0.01"
-                              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              placeholder="0.00"
-                            />
-                            <ErrorMessage
-                              name={`contraAccounts.${index}.amount`}
-                              component="p"
-                              className="mt-1 text-sm text-red-600"
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm text-gray-900">
-                              {contraAccount.normalBalance}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            {values.contraAccounts.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newContraAccounts =
-                                    values.contraAccounts.filter(
-                                      (_, i) => i !== index
-                                    );
-                                  setFieldValue(
-                                    'contraAccounts',
-                                    newContraAccounts
-                                  );
-                                }}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <TrashIcon className="w-4 h-4" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              {/* Taxes Section */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">Taxes</h2>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFieldValue('taxes', [
-                        ...values.taxes,
-                        { taxType: '', rate: 0, amount: '0.00' },
-                      ])
-                    }
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    <PlusIcon className="w-4 h-4 mr-2" />
-                    Add Tax
-                  </button>
-                </div>
+                    {/* Payee List */}
+                    {values.requestType && (
+                      <div className="lg:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Select Request <span className="text-red-500">*</span>
+                        </label>
 
-                <div className="overflow-x-auto border border-gray-300 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Tax Type
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Rate (%)
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Amount
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {values.taxes.map((tax, index) => (
-                        <tr key={index}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Field
-                              name={`taxes.${index}.taxType`}
-                              as="select"
-                              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              onChange={(e) =>
-                                handleTaxTypeChange(index, e.target.value)
+                        <Select
+                          options={requestOptions.map((opt) => {
+                            let fullName = '';
+
+                            // Conditionally build fullName based on payeeType
+                            if (values.payeeType === 'Employee') {
+                              fullName = `${opt.Employee?.FirstName || ''} ${opt.Employee?.MiddleName || ''} ${opt.Employee?.LastName || ''}`.trim();
+                            } else if (values.payeeType === 'Individual') {
+                              if(!opt.Employee?.FirstName && !opt.Employee?.MiddleName && !opt.Employee?.LastName) {
+                                fullName = opt.Name || 'N/A';
                               }
+                              else {
+                                fullName = `${opt.Employee?.FirstName || ''} ${opt.Employee?.MiddleName || ''} ${opt.Employee?.LastName || ''}`.trim();
+                              }
+                            } else if (values.payeeType === 'Vendor') {
+                              fullName = opt.Name || 'N/A';
+                            }
+
+                            return {
+                              value: opt.ID,
+                              label: `${opt.InvoiceNumber || ''} – ${fullName} – ${opt.TIN || ''} – ${opt.InvoiceDate} – ${opt.sourceFunds?.Code || ''}`,
+                              raw: opt,
+                            };
+                          })}
+                          isLoading={requestOptionsLoading}
+                          value={selectedRequest}
+                          onChange={handleRequestSelect}
+                          placeholder={
+                            requestOptionsLoading
+                              ? 'Loading…'
+                              : requestOptionsError
+                              ? `Error: ${requestOptionsError}`
+                              : 'Select request'
+                          }
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                        />
+                        {errors.requestType && touched.requestType && (
+                          <p className="mt-1 text-sm text-red-600">{errors.requestType}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                  
+                <hr />
+                
+                {/* ── Accounting Entries ─────────────────────────────────────── */}
+                <FieldArray name="accountingEntries">
+                  {({ push, remove }) => (
+                    <>
+                      {/* <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-medium">Items</h3>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={() => setShowEntryModal(true)}
+                        >
+                          + Item
+                        </button>
+                      </div> */}
+
+                      {values.accountingEntries.length > 0 && (
+                        <div className="space-y-2">
+                          {/* header row */}
+                          <div className="grid grid-cols-8 gap-2 font-semibold text-sm">
+                            <span>ITEM</span>
+                            <span>AMOUNT</span>
+                            <span>AMOUNT DUE</span>
+                            <span>REMARKS</span>
+                            <span>FPP</span>
+                            <span>ACCOUNT</span>
+                            <span>ACCOUNT CODE</span>
+                            <span>FUND CODE</span>
+                          </div>
+
+                          {/* data rows */}
+                          {values.accountingEntries.map((entry, idx) => (
+                            <div
+                              key={idx}
+                              className="grid grid-cols-8 gap-2 text-sm items-center border p-2 rounded"
                             >
-                              <option value="">Select tax type</option>
-                              {taxTypes.map((taxType) => (
-                                <option
-                                  key={taxType.value}
-                                  value={taxType.value}
+                              <span>{entry.itemName}</span>
+                              <span>{parseFloat(entry.subtotal).toFixed(2)}</span>
+                              <span>{parseFloat(entry.subtotal).toFixed(2)}</span>
+                              <span>{entry.Remarks}</span>
+                              <span>{entry.FPP}</span>
+                              <span>{entry.accountCode}</span>
+                              <span>{entry.accountName}</span>
+                              <span>{entry.fundCode}</span>
+                              <div className="col-span-8 text-right">
+                                <button
+                                  type="button"
+                                  onClick={() => remove(idx)}
+                                  className="text-red-600 text-xs"
                                 >
-                                  {taxType.label}
-                                </option>
-                              ))}
-                            </Field>
-                            <ErrorMessage
-                              name={`taxes.${index}.taxType`}
-                              component="p"
-                              className="mt-1 text-sm text-red-600"
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Field
-                              name={`taxes.${index}.rate`}
-                              type="number"
-                              step="0.01"
-                              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100"
-                              readOnly
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Field
-                              name={`taxes.${index}.amount`}
-                              type="number"
-                              step="0.01"
-                              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100"
-                              readOnly
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newTaxes = values.taxes.filter(
-                                  (_, i) => i !== index
-                                );
-                                setFieldValue('taxes', newTaxes);
-                              }}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <TrashIcon className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
+                                  ✕
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+
+                          {/* footer total */}
+                          <div className="grid grid-cols-8 gap-2 font-semibold pt-2 border-t">
+                            <div className="col-span-7 text-right">Total:</div>
+                            <div className="text-right">
+                              {values.accountingEntries
+                                .reduce((sum, e) => sum + Number(e.subtotal || 0), 0)
+                                .toFixed(2)}
+                            </div>
+                          </div>
+
+                          {/* footer total */}
+                          <div className="grid grid-cols-1 gap-2 font-semibold pt-2 border-t">
+                            <div className="text-right">
+                              {convertAmountToWords(values.accountingEntries
+                                .reduce((sum, e) => sum + Number(e.subtotal || 0), 0)
+                                .toFixed(2))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* modal to add a line */}
+                      <Modal
+                        isOpen={showEntryModal}
+                        onClose={() => setShowEntryModal(false)}
+                        title="Add Accounting Entry"
+                        size="xl"
+                      >
+                        <ObligationRequestAddItemForm
+                          initialData={null}
+                          responsibilityOptions={departmentOptions}
+                          particularsOptions={particularsOptions}
+                          unitOptions={unitOptions}
+                          taxCodeOptions={taxCodeOptions}
+                          budgetOptions={budgetOptions}
+                          taxCodeFull={taxCodeFull}
+                          onClose={() => setShowEntryModal(false)}
+                          onSubmit={(entry) => {
+                            push(entry);
+                            setShowEntryModal(false);
+                          }}
+                        />
+                      </Modal>
+                    </>
+                  )}
+                </FieldArray>
+
+                {/* show validation error */}
+                {errors.accountingEntries && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.accountingEntries}
+                  </p>
+                )}
+
+                <hr />
+
+                {/* ── Tax Summary (auto‑calculated) ───────────────────────────── */}
+{(() => {
+  // Build a quick “hash → totals” on each render
+  const summary = {};
+  values.accountingEntries.forEach((entry) => {
+    console.log('entry', entry);
+    // You can change these keys to match the actual structure
+    const taxName = entry.TaxName || 'N/A';
+    const taxRate = entry.TaxRate || 0;
+    const withheld = Number(entry.WithheldAmount || 0);
+
+    const key = `${taxName}-${taxRate}`;
+    if (!summary[key]) {
+      summary[key] = { taxName, taxRate, withheld: 0 };
+    }
+    summary[key].withheld += withheld;
+  });
+
+  const taxRows = Object.values(summary);
+
+  return taxRows.length ? (
+    <div className="space-y-2">
+      <h3 className="text-lg font-medium">Taxes</h3>
+
+      {/* header */}
+      <div className="grid grid-cols-3 gap-2 text-sm font-semibold">
+        <span>Tax Name</span>
+        <span className="text-right">Tax&nbsp;Rate&nbsp;%</span>
+        <span className="text-right">Total&nbsp;Withheld</span>
+      </div>
+
+      {/* rows */}
+      {taxRows.map(({ taxName, taxRate, withheld }, i) => (
+        <div
+          key={i}
+          className="grid grid-cols-3 gap-2 text-sm border p-2 rounded"
+        >
+          <span>{taxName}</span>
+          <span className="text-right">{parseFloat(taxRate).toFixed(2)}</span>
+          <span className="text-right">
+            {withheld.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </span>
+        </div>
+      ))}
+    </div>
+  ) : null;
+})()}
+
+
+                <hr />
+{/* ── Payment Details ─────────────────────────────────────────────── */}
+<div className="space-y-4">
+  <h3 className="text-lg font-medium">Payment Details</h3>
+
+  {/* Row 1 */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {/* Contra Account (React Select) */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Contra Account
+      </label>
+      <Select
+        name="contraAccount"
+        options={chartOfAccountsOptions} // or use a proper contra account options array
+        onChange={(opt) => setFieldValue('contraAccount', opt?.value)}
+        value={chartOfAccountsOptions.find(p => p.value === values.contraAccount) || null}
+        classNamePrefix="react-select"
+      />
+      {errors.contraAccount && touched.contraAccount && (
+        <p className="mt-1 text-sm text-red-600">{errors.contraAccount}</p>
+      )}
+    </div>
+
+    {/* Mode of Payment */}
+    <div>
+      <FormField
+  type="select"
+  label="Mode of Payment"
+  name="modeOfPayment"
+  options={[
+    { value: 'Cash', label: 'Cash' },
+    { value: 'Check', label: 'Check' },
+    { value: 'Others', label: 'Others' },
+  ]}
+  value={values.modeOfPayment}
+  onChange={handleChange}
+  onBlur={handleBlur}
+  error={errors.modeOfPayment}
+  touched={touched.modeOfPayment}
+  required
+/>
+    </div>
+  </div>
+
+  {/* Row 2 */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {/* Bank */}
+    <div>
+      <FormField
+  type="text"
+  label="Bank"
+  name="bank"
+  value={values.bank}
+  onChange={handleChange}
+  onBlur={handleBlur}
+  error={errors.bank}
+  touched={touched.bank}
+  required
+/>
+    </div>
+
+    {/* Check Number */}
+    <div>
+      <FormField
+  type="text"
+  label="Check No."
+  name="checkNumber"
+  value={values.checkNumber}
+  onChange={handleChange}
+  onBlur={handleBlur}
+  error={errors.checkNumber}
+  touched={touched.checkNumber}
+  required
+/>
+    </div>
+
+    {/* Received Payment By */}
+    <div>
+      
+      <FormField
+  type="text"
+  label="Received Payment By"
+  name="receivedPaymentBy"
+  value={values.receivedPaymentBy}
+  onChange={handleChange}
+  onBlur={handleBlur}
+  error={errors.receivedPaymentBy}
+  touched={touched.receivedPaymentBy}
+  required
+/>
+    </div>
+  </div>
+</div>
+
+
+                <hr />
+                
+                <FieldArray
+                  name="Attachments"
+                  render={({ remove, push }) => (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-medium">Attachments</h3>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={() => push({ File: null })}
+                        >
+                          + Attachment
+                        </button>
+                      </div>
+
+                      {values.Attachments?.map((att, index) => (
+                        <div key={index} className="flex items-center gap-4 mb-2">
+                          {att.ID ? (
+                            <div className="flex-1">
+                              <a
+                                href={`${API_URL}/uploads/${att.DataImage}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 underline"
+                              >
+                                {att.DataName}
+                              </a>
+                              <input type="hidden" name={`Attachments[${index}].ID`} value={att.ID} />
+                            </div>
+                          ) : (
+                            <div className="flex-1 min-w-[300px]">
+                              <label className="block text-sm font-medium mb-1">{`File ${index + 1}`}</label>
+                              <input
+                                type="file"
+                                name={`Attachments[${index}].File`}
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
+                                onChange={(e) =>
+                                  setFieldValue(`Attachments[${index}].File`, e.currentTarget.files[0])
+                                }
+                                onBlur={handleBlur}
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                              />
+                            </div>
+                          )}
+
+                          <Button
+                            type="button"
+                            onClick={() => remove(index)}
+                            className="bg-red-600 hover:bg-red-700 text-white p-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                    </div>
+                  )}
+                />
 
-              {/* Additional Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label
-                    htmlFor="dvDate"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    DV Date <span className="text-red-500">*</span>
-                  </label>
-                  <Field
-                    name="dvDate"
-                    type="date"
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  <ErrorMessage
-                    name="dvDate"
-                    component="p"
-                    className="mt-1 text-sm text-red-600"
-                  />
-                </div>
 
-                <div>
-                  <label
-                    htmlFor="paymentDate"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Payment Date <span className="text-red-500">*</span>
-                  </label>
-                  <Field
-                    name="paymentDate"
-                    type="date"
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  <ErrorMessage
-                    name="paymentDate"
-                    component="p"
-                    className="mt-1 text-sm text-red-600"
-                  />
+                <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+                  <button type="button" className="btn btn-outline">
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Save
+                  </button>
                 </div>
+              </Form>
+            );
+          }}
+        </Formik>
+      </div>
 
-                <div>
-                  <label
-                    htmlFor="modeOfPayment"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Mode of Payment <span className="text-red-500">*</span>
-                  </label>
-                  <Field
-                    name="modeOfPayment"
-                    as="select"
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select mode of payment</option>
-                    <option value="cash">Cash</option>
-                    <option value="check">Check</option>
-                    <option value="bank_transfer">Bank Transfer</option>
-                  </Field>
-                  <ErrorMessage
-                    name="modeOfPayment"
-                    component="p"
-                    className="mt-1 text-sm text-red-600"
-                  />
-                </div>
 
-                <div>
-                  <label
-                    htmlFor="particulars"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Particulars
-                  </label>
-                  <Field
-                    name="particulars"
-                    as="textarea"
-                    rows="3"
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="Enter particulars"
-                  />
-                  <ErrorMessage
-                    name="particulars"
-                    component="p"
-                    className="mt-1 text-sm text-red-600"
-                  />
-                </div>
-              </div>
-
-              {/* Summary Section */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Summary
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-gray-600">
-                      Gross Amount
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      ₱
-                      {grossAmount.toLocaleString('en-PH', {
-                        minimumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-gray-600">
-                      Total Taxes
-                    </p>
-                    <p className="text-2xl font-bold text-red-600">
-                      ₱
-                      {totalTaxes.toLocaleString('en-PH', {
-                        minimumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-gray-600">
-                      Net Amount
-                    </p>
-                    <p className="text-2xl font-bold text-green-600">
-                      ₱
-                      {netAmount.toLocaleString('en-PH', {
-                        minimumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={!isValid}
-                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  <DocumentCheckIcon className="w-5 h-5 mr-2" />
-                  Create Disbursement Voucher
-                </button>
-              </div>
-            </Form>
-          );
-        }}
-      </Formik>
     </div>
   );
 }

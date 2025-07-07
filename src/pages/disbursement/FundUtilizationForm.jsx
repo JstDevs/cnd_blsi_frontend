@@ -43,8 +43,8 @@ const disbursementVoucherSchema = Yup.object().shape({
 function FundUtilizationForm({ initialData, onClose, employeeOptions = [], vendorOptions = [], individualOptions = [], employeeData = [], vendorData = [], individualData = [], departmentOptions = [], fundOptions = [], projectOptions = [], fiscalYearOptions = [], particularsOptions = [],
   unitOptions = [],
   taxCodeOptions = [],
-  chartOfAccountsOptions = [],
-taxCodeFull = [] }) {
+  budgetOptions = [],
+  taxCodeFull = [] }) {
   const dispatch = useDispatch();
   const formikRef = useRef(null); 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -451,7 +451,7 @@ taxCodeFull = [] }) {
 
                         <Select
                           options={getPayeeOptions(values.payeeType)}
-                          value={selectedPayeeType}
+                          value={getPayeeOptions(values.payeeType).find(p => p.value === values.payeeId) || null}
                           onChange={(option) => handlePayeeSelect(option.value)}
                           className="react-select-container"
                           classNamePrefix="react-select"
@@ -675,7 +675,7 @@ taxCodeFull = [] }) {
                           particularsOptions={particularsOptions}
                           unitOptions={unitOptions}
                           taxCodeOptions={taxCodeOptions}
-                          chartOfAccountsOptions={chartOfAccountsOptions}
+                          budgetOptions={budgetOptions}
                           taxCodeFull={taxCodeFull}
                           onClose={() => setShowEntryModal(false)}
                           onSubmit={(entry) => {

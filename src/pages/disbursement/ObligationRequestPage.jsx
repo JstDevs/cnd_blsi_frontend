@@ -20,7 +20,7 @@ import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 import { fetchItems } from '@/features/settings/itemSlice';
 import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
-import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
+import { fetchBudgets } from '@/features/budget/budgetSlice';
 
 function ObligationRequestPage() {
   const dispatch = useDispatch();
@@ -38,8 +38,7 @@ function ObligationRequestPage() {
   const { items } = useSelector(state => state.items);
   const { taxCodes } = useSelector(state => state.taxCodes);
   const { itemUnits } = useSelector(state => state.itemUnits);
-  const chartOfAccounts = useSelector(state => state.chartOfAccounts?.accounts || []);
-
+  const { budgets } = useSelector(state => state.budget);
 
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentObligationRequest, setCurrentObligationRequest] =
@@ -57,7 +56,7 @@ function ObligationRequestPage() {
     dispatch(fetchItems());
     dispatch(fetchTaxCodes());
     dispatch(fetchItemUnits());
-    dispatch(fetchAccounts());
+    dispatch(fetchBudgets());
   }, [dispatch]);
 
   const handleCreateOR = () => {
@@ -301,7 +300,7 @@ function ObligationRequestPage() {
                 value: code.ID,
                 label: code.Name,
               }))}
-              chartOfAccountsOptions={chartOfAccounts.map(code => ({
+              budgetOptions={budgets.map(code => ({
                 value: code.ID,
                 label: code.Name,
               }))}

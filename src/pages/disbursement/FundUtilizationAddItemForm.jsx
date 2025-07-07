@@ -12,7 +12,7 @@ function FundUtilizationAddItemForm({
   unitOptions = [],
   taxCodeOptions = [],
   taxCodeFull = [],
-  chartOfAccountsOptions = [],
+  budgetOptions = [],
   initialData,
 }) {
   const validationSchema = Yup.object({
@@ -60,7 +60,7 @@ function FundUtilizationAddItemForm({
       
        const rcSelected   = responsibilityOptions
                          .find(o => String(o.value) === String(vals.ResponsibilityCenter));
-  const cSelected    = chartOfAccountsOptions
+  const cSelected    = budgetOptions
                          .find(o => String(o.value) === String(vals.ChargeAccountID));
   const itemSelected = particularsOptions
                          .find(o => String(o.value) === String(vals.ItemID));
@@ -136,7 +136,7 @@ function FundUtilizationAddItemForm({
             type="select"
             label="Charge Account"
             name="ChargeAccountID"
-            options={chartOfAccountsOptions}
+            options={budgetOptions}
             {...formik.getFieldProps('ChargeAccountID')}
             required
           />
