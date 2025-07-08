@@ -6,7 +6,12 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
 import Modal from '../../components/common/Modal';
-import { fetchMajorAccountGroups, addMajorAccountGroup, updateMajorAccountGroup, deleteMajorAccountGroup } from '../../features/settings/majorAccountGroupSlice';
+import {
+  fetchMajorAccountGroups,
+  addMajorAccountGroup,
+  updateMajorAccountGroup,
+  deleteMajorAccountGroup,
+} from '../../features/settings/majorAccountGroupSlice';
 import { fetchAccountGroups } from '../../features/settings/accountGroupSlice';
 
 // Validation schema for major account group form
@@ -17,29 +22,37 @@ const majorAccountGroupSchema = Yup.object().shape({
   Name: Yup.string()
     .required('Name is required')
     .max(100, 'Name must be at most 100 characters'),
-  AccountTypeID: Yup.number()
-    .required('Account Type is required'),
+  AccountTypeID: Yup.number().required('Account Type is required'),
 });
 
 function MajorAccountGroupPage() {
   const dispatch = useDispatch();
-  const { majorAccountGroups, isLoading } = useSelector(state => state.majorAccountGroups);
-  const { accountGroups } = useSelector(state => state.accountGroups);
+  const { majorAccountGroups, isLoading } = useSelector(
+    (state) => state.majorAccountGroups
+  );
+  const { accountGroups } = useSelector((state) => state.accountGroups);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentMajorAccountGroup, setCurrentMajorAccountGroup] = useState(null);
+  const [currentMajorAccountGroup, setCurrentMajorAccountGroup] =
+    useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [majorAccountGroupToDelete, setMajorAccountGroupToDelete] = useState(null);
+  const [majorAccountGroupToDelete, setMajorAccountGroupToDelete] =
+    useState(null);
 
   useEffect(() => {
     dispatch(fetchMajorAccountGroups());
     dispatch(fetchAccountGroups());
   }, [dispatch]);
 
-  const enrichedMajorAccountGroups = majorAccountGroups.map(group => ({
-    ...group,
-    accountTypeName: group.AccountType?.Name || ''
-  }));
+  const enrichedMajorAccountGroups = majorAccountGroups.map((group) => {
+    const matchingAccountType = accountGroups.find(
+      (accountType) => accountType.ID === group.AccountTypeID
+    );
+    return {
+      ...group,
+      accountTypeName: matchingAccountType ? matchingAccountType.Name : 'N/A',
+    };
+  });
 
   const handleAddMajorAccountGroup = () => {
     setCurrentMajorAccountGroup(null);
@@ -55,7 +68,7 @@ function MajorAccountGroupPage() {
     setMajorAccountGroupToDelete(majorAccountGroup);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = () => {
     if (majorAccountGroupToDelete) {
       dispatch(deleteMajorAccountGroup(majorAccountGroupToDelete.ID));
@@ -63,24 +76,31 @@ function MajorAccountGroupPage() {
       setMajorAccountGroupToDelete(null);
     }
   };
-  
+
   const handleSubmit = (values, { resetForm }) => {
-    const accountTypeName = accountGroups.find(d => d.ID === Number(values.AccountTypeID))?.Name || '';
+    const accountTypeName =
+      accountGroups.find((d) => d.ID === Number(values.AccountTypeID))?.Name ||
+      '';
 
     const submissionData = {
       ...values,
-      accountTypeName
+      accountTypeName,
     };
 
     if (currentMajorAccountGroup) {
-      dispatch(updateMajorAccountGroup({ ...submissionData, ID: currentMajorAccountGroup.ID }));
+      dispatch(
+        updateMajorAccountGroup({
+          ...submissionData,
+          ID: currentMajorAccountGroup.ID,
+        })
+      );
     } else {
       dispatch(addMajorAccountGroup(submissionData));
     }
     setIsModalOpen(false);
     resetForm();
   };
-  
+
   // Table columns definition
   const columns = [
     {
@@ -100,20 +120,22 @@ function MajorAccountGroupPage() {
       sortable: true,
     },
   ];
-  
+
   // Actions for table rows
   const actions = [
     {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditMajorAccountGroup,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteMajorAccountGroup,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
@@ -135,7 +157,7 @@ function MajorAccountGroupPage() {
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -149,7 +171,11 @@ function MajorAccountGroupPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentMajorAccountGroup ? "Edit Account Sub-Type" : "Add Account Sub-Type"}
+        title={
+          currentMajorAccountGroup
+            ? 'Edit Account Sub-Type'
+            : 'Add Account Sub-Type'
+        }
       >
         <Formik
           initialValues={{
@@ -160,10 +186,17 @@ function MajorAccountGroupPage() {
           validationSchema={majorAccountGroupSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            isSubmitting,
+          }) => (
             <Form className="space-y-4">
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Code"
                 name="Code"
                 type="text"
@@ -176,7 +209,7 @@ function MajorAccountGroupPage() {
                 touched={touched.Code}
               />
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Name"
                 name="Name"
                 type="text"
@@ -189,7 +222,7 @@ function MajorAccountGroupPage() {
                 touched={touched.Name}
               />
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Account Type"
                 name="AccountTypeID"
                 type="select"
@@ -199,9 +232,9 @@ function MajorAccountGroupPage() {
                 onBlur={handleBlur}
                 error={errors.AccountTypeID}
                 touched={touched.AccountTypeID}
-                options={accountGroups.map(type => ({
+                options={accountGroups.map((type) => ({
                   value: type.ID,
-                  label: type.Name
+                  label: type.Name,
                 }))}
               />
               <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
@@ -224,7 +257,7 @@ function MajorAccountGroupPage() {
           )}
         </Formik>
       </Modal>
-      
+
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -233,10 +266,15 @@ function MajorAccountGroupPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete <span className="font-medium">{majorAccountGroupToDelete?.Name}</span>?
+            Are you sure you want to delete{' '}
+            <span className="font-medium">
+              {majorAccountGroupToDelete?.Name}
+            </span>
+            ?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
-            This action cannot be undone and may affect related records in the system.
+            This action cannot be undone and may affect related records in the
+            system.
           </p>
         </div>
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">

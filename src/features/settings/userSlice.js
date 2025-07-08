@@ -89,7 +89,7 @@ export const fetchUsers = createAsyncThunk(
         throw new Error(res.message || 'Failed to fetch');
       }
 
-      return res;
+      return res.items;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -132,7 +132,7 @@ export const addUser = createAsyncThunk(
       });
 
       const res = await response.json();
-      if (!response.ok ) {
+      if (!response.ok) {
         throw new Error(res.message || res.error || 'Failed to add user');
       }
 
@@ -177,7 +177,7 @@ export const updateUser = createAsyncThunk(
       if (!response.ok) {
         throw new Error(res.message || res.error || 'Failed to update user');
       }
-      
+
       return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
@@ -276,9 +276,7 @@ const userSlice = createSlice({
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.users = state.users.filter(
-          (user) => user.ID !== action.payload
-        );
+        state.users = state.users.filter((user) => user.ID !== action.payload);
         state.error = null;
       })
       .addCase(deleteUser.rejected, (state, action) => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserroles } from '../features/settings/userrolesSlice';
 import { fetchModules } from '../features/settings/modulesSlice';
+import { PlusIcon } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -167,19 +168,25 @@ export default function UserAccessPage() {
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <input
-          type="text"
-          placeholder="Search role..."
-          className="border px-3 py-2 rounded-md w-full sm:w-60"
-        />
-        <button
-          className="px-4 py-2 rounded text-white bg-green-600"
-          onClick={handleSave}
-        >
-          Save
-        </button>
-      </div>
+      <header className="page-header space-y-2">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">User Access</h1>
+          <p className="text-gray-600">Manage user roles and module access.</p>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <input
+            type="text"
+            placeholder="Search role..."
+            className="border px-3 py-2 rounded-md w-full sm:w-60"
+          />
+          <button
+            className="btn btn-primary flex items-center"
+            onClick={handleSave}
+          >
+            Save
+          </button>
+        </div>
+      </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Role List */}
@@ -226,16 +233,6 @@ export default function UserAccessPage() {
                     <th key={perm} className="px-2 capitalize text-center">
                       <div className="flex flex-col items-center">
                         <span>{perm}</span>
-                        {/* <input
-                          type="checkbox"
-                          onChange={(e) =>
-                            toggleAllForPermissionType(perm, e.target.checked)
-                          }
-                          checked={modules.every(
-                            (mod) => permissions[mod.ID]?.[perm]
-                          )}
-                          className="accent-blue-600 h-3 w-3 mt-1"
-                        /> */}
                       </div>
                     </th>
                   )
@@ -281,16 +278,16 @@ export default function UserAccessPage() {
               ))}
             </tbody>
           </table>
-          <div className="p-2 border-t">
+          <div className="p-2 border-t space-x-2">
             <button
               onClick={() => toggleAllPermissions(true)}
-              className="px-3 py-1 mr-2 text-sm bg-blue-100 hover:bg-blue-200 rounded"
+              className="btn btn-outline"
             >
               Select All
             </button>
             <button
               onClick={() => toggleAllPermissions(false)}
-              className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 rounded"
+              className="btn btn-outline"
             >
               Deselect All
             </button>

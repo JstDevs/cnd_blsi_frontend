@@ -8,12 +8,12 @@ import {
   fetchCustomers,
   addCustomer,
   updateCustomer,
-  deleteCustomer
+  deleteCustomer,
 } from '../../features/settings/customersSlice';
 
 function Customer() {
   const dispatch = useDispatch();
-  const { customers, isLoading } = useSelector(state => state.customers);
+  const { customers, isLoading } = useSelector((state) => state.customers);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState(null);
@@ -35,6 +35,7 @@ function Customer() {
   };
 
   const handleDelete = (customer) => {
+    console.log('Delete customer:', customer);
     setCustomerToDelete(customer);
     setIsDeleteModalOpen(true);
   };
@@ -64,58 +65,58 @@ function Customer() {
     {
       key: 'Code',
       header: 'Code',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Name',
       header: 'Name',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'TIN',
       header: 'TIN',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'PaymentTermsID',
       header: 'Payment Terms',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'PaymentMethodID',
       header: 'Payment Method',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'TaxCodeID',
       header: 'Tax Code',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'IndustryTypeID',
       header: 'Industry Type',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'ZIPCode',
       header: 'ZIP Code',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'PlaceofIncorporation',
       header: 'Place of Incorporation',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'KindofOrganization',
       header: 'Kind of Organization',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'DateofRegistration',
       header: 'Date of Registration',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -123,14 +124,16 @@ function Customer() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -166,7 +169,9 @@ function Customer() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentCustomer ? "Edit Individual/Citizen" : "Add Individual/Citizen"}
+        title={
+          currentCustomer ? 'Edit Individual/Citizen' : 'Add Individual/Citizen'
+        }
       >
         <CustomerForm
           initialData={currentCustomer}
@@ -183,7 +188,8 @@ function Customer() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the individual/citizen "{customerToDelete?.name}"?
+            Are you sure you want to delete the individual/citizen "
+            {customerToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

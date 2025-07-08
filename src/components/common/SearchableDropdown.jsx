@@ -2,8 +2,16 @@ import { useState } from 'react';
 import { Combobox } from '@headlessui/react';
 import { FiChevronDown, FiX, FiCheck } from 'react-icons/fi';
 
-const SearchableDropdown = ({ options, label, placeholder = 'Search...' }) => {
-  const [selectedOption, setSelectedOption] = useState(null);
+const SearchableDropdown = ({
+  options,
+  label,
+  placeholder = 'Search...',
+  error,
+  touched,
+  required = false,
+  onSelect,
+  selectedValue,
+}) => {
   const [query, setQuery] = useState('');
 
   const filteredOptions =
@@ -14,30 +22,37 @@ const SearchableDropdown = ({ options, label, placeholder = 'Search...' }) => {
         });
 
   const clearSelection = () => {
-    setSelectedOption(null);
+    onSelect('');
     setQuery('');
   };
 
   return (
     <div className="w-full max-w-xs">
-      <Combobox value={selectedOption} onChange={setSelectedOption}>
+      <Combobox value={selectedValue} onChange={onSelect}>
         {({ open }) => (
           <>
             <Combobox.Label className="block text-sm font-medium text-gray-700 mb-1">
               {label}
+              {required && <span className="text-red-500"> *</span>}
             </Combobox.Label>
 
             <div className="relative">
-              <div className="relative w-full cursor-default overflow-hidden rounded-md bg-white text-left shadow-sm sm:text-sm transition-all duration-200">
+              <div
+                className={`relative w-full cursor-default overflow-hidden rounded-md bg-white text-left shadow-sm sm:text-sm transition-all duration-200 ${
+                  touched && error
+                    ? 'border border-red-500'
+                    : 'border border-gray-300'
+                }`}
+              >
                 <Combobox.Input
-                  className="w-full border rounded-md border-gray-300 py-2.5 pl-3 pr-10 text-sm leading-5 focus-visible:outline-none text-gray-900 "
+                  className="w-full py-2.5 pl-3 pr-10 text-sm leading-5 focus-visible:outline-none text-gray-900"
                   placeholder={placeholder}
                   displayValue={(option) => option || ''}
                   onChange={(event) => setQuery(event.target.value)}
                 />
 
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
-                  {selectedOption && (
+                  {selectedValue && (
                     <button
                       type="button"
                       onClick={clearSelection}
@@ -55,6 +70,10 @@ const SearchableDropdown = ({ options, label, placeholder = 'Search...' }) => {
                   </Combobox.Button>
                 </div>
               </div>
+
+              {touched && error && (
+                <p className="mt-1 text-sm text-red-600">{error}</p>
+              )}
 
               <Combobox.Options className="absolute z-50 mt-1.5 w-full max-h-60 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm animate-fadeIn">
                 {filteredOptions.length === 0 && query !== '' ? (

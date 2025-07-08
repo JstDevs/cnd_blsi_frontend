@@ -1,25 +1,25 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
 import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
   KeyIcon,
-} from "@heroicons/react/24/outline";
-import DataTable from "@/components/common/DataTable";
-import FormField from "@/components/common/FormField";
-import Modal from "@/components/common/Modal";
+} from '@heroicons/react/24/outline';
+import DataTable from '@/components/common/DataTable';
+import FormField from '@/components/common/FormField';
+import Modal from '@/components/common/Modal';
 import {
   fetchUsers,
   addUser,
   updateUser,
   deleteUser,
-} from "@/features/settings/userSlice";
+} from '@/features/settings/userSlice';
 import { fetchEmployees } from '../../features/settings/employeeSlice';
 // import EmployeeForm from "./EmployeeForm";
-import { fetchUserroles } from "../../features/settings/userrolesSlice";
+import { fetchUserroles } from '../../features/settings/userrolesSlice';
 
 // User Access options
 // const userAccessOptions = [
@@ -39,15 +39,15 @@ import { fetchUserroles } from "../../features/settings/userrolesSlice";
 // ];
 
 const userSchema = Yup.object().shape({
-  UserName: Yup.string().required("User name is required"),
-  UserAccessID: Yup.string().required("User Access is required"),
+  UserName: Yup.string().required('User name is required'),
+  UserAccessID: Yup.string().required('User Access is required'),
   Password: Yup.string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
+    .required('Password is required')
+    .min(6, 'Password must be at least 6 characters'),
   ConfirmPassword: Yup.string()
-    .oneOf([Yup.ref("Password"), null], "Passwords must match")
-    .required("Confirm Password is required"),
-  EmployeeID: Yup.string().required("Choose Employee is required"),
+    .oneOf([Yup.ref('Password'), null], 'Passwords must match')
+    .required('Confirm Password is required'),
+  EmployeeID: Yup.string().required('Choose Employee is required'),
 });
 
 function UserPage() {
@@ -69,8 +69,9 @@ function UserPage() {
     dispatch(fetchUserroles());
   }, [dispatch]);
 
-  const { userroles, isLoading: isLoadingRoles } = useSelector((state) => state.userroles);
-
+  const { userroles, isLoading: isLoadingRoles } = useSelector(
+    (state) => state.userroles
+  );
 
   const userAccessOptions = userroles.map((role) => ({
     value: role.ID,
@@ -132,71 +133,73 @@ function UserPage() {
   //   resetForm();
   // };
 
-  const handleSubmit = async (values, { resetForm, setErrors, setSubmitting }) => {
+  const handleSubmit = async (
+    values,
+    { resetForm, setErrors, setSubmitting }
+  ) => {
     const submissionData = { ...values };
 
     try {
       if (currentUser) {
-        const result = await dispatch(updateUser({ ...submissionData, ID: currentUser.ID }));
+        const result = await dispatch(
+          updateUser({ ...submissionData, ID: currentUser.ID })
+        ).unwrap();
 
         if (updateUser.fulfilled.match(result)) {
           setIsModalOpen(false);
           resetForm();
         } else if (updateUser.rejected.match(result)) {
-          setErrors({ general: result.payload || "Failed to update user." });
+          setErrors({ general: result.payload || 'Failed to update user.' });
         }
       } else {
-        const result = await dispatch(addUser(submissionData));
+        const result = await dispatch(addUser(submissionData)).unwrap();
 
         if (addUser.fulfilled.match(result)) {
           setIsModalOpen(false);
           resetForm();
         } else if (addUser.rejected.match(result)) {
-          setErrors({ general: result.payload || "Failed to add user." });
+          setErrors({ general: result.payload || 'Failed to add user.' });
         }
       }
     } catch (error) {
       console.log(error);
-      setErrors({ general: "Unexpected error occurred." });
+      setErrors({ general: 'Unexpected error occurred.' });
     } finally {
       setSubmitting(false);
     }
   };
 
-
-
-
   // Format date for display
   const formatDate = (dateString) => {
-    if (!dateString) return "Never";
+    if (!dateString) return 'Never';
     return new Date(dateString).toLocaleString();
   };
 
   // Table columns definition
   const columns = [
-    { key: "UserName", header: "User Name", sortable: true },
-    { key: "UserAccessID", header: "User Access", sortable: true },
-    { key: "Employee", header: "Employee", sortable: true },
+    { key: 'UserName', header: 'User Name', sortable: true },
+    { key: 'UserAccessID', header: 'User Access', sortable: true },
+    // { key: 'Employee', header: 'Employee', sortable: true },
   ];
 
   // Actions for table rows
   const actions = [
     {
       icon: PencilIcon,
-      title: "Edit",
+      title: 'Edit',
       onClick: handleEditUser,
       className:
-        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
-      title: "Delete",
+      title: 'Delete',
       onClick: handleDeleteUser,
       className:
-        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
-
+  // console.log('Users:', users);
   return (
     <div>
       <div className="page-header">
@@ -221,7 +224,7 @@ function UserPage() {
           columns={columns}
           data={users}
           actions={actions}
-          loading={isLoading}
+          loading={isLoading || isLoadingRoles || isLoadingEmployees}
         />
       </div>
 
@@ -229,15 +232,15 @@ function UserPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentUser ? "Edit User" : "Add User"}
+        title={currentUser ? 'Edit User' : 'Add User'}
       >
         <Formik
           initialValues={{
-            UserName: currentUser?.UserName || "",
-            UserAccessID: currentUser?.UserAccessID || "",
-            Password: "",
-            ConfirmPassword: "",
-            EmployeeID: currentUser?.EmployeeID || "",
+            UserName: currentUser?.UserName || '',
+            UserAccessID: currentUser?.UserAccessID || '',
+            Password: '',
+            ConfirmPassword: '',
+            EmployeeID: currentUser?.EmployeeID || '',
           }}
           validationSchema={userSchema}
           onSubmit={handleSubmit}
@@ -334,7 +337,7 @@ function UserPage() {
                   disabled={isSubmitting}
                   className="btn btn-primary"
                 >
-                  {isSubmitting ? "Saving..." : currentUser ? "Update" : "Save"}
+                  {isSubmitting ? 'Saving...' : currentUser ? 'Update' : 'Save'}
                 </button>
               </div>
             </Form>
@@ -350,7 +353,7 @@ function UserPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the user{" "}
+            Are you sure you want to delete the user{' '}
             <span className="font-medium">{userToDelete?.UserName}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">

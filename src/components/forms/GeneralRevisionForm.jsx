@@ -99,6 +99,8 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
               (e) => e.id === formik.values.CityorMunicipalityAssessor
             )?.name || ''
           }
+          error={formik.errors.CityorMunicipalityAssessor}
+          touched={formik.touched.CityorMunicipalityAssessor}
         />
 
         <SearchableDropdown
@@ -119,6 +121,8 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
               (e) => e.id === formik.values.CityorMunicipalityAssistantAssessor
             )?.name || ''
           }
+          error={formik.errors.CityorMunicipalityAssistantAssessor}
+          touched={formik.touched.CityorMunicipalityAssistantAssessor}
         />
 
         <SearchableDropdown
@@ -139,6 +143,8 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
               (e) => e.id === formik.values.ProvincialAssessor
             )?.name || ''
           }
+          error={formik.errors.ProvincialAssessor}
+          touched={formik.touched.ProvincialAssessor}
         />
 
         <SearchableDropdown
@@ -159,6 +165,8 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
               (e) => e.id === formik.values.ProvincialAssistantAssessor
             )?.name || ''
           }
+          error={formik.errors.ProvincialAssistantAssessor}
+          touched={formik.touched.ProvincialAssistantAssessor}
         />
       </div>
 

@@ -105,11 +105,26 @@ function LocationPage() {
       case 'region':
         return regions;
       case 'province':
-        return provinces;
+        return provinces.map((province) => ({
+          ...province,
+          RegionName: getNameFromCode(province.RegionCode, regions),
+        }));
       case 'municipality':
-        return municipalities;
+        return municipalities.map((municipality) => ({
+          ...municipality,
+          RegionName: getNameFromCode(municipality.RegionCode, regions),
+          ProvinceName: getNameFromCode(municipality.ProvinceCode, provinces),
+        }));
       case 'barangay':
-        return barangays;
+        return barangays.map((barangay) => ({
+          ...barangay,
+          RegionName: getNameFromCode(barangay.RegionCode, regions),
+          ProvinceName: getNameFromCode(barangay.ProvinceCode, provinces),
+          MunicipalityName: getNameFromCode(
+            barangay.MunicipalityCode,
+            municipalities
+          ),
+        }));
       default:
         return [];
     }
@@ -227,23 +242,23 @@ function LocationPage() {
       const payload = currentLocation
         ? { ...currentLocation, ...values }
         : values;
-      await dispatch(action(payload));
+      await dispatch(action(payload)).unwrap();
       setIsModalOpen(false);
       setSubmitting(false);
     },
   });
 
+  // Helper function to get region/province name from code
+  const getNameFromCode = (code, list) => {
+    const item = list.find((item) => item.ID.toString() === code.toString());
+    return item ? item.Name : '';
+  };
   const getFormFields = () => {
     const commonProps = {
       formik,
       onChange: formik.handleChange,
       onBlur: formik.handleBlur,
       required: true,
-    };
-    // Helper function to get region/province name from code
-    const getNameFromCode = (code, list) => {
-      const item = list.find((item) => item.ID.toString() === code.toString());
-      return item ? item.Name : '';
     };
     switch (activeTab) {
       case 'region':
