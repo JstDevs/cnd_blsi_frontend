@@ -1,44 +1,51 @@
-import { useState, useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
-import Sidebar from "../components/layout/Sidebar";
-import Header from "../components/layout/Header";
+import { useState, useEffect } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import Sidebar from '../components/layout/Sidebar'
+import Header from '../components/layout/Header'
 
 function DashboardLayout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const location = useLocation();
+  const navigate = useNavigate()
+  const location = useLocation()
+  const token = localStorage.getItem('token')
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
   // Close sidebar on mobile when navigating
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
-        setIsSidebarOpen(false);
+        setIsSidebarOpen(false)
       } else {
-        setIsSidebarOpen(true);
+        setIsSidebarOpen(true)
       }
-    };
+    }
 
-    window.addEventListener("resize", handleResize);
-    handleResize();
+    window.addEventListener('resize', handleResize)
+    handleResize()
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     if (window.innerWidth < 1024) {
-      setIsSidebarOpen(false);
+      setIsSidebarOpen(false)
     }
-  }, [location.pathname]);
+  }, [location.pathname])
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+    setIsSidebarOpen(!isSidebarOpen)
+  }
+
+  if (!token) {
+    navigate('/login')
+  }
 
   return (
-    <div className="h-screen flex overflow-hidden bg-neutral-50">
+    <div className='h-screen flex overflow-hidden bg-neutral-50'>
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-75 z-20"
+          className='lg:hidden fixed inset-0 bg-black bg-opacity-75 z-20'
           onClick={() => setIsSidebarOpen(false)}
         ></div>
       )}
@@ -46,25 +53,25 @@ function DashboardLayout() {
       {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 flex flex-col z-30 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        style={{ width: "300px" }}
+        style={{ width: '300px' }}
       >
         <Sidebar />
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className='flex-1 flex flex-col overflow-hidden'>
         <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
 
-        <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-6 px-4 sm:px-6 lg:px-8">
+        <main className='flex-1 relative overflow-y-auto focus:outline-none'>
+          <div className='py-6 px-4 sm:px-6 lg:px-8'>
             <Outlet />
           </div>
         </main>
       </div>
     </div>
-  );
+  )
 }
 
-export default DashboardLayout;
+export default DashboardLayout

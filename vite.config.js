@@ -20,15 +20,6 @@ export default defineConfig({
     // allowedHosts: 'all', // Allow all incoming hostnames
     open: false,
   },
-  // preview: {
-  //   port: 3001, // Preview server port
-  //   strictPort: true,
-  //   allowedHosts: [
-  //     'cddemo.testthelink.online',
-  //     'staging-portal.testthelink.online',
-  //     '.testthelink.online',
-  //   ],
-  // },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

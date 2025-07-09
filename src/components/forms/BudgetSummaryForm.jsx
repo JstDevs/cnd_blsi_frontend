@@ -11,6 +11,15 @@ const validationSchema = Yup.object().shape({
   chartOfAccounts: Yup.string().required('Chart of accounts is required'),
   fund: Yup.string().required('Fund is required'),
   project: Yup.string().required('Project is required'),
+  originalAppropriation: Yup.string().required('Value required'),
+  adjustedAppropriation: Yup.string().required('Value required'),
+  appropriationBalance: Yup.string().required('Value required'),
+  adjustments: Yup.string().required('Value required'),
+  totalAllotment: Yup.string().required('Value required'),
+  allotmentBalance: Yup.string().required('Value required'),
+  preEncumbrance: Yup.string().required('Value required'),
+  encumbrance: Yup.string().required('Value is required'),
+  charges: Yup.string().required('Value required'),
   january: Yup.string().required('January is required'),
   february: Yup.string().required('February is required'),
   march: Yup.string().required('March is required'),
@@ -33,10 +42,15 @@ const initialValues = {
   chartOfAccounts: 1,
   fund: 1,
   project: 1,
-  appropriation: 0,
+  originalAppropriation: 0,
+  appropriationBalance: 0,
+  adjustedAppropriation: 0,
+  adjustments: 0,
+  totalAllotment: 0,
+  allotmentBalance: 0,
+  preEncumbrance: 0,
+  encumbrance: 0,
   charges: 0,
-  totalAmount: 0,
-  balance: 0,
   january: 0,
   february: 0,
   march: 0,
@@ -82,7 +96,7 @@ const projects = [
   { value: 3, label: 'Cloud Migration' }
 ]
 
-function BudgetForm({ initialData, onSubmit, onClose }) {
+function BudgetSummaryForm({ initialData, onSubmit, onClose }) {
   const [formData, setFormData] = useState({ ...initialValues })
 
   const handleSubmit = (values, { setSubmitting }) => {
@@ -225,14 +239,91 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Appropriation'
-              name='appropriation'
+              label='Appropriation (Original)'
+              name='originalAppropriation'
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.appropriation}
-              error={errors.appropriation}
-              touched={touched.appropriation}
+              value={values.originalAppropriation}
+              error={errors.originalAppropriation}
+              touched={touched.originalAppropriation}
               type='number'
+              required
+            />
+            <FormField
+              label='Appropriation Balance'
+              name='appropriationBalance'
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.appropriationBalance}
+              error={errors.appropriationBalance}
+              touched={touched.appropriationBalance}
+              type='number'
+              required
+            />
+            <FormField
+              label='Appropriation (Adjusted)'
+              name='adjustedAppropriation'
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.adjustedAppropriation}
+              error={errors.adjustedAppropriation}
+              touched={touched.adjustedAppropriation}
+              type='number'
+              required
+            />
+            <FormField
+              label='adjustments'
+              name='adjustments'
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.adjustments}
+              error={errors.adjustments}
+              touched={touched.adjustments}
+              type='number'
+              required
+            />
+            <FormField
+              label='Total Allotment'
+              name='totalAllotment'
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.totalAllotment}
+              error={errors.totalAllotment}
+              touched={touched.totalAllotment}
+              type='number'
+              required
+            />
+            <FormField
+              label='Allotment Balance'
+              name='allotmentBalance'
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.allotmentBalance}
+              error={errors.allotmentBalance}
+              touched={touched.allotmentBalance}
+              type='number'
+              required
+            />
+            <FormField
+              label='Pre Encumbrance'
+              name='preEncumbrance'
+              type='number'
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.preEncumbrance}
+              error={errors.preEncumbrance}
+              touched={touched.preEncumbrance}
+              required
+            />
+            <FormField
+              label='Encumbrance'
+              name='encumbrance'
+              type='number'
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.encumbrance}
+              error={errors.encumbrance}
+              touched={touched.encumbrance}
               required
             />
             <FormField
@@ -244,28 +335,6 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
               value={values.charges}
               error={errors.charges}
               touched={touched.charges}
-              required
-            />
-            <FormField
-              label='Total Amount'
-              name='totalAmount'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.totalAmount}
-              error={errors.totalAmount}
-              touched={touched.totalAmount}
-              required
-            />
-            <FormField
-              label='Balance'
-              name='balance'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.balance}
-              error={errors.balance}
-              touched={touched.balance}
               required
             />
           </div>
@@ -415,4 +484,4 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
   )
 }
 
-export default BudgetForm
+export default BudgetSummaryForm

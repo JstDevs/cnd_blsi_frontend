@@ -11,18 +11,16 @@ const validationSchema = Yup.object().shape({
   chartOfAccounts: Yup.string().required('Chart of accounts is required'),
   fund: Yup.string().required('Fund is required'),
   project: Yup.string().required('Project is required'),
-  january: Yup.string().required('January is required'),
-  february: Yup.string().required('February is required'),
-  march: Yup.string().required('March is required'),
-  april: Yup.string().required('April is required'),
-  may: Yup.string().required('May is required'),
-  june: Yup.string().required('June is required'),
-  july: Yup.string().required('July is required'),
-  august: Yup.string().required('August is required'),
-  september: Yup.string().required('September is required'),
-  october: Yup.string().required('October is required'),
-  november: Yup.string().required('November is required'),
-  december: Yup.string().required('December is required')
+  allotment: Yup.number().integer().required('Allotment is required'),
+  remarks: Yup.string().required('Remarks is required'),
+  appropriation: Yup.number().integer().required('Appropriation is required'),
+  balance: Yup.number().integer().required('Balance is required'),
+  releasedAllotments: Yup.number()
+    .integer()
+    .required('Released allotments is required'),
+  releasedBalance: Yup.number()
+    .integer()
+    .required('Released balance is required')
 })
 
 const initialValues = {
@@ -37,18 +35,10 @@ const initialValues = {
   charges: 0,
   totalAmount: 0,
   balance: 0,
-  january: 0,
-  february: 0,
-  march: 0,
-  april: 0,
-  may: 0,
-  june: 0,
-  july: 0,
-  august: 0,
-  september: 0,
-  october: 0,
-  november: 0,
-  december: 0
+  allotment: 0,
+  remarks: '',
+  releasedAllotments: 0,
+  releasedBalance: 0
 }
 
 // Mock data for select options
@@ -82,7 +72,7 @@ const projects = [
   { value: 3, label: 'Cloud Migration' }
 ]
 
-function BudgetForm({ initialData, onSubmit, onClose }) {
+function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
   const [formData, setFormData] = useState({ ...initialValues })
 
   const handleSubmit = (values, { setSubmitting }) => {
@@ -105,19 +95,7 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
         appropriation: initialData?.Appropriation,
         charges: initialData?.Charges,
         totalAmount: initialData?.TotalAmount,
-        balance: initialData?.AppropriationBalance,
-        january: initialData?.January,
-        february: initialData?.February,
-        march: initialData?.March,
-        april: initialData?.April,
-        may: initialData?.May,
-        june: initialData?.June,
-        july: initialData?.July,
-        august: initialData?.August,
-        september: initialData?.September,
-        october: initialData?.October,
-        november: initialData?.November,
-        december: initialData?.December
+        balance: initialData?.AppropriationBalance
       })
     } else {
       setFormData(initialValues)
@@ -225,36 +203,25 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
+              label='Allotment'
+              name='allotment'
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.allotment}
+              error={errors.allotment}
+              touched={touched.allotment}
+              type='number'
+              required
+            />
+            <FormField
               label='Appropriation'
               name='appropriation'
+              type='number'
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.appropriation}
               error={errors.appropriation}
               touched={touched.appropriation}
-              type='number'
-              required
-            />
-            <FormField
-              label='Charges'
-              name='charges'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.charges}
-              error={errors.charges}
-              touched={touched.charges}
-              required
-            />
-            <FormField
-              label='Total Amount'
-              name='totalAmount'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.totalAmount}
-              error={errors.totalAmount}
-              touched={touched.totalAmount}
               required
             />
             <FormField
@@ -268,128 +235,38 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
               touched={touched.balance}
               required
             />
-          </div>
-
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <FormField
-              label='January'
-              name='january'
+              label='Released Allotments'
+              name='releasedAllotments'
               type='number'
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.january}
-              error={errors.january}
-              touched={touched.january}
+              value={values.releasedAllotments}
+              error={errors.releasedAllotments}
+              touched={touched.releasedAllotments}
+              required
             />
             <FormField
-              label='February'
-              name='february'
               type='number'
+              label='Released Balance'
+              name='releasedBalance'
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.february}
-              error={errors.february}
-              touched={touched.february}
+              value={values.releasedBalance}
+              error={errors.releasedBalance}
+              touched={touched.releasedBalance}
+              required
             />
             <FormField
-              label='March'
-              name='march'
-              type='number'
+              label='Remarks'
+              name='remarks'
+              type='textarea'
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.march}
-              error={errors.march}
-              touched={touched.march}
-            />
-            <FormField
-              label='April'
-              name='april'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.april}
-              error={errors.april}
-              touched={touched.april}
-            />
-            <FormField
-              label='May'
-              name='may'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.may}
-              error={errors.may}
-              touched={touched.may}
-            />
-            <FormField
-              label='June'
-              name='june'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.june}
-              error={errors.june}
-              touched={touched.june}
-            />
-            <FormField
-              label='July'
-              name='july'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.july}
-              error={errors.july}
-              touched={touched.july}
-            />
-            <FormField
-              label='August'
-              name='august'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.august}
-              error={errors.august}
-              touched={touched.august}
-            />
-            <FormField
-              label='September'
-              name='september'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.september}
-              error={errors.september}
-              touched={touched.september}
-            />
-            <FormField
-              label='October'
-              name='october'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.october}
-              error={errors.october}
-              touched={touched.october}
-            />
-            <FormField
-              label='November'
-              name='november'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.november}
-              error={errors.november}
-              touched={touched.november}
-            />
-            <FormField
-              label='December'
-              name='december'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.december}
-              error={errors.december}
-              touched={touched.december}
+              value={values.remarks}
+              error={errors.remarks}
+              touched={touched.remarks}
+              required
             />
           </div>
 
@@ -415,4 +292,4 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
   )
 }
 
-export default BudgetForm
+export default BudgetAllotmentForm

@@ -221,9 +221,9 @@ const navigation = [
       { name: 'Statement of Comparison', href: '/budget/statement-comparison' },
       {
         name: 'Statement of Appropriation, Allotment, Obligation, Balances',
-        href: '/budget/statement-appropriation',
-      },
-    ],
+        href: '/budget/statement-appropriation'
+      }
+    ]
   },
   {
     name: 'Reports',
@@ -260,18 +260,18 @@ function SidebarMenu({
       )}
     >
       {items.map((item) => {
-        const itemPath = parentPath ? `${parentPath}.${item.name}` : item.name;
-        const isExpanded = expandedMenus[itemPath];
-        const hasActiveChild = isSubMenuActive(item.submenu || []);
+        const itemPath = parentPath ? `${parentPath}.${item.name}` : item.name
+        const isExpanded = expandedMenus[itemPath]
+        const hasActiveChild = isSubMenuActive(item.submenu || [])
 
         return (
-          <div key={itemPath} className="relative">
+          <div key={itemPath} className='relative'>
             {item.submenu ? (
               <>
                 <button
                   onClick={(e) => {
-                    e.preventDefault();
-                    toggleMenu(itemPath);
+                    e.preventDefault()
+                    toggleMenu(itemPath)
                   }}
                   className={clsx(
                     'group flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md transition-colors',
@@ -282,7 +282,7 @@ function SidebarMenu({
                     level > 0 && 'pl-2' // Adjust padding for nested items
                   )}
                 >
-                  <div className="flex items-center">
+                  <div className='flex items-center'>
                     {item.icon && (
                       <item.icon
                         className={clsx(
@@ -293,9 +293,9 @@ function SidebarMenu({
                         )}
                       />
                     )}
-                    <span className="text-left">{item.name}</span>
+                    <span className='text-left'>{item.name}</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className='flex items-center'>
                     <svg
                       className={clsx(
                         'h-5 w-5 transform transition-transform flex-shrink-0',
@@ -303,14 +303,14 @@ function SidebarMenu({
                           ? 'rotate-180 text-primary-500'
                           : 'text-neutral-400'
                       )}
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                      xmlns='http://www.w3.org/2000/svg'
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
                     >
                       <path
-                        fillRule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clipRule="evenodd"
+                        fillRule='evenodd'
+                        d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
+                        clipRule='evenodd'
                       />
                     </svg>
                   </div>
@@ -352,48 +352,48 @@ function SidebarMenu({
                     )}
                   />
                 )}
-                <span className="text-left">{item.name}</span>
+                <span className='text-left'>{item.name}</span>
               </Link>
             )}
           </div>
-        );
+        )
       })}
     </div>
-  );
+  )
 }
 
 function Sidebar() {
-  const location = useLocation();
-  const { user } = useSelector((state) => state.auth);
-  const [expandedMenus, setExpandedMenus] = useState({});
+  const location = useLocation()
+  const { user } = useSelector((state) => state.auth)
+  const [expandedMenus, setExpandedMenus] = useState({})
 
   const toggleMenu = (menuName) => {
     setExpandedMenus((prev) => ({
       ...prev,
-      [menuName]: !prev[menuName],
-    }));
-  };
+      [menuName]: !prev[menuName]
+    }))
+  }
 
   const isActive = (href) => {
-    return location.pathname === href;
-  };
+    return location.pathname === href
+  }
 
   const isSubMenuActive = (submenuItems) => {
     return submenuItems.some((item) =>
       item.href
         ? location.pathname === item.href
         : item.children && isSubMenuActive(item.children)
-    );
-  };
+    )
+  }
 
   return (
-    <div className="h-full flex flex-col border-r border-neutral-200 bg-white">
-      <div className="flex items-center justify-center h-16 border-b border-neutral-200 bg-primary-800">
-        <h1 className="text-white text-xl font-bold px-4">LGU System</h1>
+    <div className='h-full flex flex-col border-r border-neutral-200 bg-white'>
+      <div className='flex items-center justify-center h-16 border-b border-neutral-200 bg-primary-800'>
+        <h1 className='text-white text-xl font-bold px-4'>LGU System</h1>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-4">
-        <nav className="space-y-1 px-2">
+      <div className='flex-1 overflow-y-auto py-4'>
+        <nav className='space-y-1 px-2'>
           <SidebarMenu
             items={navigation}
             expandedMenus={expandedMenus}
@@ -412,18 +412,18 @@ function Sidebar() {
               {user.lastName?.charAt(0) || ''}
             </div>
           </div>
-          <div className="ml-3 min-w-0 flex-1">
-            <p className="text-sm font-medium text-neutral-700 truncate">
-              {user.firstName} {user.lastName}
+          <div className='ml-3 min-w-0 flex-1'>
+            <p className='text-sm font-medium text-neutral-700 truncate'>
+              {user.UserName || 'User'}
             </p>
-            <p className="text-xs text-neutral-500 truncate">
+            <p className='hidden text-xs text-neutral-500 truncate'>
               {user.department}
             </p>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default Sidebar;
+export default Sidebar

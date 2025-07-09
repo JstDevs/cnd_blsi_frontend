@@ -1,62 +1,43 @@
 import React, { useState } from 'react'
 import { PlusIcon } from '@heroicons/react/24/solid'
 import Modal from '../../components/common/Modal'
-import BudgetForm from '../../components/forms/BudgetForm'
-import BudgetTransferForm from '../../components/forms/BudgetTransferForm'
+import BudgetFundForm from '../../components/forms/BudgetFundForm'
+import BudgetSubFundsForm from '../../components/forms/BudgetSubFundsForm'
 
-const BudgetTransferPage = () => {
+const BudgetSubFundsPage = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [activeRow, setActiveRow] = useState(false)
 
-  const columns = [
-    'InvoiceNumber',
-    'Budget',
-    'Status',
-    'InvoiceDate',
-    'Total',
-    'Remarks'
-  ]
+  const columns = ['Fund', 'Code', 'Name', 'Description', 'Amount']
 
   const data = [
     {
-      InvoiceNumber: 'BT-18-2025',
-      Budget: 'Traveling Expenses',
-      Status: 'Posted',
-      InvoiceDate: '03-03-2025',
-      Total: '5,000.00',
-      Remarks: ''
+      Fund: 'General Fund',
+      Code: '20%',
+      Name: '20% Fund',
+      Description: 'The twenty percent fund.',
+      Amount: '12,000.00'
     },
     {
-      InvoiceNumber: 'BT-17-2025',
-      Budget: 'Electricity Expenses',
-      Status: 'Posted',
-      InvoiceDate: '25-02-2025',
-      Total: '99,00,000.00',
-      Remarks: 'testing'
+      Fund: 'General Fund',
+      Code: 'GF',
+      Name: 'General Fund',
+      Description: 'The main general fund.',
+      Amount: '20,000.00'
     },
     {
-      InvoiceNumber: 'BT-16-2025',
-      Budget: 'Electricity Expenses',
-      Status: 'Posted',
-      InvoiceDate: '23-02-2025',
-      Total: '10.00',
-      Remarks: 'fasd'
+      Fund: 'Special Education Fund',
+      Code: 'SEF',
+      Name: 'Special Education Fund',
+      Description: 'The main special education fund.',
+      Amount: '35,000.00'
     },
     {
-      InvoiceNumber: 'BT-15-2025',
-      Budget: 'Allowance for Officers',
-      Status: 'Posted',
-      InvoiceDate: '20-02-2025',
-      Total: '10,00,000.00',
-      Remarks: ''
-    },
-    {
-      InvoiceNumber: 'BT-14-2024',
-      Budget: 'Electricity Expenses',
-      Status: 'Posted',
-      InvoiceDate: '15-01-2025',
-      Total: '1,000.00',
-      Remarks: 'test'
+      Fund: 'Trust Fund',
+      Code: 'TF',
+      Name: 'Trust Fund',
+      Description: 'The main trust fund.',
+      Amount: '25,000.00'
     }
   ]
 
@@ -77,7 +58,7 @@ const BudgetTransferPage = () => {
     <>
       <section className='space-y-8'>
         {/* TITLE */}
-        <h1 className='text-xl font-semibold text-gray-800'>Budget Transfer</h1>
+        <h1 className='text-xl font-semibold text-gray-800'>Sub Funds</h1>
         <div className='space-y-4'>
           {/* HEADER */}
           <div className='flex flex-wrap gap-4 items-center justify-between'>
@@ -120,22 +101,19 @@ const BudgetTransferPage = () => {
                     {data.map((item, index) => (
                       <tr key={index}>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.InvoiceNumber}
+                          {item.Fund}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Budget}
+                          {item.Code}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Status}
+                          {item.Name}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.InvoiceDate}
+                          {item.Description}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Total}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Remarks === '' ? 'N/A' : item.Remarks}
+                          {item.Amount}
                         </td>
                         <td className='px-6 py-4 flex items-center space-x-4 text-right text-sm font-medium'>
                           <button
@@ -159,12 +137,12 @@ const BudgetTransferPage = () => {
       </section>
 
       <Modal
-        size='md'
+        size='sm'
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title={activeRow ? 'Edit Transfer' : 'Add New Transfer'}
+        title={activeRow ? 'Edit Sub-Fund' : 'Add New Sub-Fund'}
       >
-        <BudgetTransferForm
+        <BudgetSubFundsForm
           onSubmit={handleSubmit}
           initialData={activeRow}
           onClose={() => setIsOpen(false)}
@@ -174,4 +152,4 @@ const BudgetTransferPage = () => {
   )
 }
 
-export default BudgetTransferPage
+export default BudgetSubFundsPage
