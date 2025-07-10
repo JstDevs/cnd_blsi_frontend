@@ -436,7 +436,7 @@ function LocationPage() {
 
       <div className="flex mb-6 border-b border-neutral-200">
         <nav className="-mb-px flex flex-wrap gap-x-10 gap-y-0">
-          {['region', 'province', 'municipality', 'barangay'].map((tab) => (
+          {['region', 'province', 'municipalitie', 'barangay'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}

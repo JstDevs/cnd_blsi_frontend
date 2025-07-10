@@ -12,60 +12,56 @@ const PURCHASE_REQUEST_SCHEMA = Yup.object().shape({
   OfficeUnitProject: Yup.string().required('Section is required'),
   ContraAccountID: Yup.string().required('Charge Account is required'),
   InvoiceNumber: Yup.string().required('PR Number is required'),
-  SAI_No: Yup.string().required('SAI No. is required'),
-  ObligationRequestNumber: Yup.string().required('ALOBS No. is required'),
+  SAI_No: Yup.string(),
+  ObligationRequestNumber: Yup.string(),
   InvoiceDate: Yup.date().required('PR Date is required'),
-  SAIDate: Yup.date().required('SAI Date is required'),
-  ALOBSDate: Yup.date().required('ALOBS Date is required'),
+  SAIDate: Yup.date(),
+  ALOBSDate: Yup.date(),
   Remarks: Yup.string().required('Purpose is required'),
-  Items: Yup.array().of(
-    Yup.object({
-      ItemID: Yup.string().required('Required'),
-      Quantity: Yup.string().required('Required'),
-      Unit: Yup.string().required('Required'),
-      Cost: Yup.number().nullable().typeError('Must be a number').required('Cost is required'),
-    })
-  ).min(1, 'At least one entry is required'),
+  Items: Yup.array()
+    .of(
+      Yup.object({
+        ItemID: Yup.string().required('Required'),
+        Quantity: Yup.string().required('Required'),
+        Unit: Yup.string().required('Required'),
+        Cost: Yup.number()
+          .nullable()
+          .typeError('Must be a number')
+          .required('Cost is required'),
+      })
+    )
+    .min(1, 'At least one entry is required'),
 });
 
-function PurchaseRequestForm({ initialData, onSubmit, onClose, departmentsOptions=[], chartOfAccountsOptions=[], itemsOptions=[], itemsUnitsOptions=[] }) {
+function PurchaseRequestForm({
+  initialData,
+  onSubmit,
+  onClose,
+  departmentsOptions = [],
+  chartOfAccountsOptions = [],
+  itemsOptions = [],
+  itemsUnitsOptions = [],
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues = initialData
-  ? {
-      ...initialData,
-      Items: initialData.PurchaseItems || [], // 👈 remap here
-    }
-  : {
-      ResponsibilityCenter: '',
-      OfficeUnitProject: '',
-      InvoiceNumber: '',
-      ContraAccountID: '',
-      SAI_No: '',
-      ObligationRequestNumber: '',
-      InvoiceDate: '',
-      SAIDate: '',
-      ALOBSDate: '',
-      Remarks: '',
-      Items: [{ ItemID: '', Quantity: 0, Unit: '', Cost: 0 }],
-    };
-
-
-  // const initialValues = initialData
-  //   ? { ...initialData }
-  //   : {
-  //       ResponsibilityCenter: '',
-  //       OfficeUnitProject: '',
-  //       InvoiceNumber: '',
-  //       ContraAccountID: '',
-  //       SAI_No: '',
-  //       ObligationRequestNumber: '',
-  //       InvoiceDate: '',
-  //       SAIDate: '',
-  //       ALOBSDate: '',
-  //       Remarks: '',
-  //       Items: [{ ItemID: '', Quantity: 0, Unit: '', Cost: 0 }],
-  //     };
+    ? {
+        ...initialData,
+        Items: initialData.PurchaseItems || [], // 👈 remap here
+      }
+    : {
+        ResponsibilityCenter: '',
+        OfficeUnitProject: '',
+        InvoiceNumber: '',
+        ContraAccountID: '',
+        SAI_No: '',
+        ObligationRequestNumber: '',
+        InvoiceDate: '',
+        SAIDate: '',
+        ALOBSDate: '',
+        Remarks: '',
+        Items: [{ ItemID: '', Quantity: 0, Unit: '', Cost: 0 }],
+      };
 
   return (
     <Formik
@@ -123,7 +119,6 @@ function PurchaseRequestForm({ initialData, onSubmit, onClose, departmentsOption
               touched={touched.ContraAccountID}
               options={chartOfAccountsOptions}
             />
-
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -144,7 +139,6 @@ function PurchaseRequestForm({ initialData, onSubmit, onClose, departmentsOption
               label="SAI No."
               name="SAI_No"
               type="text"
-              required
               value={values.SAI_No}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -157,7 +151,6 @@ function PurchaseRequestForm({ initialData, onSubmit, onClose, departmentsOption
               label="ALOBS No."
               name="ObligationRequestNumber"
               type="text"
-              required
               value={values.ObligationRequestNumber}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -185,7 +178,6 @@ function PurchaseRequestForm({ initialData, onSubmit, onClose, departmentsOption
               label="SAI Date"
               name="SAIDate"
               type="date"
-              required
               value={values.SAIDate}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -198,7 +190,6 @@ function PurchaseRequestForm({ initialData, onSubmit, onClose, departmentsOption
               label="ALOBS Date"
               name="ALOBSDate"
               type="date"
-              required
               value={values.ALOBSDate}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -221,132 +212,151 @@ function PurchaseRequestForm({ initialData, onSubmit, onClose, departmentsOption
           />
 
           {/* New Items field */}
-          
 
-        <hr className='!mt-5 !mb-5' />
+          <hr className="!mt-5 !mb-5" />
 
-        {/* Items Section */}
-        <FieldArray
-          name="Items"
-          render={({ remove, push }) => (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center mb-2">
-                <label className="font-medium">Items</label>
-                <Button
-                  type="button"
-                  onClick={() => push({ ItemID: '', Quantity: 0, Unit: '', Cost: 0 })}
-                  className="btn btn-sm btn-primary"
-                >
-                  + Add
-                </Button>
-              </div>
+          {/* Items Section */}
+          <FieldArray
+            name="Items"
+            render={({ remove, push }) => (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="font-medium">Items</label>
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      push({ ItemID: '', Quantity: 0, Unit: '', Cost: 0 })
+                    }
+                    className="btn btn-sm btn-primary"
+                  >
+                    + Add
+                  </Button>
+                </div>
 
-              {values.Items.map((entry, index) => (
-                <div key={index} className="space-y-2 border p-4 rounded-md bg-neutral-50">
-                  <div className="flex flex-wrap gap-2 w-full">
-                    <div className='flex-1 min-w-[200px]'>
-                      <div><label className='form-label'>Item <span className="text-error-500">*</span></label></div>
-                      <Select
-                        label="Item"
-                        options={itemsOptions}
-                        placeholder="Select item..."
-                        isSearchable={true}
-                        onChange={(selected) =>
-                          setFieldValue(`Items[${index}].ItemID`, selected?.value || '')
-                        }
-                        name={`Items[${index}].ItemID`}
-                        value={itemsOptions.find(opt => opt.value === entry.ItemID) || null}
+                {values.Items.map((entry, index) => (
+                  <div
+                    key={index}
+                    className="space-y-2 border p-4 rounded-md bg-neutral-50"
+                  >
+                    <div className="flex flex-wrap gap-2 w-full">
+                      <div className="flex-1 min-w-[200px]">
+                        <div>
+                          <label className="form-label">
+                            Item <span className="text-error-500">*</span>
+                          </label>
+                        </div>
+                        <Select
+                          label="Item"
+                          options={itemsOptions}
+                          placeholder="Select item..."
+                          isSearchable={true}
+                          onChange={(selected) =>
+                            setFieldValue(
+                              `Items[${index}].ItemID`,
+                              selected?.value || ''
+                            )
+                          }
+                          name={`Items[${index}].ItemID`}
+                          value={
+                            itemsOptions.find(
+                              (opt) => opt.value === entry.ItemID
+                            ) || null
+                          }
+                          onBlur={handleBlur}
+                          required
+                        />
+                        {errors.Items?.[index]?.ItemID && (
+                          <div className="text-sm text-red-600 mt-1">
+                            {errors.Items[index].ItemID}
+                          </div>
+                        )}
+                      </div>
+                      <FormField
+                        className="flex-1 max-w-[180px]"
+                        type="number"
+                        label="Quantity"
+                        name={`Items[${index}].Quantity`}
+                        value={entry.Quantity}
+                        onChange={handleChange}
                         onBlur={handleBlur}
+                        error={errors.Items?.[index]?.Quantity}
+                        touched={touched.Items?.[index]?.Quantity}
                         required
                       />
-                      {errors.Items?.[index]?.ItemID && (
-                        <div className="text-sm text-red-600 mt-1">
-                          {errors.Items[index].ItemID}
-                        </div>
-                      )}
+                      <FormField
+                        className="flex-1 max-w-[150px]"
+                        type="select"
+                        label="Unit"
+                        name={`Items[${index}].Unit`}
+                        value={entry.Unit}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        options={itemsUnitsOptions}
+                        error={errors.Items?.[index]?.Unit}
+                        touched={touched.Items?.[index]?.Unit}
+                        required
+                      />
+                      <FormField
+                        className="flex-1 max-w-[200px]"
+                        type="number"
+                        label="Cost"
+                        name={`Items[${index}].Cost`}
+                        value={entry.Cost}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.Items?.[index]?.Cost}
+                        touched={touched.Items?.[index]?.Cost}
+                        required
+                      />
                     </div>
-                    <FormField
-                    className='flex-1 max-w-[180px]'
-                      type="number"
-                      label="Quantity"
-                      name={`Items[${index}].Quantity`}
-                      value={entry.Quantity}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={errors.Items?.[index]?.Quantity}
-                      touched={touched.Items?.[index]?.Quantity}
-                      required
-                    />
-                    <FormField
-                      className='flex-1 max-w-[150px]'
-                      type="select"
-                      label="Unit"
-                      name={`Items[${index}].Unit`}
-                      value={entry.Unit}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      options={itemsUnitsOptions}
-                      error={errors.Items?.[index]?.Unit}
-                      touched={touched.Items?.[index]?.Unit}
-                      required
-                    />
-                    <FormField
-                      className='flex-1 max-w-[200px]'
-                      type="number"
-                      label="Cost"
-                      name={`Items[${index}].Cost`}
-                      value={entry.Cost}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={errors.Items?.[index]?.Cost}
-                      touched={touched.Items?.[index]?.Cost}
-                      required
-                    />
+
+                    <div className="flex justify-end pt-0">
+                      <Button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="bg-red-600 hover:bg-red-700 text-white p-1"
+                        disabled={values.Items.length === 1}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* ✅ Totals Row */}
+                <div className="grid grid-cols-6 gap-4 border-t pt-4 font-semibold">
+                  <div className="col-span-2 text-right">Total:</div>
+
+                  <div className="col-span-2 text-right">
+                    <div className="font-bold">
+                      {values.Items.reduce(
+                        (sum, e) => sum + (parseFloat(e.Cost) || 0),
+                        0
+                      ).toFixed(2)}{' '}
+                      <span className="text-sm font-normal text-gray-500">
+                        (Estimated Cost)
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex justify-end pt-0">
-                    <Button
-                      type="button"
-                      onClick={() => remove(index)}
-                      className="bg-red-600 hover:bg-red-700 text-white p-1"
-                      disabled={values.Items.length === 1}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-
-
-              {/* ✅ Totals Row */}
-              <div className="grid grid-cols-6 gap-4 border-t pt-4 font-semibold">
-                <div className="col-span-2 text-right">Total:</div>
-
-                <div className='col-span-2 text-right'>
-                  <div className="font-bold">
-                    {values.Items.reduce(
-                      (sum, e) => sum + (parseFloat(e.Cost) || 0),
-                      0
-                    ).toFixed(2)}{' '}
-                    <span className="text-sm font-normal text-gray-500">(Estimated Cost)</span>
-                  </div>
-                </div>
-
-                <div className='col-span-2 text-right'>
-                  <div className="font-bold">
-                    {values.Items.reduce(
-                      (sum, e) => sum + ((parseFloat(e.Cost) || 0) * (parseFloat(e.Quantity) || 0)),
-                      0
-                    ).toFixed(2)}{' '}
-                    <span className="text-sm font-normal text-gray-500">(Cost)</span>
+                  <div className="col-span-2 text-right">
+                    <div className="font-bold">
+                      {values.Items.reduce(
+                        (sum, e) =>
+                          sum +
+                          (parseFloat(e.Cost) || 0) *
+                            (parseFloat(e.Quantity) || 0),
+                        0
+                      ).toFixed(2)}{' '}
+                      <span className="text-sm font-normal text-gray-500">
+                        (Cost)
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-
-
-            </div>
-          )}
-        />
+            )}
+          />
 
           <div className="flex justify-end space-x-2 !mt-5">
             <button type="button" className="btn btn-outline" onClick={onClose}>

@@ -9,31 +9,33 @@ import {
   fetchJournalEntries,
   addJournalEntry,
   updateJournalEntry,
-  deleteJournalEntry
+  deleteJournalEntry,
 } from '../../features/disbursement/journalEntrySlice';
 import { fetchDepartments } from '../../features/settings/departmentSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 
 function JournalEntryPage() {
-  const { departments } = useSelector(state => state.departments);
-  const { accounts } = useSelector(state => state.chartOfAccounts);
+  const { departments } = useSelector((state) => state.departments);
+  const { accounts } = useSelector((state) => state.chartOfAccounts);
 
   // hardcoded in old software
   const typeOptions = [
     { label: 'Cash Disbursement', value: 'Cash Disbursement' },
     { label: 'Check Disbursement', value: 'Check Disbursement' },
     { label: 'Collection', value: 'Collection' },
-    { label: 'Others', value: 'Others' }
+    { label: 'Others', value: 'Others' },
   ];
   const fundOptions = [
     // get funds active
     { label: 'General Fund', value: '1' },
     { label: 'Trust Fund', value: '2' },
-    { label: 'Special Education Fund', value: '3' }
+    { label: 'Special Education Fund', value: '3' },
   ];
 
   const dispatch = useDispatch();
-  const { journalEntries, isLoading } = useSelector(state => state.journalEntries);
+  const { journalEntries, isLoading } = useSelector(
+    (state) => state.journalEntries
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentJournalEntry, setCurrentJournalEntry] = useState(null);
@@ -72,11 +74,13 @@ function JournalEntryPage() {
       }
     }
   };
-  
+
   const handleSubmit = async (values) => {
     try {
       if (currentJournalEntry) {
-        await dispatch(updateJournalEntry({ ...values, ID: currentJournalEntry.ID })).unwrap();
+        await dispatch(
+          updateJournalEntry({ ...values, ID: currentJournalEntry.ID })
+        ).unwrap();
       } else {
         await dispatch(addJournalEntry(values)).unwrap();
       }
@@ -135,68 +139,68 @@ function JournalEntryPage() {
     {
       key: 'RequestedByName',
       header: 'Requested By',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'InvoiceDate',
       header: 'Invoice Date',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'InvoiceNumber',
       header: 'Invoice No.',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'JEVType',
       header: 'Jev Type',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'FundsName',
       header: 'Fund',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'ObligationRequestNumber',
       header: 'OBR No.',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'SAI_No',
       header: 'DV No.',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'CheckNumber',
       header: 'Check Number',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'CheckDate',
       header: 'Check Date',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Total',
       header: 'Total',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   // const actions = [
-    // {
-    //   icon: PencilIcon,
-    //   title: 'Edit',
-    //   onClick: handleEdit,
-    //   className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
-    // },
-    // {
-    //   icon: TrashIcon,
-    //   title: 'Delete',
-    //   onClick: handleDelete,
-    //   className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    // }
+  // {
+  //   icon: PencilIcon,
+  //   title: 'Edit',
+  //   onClick: handleEdit,
+  //   className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+  // },
+  // {
+  //   icon: TrashIcon,
+  //   title: 'Delete',
+  //   onClick: handleDelete,
+  //   className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+  // }
   // ];
 
   return (
@@ -204,8 +208,8 @@ function JournalEntryPage() {
       <div className="page-header">
         <div className="flex justify-between items-center">
           <div>
-            <h1>Journal Entries</h1>
-            <p>Manage Journal Entries</p>
+            <h1>Journal Entries Voucher </h1>
+            <p>Manage your Journal Entries</p>
           </div>
           <button
             type="button"
@@ -213,7 +217,7 @@ function JournalEntryPage() {
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Journal Entry
+            Add JEV
           </button>
         </div>
       </div>
@@ -221,7 +225,7 @@ function JournalEntryPage() {
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={journalEntries}          
+          data={journalEntries}
           actions={(row) => {
             const actionList = [];
             // if (row.Status === 'Rejected') {
@@ -243,7 +247,7 @@ function JournalEntryPage() {
             return actionList;
           }}
           loading={isLoading}
-          emptyMessage="No journal entries found. Click 'Add Journal Entry' to create one."
+          emptyMessage="No journal entries found. Click 'Add JEV' to create one."
         />
       </div>
 
@@ -252,32 +256,44 @@ function JournalEntryPage() {
         size="xxxl"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentJournalEntry ? "Edit Journal Entry" : "Add Journal Entry"}
+        title={
+          currentJournalEntry
+            ? 'Edit Journal Entry Voucher'
+            : 'Add Journal Entry Voucher'
+        }
       >
         <JournalEntryForm
           typeOptions={typeOptions}
           fundOptions={fundOptions}
-          centerOptions={departments.filter(dept => dept.Active).map(dept => ({ label: dept.Name, value: dept.ID }))}
-          accountOptions={accounts.filter(acc => acc.Active).map(acc => ({ label: acc.AccountCode + ' ' + acc.Name, value: acc.ID }))}
+          centerOptions={departments
+            .filter((dept) => dept.Active)
+            .map((dept) => ({ label: dept.Name, value: dept.ID }))}
+          accountOptions={accounts
+            .filter((acc) => acc.Active)
+            .map((acc) => ({
+              label: acc.AccountCode + ' ' + acc.Name,
+              value: acc.ID,
+            }))}
           initialData={
             currentJournalEntry
               ? {
                   ...currentJournalEntry,
-                  AccountingEntries: currentJournalEntry.JournalEntries?.map(entry => {
-                    const matchedAccount = accounts.find(
-                      acc => 
-                        acc.AccountCode === entry.AccountCode &&
-                        acc.Name === entry.AccountName
-                    );
+                  AccountingEntries:
+                    currentJournalEntry.JournalEntries?.map((entry) => {
+                      const matchedAccount = accounts.find(
+                        (acc) =>
+                          acc.AccountCode === entry.AccountCode &&
+                          acc.Name === entry.AccountName
+                      );
 
-                    return {
-                      ResponsibilityCenter: entry.ResponsibilityCenter || '',
-                      AccountExplanation: matchedAccount?.ID || '', // ✅ set to actual account ID
-                      PR: entry.PR || '',
-                      Debit: entry.Debit || 0,
-                      Credit: entry.Credit || 0,
-                    };
-                  }) || [],
+                      return {
+                        ResponsibilityCenter: entry.ResponsibilityCenter || '',
+                        AccountExplanation: matchedAccount?.ID || '', // ✅ set to actual account ID
+                        PR: entry.PR || '',
+                        Debit: entry.Debit || 0,
+                        Credit: entry.Credit || 0,
+                      };
+                    }) || [],
                 }
               : null
           }
@@ -294,7 +310,8 @@ function JournalEntryPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the journal entry "{journalEntryToDelete?.Name}"?
+            Are you sure you want to delete the journal entry "
+            {journalEntryToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

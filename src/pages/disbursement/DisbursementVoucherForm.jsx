@@ -1,7 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Formik, Form, FieldArray, Field, ErrorMessage,useFormikContext } from 'formik';
+import {
+  Formik,
+  Form,
+  FieldArray,
+  Field,
+  ErrorMessage,
+  useFormikContext,
+} from 'formik';
 import * as Yup from 'yup';
 import Select from 'react-select';
 import FormField from '../../components/common/FormField';
@@ -38,45 +45,68 @@ const requestTypes = [
   { value: 'Standalone Request', label: 'Standalone Request' },
 ];
 
-// Validation schema
-const disbursementVoucherSchema = Yup.object().shape({
-  // obrNo: Yup.string().required('OBR No. is required'),
-  // obrDate: Yup.date().required('Date is required'),
-  payeeType: Yup.string().required('Payee type is required'),
-  payeeId: Yup.string().required('Payee selection is required'),
-  // responsibilityCenter: Yup.string().required('Responsibility Center is required'),
-  // fund: Yup.string().required('Fund is required'),
-  // fiscalYear: Yup.string().required('Fiscal Year is required'),
-  // project: Yup.string().required('Project is required'),
-  accountingEntries: Yup.array().min(1, 'At least one item is required'),
-  contraAccount: Yup.string().required('Contra Account is required'),
-  modeOfPayment: Yup.string().required('Mode of Payment is required'),
-  bank: Yup.string().required('Bank is required'),
-  checkNumber: Yup.string().required('Check Number is required'),
-  receivedPaymentBy: Yup.string().required('Received Payment By is required'),
-});
-
-function DisbursementVoucherForm({ initialData, onClose, employeeOptions = [], vendorOptions = [], individualOptions = [], employeeData = [], vendorData = [], individualData = [], departmentOptions = [], fundOptions = [], projectOptions = [], fiscalYearOptions = [], particularsOptions = [],
+function DisbursementVoucherForm({
+  initialData,
+  onClose,
+  employeeOptions = [],
+  vendorOptions = [],
+  individualOptions = [],
+  employeeData = [],
+  vendorData = [],
+  individualData = [],
+  departmentOptions = [],
+  fundOptions = [],
+  projectOptions = [],
+  fiscalYearOptions = [],
+  particularsOptions = [],
   unitOptions = [],
   taxCodeOptions = [],
   budgetOptions = [],
   taxCodeFull = [],
-  chartOfAccountsOptions = [] }) {
+  chartOfAccountsOptions = [],
+}) {
   const dispatch = useDispatch();
-  const formikRef = useRef(null); 
+  const formikRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPayee, setSelectedPayee] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
-
+  const [selectedRequestType, setSelectedRequestType] = useState(null);
   const [showEntryModal, setShowEntryModal] = useState(false);
   const [accountingEntries, setAccountingEntries] = useState([]);
+  // Add state to track the selected mode of payment
+  const [selectedModeOfPayment, setSelectedModeOfPayment] = useState(
+    initialData?.modeOfPayment || ''
+  );
+
+  const getValidationSchema = () => {
+    return Yup.object().shape({
+      payeeType: Yup.string().required('Payee type is required'),
+      payeeId: Yup.string().required('Payee selection is required'),
+      accountingEntries:
+        selectedRequestType === 'Standalone Request'
+          ? Yup.array()
+          : Yup.array().min(1, 'At least one item is required'),
+      contraAccount: Yup.string().required('Contra Account is required'),
+      modeOfPayment: Yup.string().required('Mode of Payment is required'),
+      bank:
+        selectedModeOfPayment === 'Check'
+          ? Yup.string().required('Bank is required')
+          : Yup.string(),
+      checkNumber:
+        selectedModeOfPayment === 'Check'
+          ? Yup.string().required('Check Number is required')
+          : Yup.string(),
+      receivedPaymentBy: Yup.string().required(
+        'Received Payment By is required'
+      ),
+    });
+  };
   const handleAddEntry = (entry) => {
     setAccountingEntries([...accountingEntries, entry]);
   };
 
-  const { requestOptions, requestOptionsLoading, requestOptionsError } = useSelector(
-    state => state.disbursementVouchers
-  );
+  const { requestOptions, requestOptionsLoading, requestOptionsError } =
+    useSelector((state) => state.disbursementVouchers);
 
   const calculateTotals = (items, taxes) => {
     const grossAmount = items.reduce(
@@ -105,8 +135,8 @@ function DisbursementVoucherForm({ initialData, onClose, employeeOptions = [], v
   };
 
   const initialValues = {
-    obrNo:           initialData?.obrNo   || '',
-    obrDate:         initialData?.obrDate || new Date().toISOString().split('T')[0],
+    obrNo: initialData?.obrNo || '',
+    obrDate: initialData?.obrDate || new Date().toISOString().split('T')[0],
     dvDate: initialData?.dvDate || new Date().toISOString().split('T')[0],
     paymentDate:
       initialData?.paymentDate || new Date().toISOString().split('T')[0],
@@ -116,8 +146,7 @@ function DisbursementVoucherForm({ initialData, onClose, employeeOptions = [], v
     payeeAddress: initialData?.payeeAddress || '',
     officeUnitProject: initialData?.officeUnitProject || '',
     orsNumber: initialData?.orsNumber || '',
-    responsibilityCenter:
-      initialData?.responsibilityCenter || '',
+    responsibilityCenter: initialData?.responsibilityCenter || '',
     requestForPayment: initialData?.requestForPayment || '',
     items:
       Array.isArray(initialData?.items) && initialData.items.length > 0
@@ -158,37 +187,58 @@ function DisbursementVoucherForm({ initialData, onClose, employeeOptions = [], v
       values.taxes
     );
 
-
     const fd = new FormData();
 
-    if(values.payeeType === 'Employee') {
+    if (values.payeeType === 'Employee') {
       fd.append('EmployeeID', values.payeeId);
       fd.append('VendorID', '');
       fd.append('CustomerID', '');
-    }
-    else if(values.payeeType === 'Vendor') {
+    } else if (values.payeeType === 'Vendor') {
       fd.append('EmployeeID', '');
       fd.append('VendorID', values.payeeId);
       fd.append('CustomerID', '');
-    }
-    else if(values.payeeType === 'Individual') {
+    } else if (values.payeeType === 'Individual') {
       fd.append('EmployeeID', '');
       fd.append('VendorID', '');
       fd.append('CustomerID', values.payeeId);
     }
 
-    fd.append('PayeeType',         values.payeeType);
-    fd.append('Payee',         selectedPayee?.Name || (selectedPayee?.FirstName + ' ' + selectedPayee?.MiddleName + ' ' + selectedPayee?.LastName) || '');
-    fd.append('Address',      selectedPayee?.StreetAddress || '');
-    fd.append('InvoiceNumber',         values.obrNo);
-    fd.append('InvoiceDate',         values.obrDate);
+    fd.append('PayeeType', values.payeeType);
+    fd.append(
+      'Payee',
+      selectedPayee?.Name ||
+        selectedPayee?.FirstName +
+          ' ' +
+          selectedPayee?.MiddleName +
+          ' ' +
+          selectedPayee?.LastName ||
+        ''
+    );
+    fd.append('Address', selectedPayee?.StreetAddress || '');
+    fd.append('InvoiceNumber', values.obrNo);
+    fd.append('InvoiceDate', values.obrDate);
     fd.append('ResponsibilityCenter', values.responsibilityCenter);
 
-    const total = values.accountingEntries.reduce((sum, e) => sum + Number(e.subtotal || 0), 0);
-    const ewt = values.accountingEntries.reduce((sum, e) => sum + Number(e.ewt || 0), 0);
-    const withheldAmount = values.accountingEntries.reduce((sum, e) => sum + Number(e.withheld || 0), 0);
-    const vat = values.accountingEntries.reduce((sum, e) => sum + Number(e.vat || 0), 0);
-    const discounts = values.accountingEntries.reduce((sum, e) => sum + Number(e.discount || 0), 0);
+    const total = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.subtotal || 0),
+      0
+    );
+    const ewt = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.ewt || 0),
+      0
+    );
+    const withheldAmount = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.withheld || 0),
+      0
+    );
+    const vat = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.vat || 0),
+      0
+    );
+    const discounts = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.discount || 0),
+      0
+    );
 
     fd.append('Total', total.toFixed(2));
     fd.append('EWT', ewt.toFixed(2));
@@ -208,7 +258,7 @@ function DisbursementVoucherForm({ initialData, onClose, employeeOptions = [], v
     // fd.append('netAmount',    netAmount);
 
     /* ⬇︎ Complex arrays → stringify */
-    fd.append('Items',            JSON.stringify(values.accountingEntries));
+    fd.append('Items', JSON.stringify(values.accountingEntries));
     // fd.append('taxes',            JSON.stringify(values.taxes));
     // fd.append('contraAccounts',   JSON.stringify(values.contraAccounts));
     // fd.append('accountingEntries',JSON.stringify(values.accountingEntries));
@@ -225,11 +275,10 @@ function DisbursementVoucherForm({ initialData, onClose, employeeOptions = [], v
     fd.append('OBR_LinkID', values.OBR_LinkID || '');
 
     fd.append('ContraAccountID', values.contraAccount);
-fd.append('ModeOfPayment', values.modeOfPayment);
-fd.append('BankID', values.bank);
-fd.append('CheckNumber', values.checkNumber);
-fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
-
+    fd.append('ModeOfPayment', values.modeOfPayment);
+    fd.append('BankID', values.bank);
+    fd.append('CheckNumber', values.checkNumber);
+    fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
 
     const action = initialData
       ? updateDisbursementVoucher({ formData: fd, id: initialData.ID })
@@ -268,7 +317,7 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
         <Formik
           innerRef={formikRef}
           initialValues={initialValues}
-          validationSchema={disbursementVoucherSchema}
+          validationSchema={getValidationSchema()}
           onSubmit={handleSubmit}
           enableReinitialize
         >
@@ -282,13 +331,11 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
             setFieldTouched,
             isValid,
           }) => {
-            
             const { grossAmount, totalTaxes, netAmount } = calculateTotals(
               values.items,
               values.taxes
             );
 
-            
             const payeeTypeOptions = payeeTypes.map((type) => ({
               value: type.value,
               label: type.label,
@@ -308,43 +355,48 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
               setFieldValue('officeUnitProject', '');
               setFieldValue('orsNumber', '');
             };
-            
 
             const handleRequestTypeChange = (type) => {
               setSelectedRequest(null);
               setFieldValue('requestType', type);
+              // console.log('Selected Request Type:', type);
+              setSelectedRequestType(type);
+              if (type === 'Standalone Request') {
+                setFieldValue('accountingEntries', []);
+              }
 
               if (values.payeeType && values.payeeId && type) {
-                dispatch(fetchRequestOptions({
-                  requestType: type,
-                  payeeType:   values.payeeType,
-                  payeeId:     values.payeeId,
-                }));
+                dispatch(
+                  fetchRequestOptions({
+                    requestType: type,
+                    payeeType: values.payeeType,
+                    payeeId: values.payeeId,
+                  })
+                );
               }
             };
 
-            
             const handleRequestSelect = (option) => {
               setSelectedRequest(option);
 
               const entriesFromRequest = option?.raw?.TransactionItemsAll || [];
 
               // Add mapped fields for display (without losing raw data)
-              const enrichedEntries = entriesFromRequest.map(item => {
+              const enrichedEntries = entriesFromRequest.map((item) => {
                 /* 1. build “vals” from the raw item */
                 const vals = {
-                  Price:         item.Price        ?? 0,
-                  Quantity:      item.Quantity     ?? 1,
-                  DiscountRate:  item.DiscountRate ?? 0,
-                  Vatable:       item.Vatable,
-                  withheldEWT:   item.EWTRate      ?? 0,
+                  Price: item.Price ?? 0,
+                  Quantity: item.Quantity ?? 1,
+                  DiscountRate: item.DiscountRate ?? 0,
+                  Vatable: item.Vatable,
+                  withheldEWT: item.EWTRate ?? 0,
                 };
 
                 /* 2. call your helper */
                 const computed = obligationRequestItemsCalculator({
-                  price:    vals.Price,
+                  price: vals.Price,
                   quantity: vals.Quantity,
-                  taxRate:  item.TaxRate || 0,
+                  taxRate: item.TaxRate || 0,
                   discountPercent: vals.DiscountRate,
                   vatable: vals.Vatable,
                   ewtRate: vals.withheldEWT,
@@ -352,27 +404,31 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
 
                 /* 3. return the full enriched record */
                 return {
-                  ...item,                         // raw DB record
-                  ...computed,                     // whatever fields the calculator returns
-                  itemName:     item.Item?.Name || '',
-                  subtotal:     item.AmountDue || 0,
-                  Remarks:      item.Remarks || '',
-                  FPP:          item.FPP || '',
-                  accountCode:  item.ChargeAccount?.ChartofAccounts?.AccountCode || '',
-                  accountName:  item.ChargeAccount?.ChartofAccounts?.Name || '',
-                  fundCode:     option?.raw?.sourceFunds?.Code || '',
+                  ...item, // raw DB record
+                  ...computed, // whatever fields the calculator returns
+                  itemName: item.Item?.Name || '',
+                  subtotal: item.AmountDue || 0,
+                  Remarks: item.Remarks || '',
+                  FPP: item.FPP || '',
+                  accountCode:
+                    item.ChargeAccount?.ChartofAccounts?.AccountCode || '',
+                  accountName: item.ChargeAccount?.ChartofAccounts?.Name || '',
+                  fundCode: option?.raw?.sourceFunds?.Code || '',
                 };
               });
 
-
               if (formikRef.current) {
                 // Append enriched full raw records
-                formikRef.current.setFieldValue('accountingEntries', enrichedEntries);
-                formikRef.current.setFieldValue('OBR_LinkID', option?.raw?.LinkID || '');
+                formikRef.current.setFieldValue(
+                  'accountingEntries',
+                  enrichedEntries
+                );
+                formikRef.current.setFieldValue(
+                  'OBR_LinkID',
+                  option?.raw?.LinkID || ''
+                );
               }
             };
-
-
 
             const handlePayeeSelect = (payee) => {
               let selectedItem = null;
@@ -384,7 +440,9 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                   selectedItem = vendorData.find((item) => item.ID === payee);
                   break;
                 case 'Individual':
-                  selectedItem = individualData.find((item) => item.ID === payee);
+                  selectedItem = individualData.find(
+                    (item) => item.ID === payee
+                  );
                   break;
                 default:
                   break;
@@ -418,7 +476,17 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                   return [];
               }
             };
+            // Add handler for mode of payment change
+            const handleModeOfPaymentChange = (e) => {
+              setSelectedModeOfPayment(e.target.value);
+              handleChange(e); // Update formik value
 
+              // Clear bank and check number when switching to Cash
+              if (e.target.value === 'Cash') {
+                setFieldValue('bank', '');
+                setFieldValue('checkNumber', '');
+              }
+            };
             return (
               <Form className="space-y-8">
                 {/* Payee Type Selection */}
@@ -445,7 +513,9 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                             }`}
                           >
                             <PayeeTypeIcon type={type.value} />
-                            <span className="ml-3 font-medium">{type.label}</span>
+                            <span className="ml-3 font-medium">
+                              {type.label}
+                            </span>
                           </button>
                         ))}
                       </div>
@@ -460,18 +530,25 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                     {values.payeeType && (
                       <div className="lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Select {selectedPayeeType?.label} <span className="text-red-500">*</span>
+                          Select {selectedPayeeType?.label}{' '}
+                          <span className="text-red-500">*</span>
                         </label>
 
                         <Select
                           options={getPayeeOptions(values.payeeType)}
                           onChange={(option) => handlePayeeSelect(option.value)}
-                          value={getPayeeOptions(values.payeeType).find(p => p.value === values.payeeId) || null}
+                          value={
+                            getPayeeOptions(values.payeeType).find(
+                              (p) => p.value === values.payeeId
+                            ) || null
+                          }
                           className="react-select-container"
                           classNamePrefix="react-select"
                         />
                         {errors.payeeType && touched.payeeType && (
-                          <p className="mt-1 text-sm text-red-600">{errors.payeeType}</p>
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.payeeType}
+                          </p>
                         )}
                       </div>
                     )}
@@ -488,7 +565,9 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                                 </div>
                                 <div className="text-sm text-gray-900">
                                   {selectedPayeeType?.label === 'Employee'
-                                    ? `${selectedPayee.FirstName || ''} ${selectedPayee.MiddleName || ''} ${selectedPayee.LastName || ''}`.trim()
+                                    ? `${selectedPayee.FirstName || ''} ${
+                                        selectedPayee.MiddleName || ''
+                                      } ${selectedPayee.LastName || ''}`.trim()
                                     : selectedPayeeType?.label === 'Vendor'
                                     ? selectedPayee.Name
                                     : selectedPayeeType?.label === 'Individual'
@@ -511,17 +590,13 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                                 </div>
                               </div>
                             </div>
-
                           </div>
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
-                
                 <hr />
-                
-                
                 {/* Payee Type Selection */}
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -545,7 +620,9 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                                 : 'border-gray-300 hover:border-gray-400 text-gray-700'
                             }`}
                           >
-                            <span className="ml-3 font-medium">{type.label}</span>
+                            <span className="ml-3 font-medium">
+                              {type.label}
+                            </span>
                           </button>
                         ))}
                       </div>
@@ -557,7 +634,7 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                     </div>
 
                     {/* Payee List */}
-                    {values.requestType && (
+                    {values.requestType !== 'Standalone Request' && (
                       <div className="lg:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Select Request <span className="text-red-500">*</span>
@@ -569,13 +646,20 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
 
                             // Conditionally build fullName based on payeeType
                             if (values.payeeType === 'Employee') {
-                              fullName = `${opt.Employee?.FirstName || ''} ${opt.Employee?.MiddleName || ''} ${opt.Employee?.LastName || ''}`.trim();
+                              fullName = `${opt.Employee?.FirstName || ''} ${
+                                opt.Employee?.MiddleName || ''
+                              } ${opt.Employee?.LastName || ''}`.trim();
                             } else if (values.payeeType === 'Individual') {
-                              if(!opt.Employee?.FirstName && !opt.Employee?.MiddleName && !opt.Employee?.LastName) {
+                              if (
+                                !opt.Employee?.FirstName &&
+                                !opt.Employee?.MiddleName &&
+                                !opt.Employee?.LastName
+                              ) {
                                 fullName = opt.Name || 'N/A';
-                              }
-                              else {
-                                fullName = `${opt.Employee?.FirstName || ''} ${opt.Employee?.MiddleName || ''} ${opt.Employee?.LastName || ''}`.trim();
+                              } else {
+                                fullName = `${opt.Employee?.FirstName || ''} ${
+                                  opt.Employee?.MiddleName || ''
+                                } ${opt.Employee?.LastName || ''}`.trim();
                               }
                             } else if (values.payeeType === 'Vendor') {
                               fullName = opt.Name || 'N/A';
@@ -583,7 +667,11 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
 
                             return {
                               value: opt.ID,
-                              label: `${opt.InvoiceNumber || ''} – ${fullName} – ${opt.TIN || ''} – ${opt.InvoiceDate} – ${opt.sourceFunds?.Code || ''}`,
+                              label: `${
+                                opt.InvoiceNumber || ''
+                              } – ${fullName} – ${opt.TIN || ''} – ${
+                                opt.InvoiceDate
+                              } – ${opt.sourceFunds?.Code || ''}`,
                               raw: opt,
                             };
                           })}
@@ -601,15 +689,15 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                           classNamePrefix="react-select"
                         />
                         {errors.requestType && touched.requestType && (
-                          <p className="mt-1 text-sm text-red-600">{errors.requestType}</p>
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.requestType}
+                          </p>
                         )}
                       </div>
                     )}
                   </div>
                 </div>
-                  
                 <hr />
-                
                 {/* ── Accounting Entries ─────────────────────────────────────── */}
                 <FieldArray name="accountingEntries">
                   {({ push, remove }) => (
@@ -646,8 +734,12 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                               className="grid grid-cols-8 gap-2 text-sm items-center border p-2 rounded"
                             >
                               <span>{entry.itemName}</span>
-                              <span>{parseFloat(entry.subtotal).toFixed(2)}</span>
-                              <span>{parseFloat(entry.subtotal).toFixed(2)}</span>
+                              <span>
+                                {parseFloat(entry.subtotal).toFixed(2)}
+                              </span>
+                              <span>
+                                {parseFloat(entry.subtotal).toFixed(2)}
+                              </span>
                               <span>{entry.Remarks}</span>
                               <span>{entry.FPP}</span>
                               <span>{entry.accountCode}</span>
@@ -670,7 +762,10 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                             <div className="col-span-7 text-right">Total:</div>
                             <div className="text-right">
                               {values.accountingEntries
-                                .reduce((sum, e) => sum + Number(e.subtotal || 0), 0)
+                                .reduce(
+                                  (sum, e) => sum + Number(e.subtotal || 0),
+                                  0
+                                )
                                 .toFixed(2)}
                             </div>
                           </div>
@@ -678,9 +773,14 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                           {/* footer total */}
                           <div className="grid grid-cols-1 gap-2 font-semibold pt-2 border-t">
                             <div className="text-right">
-                              {convertAmountToWords(values.accountingEntries
-                                .reduce((sum, e) => sum + Number(e.subtotal || 0), 0)
-                                .toFixed(2))}
+                              {convertAmountToWords(
+                                values.accountingEntries
+                                  .reduce(
+                                    (sum, e) => sum + Number(e.subtotal || 0),
+                                    0
+                                  )
+                                  .toFixed(2)
+                              )}
                             </div>
                           </div>
                         </div>
@@ -711,166 +811,172 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                     </>
                   )}
                 </FieldArray>
-
                 {/* show validation error */}
                 {errors.accountingEntries && (
                   <p className="mt-1 text-sm text-red-600">
                     {errors.accountingEntries}
                   </p>
                 )}
-
                 <hr />
-
                 {/* ── Tax Summary (auto‑calculated) ───────────────────────────── */}
-{(() => {
-  // Build a quick “hash → totals” on each render
-  const summary = {};
-  values.accountingEntries.forEach((entry) => {
-    console.log('entry', entry);
-    // You can change these keys to match the actual structure
-    const taxName = entry.TaxName || 'N/A';
-    const taxRate = entry.TaxRate || 0;
-    const withheld = Number(entry.WithheldAmount || 0);
+                {(() => {
+                  // Build a quick “hash → totals” on each render
+                  const summary = {};
+                  values.accountingEntries.forEach((entry) => {
+                    console.log('entry', entry);
+                    // You can change these keys to match the actual structure
+                    const taxName = entry.TaxName || 'N/A';
+                    const taxRate = entry.TaxRate || 0;
+                    const withheld = Number(entry.WithheldAmount || 0);
 
-    const key = `${taxName}-${taxRate}`;
-    if (!summary[key]) {
-      summary[key] = { taxName, taxRate, withheld: 0 };
-    }
-    summary[key].withheld += withheld;
-  });
+                    const key = `${taxName}-${taxRate}`;
+                    if (!summary[key]) {
+                      summary[key] = { taxName, taxRate, withheld: 0 };
+                    }
+                    summary[key].withheld += withheld;
+                  });
 
-  const taxRows = Object.values(summary);
+                  const taxRows = Object.values(summary);
 
-  return taxRows.length ? (
-    <div className="space-y-2">
-      <h3 className="text-lg font-medium">Taxes</h3>
+                  return taxRows.length ? (
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium">Taxes</h3>
 
-      {/* header */}
-      <div className="grid grid-cols-3 gap-2 text-sm font-semibold">
-        <span>Tax Name</span>
-        <span className="text-right">Tax&nbsp;Rate&nbsp;%</span>
-        <span className="text-right">Total&nbsp;Withheld</span>
-      </div>
+                      {/* header */}
+                      <div className="grid grid-cols-3 gap-2 text-sm font-semibold">
+                        <span>Tax Name</span>
+                        <span className="text-right">Tax&nbsp;Rate&nbsp;%</span>
+                        <span className="text-right">Total&nbsp;Withheld</span>
+                      </div>
 
-      {/* rows */}
-      {taxRows.map(({ taxName, taxRate, withheld }, i) => (
-        <div
-          key={i}
-          className="grid grid-cols-3 gap-2 text-sm border p-2 rounded"
-        >
-          <span>{taxName}</span>
-          <span className="text-right">{parseFloat(taxRate).toFixed(2)}</span>
-          <span className="text-right">
-            {withheld.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </span>
-        </div>
-      ))}
-    </div>
-  ) : null;
-})()}
-
-
+                      {/* rows */}
+                      {taxRows.map(({ taxName, taxRate, withheld }, i) => (
+                        <div
+                          key={i}
+                          className="grid grid-cols-3 gap-2 text-sm border p-2 rounded"
+                        >
+                          <span>{taxName}</span>
+                          <span className="text-right">
+                            {parseFloat(taxRate).toFixed(2)}
+                          </span>
+                          <span className="text-right">
+                            {withheld.toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
                 <hr />
-{/* ── Payment Details ─────────────────────────────────────────────── */}
-<div className="space-y-4">
-  <h3 className="text-lg font-medium">Payment Details</h3>
+                {/* ── Payment Details ─────────────────────────────────────────────── */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Payment Details</h3>
 
-  {/* Row 1 */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {/* Contra Account (React Select) */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Contra Account
-      </label>
-      <Select
-        name="contraAccount"
-        options={chartOfAccountsOptions} // or use a proper contra account options array
-        onChange={(opt) => setFieldValue('contraAccount', opt?.value)}
-        value={chartOfAccountsOptions.find(p => p.value === values.contraAccount) || null}
-        classNamePrefix="react-select"
-      />
-      {errors.contraAccount && touched.contraAccount && (
-        <p className="mt-1 text-sm text-red-600">{errors.contraAccount}</p>
-      )}
-    </div>
+                  {/* Row 1 */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Contra Account (React Select) */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Contra Account
+                      </label>
+                      <Select
+                        name="contraAccount"
+                        options={chartOfAccountsOptions} // or use a proper contra account options array
+                        onChange={(opt) =>
+                          setFieldValue('contraAccount', opt?.value)
+                        }
+                        value={
+                          chartOfAccountsOptions.find(
+                            (p) => p.value === values.contraAccount
+                          ) || null
+                        }
+                        classNamePrefix="react-select"
+                      />
+                      {errors.contraAccount && touched.contraAccount && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {errors.contraAccount}
+                        </p>
+                      )}
+                    </div>
 
-    {/* Mode of Payment */}
-    <div>
-      <FormField
-  type="select"
-  label="Mode of Payment"
-  name="modeOfPayment"
-  options={[
-    { value: 'Cash', label: 'Cash' },
-    { value: 'Check', label: 'Check' },
-    { value: 'Others', label: 'Others' },
-  ]}
-  value={values.modeOfPayment}
-  onChange={handleChange}
-  onBlur={handleBlur}
-  error={errors.modeOfPayment}
-  touched={touched.modeOfPayment}
-  required
-/>
-    </div>
-  </div>
+                    {/* Mode of Payment */}
+                    <div>
+                      <FormField
+                        type="select"
+                        label="Mode of Payment"
+                        name="modeOfPayment"
+                        options={[
+                          { value: 'Cash', label: 'Cash' },
+                          { value: 'Check', label: 'Check' },
+                          { value: 'Others', label: 'Others' },
+                        ]}
+                        value={values.modeOfPayment}
+                        onChange={handleModeOfPaymentChange}
+                        onBlur={handleBlur}
+                        error={errors.modeOfPayment}
+                        touched={touched.modeOfPayment}
+                        required
+                      />
+                    </div>
+                  </div>
 
-  {/* Row 2 */}
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    {/* Bank */}
-    <div>
-      <FormField
-  type="text"
-  label="Bank"
-  name="bank"
-  value={values.bank}
-  onChange={handleChange}
-  onBlur={handleBlur}
-  error={errors.bank}
-  touched={touched.bank}
-  required
-/>
-    </div>
+                  {/* Row 2 */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Bank */}
+                    {selectedModeOfPayment === 'Check' && (
+                      <>
+                        {/* Bank */}
+                        <div>
+                          <FormField
+                            type="text"
+                            label="Bank"
+                            name="bank"
+                            value={values.bank}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={errors.bank}
+                            touched={touched.bank}
+                            required={selectedModeOfPayment === 'Check'}
+                          />
+                        </div>
 
-    {/* Check Number */}
-    <div>
-      <FormField
-  type="text"
-  label="Check No."
-  name="checkNumber"
-  value={values.checkNumber}
-  onChange={handleChange}
-  onBlur={handleBlur}
-  error={errors.checkNumber}
-  touched={touched.checkNumber}
-  required
-/>
-    </div>
+                        {/* Check Number */}
+                        <div>
+                          <FormField
+                            type="text"
+                            label="Check No."
+                            name="checkNumber"
+                            value={values.checkNumber}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={errors.checkNumber}
+                            touched={touched.checkNumber}
+                            required={selectedModeOfPayment === 'Check'}
+                          />
+                        </div>
+                      </>
+                    )}
 
-    {/* Received Payment By */}
-    <div>
-      
-      <FormField
-  type="text"
-  label="Received Payment By"
-  name="receivedPaymentBy"
-  value={values.receivedPaymentBy}
-  onChange={handleChange}
-  onBlur={handleBlur}
-  error={errors.receivedPaymentBy}
-  touched={touched.receivedPaymentBy}
-  required
-/>
-    </div>
-  </div>
-</div>
-
-
+                    {/* Received Payment By */}
+                    <div>
+                      <FormField
+                        type="text"
+                        label="Received Payment By"
+                        name="receivedPaymentBy"
+                        value={values.receivedPaymentBy}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.receivedPaymentBy}
+                        touched={touched.receivedPaymentBy}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
                 <hr />
-                
                 <FieldArray
                   name="Attachments"
                   render={({ remove, push }) => (
@@ -887,7 +993,10 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                       </div>
 
                       {values.Attachments?.map((att, index) => (
-                        <div key={index} className="flex items-center gap-4 mb-2">
+                        <div
+                          key={index}
+                          className="flex items-center gap-4 mb-2"
+                        >
                           {att.ID ? (
                             <div className="flex-1">
                               <a
@@ -898,17 +1007,26 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                               >
                                 {att.DataName}
                               </a>
-                              <input type="hidden" name={`Attachments[${index}].ID`} value={att.ID} />
+                              <input
+                                type="hidden"
+                                name={`Attachments[${index}].ID`}
+                                value={att.ID}
+                              />
                             </div>
                           ) : (
                             <div className="flex-1 min-w-[300px]">
-                              <label className="block text-sm font-medium mb-1">{`File ${index + 1}`}</label>
+                              <label className="block text-sm font-medium mb-1">{`File ${
+                                index + 1
+                              }`}</label>
                               <input
                                 type="file"
                                 name={`Attachments[${index}].File`}
                                 accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
                                 onChange={(e) =>
-                                  setFieldValue(`Attachments[${index}].File`, e.currentTarget.files[0])
+                                  setFieldValue(
+                                    `Attachments[${index}].File`,
+                                    e.currentTarget.files[0]
+                                  )
                                 }
                                 onBlur={handleBlur}
                                 className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
@@ -928,10 +1046,12 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
                     </div>
                   )}
                 />
-
-
                 <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-                  <button type="button" className="btn btn-outline">
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={onClose}
+                  >
                     Cancel
                   </button>
                   <button type="submit" className="btn btn-primary">
@@ -943,8 +1063,6 @@ fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
           }}
         </Formik>
       </div>
-
-
     </div>
   );
 }

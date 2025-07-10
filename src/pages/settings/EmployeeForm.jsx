@@ -61,10 +61,10 @@ const employeeSchema = Yup.object().shape({
   PositionID: Yup.string().required('Position is required'),
   EmploymentStatusID: Yup.string().required('Employment status is required'),
   DateHired: Yup.date().required('Date hired is required'),
-  TIN: Yup.string().required('TIN is required'),
-  SSS: Yup.string().required('SSS number is required'),
-  Philhealth: Yup.string().required('PhilHealth number is required'),
-  Pagibig: Yup.string().required('Pag-IBIG number is required'),
+  TIN: Yup.string(),
+  GSIS: Yup.string(),
+  Philhealth: Yup.string(),
+  Pagibig: Yup.string(),
   Active: Yup.string().required('Status is required'),
 });
 
@@ -122,7 +122,7 @@ function EmployeeForm({ initialData, onClose }) {
         EmploymentStatusID: '',
         DateHired: new Date().toISOString().split('T')[0],
         TIN: '',
-        SSS: '',
+        GSIS: '',
         Philhealth: '',
         Pagibig: '',
         Active: 'Active',
@@ -378,7 +378,6 @@ function EmployeeForm({ initialData, onClose }) {
                     label="TIN"
                     name="TIN"
                     type="text"
-                    required
                     value={values.TIN || '1241'}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -391,7 +390,6 @@ function EmployeeForm({ initialData, onClose }) {
                     label="PAG-IBIG"
                     name="Pagibig"
                     type="text"
-                    required
                     value={values.Pagibig || '636'}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -399,22 +397,20 @@ function EmployeeForm({ initialData, onClose }) {
                     touched={touched.Pagibig}
                   />
                   <FormField
-                    label="SSS"
-                    name="SSS"
+                    label="GSIS"
+                    name="GSIS"
                     type="text"
-                    required
-                    value={values.SSS || '1245'}
+                    value={values.GSIS || '1245'}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={errors.SSS}
-                    touched={touched.SSS}
+                    error={errors.GSIS}
+                    touched={touched.GSIS}
                   />
                 </div>
                 <FormField
                   label="Philhealth"
                   name="Philhealth"
                   type="text"
-                  required
                   value={values.Philhealth || '6341'}
                   onChange={handleChange}
                   onBlur={handleBlur}

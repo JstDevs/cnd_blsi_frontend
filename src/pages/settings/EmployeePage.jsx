@@ -3,13 +3,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
-import { fetchEmployees, deleteEmployee } from '../../features/settings/employeeSlice';
+import {
+  fetchEmployees,
+  deleteEmployee,
+} from '../../features/settings/employeeSlice';
 import EmployeeForm from './EmployeeForm';
 
 function EmployeePage() {
   const dispatch = useDispatch();
-  const { employees, isLoading } = useSelector(state => state.employees);
-  
+  const { employees, isLoading } = useSelector((state) => state.employees);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -18,22 +21,22 @@ function EmployeePage() {
   useEffect(() => {
     dispatch(fetchEmployees());
   }, [dispatch]);
-  
+
   const handleAddEmployee = () => {
     setCurrentEmployee(null);
     setIsModalOpen(true);
   };
-  
+
   const handleEditEmployee = (employee) => {
     setCurrentEmployee(employee);
     setIsModalOpen(true);
   };
-  
+
   const handleDeleteEmployee = (employee) => {
     setEmployeeToDelete(employee);
     setIsDeleteModalOpen(true);
   };
-    
+
   const confirmDelete = () => {
     if (employeeToDelete) {
       dispatch(deleteEmployee(employeeToDelete.ID));
@@ -41,29 +44,24 @@ function EmployeePage() {
       setEmployeeToDelete(null);
     }
   };
-  
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setCurrentEmployee(null);
   };
-  
+
   // Format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
   };
-  
+
   // Table columns definition
   const columns = [
     {
-      key: 'code',
-      header: 'Code',
+      key: 'IDNumber',
+      header: 'ID Number',
       sortable: true,
       className: 'font-medium text-neutral-900',
-    },
-    {
-      key: 'LastName',
-      header: 'Last Name',
-      sortable: true,
     },
     {
       key: 'FirstName',
@@ -71,53 +69,69 @@ function EmployeePage() {
       sortable: true,
     },
     {
-      key: 'departmentName',
-      header: 'Department',
+      key: 'MiddleName',
+      header: 'Middle Name',
       sortable: true,
     },
     {
-      key: 'position',
-      header: 'Position',
+      key: 'LastName',
+      header: 'Last Name',
       sortable: true,
     },
-    {
-      key: 'employmentStatus',
-      header: 'Employment Status',
-      sortable: true,
-    },
-    {
-      key: 'DateHired',
-      header: 'Date Hired',
-      sortable: true,
-      render: (value) => formatDate(value),
-    },
-    {
-      key: 'Active',
-      header: 'Status',
-      sortable: true,
-      render: (value) => (
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-          value === '1' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-        }`}>
-          {value=='1' ? 'Active' : 'Inactive'}
-        </span>
-      ),
-    },
+    // {
+    //   key: 'departmentName',
+    //   header: 'Department',
+    //   sortable: true,
+    // },
+    // {
+    //   key: 'position',
+    //   header: 'Position',
+    //   sortable: true,
+    // },
+    // {
+    //   key: 'employmentStatus',
+    //   header: 'Employment Status',
+    //   sortable: true,
+    // },
+    // {
+    //   key: 'DateHired',
+    //   header: 'Date Hired',
+    //   sortable: true,
+    //   render: (value) => formatDate(value),
+    // },
+    // {
+    //   key: 'Active',
+    //   header: 'Status',
+    //   sortable: true,
+    //   render: (value) => (
+    //     <span
+    //       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+    //         value === '1'
+    //           ? 'bg-success-100 text-success-800'
+    //           : 'bg-neutral-100 text-neutral-800'
+    //       }`}
+    //     >
+    //       {value == '1' ? 'Active' : 'Inactive'}
+    //     </span>
+    //   ),
+    // },
   ];
-  
+
   // Actions for table rows
   const actions = [
     {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditEmployee,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteEmployee,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
@@ -139,7 +153,7 @@ function EmployeePage() {
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -148,21 +162,20 @@ function EmployeePage() {
           loading={isLoading}
         />
       </div>
-      
+
       {/* Employee Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={currentEmployee ? "Edit Employee" : "Add Employee"}
+        title={currentEmployee ? 'Edit Employee' : 'Add Employee'}
         size="lg"
       >
-        <EmployeeForm 
-          initialData={currentEmployee} 
-          onClose={handleCloseModal} 
+        <EmployeeForm
+          initialData={currentEmployee}
+          onClose={handleCloseModal}
         />
       </Modal>
 
-      
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -171,10 +184,15 @@ function EmployeePage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the employee <span className="font-medium">{employeeToDelete?.FirstName} {employeeToDelete?.LastName}</span>?
+            Are you sure you want to delete the employee{' '}
+            <span className="font-medium">
+              {employeeToDelete?.FirstName} {employeeToDelete?.LastName}
+            </span>
+            ?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
-            This action cannot be undone and may affect related records in the system.
+            This action cannot be undone and may affect related records in the
+            system.
           </p>
         </div>
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">

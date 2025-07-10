@@ -377,7 +377,7 @@ const CommunityTaxForm = ({
               </div>
               <div>
                 <FormField
-                  label="Certificate No."
+                  label="OR No."
                   {...getFieldProps('CCNumber')}
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500 font-bold text-blue-600"
                   error={formik.touched.CCNumber && formik.errors.CCNumber}

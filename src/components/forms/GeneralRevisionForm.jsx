@@ -37,9 +37,13 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
     },
   });
   // Prepare employee options for SearchableDropdown
+  // const employeeOptions = employees.map((employee) => ({
+  //   id: employee.ID,
+  //   name: `${employee.LastName}, ${employee.FirstName}`,
+  // }));
   const employeeOptions = employees.map((employee) => ({
-    id: employee.ID,
-    name: `${employee.LastName}, ${employee.FirstName}`,
+    value: employee.ID, // This will be the actual value used
+    label: `${employee.LastName}, ${employee.FirstName}`, // This will be displayed
   }));
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-4">
@@ -84,85 +88,51 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
         // TODO CHANGE THIS
         <SearchableDropdown
           label="City Or Municipality Assessor"
-          options={employeeOptions.map((e) => e.name)}
+          options={employeeOptions} // Now passing the array of {label, value} objects
           placeholder="Select Assessor"
-          onSelect={(selected) => {
-            const selectedEmployee = employeeOptions.find(
-              (e) => e.name === selected
-            );
+          onSelect={(selectedValue) => {
             formik.setFieldValue(
               'CityorMunicipalityAssessor',
-              selectedEmployee?.id || ''
+              selectedValue || ''
             );
           }}
-          selectedValue={
-            employeeOptions.find(
-              (e) => e.id === formik.values.CityorMunicipalityAssessor
-            )?.name || ''
-          }
+          selectedValue={formik.values.CityorMunicipalityAssessor}
           error={formik.errors.CityorMunicipalityAssessor}
           touched={formik.touched.CityorMunicipalityAssessor}
         />
         <SearchableDropdown
           label="Assistant City Or Municipality Assessor"
-          options={employeeOptions.map((e) => e.name)}
+          options={employeeOptions}
           placeholder="Select Assistant Assessor"
           onSelect={(selected) => {
-            const selectedEmployee = employeeOptions.find(
-              (e) => e.name === selected
-            );
             formik.setFieldValue(
               'CityorMunicipalityAssistantAssessor',
-              selectedEmployee?.id || ''
+              selected || ''
             );
           }}
-          selectedValue={
-            employeeOptions.find(
-              (e) => e.id === formik.values.CityorMunicipalityAssistantAssessor
-            )?.name || ''
-          }
+          selectedValue={formik.values.CityorMunicipalityAssistantAssessor}
           error={formik.errors.CityorMunicipalityAssistantAssessor}
           touched={formik.touched.CityorMunicipalityAssistantAssessor}
         />
         <SearchableDropdown
           label="Provincial Assessor"
-          options={employeeOptions.map((e) => e.name)}
+          options={employeeOptions}
           placeholder="Select Provincial Assessor"
           onSelect={(selected) => {
-            const selectedEmployee = employeeOptions.find(
-              (e) => e.name === selected
-            );
-            formik.setFieldValue(
-              'ProvincialAssessor',
-              selectedEmployee?.id || ''
-            );
+            formik.setFieldValue('ProvincialAssessor', selected || '');
           }}
-          selectedValue={
-            employeeOptions.find(
-              (e) => e.id === formik.values.ProvincialAssessor
-            )?.name || ''
-          }
+          selectedValue={employeeOptions.find(formik.values.ProvincialAssessor)}
           error={formik.errors.ProvincialAssessor}
           touched={formik.touched.ProvincialAssessor}
         />
         <SearchableDropdown
           label="Assistant Provincial Assessor"
-          options={employeeOptions.map((e) => e.name)}
+          options={employeeOptions}
           placeholder="Select Assistant Provincial Assessor"
           onSelect={(selected) => {
-            const selectedEmployee = employeeOptions.find(
-              (e) => e.name === selected
-            );
-            formik.setFieldValue(
-              'ProvincialAssistantAssessor',
-              selectedEmployee?.id || ''
-            );
+            formik.setFieldValue('ProvincialAssistantAssessor', selected || '');
           }}
-          selectedValue={
-            employeeOptions.find(
-              (e) => e.id === formik.values.ProvincialAssistantAssessor
-            )?.name || ''
-          }
+          selectedValue={formik.values.ProvincialAssistantAssessor}
           error={formik.errors.ProvincialAssistantAssessor}
           touched={formik.touched.ProvincialAssistantAssessor}
         />

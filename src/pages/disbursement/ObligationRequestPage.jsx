@@ -207,7 +207,6 @@ function ObligationRequestPage() {
               data={obligationRequests}
               actions={(row) => {
                 const actionList = [];
-
                 if (row.Transaction?.Status === 'Rejected') {
                   actionList.push({
                     icon: PencilIcon,

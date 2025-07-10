@@ -53,7 +53,7 @@ const userSchema = Yup.object().shape({
 function UserPage() {
   const dispatch = useDispatch();
   const { users, isLoading } = useSelector((state) => state.users);
-  const { departments } = useSelector((state) => state.departments);
+  // const { departments } = useSelector((state) => state.departments);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -62,12 +62,6 @@ function UserPage() {
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] =
     useState(false);
   const [userToResetPassword, setUserToResetPassword] = useState(null);
-
-  useEffect(() => {
-    dispatch(fetchUsers());
-    dispatch(fetchEmployees());
-    dispatch(fetchUserroles());
-  }, [dispatch]);
 
   const { userroles, isLoading: isLoadingRoles } = useSelector(
     (state) => state.userroles
@@ -78,12 +72,19 @@ function UserPage() {
     label: role.Description,
   }));
 
-  const { employees } = useSelector((state) => state.employees);
-  const isLoadingEmployees = useSelector((state) => state.employees.isLoading);
+  const { employees, isLoading: isLoadingEmployees } = useSelector(
+    (state) => state.employees
+  );
+
   const employeeOptions = employees.map((emp) => ({
     value: emp.ID,
     label: `${emp.FirstName} ${emp.LastName}`,
   }));
+  useEffect(() => {
+    dispatch(fetchUsers());
+    dispatch(fetchEmployees());
+    dispatch(fetchUserroles());
+  }, [dispatch]);
 
   const handleAddUser = () => {
     setCurrentUser(null);
@@ -178,7 +179,7 @@ function UserPage() {
   // Table columns definition
   const columns = [
     { key: 'UserName', header: 'User Name', sortable: true },
-    { key: 'UserAccessID', header: 'User Access', sortable: true },
+    { key: 'UserAccessValue', header: 'User Access', sortable: true },
     // { key: 'Employee', header: 'Employee', sortable: true },
   ];
 
@@ -199,7 +200,12 @@ function UserPage() {
         'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
-  // console.log('Users:', users);
+  // Modify users to include UserAccessValue
+  const modifiedUsers = users.map((user) => ({
+    ...user,
+    UserAccessValue: userroles.find((role) => role.ID === user.UserAccessID)
+      ?.Description,
+  }));
   return (
     <div>
       <div className="page-header">
@@ -222,7 +228,7 @@ function UserPage() {
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={users}
+          data={modifiedUsers}
           actions={actions}
           loading={isLoading || isLoadingRoles || isLoadingEmployees}
         />

@@ -10,11 +10,18 @@ import {
   updateCustomer,
   deleteCustomer,
 } from '../../features/settings/customersSlice';
+import { fetchIndustries } from '@/features/settings/industrySlice';
+import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
+import { fetchPaymentTerms } from '@/features/settings/paymentTermsSlice';
+import { fetchModeOfPayments } from '@/features/settings/modeOfPaymentSlice';
 
 function Customer() {
   const dispatch = useDispatch();
   const { customers, isLoading } = useSelector((state) => state.customers);
-
+  const { industries } = useSelector((state) => state.industries);
+  const { taxCodes } = useSelector((state) => state.taxCodes);
+  const { paymentTerms } = useSelector((state) => state.paymentTerms);
+  const { modeOfPayments } = useSelector((state) => state.modeOfPayments);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -22,6 +29,10 @@ function Customer() {
 
   useEffect(() => {
     dispatch(fetchCustomers());
+    dispatch(fetchIndustries());
+    dispatch(fetchTaxCodes());
+    dispatch(fetchPaymentTerms());
+    dispatch(fetchModeOfPayments());
   }, [dispatch]);
 
   const handleAdd = () => {
@@ -81,21 +92,37 @@ function Customer() {
       key: 'PaymentTermsID',
       header: 'Payment Terms',
       sortable: true,
+      render: (value) => {
+        const terms = paymentTerms.find((t) => t.ID == value);
+        return terms?.Name || 'N/A';
+      },
     },
     {
       key: 'PaymentMethodID',
       header: 'Payment Method',
       sortable: true,
+      render: (value) => {
+        const method = modeOfPayments.find((m) => m.ID == value);
+        return method?.Name || 'N/A';
+      },
     },
     {
       key: 'TaxCodeID',
       header: 'Tax Code',
       sortable: true,
+      render: (value) => {
+        const tax = taxCodes.find((t) => t.ID == value);
+        return tax?.Code || 'N/A';
+      },
     },
     {
       key: 'IndustryTypeID',
       header: 'Industry Type',
       sortable: true,
+      render: (value) => {
+        const industry = industries.find((i) => i.ID == value);
+        return industry?.Name || 'N/A';
+      },
     },
     {
       key: 'ZIPCode',
@@ -172,6 +199,7 @@ function Customer() {
         title={
           currentCustomer ? 'Edit Individual/Citizen' : 'Add Individual/Citizen'
         }
+        size="lg"
       >
         <CustomerForm
           initialData={currentCustomer}

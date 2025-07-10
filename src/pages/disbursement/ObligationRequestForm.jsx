@@ -31,24 +31,40 @@ const payeeTypes = [
 
 // Validation schema
 const disbursementVoucherSchema = Yup.object().shape({
-  obrNo: Yup.string().required('OBR No. is required'),
+  obrNo: Yup.string(),
   obrDate: Yup.date().required('Date is required'),
   payeeType: Yup.string().required('Payee type is required'),
   payeeId: Yup.string().required('Payee selection is required'),
-  responsibilityCenter: Yup.string().required('Responsibility Center is required'),
+  responsibilityCenter: Yup.string().required(
+    'Responsibility Center is required'
+  ),
   fund: Yup.string().required('Fund is required'),
   fiscalYear: Yup.string().required('Fiscal Year is required'),
   project: Yup.string().required('Project is required'),
   accountingEntries: Yup.array().min(1, 'At least one item is required'),
 });
 
-function ObligationRequestForm({ initialData, onClose, employeeOptions = [], vendorOptions = [], individualOptions = [], employeeData = [], vendorData = [], individualData = [], departmentOptions = [], fundOptions = [], projectOptions = [], fiscalYearOptions = [], particularsOptions = [],
+function ObligationRequestForm({
+  initialData,
+  onClose,
+  employeeOptions = [],
+  vendorOptions = [],
+  individualOptions = [],
+  employeeData = [],
+  vendorData = [],
+  individualData = [],
+  departmentOptions = [],
+  fundOptions = [],
+  projectOptions = [],
+  fiscalYearOptions = [],
+  particularsOptions = [],
   unitOptions = [],
   taxCodeOptions = [],
   budgetOptions = [],
-taxCodeFull = [] }) {
+  taxCodeFull = [],
+}) {
   const dispatch = useDispatch();
-  const formikRef = useRef(null); 
+  const formikRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPayee, setSelectedPayee] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -86,8 +102,8 @@ taxCodeFull = [] }) {
   };
 
   const initialValues = {
-    obrNo:           initialData?.obrNo   || '',
-    obrDate:         initialData?.obrDate || new Date().toISOString().split('T')[0],
+    obrNo: initialData?.obrNo || '',
+    obrDate: initialData?.obrDate || new Date().toISOString().split('T')[0],
     dvDate: initialData?.dvDate || new Date().toISOString().split('T')[0],
     paymentDate:
       initialData?.paymentDate || new Date().toISOString().split('T')[0],
@@ -97,8 +113,7 @@ taxCodeFull = [] }) {
     payeeAddress: initialData?.payeeAddress || '',
     officeUnitProject: initialData?.officeUnitProject || '',
     orsNumber: initialData?.orsNumber || '',
-    responsibilityCenter:
-      initialData?.responsibilityCenter || '',
+    responsibilityCenter: initialData?.responsibilityCenter || '',
     requestForPayment: initialData?.requestForPayment || '',
     modeOfPayment: initialData?.modeOfPayment || '',
     items:
@@ -145,37 +160,58 @@ taxCodeFull = [] }) {
       values.taxes
     );
 
-
     const fd = new FormData();
 
-    if(values.payeeType === 'Employee') {
+    if (values.payeeType === 'Employee') {
       fd.append('EmployeeID', values.payeeId);
       fd.append('VendorID', '');
       fd.append('CustomerID', '');
-    }
-    else if(values.payeeType === 'Vendor') {
+    } else if (values.payeeType === 'Vendor') {
       fd.append('EmployeeID', '');
       fd.append('VendorID', values.payeeId);
       fd.append('CustomerID', '');
-    }
-    else if(values.payeeType === 'Individual') {
+    } else if (values.payeeType === 'Individual') {
       fd.append('EmployeeID', '');
       fd.append('VendorID', '');
       fd.append('CustomerID', values.payeeId);
     }
 
-    fd.append('PayeeType',         values.payeeType);
-    fd.append('Payee',         selectedPayee?.Name || (selectedPayee?.FirstName + ' ' + selectedPayee?.MiddleName + ' ' + selectedPayee?.LastName) || '');
-    fd.append('Address',      selectedPayee?.StreetAddress || '');
-    fd.append('InvoiceNumber',         values.obrNo);
-    fd.append('InvoiceDate',         values.obrDate);
+    fd.append('PayeeType', values.payeeType);
+    fd.append(
+      'Payee',
+      selectedPayee?.Name ||
+        selectedPayee?.FirstName +
+          ' ' +
+          selectedPayee?.MiddleName +
+          ' ' +
+          selectedPayee?.LastName ||
+        ''
+    );
+    fd.append('Address', selectedPayee?.StreetAddress || '');
+    fd.append('InvoiceNumber', values.obrNo);
+    fd.append('InvoiceDate', values.obrDate);
     fd.append('ResponsibilityCenter', values.responsibilityCenter);
 
-    const total = values.accountingEntries.reduce((sum, e) => sum + Number(e.subtotal || 0), 0);
-    const ewt = values.accountingEntries.reduce((sum, e) => sum + Number(e.ewt || 0), 0);
-    const withheldAmount = values.accountingEntries.reduce((sum, e) => sum + Number(e.withheld || 0), 0);
-    const vat = values.accountingEntries.reduce((sum, e) => sum + Number(e.vat || 0), 0);
-    const discounts = values.accountingEntries.reduce((sum, e) => sum + Number(e.discount || 0), 0);
+    const total = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.subtotal || 0),
+      0
+    );
+    const ewt = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.ewt || 0),
+      0
+    );
+    const withheldAmount = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.withheld || 0),
+      0
+    );
+    const vat = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.vat || 0),
+      0
+    );
+    const discounts = values.accountingEntries.reduce(
+      (sum, e) => sum + Number(e.discount || 0),
+      0
+    );
 
     fd.append('Total', total.toFixed(2));
     fd.append('EWT', ewt.toFixed(2));
@@ -195,7 +231,7 @@ taxCodeFull = [] }) {
     // fd.append('netAmount',    netAmount);
 
     /* ⬇︎ Complex arrays → stringify */
-    fd.append('Items',            JSON.stringify(values.accountingEntries));
+    fd.append('Items', JSON.stringify(values.accountingEntries));
     // fd.append('taxes',            JSON.stringify(values.taxes));
     // fd.append('contraAccounts',   JSON.stringify(values.contraAccounts));
     // fd.append('accountingEntries',JSON.stringify(values.accountingEntries));
@@ -260,13 +296,11 @@ taxCodeFull = [] }) {
             setFieldTouched,
             isValid,
           }) => {
-            
             const { grossAmount, totalTaxes, netAmount } = calculateTotals(
               values.items,
               values.taxes
             );
 
-            
             const payeeTypeOptions = payeeTypes.map((type) => ({
               value: type.value,
               label: type.label,
@@ -297,7 +331,9 @@ taxCodeFull = [] }) {
                   selectedItem = vendorData.find((item) => item.ID === payee);
                   break;
                 case 'Individual':
-                  selectedItem = individualData.find((item) => item.ID === payee);
+                  selectedItem = individualData.find(
+                    (item) => item.ID === payee
+                  );
                   break;
                 default:
                   break;
@@ -354,7 +390,9 @@ taxCodeFull = [] }) {
                             }`}
                           >
                             <PayeeTypeIcon type={type.value} />
-                            <span className="ml-3 font-medium">{type.label}</span>
+                            <span className="ml-3 font-medium">
+                              {type.label}
+                            </span>
                           </button>
                         ))}
                       </div>
@@ -369,18 +407,25 @@ taxCodeFull = [] }) {
                     {values.payeeType && (
                       <div className="lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Select {selectedPayeeType?.label} <span className="text-red-500">*</span>
+                          Select {selectedPayeeType?.label}{' '}
+                          <span className="text-red-500">*</span>
                         </label>
 
                         <Select
                           options={getPayeeOptions(values.payeeType)}
-                          value={getPayeeOptions(values.payeeType).find(p => p.value === values.payeeId) || null}
+                          value={
+                            getPayeeOptions(values.payeeType).find(
+                              (p) => p.value === values.payeeId
+                            ) || null
+                          }
                           onChange={(option) => handlePayeeSelect(option.value)}
                           className="react-select-container"
                           classNamePrefix="react-select"
                         />
                         {errors.payeeType && touched.payeeType && (
-                          <p className="mt-1 text-sm text-red-600">{errors.payeeType}</p>
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.payeeType}
+                          </p>
                         )}
                       </div>
                     )}
@@ -397,7 +442,9 @@ taxCodeFull = [] }) {
                                 </div>
                                 <div className="text-sm text-gray-900">
                                   {selectedPayeeType?.label === 'Employee'
-                                    ? `${selectedPayee.FirstName || ''} ${selectedPayee.MiddleName || ''} ${selectedPayee.LastName || ''}`.trim()
+                                    ? `${selectedPayee.FirstName || ''} ${
+                                        selectedPayee.MiddleName || ''
+                                      } ${selectedPayee.LastName || ''}`.trim()
                                     : selectedPayeeType?.label === 'Vendor'
                                     ? selectedPayee.Name
                                     : selectedPayeeType?.label === 'Individual'
@@ -420,68 +467,77 @@ taxCodeFull = [] }) {
                                 </div>
                               </div>
                             </div>
-
                           </div>
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
-                
+
                 <hr />
-                
+
                 {/* ── New Row: OBR No. / OBR Date ─────────────────────────── */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
                   <FormField
-  type="text"
-  label="OBR No."
-  name="obrNo"
-  value={values.obrNo}
-  onChange={handleChange}
-  onBlur={handleBlur}  
-  error={errors.obrNo}
-  touched={touched.obrNo}
-  required
-/>
+                    type="text"
+                    label="OBR No."
+                    name="obrNo"
+                    value={values.obrNo}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.obrNo}
+                    touched={touched.obrNo}
+                    readOnly
+                    disabled
+                    className="pointer-events-none bg-gray-100"
+                    // required
+                  />
 
-<FormField
-  type="date"
-  label="Date"
-  name="obrDate"
-  value={values.obrDate}
-  onChange={handleChange}
-  onBlur={handleBlur}
-  error={errors.obrDate}
-  touched={touched.obrDate}
-  required
-/>
+                  <FormField
+                    type="date"
+                    label="Date"
+                    name="obrDate"
+                    value={values.obrDate}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.obrDate}
+                    touched={touched.obrDate}
+                    required
+                  />
                 </div>
 
-
-
                 <hr />
-
 
                 {/* ── Row 1: Responsibility / Fund / Fiscal Year / Project ───────────────── */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
                   {/* Responsibility Center */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Responsibility Center <span className="text-red-500">*</span>
+                      Responsibility Center{' '}
+                      <span className="text-red-500">*</span>
                     </label>
                     <Select
                       options={departmentOptions}
                       value={
-                        departmentOptions.find(opt => opt.value === values.responsibilityCenter) || null
+                        departmentOptions.find(
+                          (opt) => opt.value === values.responsibilityCenter
+                        ) || null
                       }
-                      onChange={opt => setFieldValue('responsibilityCenter', opt.value)}
-                      onBlur={() => setFieldTouched('responsibilityCenter', true)}
+                      onChange={(opt) =>
+                        setFieldValue('responsibilityCenter', opt.value)
+                      }
+                      onBlur={() =>
+                        setFieldTouched('responsibilityCenter', true)
+                      }
                       className="react-select-container"
                       classNamePrefix="react-select"
                     />
-                    {errors.responsibilityCenter && touched.responsibilityCenter && (
-                      <p className="mt-1 text-sm text-red-600">{errors.responsibilityCenter}</p>
-                    )}
+                    {errors.responsibilityCenter &&
+                      touched.responsibilityCenter && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {errors.responsibilityCenter}
+                        </p>
+                      )}
                   </div>
 
                   {/* Fund */}
@@ -491,8 +547,11 @@ taxCodeFull = [] }) {
                     </label>
                     <Select
                       options={fundOptions}
-                      value={fundOptions.find(opt => opt.value === values.fund) || null}
-                      onChange={opt => setFieldValue('fund', opt.value)}
+                      value={
+                        fundOptions.find((opt) => opt.value === values.fund) ||
+                        null
+                      }
+                      onChange={(opt) => setFieldValue('fund', opt.value)}
                       className="react-select-container"
                       classNamePrefix="react-select"
                     />
@@ -509,14 +568,18 @@ taxCodeFull = [] }) {
                     <Select
                       options={fiscalYearOptions}
                       value={
-                        fiscalYearOptions.find(opt => opt.value === values.fiscalYear) || null
+                        fiscalYearOptions.find(
+                          (opt) => opt.value === values.fiscalYear
+                        ) || null
                       }
-                      onChange={opt => setFieldValue('fiscalYear', opt.value)}
+                      onChange={(opt) => setFieldValue('fiscalYear', opt.value)}
                       className="react-select-container"
                       classNamePrefix="react-select"
                     />
                     {errors.fiscalYear && (
-                      <p className="mt-1 text-sm text-red-600">{errors.fiscalYear}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.fiscalYear}
+                      </p>
                     )}
                   </div>
 
@@ -527,19 +590,23 @@ taxCodeFull = [] }) {
                     </label>
                     <Select
                       options={projectOptions}
-                      value={projectOptions.find(opt => opt.value === values.project) || null}
-                      onChange={opt => setFieldValue('project', opt.value)}
+                      value={
+                        projectOptions.find(
+                          (opt) => opt.value === values.project
+                        ) || null
+                      }
+                      onChange={(opt) => setFieldValue('project', opt.value)}
                       className="react-select-container"
                       classNamePrefix="react-select"
                     />
                     {errors.project && (
-                      <p className="mt-1 text-sm text-red-600">{errors.project}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.project}
+                      </p>
                     )}
                   </div>
                 </div>
 
-
-                
                 <FieldArray name="accountingEntries">
                   {({ push, remove }) => (
                     <>
@@ -599,14 +666,12 @@ taxCodeFull = [] }) {
                         </div>
                       )}
 
-                      
-
                       {/* Modal inside FieldArray so `push` is available */}
                       <Modal
                         isOpen={showEntryModal}
                         onClose={() => setShowEntryModal(false)}
-                        title={"Add Accounting Entry"}
-                        size='xl'
+                        title={'Add Accounting Entry'}
+                        size="xl"
                       >
                         <ObligationRequestAddItemForm
                           initialData={null}
@@ -628,12 +693,13 @@ taxCodeFull = [] }) {
                   )}
                 </FieldArray>
                 {errors.accountingEntries && (
-                  <p className="mt-1 text-sm text-red-600">{errors.accountingEntries}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.accountingEntries}
+                  </p>
                 )}
-                  
+
                 <hr />
 
-                
                 <FieldArray
                   name="Attachments"
                   render={({ remove, push }) => (
@@ -650,7 +716,10 @@ taxCodeFull = [] }) {
                       </div>
 
                       {values.Attachments?.map((att, index) => (
-                        <div key={index} className="flex items-center gap-4 mb-2">
+                        <div
+                          key={index}
+                          className="flex items-center gap-4 mb-2"
+                        >
                           {att.ID ? (
                             <div className="flex-1">
                               <a
@@ -661,17 +730,26 @@ taxCodeFull = [] }) {
                               >
                                 {att.DataName}
                               </a>
-                              <input type="hidden" name={`Attachments[${index}].ID`} value={att.ID} />
+                              <input
+                                type="hidden"
+                                name={`Attachments[${index}].ID`}
+                                value={att.ID}
+                              />
                             </div>
                           ) : (
                             <div className="flex-1 min-w-[300px]">
-                              <label className="block text-sm font-medium mb-1">{`File ${index + 1}`}</label>
+                              <label className="block text-sm font-medium mb-1">{`File ${
+                                index + 1
+                              }`}</label>
                               <input
                                 type="file"
                                 name={`Attachments[${index}].File`}
                                 accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
                                 onChange={(e) =>
-                                  setFieldValue(`Attachments[${index}].File`, e.currentTarget.files[0])
+                                  setFieldValue(
+                                    `Attachments[${index}].File`,
+                                    e.currentTarget.files[0]
+                                  )
                                 }
                                 onBlur={handleBlur}
                                 className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
@@ -692,7 +770,6 @@ taxCodeFull = [] }) {
                   )}
                 />
 
-
                 <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
                   <button type="button" className="btn btn-outline">
                     Cancel
@@ -706,8 +783,6 @@ taxCodeFull = [] }) {
           }}
         </Formik>
       </div>
-
-
     </div>
   );
 }

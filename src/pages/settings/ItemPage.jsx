@@ -6,12 +6,16 @@ import Modal from '../../components/common/Modal';
 import ItemForm from '../../components/forms/ItemForm';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
+import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 
 const ItemPage = () => {
   const dispatch = useDispatch();
   const { items, isLoading } = useSelector((state) => state.items);
   const { itemUnits, isLoading: itemUnitsLoading } = useSelector(
     (state) => state.itemUnits
+  );
+  const { taxCodes, isLoading: taxCodesLoading } = useSelector(
+    (state) => state.taxCodes
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -21,6 +25,7 @@ const ItemPage = () => {
   useEffect(() => {
     dispatch(fetchItems());
     dispatch(fetchItemUnits());
+    dispatch(fetchTaxCodes());
   }, [dispatch]);
 
   const handleAdd = () => {
@@ -68,7 +73,7 @@ const ItemPage = () => {
       sortable: true,
     },
     {
-      key: 'TAXCodeID',
+      key: 'TAXCodeValue',
       header: 'Tax Code',
       sortable: true,
     },
@@ -102,6 +107,8 @@ const ItemPage = () => {
   const data = items.map((item) => ({
     ...item,
     unitName: itemUnits?.find((unit) => unit.ID === item.UnitID)?.Name || 'N/A',
+    TAXCodeValue:
+      taxCodes?.find((tax) => tax.ID === item.TAXCodeID)?.Code || 'N/A',
   }));
   const actions = [
     {
@@ -142,7 +149,7 @@ const ItemPage = () => {
         columns={columns}
         data={data}
         actions={actions}
-        loading={isLoading || itemUnitsLoading}
+        loading={isLoading || itemUnitsLoading || taxCodesLoading}
         emptyMessage="No items found. Click 'Add Item' to create one."
       />
 

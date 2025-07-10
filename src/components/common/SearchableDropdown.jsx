@@ -86,33 +86,20 @@ const SearchableDropdown = ({
                   filteredOptions.map((option) => (
                     <Combobox.Option
                       key={option.value}
-                      className={({ active }) =>
-                        `relative cursor-default select-none py-2 pl-10 pr-4 transition-colors ${
-                          active ? 'bg-blue-50 text-blue-700' : 'text-gray-900'
-                        }`
+                      className={({ active, selected }) =>
+                        `relative cursor-default select-none py-2 pl-2 pr-4 transition-colors ${
+                          active ? 'bg-blue-50 text-blue-700' : ''
+                        }
+                         ${
+                           selected
+                             ? 'font-medium text-blue-900 bg-blue-100'
+                             : 'font-normal text-gray-900'
+                         }
+                         `
                       }
                       value={option.value}
                     >
-                      {({ selected, active }) => (
-                        <>
-                          <span
-                            className={`block truncate ${
-                              selected ? 'font-medium' : 'font-normal'
-                            }`}
-                          >
-                            {option.label}
-                          </span>
-                          {selected ? (
-                            <span
-                              className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
-                                active ? 'text-blue-600' : 'text-blue-500'
-                              }`}
-                            >
-                              <FiCheck className="h-5 w-5" />
-                            </span>
-                          ) : null}
-                        </>
-                      )}
+                      <span>{option.label}</span>
                     </Combobox.Option>
                   ))
                 )}
