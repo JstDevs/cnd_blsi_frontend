@@ -17,7 +17,6 @@ const mockCollectionData = [
     fullName: 'Juan Dela Cruz',
     position: 'Administrative Officer',
   },
-  // ... other data items
 ];
 
 function CollectionReportPage() {
@@ -26,6 +25,7 @@ function CollectionReportPage() {
 
   const handleSubmit = async (values) => {
     setIsLoading(true);
+    console.log('Form data:', values);
     try {
       switch (values.action) {
         case 'view':
@@ -130,7 +130,7 @@ function CollectionReportPage() {
       </div>
 
       <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <CollectionReportForm onSubmit={handleSubmit} />
+        <CollectionReportForm onSubmitCollectionReport={handleSubmit} />
       </div>
 
       <div className="bg-white rounded-lg shadow">

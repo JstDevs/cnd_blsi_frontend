@@ -9,13 +9,19 @@ import {
 import DataTable from '@/components/common/DataTable';
 import Modal from '@/components/common/Modal';
 import FormField from '@/components/common/FormField';
-import { fetchGeneralReceipts } from '@/features/collections/generalReceiptSlice';
+import {
+  createGeneralServiceReceipt,
+  deleteGeneralServiceReceipt,
+  fetchGeneralServiceReceipts,
+} from '@/features/collections/generalReceiptSlice';
 import GeneralServiceReceiptModal from './GeneralServiceReceiptModal';
-// import GeneralServiceReceiptModal from '@/components/forms/GeneralServiceReceiptModal';
+import { formatDate } from 'date-fns';
+import toast from 'react-hot-toast';
+import { TrashIcon } from 'lucide-react';
 
 function GeneralReceiptPage() {
   const dispatch = useDispatch();
-  const { generalReceipts, isLoading } = useSelector(
+  const { receipts: generalReceipts, isLoading } = useSelector(
     (state) => state.generalReceipts
   );
 
@@ -26,9 +32,9 @@ function GeneralReceiptPage() {
   const [currentReceipt, setCurrentReceipt] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchGeneralReceipts());
+    dispatch(fetchGeneralServiceReceipts());
   }, [dispatch]);
-
+  console.log('generalReceipts', generalReceipts);
   const handleCreateReceipt = () => {
     setCurrentReceipt(null);
     setIsCreateModalOpen(true);
@@ -46,7 +52,8 @@ function GeneralReceiptPage() {
 
   const handleEditReceipt = (receipt) => {
     setCurrentReceipt(receipt);
-    setIsCreateModalOpen(true);
+    setIsServiceReceiptModalOpen(true);
+    // setIsCreateModalOpen(true);
   };
 
   const handleCloseCreateModal = () => {
@@ -71,58 +78,104 @@ function GeneralReceiptPage() {
       currency: 'PHP',
     }).format(amount);
   };
-
+  const handleDeleteReceipt = async (selectedReceipt) => {
+    try {
+      await dispatch(deleteGeneralServiceReceipt(selectedReceipt.ID)).unwrap();
+      dispatch(fetchGeneralServiceReceipts());
+      toast.success('Receipt deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting receipt:', error);
+      toast.error('Failed to delete receipt.');
+    }
+  };
   // Table columns definition
   const columns = [
     {
-      key: 'receiptNumber',
-      header: 'OR Number',
+      key: 'ID',
+      header: 'Invoice',
       sortable: true,
       className: 'font-medium text-neutral-900',
+      render: (value) => <div className="flex items-center gap-1">{value}</div>,
     },
     {
-      key: 'receiptDate',
-      header: 'Date',
-      sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: 'payorName',
-      header: 'Payor',
-      sortable: true,
-    },
-    {
-      key: 'fund',
-      header: 'Fund',
-      sortable: true,
-    },
-    {
-      key: 'modeOfPayment',
-      header: 'Mode of Payment',
-      sortable: true,
-    },
-    {
-      key: 'totalAmount',
-      header: 'Amount',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'status',
+      key: 'Status',
       header: 'Status',
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            value === 'Valid'
-              ? 'bg-success-100 text-success-800'
-              : 'bg-error-100 text-error-800'
+          className={`px-2 py-1 rounded ${
+            value === 'Posted'
+              ? 'bg-green-100 text-green-800'
+              : value === 'Rejected'
+              ? 'bg-red-100 text-red-800'
+              : 'bg-gray-100 text-gray-800'
           }`}
         >
           {value}
         </span>
       ),
+    },
+    {
+      key: 'InvoiceDate',
+      header: 'Date',
+      sortable: true,
+      // render: (value) => formatDate(value),
+    },
+    {
+      key: 'CustomerName',
+      header: 'Customer Name',
+      sortable: true,
+      render: (value) => value?.trim() || 'N/A',
+    },
+    {
+      key: 'InvoiceNumber',
+      header: 'Order No.',
+      sortable: true,
+    },
+    {
+      key: 'Total',
+      header: 'Amount',
+      sortable: true,
+      render: (value) => formatCurrency(value),
+      className: 'text-right font-medium',
+    },
+    {
+      key: 'Remarks',
+      header: 'Remarks',
+      sortable: false,
+      render: (value) => value || '—',
+      className: 'text-gray-500',
+    },
+    {
+      key: 'FundsID',
+      header: 'Fund',
+      sortable: true,
+      render: (value) => {
+        const fundMap = {
+          1: 'General Fund',
+          2: 'Special Education Fund',
+          // Add other mappings as needed
+        };
+        return fundMap[value] || '—';
+      },
+    },
+    {
+      key: 'CheckNumber',
+      header: 'Check',
+      sortable: true,
+      render: (value) => value || '—',
+    },
+    {
+      key: 'MoneyOrder',
+      header: 'Money Order',
+      sortable: true,
+      render: (value) => value || '—',
+    },
+    {
+      key: 'MoneyOrderDate',
+      header: 'Money Order Date',
+      sortable: true,
+      render: (value) => value || '—',
     },
   ];
 
@@ -143,14 +196,42 @@ function GeneralReceiptPage() {
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
-      icon: PrinterIcon,
-      title: 'Print',
-      onClick: (receipt) => console.log('Print receipt:', receipt),
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: handleDeleteReceipt,
       className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
+    // {
+    //   icon: PrinterIcon,
+    //   title: 'Print',
+    //   onClick: (receipt) => console.log('Print receipt:', receipt),
+    //   className:
+    //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    // },
   ];
 
+  const handleGeneralServiceReceiptSubmit = async (values) => {
+    if (!values) return; // Early return if no values
+
+    try {
+      const result = await dispatch(
+        createGeneralServiceReceipt(values)
+      ).unwrap();
+
+      console.log('Operation successful:', result);
+
+      dispatch(fetchGeneralServiceReceipts());
+
+      toast.success('Receipt saved successfully.');
+    } catch (error) {
+      console.error('Submission failed:', error);
+      // Optional: Show error to user
+      toast.error(error.message || 'Failed to save receipt');
+    } finally {
+      // handleCloseServiceReceiptModal();
+    }
+  };
   return (
     <div>
       <div className="page-header">
@@ -168,14 +249,6 @@ function GeneralReceiptPage() {
               <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
               Service Receipt
             </button>
-            {/* <button
-              type="button"
-              onClick={handleCreateReceipt}
-              className="btn btn-primary flex items-center"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Create Receipt
-            </button> */}
           </div>
         </div>
       </div>
@@ -190,104 +263,12 @@ function GeneralReceiptPage() {
         />
       </div>
 
-      {/* General Receipt Creation/Edit Modal */}
-      <Modal
-        isOpen={isCreateModalOpen}
-        onClose={handleCloseCreateModal}
-        title={
-          currentReceipt ? 'Edit General Receipt' : 'Create General Receipt'
-        }
-        size="lg"
-      >
-        <div className="p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Receipt Date"
-              name="receiptDate"
-              type="date"
-              required
-            />
-
-            <FormField
-              label="Fund"
-              name="fund"
-              type="select"
-              required
-              options={[
-                { value: 'General Fund', label: 'General Fund' },
-                {
-                  value: 'Special Education Fund',
-                  label: 'Special Education Fund',
-                },
-                { value: 'Trust Fund', label: 'Trust Fund' },
-              ]}
-            />
-          </div>
-
-          <FormField
-            label="Payor Name"
-            name="payorName"
-            type="text"
-            required
-            placeholder="Enter payor name"
-          />
-
-          <FormField
-            label="Payor Address"
-            name="payorAddress"
-            type="textarea"
-            placeholder="Enter payor address"
-            rows={2}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Mode of Payment"
-              name="modeOfPayment"
-              type="select"
-              required
-              options={[
-                { value: 'Cash', label: 'Cash' },
-                { value: 'Cheque', label: 'Cheque' },
-                { value: 'Bank Transfer', label: 'Bank Transfer' },
-              ]}
-            />
-
-            <FormField
-              label="Amount"
-              name="amount"
-              type="number"
-              required
-              placeholder="0.00"
-              min="0"
-              step="0.01"
-            />
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={handleCloseCreateModal}
-              className="btn btn-outline"
-            >
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              {currentReceipt ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </div>
-      </Modal>
-
       {/* General Service Receipt Modal */}
       <GeneralServiceReceiptModal
         isOpen={isServiceReceiptModalOpen}
         onClose={handleCloseServiceReceiptModal}
         selectedReceipt={currentReceipt}
-        onSubmit={(values) => {
-          console.log('Submit service receipt:', values);
-          handleCloseServiceReceiptModal();
-        }}
+        onSubmit={handleGeneralServiceReceiptSubmit}
       />
 
       {/* Receipt View Modal */}
@@ -402,3 +383,90 @@ function GeneralReceiptPage() {
 }
 
 export default GeneralReceiptPage;
+// <Modal
+//     isOpen={isCreateModalOpen}
+//     onClose={handleCloseCreateModal}
+//     title={
+//       currentReceipt ? 'Edit General Receipt' : 'Create General Receipt'
+//     }
+//     size="lg"
+//   >
+//     <div className="p-4 space-y-4">
+//       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//         <FormField
+//           label="Receipt Date"
+//           name="receiptDate"
+//           type="date"
+//           required
+//         />
+
+//         <FormField
+//           label="Fund"
+//           name="fund"
+//           type="select"
+//           required
+//           options={[
+//             { value: 'General Fund', label: 'General Fund' },
+//             {
+//               value: 'Special Education Fund',
+//               label: 'Special Education Fund',
+//             },
+//             { value: 'Trust Fund', label: 'Trust Fund' },
+//           ]}
+//         />
+//       </div>
+
+//       <FormField
+//         label="Payor Name"
+//         name="payorName"
+//         type="text"
+//         required
+//         placeholder="Enter payor name"
+//       />
+
+//       <FormField
+//         label="Payor Address"
+//         name="payorAddress"
+//         type="textarea"
+//         placeholder="Enter payor address"
+//         rows={2}
+//       />
+
+//       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//         <FormField
+//           label="Mode of Payment"
+//           name="modeOfPayment"
+//           type="select"
+//           required
+//           options={[
+//             { value: 'Cash', label: 'Cash' },
+//             { value: 'Cheque', label: 'Cheque' },
+//             { value: 'Bank Transfer', label: 'Bank Transfer' },
+//           ]}
+//         />
+
+//         <FormField
+//           label="Amount"
+//           name="amount"
+//           type="number"
+//           required
+//           placeholder="0.00"
+//           min="0"
+//           step="0.01"
+//         />
+//       </div>
+
+//       <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+//         <button
+//           type="button"
+//           onClick={handleCloseCreateModal}
+//           className="btn btn-outline"
+//         >
+//           Cancel
+//         </button>
+//         <button type="submit" className="btn btn-primary">
+//           {currentReceipt ? 'Update' : 'Create'}
+//         </button>
+//       </div>
+//     </div>
+//   </Modal>

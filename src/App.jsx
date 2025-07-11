@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserProfile } from './features/auth/authSlice';
+import { fetchUserProfile, logout } from './features/auth/authSlice';
 import { Toaster } from 'react-hot-toast';
 import DashboardLayout from './layouts/DashboardLayout';
 import AuthLayout from './layouts/AuthLayout';
@@ -120,16 +120,16 @@ import GeneralReceiptPage from './pages/collections/GeneralReceipt/GeneralReceip
 import RealPropertyTaxPage from './pages/collections/RealProprtyTax/RealPropertyTaxPage';
 import TrialBalance from './pages/reports/TrialBalance';
 import TrialBalancePage from './pages/reports/TrialBalancePage';
-import BudgetAllotmentPage from './pages/budget/BudgetAllotmentPage'
-import BudgetDetailsPage from './pages/budget/BudgetDetailsPage'
-import BudgetSummaryPage from './pages/budget/BudgetSummaryPage'
-import BudgetSupplementalPage from './pages/budget/BudgetSupplementalPage'
-import BudgetTransferPage from './pages/budget/BudgetTransferPage'
-import BudgetFundsPage from './pages/budget/BudgetFundsPage'
-import BudgetSummaryOfComparison from './pages/budget/BudgetSummaryOfComparison'
-import BudgetStatementOfAppropriation from './pages/budget/BudgetStatementOfAppropriation'
-import BudgetSubFundsPage from './pages/budget/BudgetSubFundsPage'
-import BudgetFundTransferPage from './pages/budget/BudgetFundTransferPage'
+import BudgetAllotmentPage from './pages/budget/BudgetAllotmentPage';
+import BudgetDetailsPage from './pages/budget/BudgetDetailsPage';
+import BudgetSummaryPage from './pages/budget/BudgetSummaryPage';
+import BudgetSupplementalPage from './pages/budget/BudgetSupplementalPage';
+import BudgetTransferPage from './pages/budget/BudgetTransferPage';
+import BudgetFundsPage from './pages/budget/BudgetFundsPage';
+import BudgetSummaryOfComparison from './pages/budget/BudgetSummaryOfComparison';
+import BudgetStatementOfAppropriation from './pages/budget/BudgetStatementOfAppropriation';
+import BudgetSubFundsPage from './pages/budget/BudgetSubFundsPage';
+import BudgetFundTransferPage from './pages/budget/BudgetFundTransferPage';
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -141,9 +141,21 @@ function App() {
     // Check if user is already logged in via token in localStorage
     const token = localStorage.getItem('token');
     if (token) {
-      dispatch(fetchUserProfile(token))
+      dispatch(fetchUserProfile(token));
     }
-  }, [dispatch])
+    // // Add event listener for tab closing
+    // const handleTabClosing = () => {
+    //   // Perform logout when tab is closing
+    //   dispatch(logout());
+    // };
+
+    // window.addEventListener('beforeunload', handleTabClosing);
+
+    // // Cleanup function
+    // return () => {
+    //   window.removeEventListener('beforeunload', handleTabClosing);
+    // };
+  }, [dispatch]);
 
   useEffect(() => {
     // Check if the current route is part of the AuthLayout
@@ -158,49 +170,49 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center h-screen'>
-        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary'></div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   return (
     <>
-      <Toaster position='top-right' />
+      <Toaster position="top-right" />
       <Routes>
         {/* Auth Layout Routes */}
         <Route element={<AuthLayout />}>
           <Route
-            path='/login'
+            path="/login"
             element={
-              isAuthenticated ? <Navigate to='/' replace /> : <LoginPage />
+              isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />
             }
           />
           <Route
-            path='/register'
+            path="/register"
             element={
               isAuthenticated ? (
-                <Navigate to='/' replace />
+                <Navigate to="/" replace />
               ) : (
                 <RegistrationPage />
               )
             }
           />
           <Route
-            path='/forgot-password'
+            path="/forgot-password"
             element={
               isAuthenticated ? (
-                <Navigate to='/' replace />
+                <Navigate to="/" replace />
               ) : (
                 <ForgotPasswordPage />
               )
             }
           />
           <Route
-            path='/reset-password'
+            path="/reset-password"
             element={
               isAuthenticated ? (
-                <Navigate to='/' replace />
+                <Navigate to="/" replace />
               ) : (
                 <ResetPasswordPage />
               )
@@ -210,7 +222,7 @@ function App() {
 
         {/* Dashboard Layout Routes (Protected) */}
         <Route element={<DashboardLayout />}>
-          <Route path='/dashboard' element={<DashboardPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
 
           {/* user profile */}
           <Route path="/profile" element={<UserProfilePage />} />
@@ -225,34 +237,34 @@ function App() {
           />
 
           {/*-------------------------- Settings module-------------------- */}
-          <Route path='/settings/departments' element={<DepartmentPage />} />
-          <Route path='/settings/customer' element={<Customer />} />
+          <Route path="/settings/departments" element={<DepartmentPage />} />
+          <Route path="/settings/customer" element={<Customer />} />
           <Route
-            path='/settings/lgu-maintenance'
+            path="/settings/lgu-maintenance"
             element={<LGUMaintenance />}
           />
           <Route
-            path='/settings/subdepartments'
+            path="/settings/subdepartments"
             element={<SubdepartmentPage />}
           />
-          <Route path='/settings/modules' element={<ModulesPage />} />
-          <Route path='/settings/users' element={<UserPage />} />
-          <Route path='/settings/user-roles' element={<UserrolesPage />} />
-          <Route path='/settings/user-access' element={<UserAccessPage />} />
+          <Route path="/settings/modules" element={<ModulesPage />} />
+          <Route path="/settings/users" element={<UserPage />} />
+          <Route path="/settings/user-roles" element={<UserrolesPage />} />
+          <Route path="/settings/user-access" element={<UserAccessPage />} />
           <Route
-            path='/settings/chart-of-accounts'
+            path="/settings/chart-of-accounts"
             element={<ChartOfAccountsPage />}
           />
           <Route
-            path='/settings/account-group'
+            path="/settings/account-group"
             element={<AccountGroupPage />}
           />
           <Route
-            path='/settings/major-account-group'
+            path="/settings/major-account-group"
             element={<MajorAccountGroupPage />}
           />
           <Route
-            path='/settings/sub-major-account-group'
+            path="/settings/sub-major-account-group"
             element={<SubMajorAccountGroupPage />}
           />
           <Route path="/settings/vendors" element={<VendorDetailsPage />} />
@@ -283,43 +295,43 @@ function App() {
           />
 
           <Route
-            path='/settings/approval-matrix'
+            path="/settings/approval-matrix"
             element={<ApprovalMatrixPage />}
           />
-          <Route path='/settings/bank' element={<BankPage />} />
-          <Route path='/settings/currency' element={<CurrencyPage />} />
+          <Route path="/settings/bank" element={<BankPage />} />
+          <Route path="/settings/currency" element={<CurrencyPage />} />
           <Route
-            path='/settings/document-details'
+            path="/settings/document-details"
             element={<DocumentDetailsPage />}
           />
           <Route
-            path='/settings/document-type-categories'
+            path="/settings/document-type-categories"
             element={<DocumentTypeCategoriesPage />}
           />
-          <Route path='/settings/items' element={<ItemPage />} />
+          <Route path="/settings/items" element={<ItemPage />} />
           <Route
-            path='/settings/items/invoice-charge-accounts'
+            path="/settings/items/invoice-charge-accounts"
             element={<InvoiceChargeAccountsPage />}
           />
-          <Route path='/settings/items/units' element={<ItemUnitPage />} />
-          <Route path='/settings/project-type' element={<ProjectTypePage />} />
+          <Route path="/settings/items/units" element={<ItemUnitPage />} />
+          <Route path="/settings/project-type" element={<ProjectTypePage />} />
           <Route
-            path='/settings/financial-statement'
+            path="/settings/financial-statement"
             element={<FinancialStatementPage />}
           />
-          <Route path='/settings/fiscal-year' element={<FiscalYearPage />} />
-          <Route path='/settings/tax-code' element={<TaxCodePage />} />
+          <Route path="/settings/fiscal-year" element={<FiscalYearPage />} />
+          <Route path="/settings/tax-code" element={<TaxCodePage />} />
           <Route
-            path='/settings/mode-of-payment'
+            path="/settings/mode-of-payment"
             element={<ModeOfPaymentPage />}
           />
           <Route
-            path='/settings/payment-terms'
+            path="/settings/payment-terms"
             element={<PaymentTermsPage />}
           />
-          <Route path='/settings/industry' element={<IndustryPage />} />
+          <Route path="/settings/industry" element={<IndustryPage />} />
           <Route
-            path='/settings/project-details'
+            path="/settings/project-details"
             element={<ProjectDetailsPage />}
           />
           {/* ---SETTING--REAL--PROJECT------> */}
@@ -327,43 +339,43 @@ function App() {
             path="/settings/tax-declaration"
             element={<TaxDeclarationPage />}
           />
-          <Route path='/settings/base-unit-value' element={<BaseUnitValue />} />
+          <Route path="/settings/base-unit-value" element={<BaseUnitValue />} />
           <Route
-            path='/settings/general-revision'
+            path="/settings/general-revision"
             element={<GeneralRevision />}
           />
 
           {/*------------------------ Disbursement module----------------------- */}
           <Route
-            path='/disbursement/obligation-requests'
+            path="/disbursement/obligation-requests"
             element={<ObligationRequestPage />}
           />
           <Route
-            path='/disbursement/vouchers'
+            path="/disbursement/vouchers"
             element={<DisbursementVoucherPage />}
           />
           <Route
-            path='/disbursement/travel-orders'
+            path="/disbursement/travel-orders"
             element={<TravelOrderPage />}
           />
           <Route
-            path='/disbursement/journal-entry-vouchers'
+            path="/disbursement/journal-entry-vouchers"
             element={<JournalEntryPage />}
           />
           <Route
-            path='/disbursement/disbursement-journals'
+            path="/disbursement/disbursement-journals"
             element={<DisbursementJournalPage />}
           />
           <Route
-            path='/disbursement/general-journals'
+            path="/disbursement/general-journals"
             element={<GeneralJournalPage />}
           />
           <Route
-            path='/disbursement/beginning-balance'
+            path="/disbursement/beginning-balance"
             element={<BeginningBalancePage />}
           />
           <Route
-            path='/disbursement/purchase-requests'
+            path="/disbursement/purchase-requests"
             element={<PurchaseRequestPage />}
           />
           <Route
@@ -373,23 +385,23 @@ function App() {
 
           {/* Collections module */}
           <Route
-            path='/collections/receipts'
+            path="/collections/receipts"
             element={<GeneralReceiptPage />}
           />
           <Route
-            path='/collections/community-tax'
+            path="/collections/community-tax"
             element={<CommunityTaxPage />}
           />
           <Route
-            path='/collections/community-tax-corporation'
+            path="/collections/community-tax-corporation"
             element={<CommunityTaxCorporationPage />}
           />
           <Route
-            path='/collections/real-property-tax'
+            path="/collections/real-property-tax"
             element={<RealPropertyTaxPage />}
           />
           <Route
-            path='/collections/market'
+            path="/collections/market"
             element={<MarketCollectionsPage />}
           />
           <Route
@@ -398,73 +410,73 @@ function App() {
             element={<GeneralReceiptPage />}
           />
           <Route
-            path='/collections/burial-service-receipts'
+            path="/collections/burial-service-receipts"
             element={<BurialServiceReceiptPage />}
           />
           <Route
-            path='/collections/marriage-service-receipts'
+            path="/collections/marriage-service-receipts"
             element={<MarriageServiceReceiptPage />}
           />
-          <Route path='/collections/cashbook' element={<CashbookPage />} />
+          <Route path="/collections/cashbook" element={<CashbookPage />} />
           <Route
-            path='/collections/reports'
+            path="/collections/reports"
             element={<CollectionReportPage />}
           />
           <Route
-            path='/collections/public-market-tickets'
+            path="/collections/public-market-tickets"
             element={<PublicMarketTicketPage />}
           />
 
           {/* Budget module */}
-          <Route path='/budget' element={<BudgetPage />} />
+          <Route path="/budget" element={<BudgetPage />} />
 
-          <Route path='/budget/allotment' element={<BudgetAllotmentPage />} />
-          <Route path='/budget/details' element={<BudgetDetailsPage />} />
-          <Route path='/budget/new' element={<NewBudgetPage />} />
-          <Route path='/budget/summary' element={<BudgetSummaryPage />} />
+          <Route path="/budget/allotment" element={<BudgetAllotmentPage />} />
+          <Route path="/budget/details" element={<BudgetDetailsPage />} />
+          <Route path="/budget/new" element={<NewBudgetPage />} />
+          <Route path="/budget/summary" element={<BudgetSummaryPage />} />
           <Route
-            path='/budget/supplemental'
+            path="/budget/supplemental"
             element={<BudgetSupplementalPage />}
           />
-          <Route path='/budget/transfer' element={<BudgetTransferPage />} />
-          <Route path='/budget/report' element={<BudgetReportPage />} />
-          <Route path='/budget/funds' element={<BudgetFundsPage />} />
-          <Route path='/budget/sub-funds' element={<BudgetSubFundsPage />} />
+          <Route path="/budget/transfer" element={<BudgetTransferPage />} />
+          <Route path="/budget/report" element={<BudgetReportPage />} />
+          <Route path="/budget/funds" element={<BudgetFundsPage />} />
+          <Route path="/budget/sub-funds" element={<BudgetSubFundsPage />} />
 
           <Route
-            path='/budget/fund-transfer'
+            path="/budget/fund-transfer"
             element={<BudgetFundTransferPage />}
           />
           <Route
-            path='/budget/statement-comparison'
+            path="/budget/statement-comparison"
             element={<BudgetSummaryOfComparison />}
           />
           <Route
-            path='/budget/statement-appropriation'
+            path="/budget/statement-appropriation"
             element={<BudgetStatementOfAppropriation />}
           />
 
           {/*----------------------- Applications module ----------------------------*/}
           <Route
-            path='/applications/business-permits'
+            path="/applications/business-permits"
             element={<BusinessPermitPage />}
           />
           <Route
-            path='/applications/cheque-generator'
+            path="/applications/cheque-generator"
             element={<ChequeGeneratorPage />}
           />
 
           {/*-------------------------- Reports module --------------------------*/}
           <Route
-            path='/reports/general-ledger'
+            path="/reports/general-ledger"
             element={<GeneralLedgerPage />}
           />
           <Route
-            path='/reports/subsidiary-ledger'
+            path="/reports/subsidiary-ledger"
             element={<SubsidiaryLedger />}
           />
           <Route
-            path='/reports/financial-statements'
+            path="/reports/financial-statements"
             element={<FinancialStatementsPage />}
           />
           <Route path="/reports/budget" element={<BudgetReportPage />} />
@@ -473,17 +485,17 @@ function App() {
           <Route path="/reports/trial-balance" element={<TrialBalancePage />} />
 
           {/* ---------------------------CHANGE PASSWORD------------------- */}
-          <Route path='/change-password' element={<ChangePassword />} />
+          <Route path="/change-password" element={<ChangePassword />} />
         </Route>
 
         {/* Root redirect */}
-        <Route path='/' element={<Navigate to='/dashboard\' replace />} />
+        <Route path="/" element={<Navigate to="/dashboard\" replace />} />
 
         {/* 404 route */}
-        <Route path='*' element={<NotFoundPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

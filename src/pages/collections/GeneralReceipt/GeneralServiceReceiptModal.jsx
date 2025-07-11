@@ -1,34 +1,46 @@
 import { Formik, Form, Field, FieldArray } from 'formik';
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Modal from '@/components/common/Modal';
 import FormField from '@/components/common/FormField';
+import { convertAmountToWords } from '@/utils/amountToWords';
+import { fetchVendorDetails } from '@/features/settings/vendorDetailsSlice';
+import { fetchCustomers } from '@/features/settings/customersSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import SearchableDropdown from '@/components/common/SearchableDropdown';
+import Customer from '@/pages/settings/Customer';
+import { fetchFunds } from '@/features/budget/fundsSlice';
+import { Cross, CrosshairIcon, CrossIcon, XIcon } from 'lucide-react';
+import { fetchItems } from '@/features/settings/itemSlice';
+import { fetchBudgets } from '@/features/budget/budgetSlice';
 
 const generalServiceReceiptSchema = Yup.object().shape({
-  status: Yup.string().required('Status is required'),
-  pgiNumber: Yup.string().required('PGI number is required'),
-  date: Yup.date().required('Date is required'),
-  agency: Yup.string().required('Agency is required'),
-  fund: Yup.string().required('Fund is required'),
-  payorType: Yup.string().required('Payor type is required'),
-  payorName: Yup.string().required('Payor name is required'),
-  paymentMethod: Yup.string().required('Payment method is required'),
-  items: Yup.array()
+  Status: Yup.string().required('Status is required'),
+  InvoiceNumber: Yup.string().required('Invoice number is required'),
+  InvoiceDate: Yup.date().required('Date is required'),
+  FundsID: Yup.number().required('Fund is required'),
+  Agency: Yup.string().required('Agency is required'),
+  PaymentMethodID: Yup.number().required('Payment method is required'),
+  Total: Yup.number().required('Total amount is required'),
+  CustomerID: Yup.number().required('Customer is required'),
+  CustomerName: Yup.string().required('Customer name is required'),
+  Remarks: Yup.string(),
+  TransactionItemsAll: Yup.array()
     .of(
       Yup.object().shape({
-        name: Yup.string().required('Item name is required'),
-        chargesAccount: Yup.string().required('Charges account is required'),
-        quantity: Yup.number()
+        ItemID: Yup.number().required('Item ID is required'),
+        ChargeAccountID: Yup.number().required('Charges account is required'),
+        Quantity: Yup.number()
           .required('Quantity is required')
           .min(1, 'Quantity must be at least 1'),
-        price: Yup.number()
+        Price: Yup.number()
           .required('Price is required')
           .min(0, 'Price cannot be negative'),
-        vatable: Yup.boolean().required('VAT status is required'),
+        Vatable: Yup.boolean(),
+        // TAXCodeID: Yup.number().required('Tax code is required'),
       })
     )
     .min(1, 'At least one item is required'),
-  remarks: Yup.string(),
 });
 
 function GeneralServiceReceiptModal({
@@ -38,46 +50,115 @@ function GeneralServiceReceiptModal({
   onSubmit,
 }) {
   const [payorType, setPayorType] = useState('Individual');
+  const { customers } = useSelector((state) => state.customers);
+  const { vendorDetails } = useSelector((state) => state.vendorDetails);
+  const { funds } = useSelector((state) => state.funds);
+  const { items } = useSelector((state) => state.items);
+  const { budgets } = useSelector((state) => state.budget);
 
-  // Sample data for payor names based on type
-  const payorOptions = {
-    Individual: [
-      { value: 'jeric_morning_star', label: 'Jeric Morning Star' },
-      { value: 'john_doe', label: 'John Doe' },
-      { value: 'jane_smith', label: 'Jane Smith' },
-    ],
-    Corporation: [
-      { value: 'abc_corp', label: 'ABC Corporation' },
-      { value: 'xyz_inc', label: 'XYZ Inc.' },
-      { value: 'sample_co', label: 'Sample Company' },
-    ],
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchCustomers());
+    dispatch(fetchVendorDetails());
+    dispatch(fetchFunds());
+    dispatch(fetchItems());
+    dispatch(fetchBudgets());
+  }, [dispatch]);
+
+  const vendorOptions = vendorDetails?.map((vendor) => ({
+    value: vendor.ID,
+    label: vendor.Name,
+  }));
+  const individualOptions = customers?.map((customer) => ({
+    value: customer.ID,
+    label: customer.Name,
+  }));
+  const fundsOptions = funds?.map((item) => ({
+    value: item.ID,
+    label: item.Name,
+  }));
+
+  const itemsOptions = items?.map((item) => ({
+    value: item.ID,
+    label: item.Name,
+  }));
+  const budgetOptions = budgets?.map((code) => ({
+    value: code.ID,
+    label: code.Name,
+  }));
+
+  const initialValues = {
+    Status: selectedReceipt?.Status || 'Requested',
+    InvoiceNumber: selectedReceipt?.InvoiceNumber || '',
+    InvoiceDate:
+      selectedReceipt?.InvoiceDate || new Date().toISOString().split('T')[0],
+
+    FundsID: selectedReceipt?.FundsID || '',
+    Agency: selectedReceipt?.Agency || '',
+    CustomerName: selectedReceipt?.CustomerName || '',
+    CustomerID: selectedReceipt?.CustomerID || '',
+
+    Total: selectedReceipt?.Total || 0,
+    Remarks: selectedReceipt?.Remarks || '',
+    CheckNumber: selectedReceipt?.CheckNumber || '',
+    MoneyOrder: selectedReceipt?.MoneyOrder || '',
+    PayeeBank: selectedReceipt?.PayeeBank || '',
+    CheckDate: selectedReceipt?.CheckDate || '',
+    MoneyOrderDate: selectedReceipt?.MoneyOrderDate || '',
+    Attachments: [],
+
+    PaymentMethodID: 2,
+    TransactionItemsAll: selectedReceipt?.TransactionItemsAll || [],
   };
+  const handleSubmit = (values) => {
+    const formData = new FormData();
 
-  const initialValues = selectedReceipt || {
-    status: 'posted',
-    pgiNumber: '',
-    date: new Date().toISOString().split('T')[0],
-    agency: '',
-    fund: 'Special Education Fund',
-    payorType: 'Individual',
-    payorName: '',
-    paymentMethod: 'cash',
-    bank: '',
-    number: '',
-    paymentDate: '1900-01-01',
-    documentNumber: '',
-    remarks: '',
-    items: [
-      {
-        name: '',
-        chargesAccount: 'Traffic Violation',
-        quantity: 1,
-        price: 0,
-        vatable: false,
-      },
-    ],
+    // Append all non-attachment fields
+    for (const key in values) {
+      if (key !== 'Attachments') {
+        // For non-file fields, convert to string if not already
+        const value =
+          typeof values[key] === 'object'
+            ? JSON.stringify(values[key])
+            : values[key];
+        // Rename TransactionItemsAll to Items
+        if (key === 'TransactionItemsAll') {
+          formData.append('Items', value);
+        } else {
+          formData.append(key, value);
+        }
+      }
+    }
+
+    // Handle attachments
+    if (values.Attachments && Array.isArray(values.Attachments)) {
+      values.Attachments.forEach((att, idx) => {
+        if (att.File) {
+          formData.append(`Attachments[${idx}].File`, att.File);
+        }
+        if (att.ID) {
+          formData.append(`Attachments[${idx}].ID`, att.ID);
+        }
+        if (att.Name) {
+          formData.append(`Attachments[${idx}].Name`, att.Name);
+        }
+        // Add any other attachment properties you need
+      });
+    }
+    // Add ID if editing existing receipt
+    if (selectedReceipt) {
+      formData.append('IsNew', 'false');
+      formData.append('LinkID', selectedReceipt.LinkID);
+      formData.append('ID', selectedReceipt.ID);
+    } else {
+      formData.append('IsNew', 'true');
+      formData.append('Attachments', '[]');
+    }
+
+    onSubmit(formData);
+    console.log('Form submitted with values:', formData);
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -90,11 +171,7 @@ function GeneralServiceReceiptModal({
       size="xl"
     >
       <div className="w-full py-4 flex justify-end gap-4 items-center">
-        <button
-          type="button"
-          // onClick={handleShowList}
-          className="btn btn-secondary flex-initial"
-        >
+        <button type="button" className="btn btn-secondary flex-initial">
           Show List
         </button>
         <button className="btn btn-primary flex-initial">
@@ -105,349 +182,437 @@ function GeneralServiceReceiptModal({
       <Formik
         initialValues={initialValues}
         validationSchema={generalServiceReceiptSchema}
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ values, setFieldValue, isSubmitting }) => (
-          <Form className="space-y-6">
-            {/* Section 1: Basic Information */}
-            <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-              <h3 className="font-medium text-lg">Basic Information</h3>
+        {({
+          values,
+          setFieldValue,
+          handleChange,
+          isSubmitting,
+          errors,
+          touched,
+        }) => {
+          console.log(values);
+          return (
+            <Form className="space-y-6">
+              {/* Section 1: Basic Information */}
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="font-medium text-lg">Basic Information</h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Status
-                  </label>
-                  <div className="mt-1 px-3 py-2 bg-gray-100 rounded-md">
-                    {values.status.toUpperCase()}
-                  </div>
-                </div>
-                <FormField
-                  label="No. PGI"
-                  name="pgiNumber"
-                  type="text"
-                  required
-                />
-              </div>
-
-              <FormField label="Date" name="date" type="date" required />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField label="Agency" name="agency" type="text" required />
-                <FormField label="Fund" name="fund" type="text" required />
-              </div>
-            </div>
-
-            {/* Section 2: Payor Information */}
-            <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-              <h3 className="font-medium text-lg">Payor Information</h3>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Taxpayer Type
-                </label>
-                <div className="flex space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPayorType('Individual');
-                      setFieldValue('payorType', 'Individual');
-                      setFieldValue('payorName', '');
-                    }}
-                    className={`px-4 py-2 rounded-md ${
-                      values.payorType === 'Individual'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 text-gray-700'
-                    }`}
-                  >
-                    Individual
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPayorType('Corporation');
-                      setFieldValue('payorType', 'Corporation');
-                      setFieldValue('payorName', '');
-                    }}
-                    className={`px-4 py-2 rounded-md ${
-                      values.payorType === 'Corporation'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 text-gray-700'
-                    }`}
-                  >
-                    Corporation
-                  </button>
-                </div>
-              </div>
-
-              <FormField
-                label="Payor"
-                name="payorName"
-                type="select"
-                options={payorOptions[values.payorType]}
-                required
-              />
-            </div>
-
-            {/* Section 3: Items */}
-            <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-              <h3 className="font-medium text-lg">Items</h3>
-
-              <FieldArray name="items">
-                {({ push, remove }) => (
-                  <div className="space-y-4">
-                    {values.items.map((item, index) => (
-                      <div
-                        key={index}
-                        className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end"
-                      >
-                        <FormField
-                          label="Item"
-                          name={`items.${index}.name`}
-                          type="text"
-                          required
-                          className="md:col-span-2"
-                        />
-                        <FormField
-                          label="Charges Account"
-                          name={`items.${index}.chargesAccount`}
-                          type="text"
-                          required
-                          className="md:col-span-1"
-                        />
-                        <FormField
-                          label="Qty"
-                          name={`items.${index}.quantity`}
-                          type="number"
-                          required
-                          min="1"
-                          className="md:col-span-1"
-                        />
-                        <FormField
-                          label="Price"
-                          name={`items.${index}.price`}
-                          type="number"
-                          required
-                          min="0"
-                          className="md:col-span-1"
-                        />
-                        <div className="flex items-center space-x-2 md:col-span-1">
-                          <div className="flex items-center">
-                            <Field
-                              type="checkbox"
-                              name={`items.${index}.vatable`}
-                              id={`items.${index}.vatable`}
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <label
-                              htmlFor={`items.${index}.vatable`}
-                              className="ml-2 block text-sm text-gray-700"
-                            >
-                              VATable
-                            </label>
-                          </div>
-                          <div className="text-sm font-medium">
-                            Subtotal: {(item.quantity * item.price).toFixed(2)}
-                          </div>
-                          {index > 0 && (
-                            <button
-                              type="button"
-                              onClick={() => remove(index)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              ×
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        push({
-                          name: '',
-                          chargesAccount: 'Traffic Violation',
-                          quantity: 1,
-                          price: 0,
-                          vatable: false,
-                        })
-                      }
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    >
-                      + Add Item
-                    </button>
-                  </div>
-                )}
-              </FieldArray>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Total
-                  </label>
-                  <div className="mt-1 px-3 py-2 bg-gray-100 rounded-md">
-                    {values.items
-                      .reduce(
-                        (sum, item) => sum + item.quantity * item.price,
-                        0
-                      )
-                      .toFixed(2)}
-                  </div>
-                </div>
-                <FormField
-                  label="Amount in Words"
-                  name="amountInWords"
-                  type="text"
-                  value={`${convertToWords(
-                    values.items.reduce(
-                      (sum, item) => sum + item.quantity * item.price,
-                      0
-                    )
-                  )} PESOS`}
-                  readOnly
-                />
-              </div>
-            </div>
-
-            {/* Section 4: Payment Information */}
-            <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-              <h3 className="font-medium text-lg">Payment Information</h3>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Payment Method
-                </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Status
+                    </label>
+                    <div className="mt-1 px-3 py-2 bg-gray-100 rounded-md">
+                      {values?.Status.toUpperCase()}
+                    </div>
+                  </div>
+                  <FormField
+                    label="Invoice Number"
+                    name="InvoiceNumber"
+                    type="text"
+                    required
+                    onChange={handleChange}
+                    value={values.InvoiceNumber}
+                    error={errors.InvoiceNumber}
+                    touched={touched.InvoiceNumber}
+                  />
+                </div>
+
+                <FormField
+                  label="Date"
+                  name="InvoiceDate"
+                  type="date"
+                  onChange={handleChange}
+                  value={values.InvoiceDate}
+                  required
+                  error={errors.InvoiceDate && touched.InvoiceDate}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    label="Agency"
+                    name="Agency"
+                    placeholder="Enter Agency"
+                    type="text"
+                    required
+                    onChange={handleChange}
+                    value={values.Agency}
+                    error={errors.Agency}
+                    touched={touched.Agency}
+                  />
+
+                  <FormField
+                    label="Fund"
+                    name="FundsID"
+                    type="select"
+                    options={fundsOptions}
+                    required
+                    onChange={handleChange}
+                    value={values.FundsID}
+                    error={errors.FundsID}
+                    touched={touched.FundsID}
+                  />
+                </div>
+              </div>
+
+              {/* Section 2: Payor Information */}
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="font-medium text-lg">Payor Information</h3>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Taxpayer Type
+                  </label>
+                  <div className="flex space-x-2">
                     <button
                       type="button"
-                      onClick={() => setFieldValue('paymentMethod', 'cash')}
-                      className={`w-full text-left px-4 py-2 rounded-md ${
-                        values.paymentMethod === 'cash'
+                      onClick={() => {
+                        setPayorType('Individual');
+                        setFieldValue('PayorType', 'Individual');
+                        setFieldValue('PayorName', '');
+                      }}
+                      className={`px-4 py-2 rounded-md ${
+                        payorType === 'Individual'
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-200 text-gray-700'
                       }`}
                     >
-                      Cash
+                      Individual
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPayorType('Corporation');
+                        setFieldValue('PayorType', 'Corporation');
+                        setFieldValue('PayorName', '');
+                      }}
+                      className={`px-4 py-2 rounded-md ${
+                        payorType === 'Corporation'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      Corporation
                     </button>
                   </div>
-                  <div className="space-y-2">
-                    <label className="block font-medium">Drawee</label>
-                    <div className="grid grid-cols-3 gap-2">
+                </div>
+
+                <SearchableDropdown
+                  label="Payor"
+                  name="CustomerName"
+                  type="select"
+                  options={
+                    payorType === 'Individual'
+                      ? individualOptions
+                      : vendorOptions
+                  }
+                  required
+                  placeholder="Select Payor"
+                  onSelect={(value) => {
+                    const selectedOption =
+                      payorType === 'Individual'
+                        ? individualOptions.find(
+                            (option) => option.value === value
+                          )
+                        : vendorOptions.find(
+                            (option) => option.value === value
+                          );
+                    setFieldValue('CustomerName', selectedOption?.label || '');
+                    setFieldValue('CustomerID', selectedOption?.value || '');
+                  }}
+                  selectedValue={values.CustomerID}
+                  error={errors.CustomerName}
+                  touched={touched.CustomerName}
+                />
+              </div>
+
+              {/* Section 3: Items */}
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="font-medium text-lg">Items</h3>
+
+                <FieldArray name="TransactionItemsAll">
+                  {({ push, remove }) => (
+                    <div className="space-y-4">
+                      {values.TransactionItemsAll.map((item, index) => (
+                        <div
+                          key={index}
+                          className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end"
+                        >
+                          <FormField
+                            label="Item ID"
+                            name={`TransactionItemsAll.${index}.ItemID`}
+                            type="select"
+                            options={itemsOptions}
+                            required
+                            value={item.ItemID}
+                            onChange={handleChange}
+                            error={errors.TransactionItemsAll?.[index]?.ItemID}
+                            touched={
+                              touched.TransactionItemsAll?.[index]?.ItemID
+                            }
+                          />
+
+                          <FormField
+                            label="Account"
+                            name={`TransactionItemsAll.${index}.ChargeAccountID`}
+                            type="select"
+                            options={budgetOptions}
+                            required
+                            value={item.ChargeAccountID}
+                            onChange={handleChange}
+                            error={
+                              errors.TransactionItemsAll?.[index]
+                                ?.ChargeAccountID
+                            }
+                            touched={
+                              touched.TransactionItemsAll?.[index]
+                                ?.ChargeAccountID
+                            }
+                          />
+
+                          <FormField
+                            label="Qty"
+                            name={`TransactionItemsAll.${index}.Quantity`}
+                            type="number"
+                            required
+                            min="1"
+                            value={item.Quantity}
+                            onChange={handleChange}
+                            error={
+                              errors.TransactionItemsAll?.[index]?.Quantity
+                            }
+                            touched={
+                              touched.TransactionItemsAll?.[index]?.Quantity
+                            }
+                          />
+
+                          <FormField
+                            label="Price"
+                            name={`TransactionItemsAll.${index}.Price`}
+                            type="number"
+                            required
+                            min="0"
+                            value={item.Price}
+                            onChange={handleChange}
+                            error={errors.TransactionItemsAll?.[index]?.Price}
+                            touched={
+                              touched.TransactionItemsAll?.[index]?.Price
+                            }
+                          />
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={`TransactionItemsAll.${index}.Vatable`}
+                              name={`TransactionItemsAll.${index}.Vatable`}
+                              checked={item.Vatable}
+                              onChange={() =>
+                                setFieldValue(
+                                  `TransactionItemsAll.${index}.Vatable`,
+                                  !item.Vatable
+                                )
+                              }
+                              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+                            />
+                            <label
+                              htmlFor={`TransactionItemsAll.${index}.Vatable`}
+                              className="ml-2 block text-sm text-neutral-700"
+                            >
+                              Vatable
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="text-sm font-medium">
+                              Subtotal:{' '}
+                              {(item.Quantity * item.Price).toFixed(2)}
+                            </div>
+                            {index > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => remove(index)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <XIcon />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                       <button
                         type="button"
                         onClick={() =>
-                          setFieldValue('paymentMethod', 'treasury')
+                          push({
+                            ItemID: '',
+                            ChargeAccountID: '',
+                            Quantity: 1,
+                            Price: 0,
+                          })
                         }
-                        className={`px-3 py-1 rounded-md text-sm ${
-                          values.paymentMethod === 'treasury'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-200 text-gray-700'
-                        }`}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                       >
-                        Treasury Warrant
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setFieldValue('paymentMethod', 'check')}
-                        className={`px-3 py-1 rounded-md text-sm ${
-                          values.paymentMethod === 'check'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        Check
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFieldValue('paymentMethod', 'moneyOrder')
-                        }
-                        className={`px-3 py-1 rounded-md text-sm ${
-                          values.paymentMethod === 'moneyOrder'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        Money Order
+                        + Add Item
                       </button>
                     </div>
+                  )}
+                </FieldArray>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Total
+                    </label>
+                    <div className="mt-1 px-3 py-2 bg-gray-100 rounded-md">
+                      {values.TransactionItemsAll.reduce(
+                        (sum, item) => sum + item.Quantity * item.Price,
+                        0
+                      ).toFixed(2)}
+                    </div>
                   </div>
+                  <FormField
+                    label="Amount in Words"
+                    name="amountInWords"
+                    type="text"
+                    // value={`${convertAmountToWords(
+                    //   values.items.reduce(
+                    //     (sum, item) => sum + item.quantity * item.price,
+                    //     0
+                    //   )
+                    // )} PESOS`}
+                    readOnly
+                  />{' '}
                 </div>
               </div>
 
-              {values.paymentMethod !== 'cash' && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField label="Bank" name="bank" type="text" />
-                    <FormField label="Number" name="number" type="text" />
-                    <FormField label="Date" name="paymentDate" type="date" />
+              {/* Section  4: Payment Information */}
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="font-medium text-lg">Payment Information</h3>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Payment Method
+                  </label>
+                  <div
+                    className="inline-flex rounded-md shadow-sm"
+                    role="group"
+                  >
+                    {[
+                      { value: 2, label: 'Cash' },
+                      { value: 3, label: 'Check' },
+                      { value: 8, label: 'Money Order' },
+                      { value: 9, label: 'Treasury Warrant' },
+                    ].map((method, index) => (
+                      <button
+                        key={method.value}
+                        type="button"
+                        onClick={() =>
+                          setFieldValue('PaymentMethodID', method.value)
+                        }
+                        className={`px-4 py-2 text-sm font-medium border ${
+                          values.PaymentMethodID === method.value
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        } ${
+                          index === 0
+                            ? 'rounded-l-md'
+                            : index === 3
+                            ? 'rounded-r-md'
+                            : 'border-l-0'
+                        }`}
+                      >
+                        {method.label}
+                      </button>
+                    ))}
                   </div>
+                </div>
 
-                  <FormField
-                    label={`${
-                      values.paymentMethod === 'treasury'
-                        ? 'Treasury Warrant'
-                        : values.paymentMethod === 'check'
-                        ? 'Check'
-                        : 'Money Order'
-                    } Number`}
-                    name="documentNumber"
-                    type="text"
-                  />
+                {values.PaymentMethodID === 3 && (
+                  <>
+                    <FormField
+                      label="Check Number"
+                      name="CheckNumber"
+                      type="text"
+                      value={values.CheckNumber}
+                      onChange={handleChange}
+                      error={errors.CheckNumber && touched.CheckNumber}
+                    />
+                    <FormField
+                      label="Bank"
+                      name="PayeeBank"
+                      type="text"
+                      value={values.PayeeBank}
+                      onChange={handleChange}
+                    />
+                    <FormField
+                      label="Check Date"
+                      name="CheckDate"
+                      type="date"
+                      value={values.CheckDate}
+                      onChange={handleChange}
+                      error={errors.CheckDate && touched.CheckDate}
+                    />
+                  </>
+                )}
 
-                  <FormField
-                    label={`Date of ${
-                      values.paymentMethod === 'treasury'
-                        ? 'Treasury Warrant'
-                        : values.paymentMethod === 'check'
-                        ? 'Check'
-                        : 'Money Order'
-                    }`}
-                    name="paymentDate"
-                    type="date"
-                  />
-                </>
-              )}
+                {values.PaymentMethodID === 8 && (
+                  <>
+                    <FormField
+                      label="Money Order Number"
+                      name="MoneyOrder"
+                      type="text"
+                      value={values.MoneyOrder}
+                      onChange={handleChange}
+                      error={errors.MoneyOrder && touched.MoneyOrder}
+                    />
+                    <FormField
+                      label="Money Order Date"
+                      name="MoneyOrderDate"
+                      type="date"
+                      value={values.MoneyOrderDate}
+                      onChange={handleChange}
+                      error={errors.MoneyOrderDate && touched.MoneyOrderDate}
+                    />
+                  </>
+                )}
 
-              <FormField
-                label="Remarks"
-                name="remarks"
-                type="textarea"
-                rows={2}
-              />
-            </div>
+                <FormField
+                  label="Remarks"
+                  name="Remarks"
+                  type="textarea"
+                  value={values.Remarks}
+                  onChange={handleChange}
+                  rows={2}
+                  error={errors.Remarks && touched.Remarks}
+                />
+              </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-2 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                {isSubmitting ? 'Saving...' : 'Save'}
-              </button>
-            </div>
-          </Form>
-        )}
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 pt-4">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  // disabled={isSubmitting}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {/* {isSubmitting ? 'Saving...' : 'Save'}
+                  save
+                   */}
+                  save
+                </button>
+              </div>
+            </Form>
+          );
+        }}
       </Formik>
     </Modal>
   );
-}
-
-// Helper function to convert numbers to words (you'll need to implement this)
-function convertToWords(num) {
-  if (num === 0) return 'ZERO';
-  // ... conversion logic ...
-  return 'ZERO'; // Placeholder
 }
 
 export default GeneralServiceReceiptModal;

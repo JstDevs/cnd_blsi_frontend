@@ -95,22 +95,46 @@ const DocumentDetailsPage = () => {
     // },
   ];
 
-  const actions = [
-    {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEdit,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: handleDelete,
-      className:
-        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-    },
-  ];
+  // const actions = [
+  //   {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEdit,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   {
+  //     icon: TrashIcon,
+  //     title: 'Delete',
+  //     onClick: handleDelete,
+  //     className:
+  //       'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+  //   },
+  // ];
+  const getActions = (document) => {
+    const baseActions = [
+      {
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: handleEdit,
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      },
+    ];
+
+    // Only add delete action if ID is greater than 32
+    if (document.ID > 32) {
+      baseActions.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: handleDelete,
+        className:
+          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      });
+    }
+
+    return baseActions;
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -135,7 +159,7 @@ const DocumentDetailsPage = () => {
       <DataTable
         columns={columns}
         data={documentDetails}
-        actions={actions}
+        actions={getActions}
         loading={isLoading}
         emptyMessage="No document details found. Click 'Add Document Detail' to create one."
       />

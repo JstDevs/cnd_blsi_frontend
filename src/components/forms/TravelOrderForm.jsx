@@ -9,21 +9,26 @@ import { fetchDepartments } from '../../features/settings/departmentSlice';
 import { fetchEmployees } from '../../features/settings/employeeSlice';
 import { fetchBudgets } from '../../features/budget/budgetSlice';
 
-
-function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employeeOptions }) {
+function TravelOrderForm({
+  initialData,
+  onSubmit,
+  onClose,
+  officeOptions,
+  employeeOptions,
+}) {
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const { departments } = useSelector(state => state.departments);
-  const { employees } = useSelector(state => state.employees);
-  // const { budgets } = useSelector(state => state.budget);
-  const budgets = [{ ID: '1', Name: '2023 Budget' }, { ID: '2', Name: '2024 Budget' }];
-
+  const { departments } = useSelector((state) => state.departments);
+  const { employees } = useSelector((state) => state.employees);
+  const { budgets } = useSelector((state) => state.budget);
+  // const budgets = [{ ID: '1', Name: '2023 Budget' }, { ID: '2', Name: '2024 Budget' }];
+  console.log('Budgets:', budgets);
   const dispatch = useDispatch();
   useEffect(() => {
-      dispatch(fetchDepartments());
-      dispatch(fetchEmployees());
-      dispatch(fetchBudgets());
-    }, [dispatch]);
+    dispatch(fetchDepartments());
+    dispatch(fetchEmployees());
+    dispatch(fetchBudgets());
+  }, [dispatch]);
 
   const validationSchema = Yup.object({
     BudgetID: Yup.string().required('Office is required'),
@@ -33,23 +38,29 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
     Venue: Yup.string().required('Venue/Destination is required'),
     Remarks: Yup.string(),
     Purpose: Yup.string().required('Purpose of Travel is required'),
-    Travelers: Yup.array().of(
-      Yup.object({
-        TravelerID: Yup.string().required('Employee is required')
-      })
-    ).min(1, 'At least one traveler is required'),
-    TravelPayments: Yup.array().of(
-      Yup.object({
-        Amount: Yup.number().required('Amount is required'),
-        BudgetID: Yup.string().required('Budget of Fund is required'),
-        Type: Yup.string().required('Type is required')
-      })
-    ).min(1, 'At least one expense is required'),
-    TravelDocuments: Yup.array().of(
-      Yup.object({
-        Name: Yup.string().required('Document name is required')
-      })
-    ).min(1, 'At least one document is required'),
+    Travelers: Yup.array()
+      .of(
+        Yup.object({
+          TravelerID: Yup.string().required('Employee is required'),
+        })
+      )
+      .min(1, 'At least one traveler is required'),
+    TravelPayments: Yup.array()
+      .of(
+        Yup.object({
+          Amount: Yup.number().required('Amount is required'),
+          BudgetID: Yup.string().required('Budget of Fund is required'),
+          Type: Yup.string().required('Type is required'),
+        })
+      )
+      .min(1, 'At least one expense is required'),
+    TravelDocuments: Yup.array()
+      .of(
+        Yup.object({
+          Name: Yup.string().required('Document name is required'),
+        })
+      )
+      .min(1, 'At least one document is required'),
   });
 
   const formik = useFormik({
@@ -72,7 +83,7 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
       Attachments: [],
     },
     validationSchema,
-    onSubmit: async(values, setSubmitting) => {
+    onSubmit: async (values, setSubmitting) => {
       const formData = new FormData();
 
       for (const key in values) {
@@ -84,8 +95,7 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
               formData.append(`Attachments[${idx}].ID`, att.ID);
             }
           });
-        }
-        else {
+        } else {
           formData.append(key, JSON.stringify(values[key]));
         }
       }
@@ -97,10 +107,11 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
       } finally {
         setSubmitting(false);
       }
-    }
+    },
   });
 
-  const { values, handleChange, handleBlur, errors, touched, isSubmitting } = formik;
+  const { values, handleChange, handleBlur, errors, touched, isSubmitting } =
+    formik;
 
   return (
     <FormikProvider value={formik}>
@@ -109,9 +120,9 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
           type="select"
           label="Office"
           name="BudgetID"
-          options={departments.map(dept => ({
+          options={departments.map((dept) => ({
             value: dept.ID,
-            label: dept.Name
+            label: dept.Name,
           }))}
           value={values.BudgetID}
           onChange={handleChange}
@@ -196,7 +207,9 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
         </div>
 
         <div>
-          <label className="font-medium block mb-2">Means of Transportation</label>
+          <label className="font-medium block mb-2">
+            Means of Transportation
+          </label>
           <div className="grid grid-cols-3 gap-2">
             <label className="flex items-center space-x-2">
               <input
@@ -255,7 +268,6 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
           </div>
         </div>
 
-
         <hr />
 
         <FieldArray
@@ -278,9 +290,14 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
                     type="select"
                     label={`Employee ${index + 1}`}
                     name={`Travelers[${index}].TravelerID`}
-                    options={employees.map(emp => ({
+                    options={employees.map((emp) => ({
                       value: emp.ID,
-                      label: emp.FirstName + ' ' + emp.MiddleName + ' ' + emp.LastName
+                      label:
+                        emp.FirstName +
+                        ' ' +
+                        emp.MiddleName +
+                        ' ' +
+                        emp.LastName,
                     }))}
                     value={traveler.TravelerID}
                     onChange={handleChange}
@@ -322,7 +339,10 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
               </div>
 
               {values.TravelPayments?.map((TravelPayment, index) => (
-                <div key={index} className="flex flex-wrap items-center items-end gap-4 mb-2">
+                <div
+                  key={index}
+                  className="flex flex-wrap items-center items-end gap-4 mb-2"
+                >
                   {/* Amount */}
                   <FormField
                     type="number"
@@ -342,9 +362,9 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
                     type="select"
                     label="Source of Fund"
                     name={`TravelPayments[${index}].BudgetID`}
-                    options={budgets.map(budget => ({
+                    options={budgets.map((budget) => ({
                       value: budget.ID,
-                      label: budget.Name
+                      label: budget.Name,
                     }))}
                     value={TravelPayment.BudgetID}
                     onChange={handleChange}
@@ -385,7 +405,6 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
                 </div>
               ))}
 
-
               {/* Total Row */}
               <div className="flex justify-end text-right mt-4">
                 <label className="font-semibold mr-2">Total:</label>
@@ -396,11 +415,9 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
                   }, 0).toFixed(2)}
                 </span>
               </div>
-
             </div>
           )}
         />
-
 
         <hr />
 
@@ -522,17 +539,26 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
                       >
                         {att.DataName}
                       </a>
-                      <input type="hidden" name={`Attachments[${index}].ID`} value={att.ID} />
+                      <input
+                        type="hidden"
+                        name={`Attachments[${index}].ID`}
+                        value={att.ID}
+                      />
                     </div>
                   ) : (
                     <div className="flex-1 min-w-[300px]">
-                      <label className="block text-sm font-medium mb-1">{`File ${index + 1}`}</label>
+                      <label className="block text-sm font-medium mb-1">{`File ${
+                        index + 1
+                      }`}</label>
                       <input
                         type="file"
                         name={`Attachments[${index}].File`}
                         accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
                         onChange={(e) =>
-                          formik.setFieldValue(`Attachments[${index}].File`, e.currentTarget.files[0])
+                          formik.setFieldValue(
+                            `Attachments[${index}].File`,
+                            e.currentTarget.files[0]
+                          )
                         }
                         onBlur={handleBlur}
                         className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
@@ -553,14 +579,8 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
           )}
         />
 
-
-
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-          <Button
-            type="button"
-            onClick={onClose}
-            className="btn btn-outline"
-          >
+          <Button type="button" onClick={onClose} className="btn btn-outline">
             Cancel
           </Button>
           <Button

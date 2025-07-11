@@ -13,21 +13,21 @@ export const fetchFunds = createAsyncThunk(
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/fundsss`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // const response = await fetch(`${API_URL}/fundsss`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
 
-      const res = await response.json();
+      // const res = await response.json();
 
-      if (!response.ok) {
-        throw new Error(res.message || 'Failed to fetch');
-      }
+      // if (!response.ok) {
+      //   throw new Error(res.message || 'Failed to fetch');
+      // }
 
-      return res;
+      return mockFunds;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -156,7 +156,9 @@ const fundsSlice = createSlice({
       })
       .addCase(updateFund.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.funds.findIndex(item => item.ID === action.payload.ID);
+        const index = state.funds.findIndex(
+          (item) => item.ID === action.payload.ID
+        );
         if (index !== -1) {
           if (!Array.isArray(state.funds)) {
             state.funds = [];
@@ -173,7 +175,7 @@ const fundsSlice = createSlice({
         if (!Array.isArray(state.funds)) {
           state.funds = [];
         }
-        state.funds = state.funds.filter(item => item.ID !== action.payload);
+        state.funds = state.funds.filter((item) => item.ID !== action.payload);
       })
       .addCase(deleteFund.rejected, (state, action) => {
         state.isLoading = false;

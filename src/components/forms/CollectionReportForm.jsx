@@ -38,7 +38,7 @@ const COLLECTION_REPORT_SCHEMA = Yup.object().shape({
   }),
 });
 
-function CollectionReportForm({ onSubmit }) {
+function CollectionReportForm({ onSubmitCollectionReport }) {
   const [activeReportType, setActiveReportType] = useState('daily');
 
   const initialValues = {
@@ -96,7 +96,7 @@ function CollectionReportForm({ onSubmit }) {
     { value: 'clerk', label: 'Clerk' },
   ];
 
-  const renderDateInputs = () => {
+  const renderDateInputs = (errors, touched) => {
     switch (activeReportType) {
       case 'daily':
         return (
@@ -106,6 +106,8 @@ function CollectionReportForm({ onSubmit }) {
             type="date"
             required
             className="w-full"
+            error={errors.date}
+            touched={touched.date}
           />
         );
       case 'monthly':
@@ -117,6 +119,8 @@ function CollectionReportForm({ onSubmit }) {
               type="select"
               options={months}
               required
+              error={errors.month}
+              touched={touched.month}
             />
             <FormField
               label="Year"
@@ -125,6 +129,8 @@ function CollectionReportForm({ onSubmit }) {
               required
               min={2000}
               max={2100}
+              error={errors.year}
+              touched={touched.year}
             />
           </div>
         );
@@ -137,6 +143,8 @@ function CollectionReportForm({ onSubmit }) {
               type="select"
               options={quarters}
               required
+              error={errors.quarter}
+              touched={touched.quarter}
             />
             <FormField
               label="Year"
@@ -145,6 +153,8 @@ function CollectionReportForm({ onSubmit }) {
               required
               min={2000}
               max={2100}
+              error={errors.year}
+              touched={touched.year}
             />
           </div>
         );
@@ -157,8 +167,17 @@ function CollectionReportForm({ onSubmit }) {
                 name="fromDate"
                 type="date"
                 required
+                error={errors.fromDate}
+                touched={touched.fromDate}
               />
-              <FormField label="To Date" name="toDate" type="date" required />
+              <FormField
+                label="To Date"
+                name="toDate"
+                type="date"
+                required
+                error={errors.toDate}
+                touched={touched.toDate}
+              />
             </div>
             <FormField
               label="Noted By"
@@ -166,6 +185,8 @@ function CollectionReportForm({ onSubmit }) {
               type="select"
               options={notedByOptions}
               required
+              error={errors.notedBy}
+              touched={touched.notedBy}
             />
           </div>
         );
@@ -179,10 +200,10 @@ function CollectionReportForm({ onSubmit }) {
       initialValues={initialValues}
       validationSchema={COLLECTION_REPORT_SCHEMA}
       onSubmit={(values) => {
-        onSubmit(values);
+        onSubmitCollectionReport(values);
       }}
     >
-      {({ values, setFieldValue }) => (
+      {({ values, errors, touched, setFieldValue, isSubmitting }) => (
         <Form className="space-y-4">
           {/* Report Type Buttons */}
           <div className="flex flex-wrap gap-2 mb-6">
@@ -207,7 +228,7 @@ function CollectionReportForm({ onSubmit }) {
 
           {/* Dynamic Date Inputs */}
           <div className="bg-gray-50 p-4 rounded-lg mb-6">
-            {renderDateInputs()}
+            {renderDateInputs(errors, touched)}
           </div>
 
           {/* Document Types */}
