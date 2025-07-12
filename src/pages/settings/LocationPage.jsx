@@ -43,6 +43,13 @@ function LocationPage() {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState(null);
+  
+          const pluralLabels = {
+            region: 'Regions',
+            province: 'Provinces',
+            municipality: 'Municipalities',
+            barangay: 'Barangays',
+          };
 
   const dispatch = useDispatch();
 
@@ -260,6 +267,7 @@ function LocationPage() {
       onBlur: formik.handleBlur,
       required: true,
     };
+    console.log('Active Tab:', activeTab);
     switch (activeTab) {
       case 'region':
         return (
@@ -436,7 +444,7 @@ function LocationPage() {
 
       <div className="flex mb-6 border-b border-neutral-200">
         <nav className="-mb-px flex flex-wrap gap-x-10 gap-y-0">
-          {['region', 'province', 'municipalitie', 'barangay'].map((tab) => (
+          {['region', 'province', 'municipality', 'barangay'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -446,9 +454,10 @@ function LocationPage() {
                   : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}s
+              {pluralLabels[tab]}
             </button>
           ))}
+
         </nav>
       </div>
 

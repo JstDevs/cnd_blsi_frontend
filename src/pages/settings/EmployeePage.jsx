@@ -78,18 +78,31 @@ function EmployeePage() {
       header: 'Last Name',
       sortable: true,
     },
+    {
+      key: 'Department',
+      header: 'Department',
+      sortable: true,
+      render: (value) => value?.Name || '',
+    },
+    {
+      key: 'Position',
+      header: 'Position',
+      sortable: true,
+      render: (value) => value?.Name || '',
+    },
+    {
+      key: 'EmploymentStatus',
+      header: 'Employment Status',
+      sortable: true,
+      render: (value) => value?.Name || '',
+    },
     // {
-    //   key: 'departmentName',
-    //   header: 'Department',
-    //   sortable: true,
-    // },
-    // {
-    //   key: 'position',
+    //   key: 'PositionName',
     //   header: 'Position',
     //   sortable: true,
     // },
     // {
-    //   key: 'employmentStatus',
+    //   key: 'EmploymentStatus',
     //   header: 'Employment Status',
     //   sortable: true,
     // },
