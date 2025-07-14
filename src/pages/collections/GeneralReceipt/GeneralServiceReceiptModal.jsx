@@ -156,12 +156,10 @@ function GeneralServiceReceiptModal({
       }
     }
 
-    // if (values.Attachments && Array.isArray(values.Attachments)) {
     // Handle attachments - simplified format
-    values.Attachments.forEach((file, index) => {
+    values?.Attachments.forEach((file, index) => {
       formData.append(`Attachments[${index}].File`, file);
     });
-    // }
     // Add ID if editing existing receipt
     if (selectedReceipt) {
       formData.append('IsNew', 'false');
@@ -222,6 +220,39 @@ function GeneralServiceReceiptModal({
           // console.log(values);
           return (
             <Form className="space-y-6">
+              {/* Section 5: Attachments */}
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="font-medium text-lg">Attachments</h3>
+
+                {values.Attachments.length > 0 ? (
+                  <div className="space-y-2">
+                    {values.Attachments.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-2 border rounded"
+                      >
+                        <div className="flex items-center">
+                          <Paperclip className="h-4 w-4 text-gray-500 mr-2" />
+                          <span className="text-sm">
+                            {file.name || file.DataName}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeAttachment(index, setFieldValue, values)
+                          }
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">No attachments added</p>
+                )}
+              </div>
               {/* Section 1: Basic Information */}
               <div className="bg-gray-50 p-4 rounded-lg space-y-4">
                 <h3 className="font-medium text-lg">Basic Information</h3>
@@ -612,39 +643,7 @@ function GeneralServiceReceiptModal({
                   error={errors.Remarks && touched.Remarks}
                 />
               </div>
-              {/* Section 5: Attachments */}
-              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-                <h3 className="font-medium text-lg">Attachments</h3>
 
-                {values.Attachments.length > 0 ? (
-                  <div className="space-y-2">
-                    {values.Attachments.map((file, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-2 border rounded"
-                      >
-                        <div className="flex items-center">
-                          <Paperclip className="h-4 w-4 text-gray-500 mr-2" />
-                          <span className="text-sm">
-                            {file.name || file.DataName}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeAttachment(index, setFieldValue, values)
-                          }
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500">No attachments added</p>
-                )}
-              </div>
               {showAttachmentModal && (
                 <Modal
                   isOpen={showAttachmentModal}

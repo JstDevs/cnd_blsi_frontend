@@ -8,14 +8,13 @@ import {
 } from '@heroicons/react/24/outline';
 import DataTable from '@/components/common/DataTable';
 import Modal from '@/components/common/Modal';
-import FormField from '@/components/common/FormField';
 import {
   createGeneralServiceReceipt,
   deleteGeneralServiceReceipt,
   fetchGeneralServiceReceipts,
 } from '@/features/collections/generalReceiptSlice';
 import GeneralServiceReceiptModal from './GeneralServiceReceiptModal';
-import { formatDate } from 'date-fns';
+
 import toast from 'react-hot-toast';
 import { TrashIcon } from 'lucide-react';
 
@@ -181,13 +180,13 @@ function GeneralReceiptPage() {
 
   // Actions for table rows
   const actions = [
-    {
-      icon: EyeIcon,
-      title: 'View',
-      onClick: handleViewReceipt,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
+    // {
+    //   icon: EyeIcon,
+    //   title: 'View',
+    //   onClick: handleViewReceipt,
+    //   className:
+    //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    // },
     {
       icon: PencilIcon,
       title: 'Edit',
@@ -219,10 +218,9 @@ function GeneralReceiptPage() {
       toast.success('Receipt saved successfully.');
     } catch (error) {
       console.error('Submission failed:', error);
-      // Optional: Show error to user
       toast.error(error.message || 'Failed to save receipt');
     } finally {
-      // handleCloseServiceReceiptModal();
+      handleCloseServiceReceiptModal();
     }
   };
   return (

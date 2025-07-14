@@ -1,14 +1,19 @@
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DocumentIcon } from '@heroicons/react/24/outline';
 import { TrashIcon } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCustomers } from '@/features/settings/customersSlice';
+import SearchableDropdown from '../common/SearchableDropdown';
 
 const BURIAL_RECEIPT_SCHEMA = Yup.object().shape({
-  title: Yup.string().required('Title is required'),
-  name: Yup.string().required('Name is required'),
-  deceasedName: Yup.string().required('Deceased name is required'),
+  CustomerName: Yup.string().required('Name is required'),
+  CustomerID: Yup.number(),
+  DeceasedCustomerName: Yup.string().required('Deceased name is required'),
+  DeceasedCustomerID: Yup.number(),
+
   nationality: Yup.string().required('Nationality is required'),
   age: Yup.number().required('Age is required').min(0, 'Age must be positive'),
   dateOfDeath: Yup.date().required('Date of death is required'),
@@ -27,18 +32,27 @@ const BURIAL_RECEIPT_SCHEMA = Yup.object().shape({
     .required('Amount received is required')
     .min(0, 'Amount must be positive'),
   referenceNumber: Yup.string(),
-  remarks: Yup.string(),
+  Remarks: Yup.string(),
 });
 
-function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
+function BurialServiceReceiptForm({
+  initialData,
+  onClose,
+  onSubmit,
+  nationalities,
+  municipalities,
+  provinces,
+  customers,
+  users,
+}) {
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [formError, setFormError] = useState(null);
 
-  const initialValues = initialData || {
-    title: 'mr',
-    name: '',
-    deceasedName: '',
+  const initialValues = {
+    Name: initialData?.Name || '',
+    DeceasedCustomerName: '',
+    DeceasedCustomerID: '',
     nationality: '',
     age: '',
     dateOfDeath: '',
@@ -48,11 +62,31 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
     isInfectious: false,
     isEmbalmed: false,
     dispositionRemarks: '',
-    invoiceDate: new Date().toISOString().split('T')[0],
+    InvoiceDate:
+      initialData?.InvoiceDate || new Date().toISOString().split('T')[0],
+    CustomerName: initialData?.CustomerName || '',
+    CustomerID: initialData?.CustomerID || '',
     paymentMethod: '',
     amountReceived: '',
-    referenceNumber: '',
-    remarks: '',
+    ReferenceNumber: '',
+    Remarks: '',
+    Attachments: initialData?.Attachments || [],
+  };
+  // -------------FILE UPLOAD-------------
+  const handleFileUpload = (event, setFieldValue, values) => {
+    const files = Array.from(event.target.files);
+
+    // Create new attachments array with just the File objects
+    const newAttachments = files.map((file) => file); // Just store the File objects directly
+
+    // Combine with existing attachments
+    setFieldValue('Attachments', [...values.Attachments, ...newAttachments]);
+  };
+  // -----------REMOVE ATTACHMENT-------------
+  const removeAttachment = (index, setFieldValue, values) => {
+    const updatedAttachments = [...values.Attachments];
+    updatedAttachments.splice(index, 1);
+    setFieldValue('Attachments', updatedAttachments);
   };
 
   const handleServiceTypeChange = (e, setFieldValue) => {
@@ -61,28 +95,28 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
     setShowAdditionalFields(value !== 'inter');
   };
 
-  const NAME_OPTIONS = [
-    { value: 'shewin_pua_ola', label: 'Shewin, Pua, Ola' },
-    { value: 'john_doe', label: 'Doe, John' },
-    { value: 'jane_smith', label: 'Smith, Jane' },
+  const TITLE_OPTIONS = [
+    { value: 'Mr', label: 'Mr.' },
+    { value: 'Mrs', label: 'Mrs.' },
+    { value: 'Miss', label: 'Miss.' },
   ];
 
-  const handleFileChange = (e) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files).map((file) => ({
-        file,
-        id: Math.random().toString(36).substring(2, 9),
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      }));
-      setSelectedFiles((prev) => [...prev, ...newFiles]);
-    }
-  };
+  // const handleFileChange = (e) => {
+  //   if (e.target.files) {
+  //     const newFiles = Array.from(e.target.files).map((file) => ({
+  //       file,
+  //       id: Math.random().toString(36).substring(2, 9),
+  //       name: file.name,
+  //       size: file.size,
+  //       type: file.type,
+  //     }));
+  //     setSelectedFiles((prev) => [...prev, ...newFiles]);
+  //   }
+  // };
 
-  const handleDeleteFile = (id) => {
-    setSelectedFiles((prev) => prev.filter((file) => file.id !== id));
-  };
+  // const handleDeleteFile = (id) => {
+  //   setSelectedFiles((prev) => prev.filter((file) => file.id !== id));
+  // };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
@@ -99,7 +133,14 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
       setSubmitting(false);
     }
   };
-
+  const individualOptions = customers?.map((customer) => ({
+    value: customer.ID,
+    label: customer.Name,
+  }));
+  const nationalitiesOptions = nationalities?.map((nationality) => ({
+    value: nationality.ID,
+    label: nationality.Name,
+  }));
   return (
     <div className="space-y-4">
       <div className="w-full pt-4 flex justify-end gap-4 items-center">
@@ -122,6 +163,7 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
           handleChange,
           setFieldValue,
           isSubmitting,
+          handleBlur,
         }) => (
           <Form className="space-y-4 p-4 bg-white rounded-lg">
             {/* Error Message */}
@@ -138,7 +180,7 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
                 <input
                   type="file"
                   multiple
-                  onChange={handleFileChange}
+                  onChange={() => handleFileUpload(e, setFieldValue, values)}
                   className="block w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-md file:border-0
@@ -161,7 +203,7 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
                         <div className="flex items-center space-x-2">
                           <DocumentIcon className="h-5 w-5 text-gray-400" />
                           <span className="text-sm text-gray-600 truncate max-w-xs">
-                            {file.name}
+                            {file.name || file.DataName}
                           </span>
                           <span className="text-xs text-gray-500">
                             ({formatFileSize(file.size)})
@@ -169,7 +211,9 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
                         </div>
                         <button
                           type="button"
-                          onClick={() => handleDeleteFile(file.id)}
+                          onClick={() =>
+                            removeAttachment(index, setFieldValue, values)
+                          }
                           className="text-red-500 hover:text-red-700"
                         >
                           <TrashIcon className="h-5 w-5" />
@@ -186,35 +230,87 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
               <FormField
                 name="receiptNumber"
                 type="text"
-                value="BU-RE-36AL-CEIPT"
+                value={values.receiptNumber || 'BU-RE-36AL-CEIPT'}
                 readOnly
                 className="font-bold text-center"
               />
             </div>
 
             <div>
-              <FormField
+              {/* <FormField
                 label="MR. / MRS."
-                name="name"
+                name="title"
                 type="select"
-                options={NAME_OPTIONS}
-                placeholder="Select name"
+                options={TITLE_OPTIONS}
+                placeholder="Select Title"
                 required
                 error={touched.name && errors.name}
+              /> */}
+              <SearchableDropdown
+                label="MR. / MRS."
+                name="CustomerName"
+                type="select"
+                options={individualOptions}
+                required
+                placeholder="Select Name"
+                onSelect={(value) => {
+                  const selectedOption = individualOptions.find(
+                    (option) => option.value === value
+                  );
+                  setFieldValue('CustomerName', selectedOption?.label || '');
+                  setFieldValue('CustomerID', selectedOption?.value || '');
+                }}
+                selectedValue={values.CustomerID}
+                error={errors.CustomerName}
+                touched={touched.CustomerName}
               />
             </div>
 
             {/* Deceased Information */}
             <div className="space-y-4">
-              <FormField
-                label="Name"
-                name="deceasedName"
+              <SearchableDropdown
+                label="Name of Deceased"
+                name="DeceasedCustomerName"
                 type="select"
-                options={NAME_OPTIONS}
+                options={individualOptions}
                 required
-                error={touched.deceasedName && errors.deceasedName}
+                placeholder="Select Name"
+                onSelect={(value) => {
+                  const selectedOption = individualOptions.find(
+                    (option) => option.value === value
+                  );
+                  setFieldValue(
+                    'DeceasedCustomerName',
+                    selectedOption?.label || ''
+                  );
+                  setFieldValue(
+                    'DeceasedCustomerID',
+                    selectedOption?.value || ''
+                  );
+                }}
+                selectedValue={values.DeceasedCustomerID}
+                error={errors.DeceasedCustomerName}
+                touched={touched.DeceasedCustomerName}
               />
-              <FormField
+              <SearchableDropdown
+                label="Nationality"
+                name="Nationality"
+                type="select"
+                options={nationalitiesOptions}
+                required
+                placeholder="Select Nationality"
+                onSelect={(value) => {
+                  const selectedOption = nationalitiesOptions.find(
+                    (option) => option.value === value
+                  );
+                  setFieldValue('Nationality', selectedOption?.label || '');
+                }}
+                className="w-full"
+                selectedValue={values.Nationality}
+                error={errors.Nationality}
+                touched={touched.Nationality}
+              />
+              {/* <FormField
                 label="Nationality"
                 name="nationality"
                 type="select"
@@ -224,7 +320,7 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
                 ]}
                 required
                 error={touched.nationality && errors.nationality}
-              />
+              /> */}
               <FormField
                 label="Age"
                 name="age"
@@ -371,10 +467,14 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
             {/* Remarks */}
             <FormField
               label="Remarks"
-              name="remarks"
+              name="Remarks"
               type="textarea"
               rows={2}
-              error={touched.remarks && errors.remarks}
+              value={values.Remarks}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              touched={touched.Remarks}
+              error={touched.Remarks && errors.Remarks}
             />
 
             {/* Action Buttons */}

@@ -11,7 +11,7 @@ import {
   fetchPublicMarketTickets,
 } from '@/features/collections/PublicMarketTicketingSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { EyeIcon, PencilIcon, Trash } from 'lucide-react';
+import { PencilIcon, Trash } from 'lucide-react';
 
 const PublicMarketTicketPage = () => {
   const dispatch = useDispatch();
@@ -39,13 +39,11 @@ const PublicMarketTicketPage = () => {
 
   const handleDeleteTicket = async (ticket) => {
     console.log('Deleting ticket:', ticket);
-    if (window.confirm('Are you sure you want to delete this ticket?')) {
-      try {
-        await dispatch(deletePublicMarketTicket(ticket)).unwrap();
-        toast.success('Ticket deleted successfully');
-      } catch (error) {
-        toast.error(error.message || 'Failed to delete ticket');
-      }
+    try {
+      await dispatch(deletePublicMarketTicket(ticket.ID)).unwrap();
+      toast.success('Ticket deleted successfully');
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete ticket');
     }
   };
 
@@ -59,8 +57,8 @@ const PublicMarketTicketPage = () => {
       key: 'StartTime',
       header: 'Start Time',
       accessorKey: 'startTime',
-      cell: ({ row }) =>
-        new Date(row.original.startTime).toLocaleString('en-US', {
+      render: (value) =>
+        new Date(value).toLocaleString('en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
@@ -72,8 +70,8 @@ const PublicMarketTicketPage = () => {
       key: 'EndTime',
       header: 'End Time',
       accessorKey: 'endTime',
-      cell: ({ row }) =>
-        new Date(row.original.endTime).toLocaleString('en-US', {
+      render: (value) =>
+        new Date(value).toLocaleString('en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
@@ -86,20 +84,19 @@ const PublicMarketTicketPage = () => {
       key: 'DateIssued',
       header: 'Date Issued',
       accessorKey: 'dateIssued',
-      cell: ({ row }) => new Date(row.original.dateIssued).toLocaleDateString(),
+      render: (value) => new Date(value).toLocaleDateString(),
     },
     {
       key: 'PostingPeriod',
       header: 'Posting Period',
       accessorKey: 'postingPeriod',
-      cell: ({ row }) =>
-        new Date(row.original.postingPeriod).toLocaleDateString(),
+      render: (value) => new Date(value).toLocaleDateString(),
     },
     {
       key: 'AmountIssued',
       header: 'Amount Issued',
       accessorKey: 'amountIssued',
-      cell: ({ row }) => `₱${row.original.amountIssued?.toLocaleString()}`,
+      render: (value) => `₱${value?.toLocaleString()}`,
     },
     { key: 'Remarks', header: 'Remarks', accessorKey: 'remarks' },
   ];

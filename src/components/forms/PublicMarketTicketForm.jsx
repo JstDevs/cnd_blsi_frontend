@@ -1,15 +1,13 @@
 // components/forms/PublicMarketTicketForm.js
-import { Formik, Form, useField } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { format, parseISO } from 'date-fns';
 import FormField from '../common/FormField';
-import Button from '../common/Button';
 import {
   addPublicMarketTicket,
-  updatePublicMarketTicket,
+  fetchPublicMarketTickets,
 } from '@/features/collections/PublicMarketTicketingSlice';
 
 const validationSchema = Yup.object().shape({
@@ -40,7 +38,6 @@ const initialValues = {
 
 const PublicMarketTicketForm = ({ ticket, onClose }) => {
   const dispatch = useDispatch();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formatInitialValues = (values) => {
     if (!values) return initialValues;
@@ -64,8 +61,6 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
 
   const handleSubmit = async (values) => {
     try {
-      setIsSubmitting(true);
-
       const submissionData = {
         Items: values.items,
         StartTime: new Date(values.startTime).toISOString(),
@@ -79,51 +74,27 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
 
       if (ticket) {
         await dispatch(
-          updatePublicMarketTicket({
+          addPublicMarketTicket({
+            IsNew: false,
             ID: ticket.ID,
             LinkID: ticket.LinkID,
             ...submissionData,
           })
         ).unwrap();
         toast.success('Ticket updated successfully');
+        dispatch(fetchPublicMarketTickets());
       } else {
-        await dispatch(addPublicMarketTicket(submissionData)).unwrap();
+        await dispatch(
+          addPublicMarketTicket({ IsNew: true, ...submissionData })
+        ).unwrap();
         toast.success('Ticket added successfully');
+        dispatch(fetchPublicMarketTickets());
       }
-      onClose();
     } catch (error) {
       toast.error(error.message || 'Something went wrong');
     } finally {
-      setIsSubmitting(false);
+      onClose();
     }
-  };
-  // Custom form field component that properly handles value and onChange
-  const FormikInput = ({ label, name, type = 'text', ...props }) => {
-    const [field, meta] = useField(name);
-
-    return (
-      <div className="space-y-1">
-        {label && (
-          <label className="block text-sm font-medium text-gray-700">
-            {label}
-          </label>
-        )}
-        <FormField
-          {...field}
-          {...props}
-          type={type}
-          value={field.value || ''}
-          onChange={field.onChange}
-          onBlur={field.onBlur}
-          className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-            meta.touched && meta.error ? 'border-red-500' : 'border-gray-300'
-          }`}
-        />
-        {meta.touched && meta.error && (
-          <div className="text-red-500 text-xs mt-1">{meta.error}</div>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -133,67 +104,127 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ isSubmitting, isValid, dirty, values }) => (
+      {({
+        isSubmitting,
+        isValid,
+        dirty,
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+      }) => (
         <Form className="space-y-6">
           {/* Items Field */}
-          <FormikInput
+          <FormField
             label="Items:"
             name="items"
             type="text"
             placeholder="Enter items"
+            required
+            error={touched.items && errors.items}
+            touched={touched.items}
+            value={values.items}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
 
           {/* Date and Time Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormikInput
+            <FormField
               label="Date Issued:"
               name="dateIssued"
               type="date"
               max={new Date().toISOString().split('T')[0]}
+              required
+              error={touched.dateIssued && errors.dateIssued}
+              touched={touched.dateIssued}
+              value={values.dateIssued}
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
-            <FormikInput
+            <FormField
               label="Posting Period:"
               name="postingPeriod"
               type="date"
               min={values.dateIssued}
+              max={new Date().toISOString().split('T')[0]}
+              required
+              error={touched.postingPeriod && errors.postingPeriod}
+              touched={touched.postingPeriod}
+              value={values.postingPeriod}
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormikInput
+            <FormField
               label="Start Time:"
               name="startTime"
               type="datetime-local"
+              max={values.postingPeriod}
+              required
+              error={touched.startTime && errors.startTime}
+              touched={touched.startTime}
+              value={values.startTime}
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
-            <FormikInput
+            <FormField
               label="End Time:"
               name="endTime"
               type="datetime-local"
               min={values.startTime}
+              max={values.postingPeriod}
+              required
+              error={touched.endTime && errors.endTime}
+              touched={touched.endTime}
+              value={values.endTime}
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
           </div>
 
-          <FormikInput
+          <FormField
             label="Issued By:"
             name="issuedBy"
             type="text"
             placeholder="Enter issuer name"
+            required
+            error={touched.issuedBy && errors.issuedBy}
+            touched={touched.issuedBy}
+            value={values.issuedBy}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
 
-          <FormikInput
+          <FormField
             label="Amount Issued:"
             name="amountIssued"
             type="number"
             placeholder="0.00"
             min="0"
             step="0.01"
+            required
+            error={touched.amountIssued && errors.amountIssued}
+            touched={touched.amountIssued}
+            value={values.amountIssued}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
 
-          <FormikInput
+          <FormField
             label="Remarks:"
             name="remarks"
             type="textarea"
             placeholder="Enter remarks"
+            required
+            error={touched.remarks && errors.remarks}
+            touched={touched.remarks}
+            value={values.remarks}
+            onChange={handleChange}
+            onBlur={handleBlur}
             rows={4}
           />
 
