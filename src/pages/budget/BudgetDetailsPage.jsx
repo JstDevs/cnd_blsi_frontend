@@ -1,399 +1,296 @@
-import React, { useEffect, useState } from 'react'
-import { PlusIcon } from '@heroicons/react/24/solid'
-import Modal from '../../components/common/Modal'
-import BudgetForm from '../../components/forms/BudgetForm'
-import { useSelector } from 'react-redux'
-import { toast } from 'react-hot-toast'
-import NoRecord from '../../components/Misc/NoRecord'
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { PlusIcon, PencilIcon, TrashIcon } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
-const API_URL = import.meta.env.VITE_API_URL
+import Modal from '@/components/common/Modal';
+import DataTable from '@/components/common/DataTable';
+import BudgetForm from '@/components/forms/BudgetForm';
+
+import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
+import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const BudgetDetailsPage = () => {
-  const { user } = useSelector((state) => state.auth)
-  const { departments } = useSelector((state) => state.departments)
-  const { subdepartments } = useSelector((state) => state.subdepartments)
-  const { accounts } = useSelector((state) => state.chartOfAccounts)
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { departments } = useSelector((state) => state.departments);
+  const { subdepartments } = useSelector((state) => state.subdepartments);
+  const accounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
 
-  const [data, setData] = useState([])
-  const [isOpen, setIsOpen] = useState(false)
-  const [activeRow, setActiveRow] = useState(false)
+  const [data, setData] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeRow, setActiveRow] = useState(null);
+  const [filters, setFilters] = useState({
+    department: '',
+    subDepartment: '',
+    chartOfAccounts: '',
+  });
 
-  const columns = [
-    'Name',
-    'Fiscal Year',
-    'Department',
-    'Sub Department',
-    'Chart of Accounts',
-    'Fund',
-    'Project',
-    'Appropriation',
-    'Appropriation Balance',
-    'Total Amount',
-    'Allotment',
-    'Allotment Balance',
-    'Charges',
-    'Pre Encumbr',
-    'Encumbrance',
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ]
+  useEffect(() => {
+    dispatch(fetchDepartments());
+    dispatch(fetchSubdepartments());
+    dispatch(fetchAccounts());
+    fetchBudgetDetails();
+  }, []);
 
   const fetchBudgetDetails = async () => {
     try {
-      const response = await fetch(`${API_URL}/budget`, { method: 'GET' })
-      const res = await response.json()
-      if (res?.status) {
-        const { items, status, ...rest } = res || {}
-        setData(res?.items || [])
+      const res = await fetch(`${API_URL}/budget`);
+      const json = await res.json();
+      if (json?.status) {
+        setData(json?.items || []);
       } else {
-        console.log('Something went wrong')
+        toast.error('Failed to fetch budget details');
       }
     } catch (error) {
-      throw new Error(error.message)
+      toast.error(error.message);
     }
-  }
+  };
 
-  const handleDelete = async (id) => {
-    try {
-      const response = await fetch(`${API_URL}/budget/${id}`, {
-        method: 'DELETE'
-      })
-      const res = await response.json()
-      if (res) {
-        fetchBudgetDetails()
-        toast.success('Budget deleted successfully')
-      }
-    } catch (error) {
-      throw new Error(error.message)
-    }
-  }
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (values) => {
+    activeRow ? handleUpdate(values) : handleCreate(values);
+  };
 
   const handleCreate = async (values) => {
     try {
-      const response = await fetch(`${API_URL}/budget`, {
+      const res = await fetch(`${API_URL}/budget`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          FiscalYearID: values?.fiscalYear,
-          FundID: values?.fund,
-          ProjectID: values?.project,
-          Name: values?.budgetName,
-          DepartmentID: values?.department,
-          SubDepartmentID: values?.subDepartment,
-          ChartofAccountsID: values?.chartOfAccounts,
-          Appropriation: values?.appropriation,
-          TotalAmount: values?.totalAmount,
-          AppropriationBalance: values?.charges,
-          Charges: values?.charges,
-          January: values?.january,
-          February: values?.february,
-          March: values?.march,
-          April: values?.april,
-          May: values?.may,
-          June: values?.june,
-          July: values?.july,
-          August: values?.august,
-          September: values?.september,
-          October: values?.october,
-          November: values?.november,
-          December: values?.december,
+          ...mapFormToPayload(values),
           CreatedBy: user?.UserName,
           CreatedDate: new Date().toISOString(),
           ModifyBy: user?.UserName,
-          ModifyDate: new Date().toISOString()
-        })
-      })
-      const res = await response.json()
-      if (res) {
-        fetchBudgetDetails()
-        setIsOpen(false)
-        toast.success('Budget added successfully')
+          ModifyDate: new Date().toISOString(),
+        }),
+      });
+      const json = await res.json();
+      if (json) {
+        fetchBudgetDetails();
+        setIsModalOpen(false);
+        toast.success('Budget added successfully');
       }
     } catch (error) {
-      throw new Error(error.message)
+      toast.error(error.message);
     }
-  }
+  };
 
   const handleUpdate = async (values) => {
     try {
-      const response = await fetch(`${API_URL}/budget/${values?.id}`, {
+      const res = await fetch(`${API_URL}/budget/${values?.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          FiscalYearID: values?.fiscalYear,
-          FundID: values?.fund,
-          ProjectID: values?.project,
-          Name: values?.budgetName,
-          DepartmentID: values?.department,
-          SubDepartmentID: values?.subDepartment,
-          ChartofAccountsID: values?.chartOfAccounts,
-          Appropriation: values?.appropriation,
-          TotalAmount: values?.totalAmount,
-          AppropriationBalance: values?.charges,
-          Charges: values?.charges,
-          January: values?.january,
-          February: values?.february,
-          March: values?.march,
-          April: values?.april,
-          May: values?.may,
-          June: values?.june,
-          July: values?.july,
-          August: values?.august,
-          September: values?.september,
-          October: values?.october,
-          November: values?.november,
-          December: values?.december,
-          CreatedBy: user?.UserName,
-          CreatedDate: new Date().toISOString(),
+          ...mapFormToPayload(values),
           ModifyBy: user?.UserName,
-          ModifyDate: new Date().toISOString()
-        })
-      })
-      const res = await response.json()
-      if (res) {
-        fetchBudgetDetails()
-        setIsOpen(false)
-        toast.success('Budget updated successfully')
+          ModifyDate: new Date().toISOString(),
+        }),
+      });
+      const json = await res.json();
+      if (json) {
+        fetchBudgetDetails();
+        setIsModalOpen(false);
+        toast.success('Budget updated successfully');
       }
     } catch (error) {
-      throw new Error(error.message)
+      toast.error(error.message);
     }
-  }
+  };
 
-  const handleSubmit = (values) => {
-    if (activeRow) {
-      handleUpdate(values)
-    } else {
-      handleCreate(values)
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/budget/${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json) {
+        fetchBudgetDetails();
+        toast.success('Budget deleted');
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
-  }
+  };
 
-  const handleEdit = (data) => {
-    setActiveRow(data)
-    setIsOpen(true)
-  }
+  const mapFormToPayload = (values) => ({
+    FiscalYearID: values?.fiscalYear,
+    FundID: values?.fund,
+    ProjectID: values?.project,
+    Name: values?.budgetName,
+    DepartmentID: values?.department,
+    SubDepartmentID: values?.subDepartment,
+    ChartofAccountsID: values?.chartOfAccounts,
+    Appropriation: values?.appropriation,
+    TotalAmount: values?.totalAmount,
+    AppropriationBalance: values?.charges,
+    Charges: values?.charges,
+    January: values?.january,
+    February: values?.february,
+    March: values?.march,
+    April: values?.april,
+    May: values?.may,
+    June: values?.june,
+    July: values?.july,
+    August: values?.august,
+    September: values?.september,
+    October: values?.october,
+    November: values?.november,
+    December: values?.december,
+  });
 
-  useEffect(() => {
-    if (data?.length === 0) {
-      fetchBudgetDetails()
-    }
-  }, [data])
+  const columns = [
+    { key: 'Name', header: 'Name' },
+    { key: 'FiscalYear', header: 'Fiscal Year' },
+    { key: 'Department.Name', header: 'Department' },
+    { key: 'SubDepartment.Name', header: 'Sub Department' },
+    { key: 'ChartofAccounts.Name', header: 'Chart of Accounts' },
+    { key: 'FundId', header: 'Fund' },
+    { key: 'ProjectID', header: 'Project' },
+    { key: 'Appropriation', header: 'Appropriation' },
+    { key: 'AppropriationBalance', header: 'Appropriation Balance' },
+    { key: 'TotalAmount', header: 'Total Amount' },
+    { key: 'Allotment', header: 'Allotment' },
+    { key: 'AllotmentBalance', header: 'Allotment Balance' },
+    { key: 'ChargedAllotment', header: 'Charges' },
+    { key: 'PreEncumbrance', header: 'Pre Encumbrance' },
+    { key: 'Encumbrance', header: 'Encumbrance' },
+    { key: 'January', header: 'January' },
+    { key: 'February', header: 'February' },
+    { key: 'March', header: 'March' },
+    { key: 'April', header: 'April' },
+    { key: 'May', header: 'May' },
+    { key: 'June', header: 'June' },
+    { key: 'July', header: 'July' },
+    { key: 'August', header: 'August' },
+    { key: 'September', header: 'September' },
+    { key: 'October', header: 'October' },
+    { key: 'November', header: 'November' },
+    { key: 'December', header: 'December' },
+  ];
+
+  const actions = [
+    {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: (row) => {
+        setActiveRow(row);
+        setIsModalOpen(true);
+      },
+      className: 'text-primary-600 hover:text-primary-900 p-1',
+    },
+    {
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: (row) => handleDelete(row?.ID),
+      className: 'text-red-600 hover:text-red-800 p-1',
+    },
+  ];
+
+  const filteredData = data.filter((item) => {
+    return (
+      (!filters.department || item.Department?.ID == filters.department) &&
+      (!filters.subDepartment ||
+        item.SubDepartment?.ID == filters.subDepartment) &&
+      (!filters.chartOfAccounts ||
+        item.ChartofAccounts?.ID == filters.chartOfAccounts)
+    );
+  });
 
   return (
-    <>
-      <section className='space-y-8'>
-        {/* TITLE */}
-        <h1 className='text-xl font-semibold text-gray-800'>Budget Details</h1>
-
-        <div className='space-y-4'>
-          {/* HEADER */}
-          <div className='flex flex-wrap gap-4 items-center justify-between'>
-            <div className='flex flex-wrap gap-3'>
-              <div className='w-full md:w-56'>
-                <input type='text' placeholder='Search...' />
-              </div>
-              <div>
-                <select name='department' id='department'>
-                  <option value=''>Select Department</option>
-                  {departments?.map((item) => (
-                    <option key={item?.ID} value={item?.ID}>
-                      {item?.Name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select name='subDepartment' id='subDepartment'>
-                  <option value=''>Select Sub Department</option>
-                  {subdepartments?.map((item) => (
-                    <option key={item?.ID} value={item?.ID}>
-                      {item?.Name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select name='chartOfAccounts' id='chartOfAccounts'>
-                  <option value=''>Select Account</option>
-                  {accounts?.map((item) => (
-                    <option key={item?.ID} value={item?.ID}>
-                      {item?.Name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div>
-              <button onClick={() => handleEdit(null)} className='btn'>
-                <PlusIcon className='-ml-0.5 mr-2 h-5 w-5' aria-hidden='true' />
-                Add
-              </button>
-            </div>
-          </div>
-          {/* COLUMNS */}
-          {data?.length > 0 ? (
-            <div className='overflow-x-auto'>
-              <div className='py-2 align-middle inline-block min-w-full '>
-                <div className='shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'>
-                  <table className='min-w-full divide-y divide-gray-200'>
-                    <thead className='bg-gray-50'>
-                      <tr>
-                        {columns?.map((item, index) => (
-                          <th            
-                            key={item}
-                            scope='col'
-                            className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                          >
-                            {item}
-                          </th>
-                        ))}
-                        <th
-                          scope='col'
-                          className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                        >
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className='bg-white divide-y divide-gray-200'>
-                      {data.map((item, index) => (
-                        <tr key={index}>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.Name || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.FiscalYear || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.Department?.Name || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.SubDepartment?.Name || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.ChartofAccounts?.Name || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.FundId || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.ProjectID || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.Appropriation || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.AppropriationBalance || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.TotalAmount || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.Allotment || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.AllotmentBalance || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.ChargedAllotment || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.PreEncumbrance || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.Encumbrance || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.January || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.February || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.March || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.April || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.May || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.June || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.June || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.August || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.September || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.October || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.November || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                            {item?.December || 'N/A'}
-                          </td>
-                          <td className='px-6 py-4 flex items-center space-x-4 text-right text-sm font-medium'>
-                            <button
-                              onClick={() => handleEdit(item)}
-                              className='text-indigo-600 hover:text-indigo-900 cursor-pointer'
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete(item?.ID)}
-                              className='text-indigo-600 hover:text-indigo-900 cursor-pointer'
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <NoRecord />
-          )}
+    <div className="page-container">
+      <div className="page-header flex justify-between items-center">
+        <div>
+          <h1>Budget Details</h1>
+          <p>View and manage detailed budget entries</p>
         </div>
-      </section>
+        <button
+          onClick={() => {
+            setActiveRow(null);
+            setIsModalOpen(true);
+          }}
+          className="btn btn-primary flex items-center"
+        >
+          <PlusIcon className="h-5 w-5 mr-2" />
+          Add Budget
+        </button>
+      </div>
 
+      {/* Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 my-4">
+        <select
+          name="department"
+          value={filters.department}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Department</option>
+          {departments?.map((d) => (
+            <option key={d.ID} value={d.ID}>
+              {d.Name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="subDepartment"
+          value={filters.subDepartment}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Sub Department</option>
+          {subdepartments?.map((s) => (
+            <option key={s.ID} value={s.ID}>
+              {s.Name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="chartOfAccounts"
+          value={filters.chartOfAccounts}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Chart of Account</option>
+          {accounts?.map((a) => (
+            <option key={a.ID} value={a.ID}>
+              {a.Name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        actions={actions}
+        pagination
+      />
+
+      {/* Modal */}
       <Modal
-        size='md'
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        title={activeRow ? 'Edit Budget' : 'Add New Budget'}
+        size="lg"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={activeRow ? 'Edit Budget' : 'Add Budget'}
       >
         <BudgetForm
           onSubmit={handleSubmit}
           initialData={activeRow}
-          onClose={() => setIsOpen(false)}
+          onClose={() => setIsModalOpen(false)}
         />
       </Modal>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default BudgetDetailsPage
+export default BudgetDetailsPage;

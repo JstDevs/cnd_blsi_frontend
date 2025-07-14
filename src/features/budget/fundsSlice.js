@@ -1,188 +1,133 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { toast } from 'react-hot-toast';
+
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Mock Data
-const mockFunds = [
-  { ID: 1, Name: 'Fund A', Code: 101 },
-  { ID: 2, Name: 'Fund B', Code: 102 },
-  { ID: 3, Name: 'Fund C', Code: 103 },
-];
+// Async Thunks
 export const fetchFunds = createAsyncThunk(
-  'funds/fetchFunds',
-  async (_, thunkAPI) => {
-    try {
-      const token = localStorage.getItem('token');
-
-      // const response = await fetch(`${API_URL}/fundsss`, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // });
-
-      // const res = await response.json();
-
-      // if (!response.ok) {
-      //   throw new Error(res.message || 'Failed to fetch');
-      // }
-
-      return mockFunds;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
-    }
+  'budgetFunds/fetchBudgetFunds',
+  async () => {
+    const response = await fetch(`${API_URL}/funds`, { method: 'GET' });
+    return await response.json();
   }
 );
 
-export const addFund = createAsyncThunk(
-  'funds/addFund',
-  async (fund, thunkAPI) => {
-    try {
-      const response = await fetch(`${API_URL}/funds`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(fund),
-      });
-
-      const res = await response.json();
-
-      if (!response.ok) {
-        throw new Error(res.message || 'Failed to add');
-      }
-
+export const createBudgetFund = createAsyncThunk(
+  'budgetFunds/createBudgetFund',
+  async (values) => {
+    const response = await fetch(`${API_URL}/funds`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ IsNew: true, ...values }),
+    });
+    const res = await response.json();
+    if (res) {
+      toast.success('Fund added successfully');
       return res;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
     }
+    throw new Error('Failed to create fund');
   }
 );
 
-export const updateFund = createAsyncThunk(
-  'funds/updateFund',
-  async (fund, thunkAPI) => {
-    try {
-      const response = await fetch(`${API_URL}/funds/${fund.ID}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(subFund),
-      });
-
-      const res = await response.json();
-
-      if (!response.ok) {
-        throw new Error(res.message || 'Failed to update');
-      }
-
+export const updateBudgetFund = createAsyncThunk(
+  'budgetFunds/updateBudgetFund',
+  async (values) => {
+    const response = await fetch(`${API_URL}/funds`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ IsNew: false, ...values }),
+    });
+    const res = await response.json();
+    if (res) {
+      toast.success('Fund updated successfully');
       return res;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
     }
+    throw new Error('Failed to update fund');
   }
 );
 
-export const deleteFund = createAsyncThunk(
-  'funds/deleteFund',
-  async (ID, thunkAPI) => {
-    try {
-      const response = await fetch(`${API_URL}/funds/${ID}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete');
-      }
-
-      return ID; // Return ID so you can remove it from Redux state
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+export const deleteBudgetFund = createAsyncThunk(
+  'budgetFunds/deleteBudgetFund',
+  async (id) => {
+    const response = await fetch(`${API_URL}/funds/${id}`, {
+      method: 'DELETE',
+    });
+    const res = await response.json();
+    if (res) {
+      toast.success('Fund deleted successfully');
+      return id;
     }
+    throw new Error('Failed to delete fund');
   }
 );
 
-const fundsSlice = createSlice({
-  name: 'funds',
+const budgetFundsSlice = createSlice({
+  name: 'budgetFunds',
   initialState: {
     funds: [],
-    isLoading: false,
+    loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // You can add synchronous reducers here if needed
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchFunds.pending, (state) => {
-        state.isLoading = true;
+        state.loading = true;
         state.error = null;
       })
       .addCase(fetchFunds.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.funds = Array.isArray(action.payload) ? action.payload : [];
+        state.loading = false;
+        state.funds = action.payload || [];
       })
       .addCase(fetchFunds.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch funds';
-        console.warn('Failed to fetch funds, using mock data.', state.error);
-        state.funds = mockFunds;
+        state.loading = false;
+        state.error = action.error.message;
+        toast.error('Failed to fetch budget funds');
       })
-      .addCase(addFund.pending, (state) => {
-        state.isLoading = true;
+      .addCase(createBudgetFund.pending, (state) => {
+        state.loading = true;
         state.error = null;
       })
-      .addCase(addFund.fulfilled, (state, action) => {
-        state.isLoading = false;
-        if (!Array.isArray(state.funds)) {
-          state.funds = [];
-        }
-        state.funds.push(action.payload);
+      .addCase(createBudgetFund.fulfilled, (state, action) => {
+        state.loading = false;
+        state.funds = [...state.funds, action.payload];
       })
-      .addCase(addFund.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to add fund';
-        console.error('Failed to add fund:', state.error);
+      .addCase(createBudgetFund.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        toast.error('Failed to create fund');
       })
-      .addCase(updateFund.pending, (state) => {
-        state.isLoading = true;
+      .addCase(updateBudgetFund.pending, (state) => {
+        state.loading = true;
         state.error = null;
       })
-      .addCase(updateFund.fulfilled, (state, action) => {
-        state.isLoading = false;
-        const index = state.funds.findIndex(
-          (item) => item.ID === action.payload.ID
+      .addCase(updateBudgetFund.fulfilled, (state, action) => {
+        state.loading = false;
+        state.funds = state.funds.map((item) =>
+          item.ID === action.payload.ID ? action.payload : item
         );
-        if (index !== -1) {
-          if (!Array.isArray(state.funds)) {
-            state.funds = [];
-          }
-          state.funds[index] = action.payload;
-        }
       })
-      .addCase(deleteFund.pending, (state) => {
-        state.isLoading = true;
+      .addCase(updateBudgetFund.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        toast.error('Failed to update fund');
+      })
+      .addCase(deleteBudgetFund.pending, (state) => {
+        state.loading = true;
         state.error = null;
       })
-      .addCase(deleteFund.fulfilled, (state, action) => {
-        state.isLoading = false;
-        if (!Array.isArray(state.funds)) {
-          state.funds = [];
-        }
+      .addCase(deleteBudgetFund.fulfilled, (state, action) => {
+        state.loading = false;
         state.funds = state.funds.filter((item) => item.ID !== action.payload);
       })
-      .addCase(deleteFund.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to delete fund';
-        console.error('Failed to delete fund:', state.error);
+      .addCase(deleteBudgetFund.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        toast.error('Failed to delete fund');
       });
   },
 });
 
-export const fundsReducer = fundsSlice.reducer;
+export default budgetFundsSlice.reducer;

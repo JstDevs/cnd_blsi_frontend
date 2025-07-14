@@ -1,28 +1,101 @@
-import React, { useState } from 'react'
-import { PlusIcon } from '@heroicons/react/24/solid'
-import Modal from '../../components/common/Modal'
-import BudgetSupplementalForm from '../../components/forms/BudgetSupplementalForm'
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PencilIcon, TrashIcon } from 'lucide-react';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import Modal from '@/components/common/Modal';
+import BudgetSupplementalForm from '@/components/forms/BudgetSupplementalForm';
+import { toast } from 'react-hot-toast';
+import DataTable from '@/components/common/DataTable';
+import { useEffect } from 'react';
+import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
+import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
 
 const BudgetSupplementalPage = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [activeRow, setActiveRow] = useState(false)
+  const dispatch = useDispatch();
+
+  const { departments, isLoading } = useSelector((state) => state.departments);
+  const { subdepartments, isLoading: subdepartmentsLoading } = useSelector(
+    (state) => state.subdepartments
+  );
+  const chartOfAccounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
+  useEffect(() => {
+    dispatch(fetchDepartments());
+    dispatch(fetchSubdepartments());
+    dispatch(fetchAccounts());
+  }, []);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeRow, setActiveRow] = useState(null);
+
+  const [filters, setFilters] = useState({
+    department: '',
+    subDepartment: '',
+    chartOfAccounts: '',
+  });
+
+  const handleEdit = (row) => {
+    setActiveRow(row);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (row) => {
+    toast.success(`Deleted ${row.Name}`);
+    // dispatch(deleteSupplemental(row.id)); // real call
+  };
+
+  const handleSubmit = (formValues) => {
+    if (activeRow) {
+      toast.success('Supplemental updated successfully');
+    } else {
+      toast.success('New supplemental added');
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
 
   const columns = [
-    'Name',
-    'Fiscal Year',
-    'Department',
-    'Sub Department',
-    'Chart of Accounts',
-    'Fund',
-    'Project',
-    'Appropriation',
-    'Appropriation Balance',
-    'Total Amount',
-    'Allotment',
-    'Allotment Balance'
-  ]
+    { key: 'Name', header: 'Name', sortable: true },
+    { key: 'FiscalYear', header: 'Fiscal Year', sortable: true },
+    { key: 'Department', header: 'Department', sortable: true },
+    { key: 'SubDepartment', header: 'Sub Department', sortable: true },
+    { key: 'ChartOfAccounts', header: 'Chart of Accounts', sortable: true },
+    { key: 'Fund', header: 'Fund', sortable: true },
+    { key: 'Project', header: 'Project', sortable: true },
+    { key: 'Appropriation', header: 'Appropriation', sortable: true },
+    {
+      key: 'AppropriationBalance',
+      header: 'Appropriation Balance',
+      sortable: true,
+    },
+    { key: 'TotalAmount', header: 'Total Amount', sortable: true },
+    { key: 'Allotment', header: 'Allotment', sortable: true },
+    { key: 'AllotmentBalance', header: 'Allotment Balance', sortable: true },
+  ];
 
-  const data = [
+  const actions = [
+    {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEdit,
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+    {
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: handleDelete,
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
+  ];
+
+  const allData = [
     {
       Name: 'Travelling E...',
       FiscalYear: 'january to d...',
@@ -35,21 +108,7 @@ const BudgetSupplementalPage = () => {
       AppropriationBalance: '-8,45,000.00',
       TotalAmount: '1,55,000.00',
       Allotment: '1,00,000.00',
-      AllotmentBalance: '1,00,000.00'
-    },
-    {
-      Name: 'Accountable...',
-      FiscalYear: 'january to d...',
-      Department: 'Accounting',
-      SubDepartment: 'Network Op...',
-      ChartOfAccounts: 'Accountable...',
-      Fund: 'General Fund',
-      Project: 'No Project',
-      Appropriation: '21.00',
-      AppropriationBalance: '0.00',
-      TotalAmount: '21.00',
-      Allotment: '250.00',
-      AllotmentBalance: '250.00'
+      AllotmentBalance: '1,00,000.00',
     },
     {
       Name: 'Investments',
@@ -63,205 +122,108 @@ const BudgetSupplementalPage = () => {
       AppropriationBalance: '60,000.00',
       TotalAmount: '60,000.00',
       Allotment: '0.00',
-      AllotmentBalance: '0.00'
+      AllotmentBalance: '0.00',
     },
-    {
-      Name: 'Cash - Local...',
-      FiscalYear: 'january to d...',
-      Department: 'Office of the...',
-      SubDepartment: 'Network Op...',
-      ChartOfAccounts: 'Cash - Local...',
-      Fund: 'General Fund',
-      Project: 'No Project',
-      Appropriation: '0.00',
-      AppropriationBalance: '0.00',
-      TotalAmount: '10.00',
-      Allotment: '0.00',
-      AllotmentBalance: '0.00'
-    },
-    {
-      Name: 'Allowance f...',
-      FiscalYear: 'january to d...',
-      Department: 'Office of the...',
-      SubDepartment: 'Network Op...',
-      ChartOfAccounts: 'Allowance f...',
-      Fund: 'General Fund',
-      Project: 'No Project',
-      Appropriation: '10,00,000.00',
-      AppropriationBalance: '7,20,000.00',
-      TotalAmount: '9,70,000.00',
-      Allotment: '2,50,000.00',
-      AllotmentBalance: '2,50,000.00'
-    },
-    {
-      Name: 'Due to LGUs',
-      FiscalYear: 'feb aug',
-      Department: 'Accounting',
-      SubDepartment: 'Payroll',
-      ChartOfAccounts: 'Due to LGUs',
-      Fund: 'General Fund',
-      Project: 'No Project',
-      Appropriation: '0.00',
-      AppropriationBalance: '0.00',
-      TotalAmount: '0.00',
-      Allotment: '1,00,000.00',
-      AllotmentBalance: '1,00,000.00'
-    }
-  ]
+    // ... more
+  ];
 
-  const handleSubmit = (values) => {
-    if (activeRow) {
-      console.log('Updated')
-    } else {
-      console.log('Created')
-    }
-  }
-
-  const handleEdit = (data) => {
-    setActiveRow(data)
-    setIsOpen(true)
-  }
+  // Apply filters to data
+  const filteredData = allData.filter((item) => {
+    return (
+      (!filters.department || item.Department === filters.department) &&
+      (!filters.subDepartment ||
+        item.SubDepartment === filters.subDepartment) &&
+      (!filters.chartOfAccounts ||
+        item.ChartOfAccounts === filters.chartOfAccounts)
+    );
+  });
 
   return (
-    <>
-      <section className='space-y-8'>
-        {/* TITLE */}
-        <h1 className='text-xl font-semibold text-gray-800'>
-          Budget Supplemental
-        </h1>
-        <div className='space-y-4'>
-          {/* HEADER */}
-          <div className='flex flex-wrap gap-4 items-center justify-between'>
-            <div className='flex flex-wrap gap-3'>
-              <div className='w-full md:w-56'>
-                <input type='text' placeholder='Search...' />
-              </div>
-              <div>
-                <select name='department' id='department'>
-                  <option value=''>Select Department</option>
-                  <option value='operation'>Operation</option>
-                  <option value='management'>Management</option>
-                </select>
-              </div>
-              <div>
-                <select name='subDepartment' id='subDepartment'>
-                  <option value=''>Select Sub Department</option>
-                  <option value='operation'>Operation</option>
-                  <option value='management'>Management</option>
-                </select>
-              </div>
-              <div>
-                <select name='chartOfAccounts' id='chartOfAccounts'>
-                  <option value=''>Select Account</option>
-                  <option value='operation'>Operation</option>
-                  <option value='management'>Management</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <button onClick={() => setIsOpen(true)} className='btn'>
-                <PlusIcon className='-ml-0.5 mr-2 h-5 w-5' aria-hidden='true' />
-                Add
-              </button>
-            </div>
-          </div>
-          {/* COLUMNS */}
-          <div className='overflow-x-auto'>
-            <div className='py-2 align-middle inline-block min-w-full '>
-              <div className='shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'>
-                <table className='min-w-full divide-y divide-gray-200'>
-                  <thead className='bg-gray-50'>
-                    <tr>
-                      {columns?.map((item, index) => (
-                        <th
-                          scope='col'
-                          className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                        >
-                          {item}
-                        </th>
-                      ))}
-                      <th
-                        scope='col'
-                        className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className='bg-white divide-y divide-gray-200'>
-                    {data.map((person) => (
-                      <tr key={person.email}>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Name}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.FiscalYear}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Department}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.SubDepartment}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.ChartOfAccounts}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Fund}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Project}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Appropriation}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.AppropriationBalance}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.TotalAmount}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Allotment}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.AllotmentBalance}
-                        </td>
-                        <td className='px-6 py-4 flex items-center space-x-4 text-right text-sm font-medium'>
-                          <button
-                            onClick={() => handleEdit(item)}
-                            className='text-indigo-600 hover:text-indigo-900 cursor-pointer'
-                          >
-                            Edit
-                          </button>
-                          <button className='text-indigo-600 hover:text-indigo-900 cursor-pointer'>
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+    <div className="page-container">
+      {/* Header */}
+      <div className="page-header flex justify-between items-center">
+        <div>
+          <h1>Budget Supplemental</h1>
+          <p>Manage your supplemental budgets here</p>
         </div>
-      </section>
+        <button
+          onClick={() => handleEdit(null)}
+          className="btn btn-primary flex items-center"
+        >
+          <PlusIcon className="h-5 w-5 mr-2" />
+          Add Supplemental
+        </button>
+      </div>
 
+      {/* Filters */}
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <select
+          name="department"
+          value={filters.department}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Department</option>
+          {departments?.map((d) => (
+            <option key={d.ID} value={d.Name}>
+              {d.Name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="subDepartment"
+          value={filters.subDepartment}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Sub Department</option>
+          {subdepartments?.map((sd) => (
+            <option key={sd.ID} value={sd.Name}>
+              {sd.Name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="chartOfAccounts"
+          value={filters.chartOfAccounts}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Chart of Account</option>
+          {chartOfAccounts?.map((c) => (
+            <option key={c.ID} value={c.Name}>
+              {c.Name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        loading={isLoading || subdepartmentsLoading}
+        actions={actions}
+        pagination={true}
+      />
+
+      {/* Modal */}
       <Modal
-        size='md'
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        title={activeRow ? 'Edit Request' : 'Add New Request'}
+        size="md"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={activeRow ? 'Edit Supplemental' : 'Add New Supplemental'}
       >
         <BudgetSupplementalForm
           onSubmit={handleSubmit}
           initialData={activeRow}
-          onClose={() => setIsOpen(false)}
+          onClose={() => setIsModalOpen(false)}
         />
       </Modal>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default BudgetSupplementalPage
+export default BudgetSupplementalPage;

@@ -1,22 +1,63 @@
-import React, { useState } from 'react'
-import { PlusIcon } from '@heroicons/react/24/solid'
-import Modal from '../../components/common/Modal'
-import BudgetForm from '../../components/forms/BudgetForm'
-import BudgetTransferForm from '../../components/forms/BudgetTransferForm'
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { PencilIcon, TrashIcon } from 'lucide-react';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import Modal from '@/components/common/Modal';
+import BudgetTransferForm from '@/components/forms/BudgetTransferForm';
+import { toast } from 'react-hot-toast';
+import DataTable from '@/components/common/DataTable'; // Assuming you have this
+import FormField from '@/components/common/FormField'; // For input fields
 
 const BudgetTransferPage = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [activeRow, setActiveRow] = useState(false)
+  const dispatch = useDispatch();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeRow, setActiveRow] = useState(null);
+
+  const handleEdit = (row) => {
+    setActiveRow(row);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (row) => {
+    toast.success(`Deleted ${row.InvoiceNumber}`);
+    // dispatch(deleteTransfer(row.id)); // Uncomment when integrated
+  };
+
+  const handleSubmit = (formValues) => {
+    if (activeRow) {
+      toast.success('Transfer updated successfully');
+    } else {
+      toast.success('New transfer added');
+    }
+    setIsModalOpen(false);
+  };
 
   const columns = [
-    'InvoiceNumber',
-    'Budget',
-    'Status',
-    'InvoiceDate',
-    'Total',
-    'Remarks'
-  ]
+    { key: 'InvoiceNumber', header: 'Invoice #', sortable: true },
+    { key: 'Budget', header: 'Budget', sortable: true },
+    { key: 'Status', header: 'Status', sortable: true },
+    { key: 'InvoiceDate', header: 'Invoice Date', sortable: true },
+    { key: 'Total', header: 'Total', sortable: true, numeric: true },
+    { key: 'Remarks', header: 'Remarks', sortable: false },
+  ];
 
+  const actions = [
+    {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEdit,
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+    {
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: handleDelete,
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
+  ];
   const data = [
     {
       InvoiceNumber: 'BT-18-2025',
@@ -24,7 +65,7 @@ const BudgetTransferPage = () => {
       Status: 'Posted',
       InvoiceDate: '03-03-2025',
       Total: '5,000.00',
-      Remarks: ''
+      Remarks: '',
     },
     {
       InvoiceNumber: 'BT-17-2025',
@@ -32,146 +73,50 @@ const BudgetTransferPage = () => {
       Status: 'Posted',
       InvoiceDate: '25-02-2025',
       Total: '99,00,000.00',
-      Remarks: 'testing'
+      Remarks: 'testing',
     },
-    {
-      InvoiceNumber: 'BT-16-2025',
-      Budget: 'Electricity Expenses',
-      Status: 'Posted',
-      InvoiceDate: '23-02-2025',
-      Total: '10.00',
-      Remarks: 'fasd'
-    },
-    {
-      InvoiceNumber: 'BT-15-2025',
-      Budget: 'Allowance for Officers',
-      Status: 'Posted',
-      InvoiceDate: '20-02-2025',
-      Total: '10,00,000.00',
-      Remarks: ''
-    },
-    {
-      InvoiceNumber: 'BT-14-2024',
-      Budget: 'Electricity Expenses',
-      Status: 'Posted',
-      InvoiceDate: '15-01-2025',
-      Total: '1,000.00',
-      Remarks: 'test'
-    }
-  ]
-
-  const handleSubmit = (values) => {
-    if (activeRow) {
-      console.log('Updated')
-    } else {
-      console.log('Created')
-    }
-  }
-
-  const handleEdit = (data) => {
-    setActiveRow(data)
-    setIsOpen(true)
-  }
+    // more...
+  ];
 
   return (
-    <>
-      <section className='space-y-8'>
-        {/* TITLE */}
-        <h1 className='text-xl font-semibold text-gray-800'>Budget Transfer</h1>
-        <div className='space-y-4'>
-          {/* HEADER */}
-          <div className='flex flex-wrap gap-4 items-center justify-between'>
-            <div className='flex flex-wrap gap-3'>
-              <div className='w-full md:w-56'>
-                <input type='text' placeholder='Search...' />
-              </div>
-            </div>
-            <div>
-              <button onClick={() => handleEdit(null)} className='btn'>
-                <PlusIcon className='-ml-0.5 mr-2 h-5 w-5' aria-hidden='true' />
-                Add
-              </button>
-            </div>
-          </div>
-          {/* COLUMNS */}
-          <div className='overflow-x-auto'>
-            <div className='py-2 align-middle inline-block min-w-full '>
-              <div className='shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'>
-                <table className='min-w-full divide-y divide-gray-200'>
-                  <thead className='bg-gray-50'>
-                    <tr>
-                      {columns?.map((item, index) => (
-                        <th
-                          scope='col'
-                          className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                        >
-                          {item}
-                        </th>
-                      ))}
-                      <th
-                        scope='col'
-                        className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className='bg-white divide-y divide-gray-200'>
-                    {data.map((item, index) => (
-                      <tr key={index}>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.InvoiceNumber}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Budget}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Status}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.InvoiceDate}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Total}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Remarks === '' ? 'N/A' : item.Remarks}
-                        </td>
-                        <td className='px-6 py-4 flex items-center space-x-4 text-right text-sm font-medium'>
-                          <button
-                            onClick={() => handleEdit(item)}
-                            className='text-indigo-600 hover:text-indigo-900 cursor-pointer'
-                          >
-                            Edit
-                          </button>
-                          <button className='text-indigo-600 hover:text-indigo-900 cursor-pointer'>
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+    <div className="page-container">
+      {/* Header */}
+      <div className="page-header flex justify-between items-center">
+        <div>
+          <h1>Budget Transfer</h1>
+          <p>Manage your budget transfers here</p>
         </div>
-      </section>
+        <button
+          onClick={() => handleEdit(null)}
+          className="btn btn-primary flex items-center"
+        >
+          <PlusIcon className="h-5 w-5 mr-2" />
+          Add Transfer
+        </button>
+      </div>
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        data={data}
+        actions={actions}
+        pagination={true}
+      />
 
+      {/* Modal */}
       <Modal
-        size='md'
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        size="md"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         title={activeRow ? 'Edit Transfer' : 'Add New Transfer'}
       >
         <BudgetTransferForm
           onSubmit={handleSubmit}
           initialData={activeRow}
-          onClose={() => setIsOpen(false)}
+          onClose={() => setIsModalOpen(false)}
         />
       </Modal>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default BudgetTransferPage
+export default BudgetTransferPage;

@@ -1,46 +1,46 @@
-import { Formik, Form } from 'formik'
-import * as Yup from 'yup'
-import FormField from '../common/FormField'
-import { useEffect, useState } from 'react'
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import FormField from '../common/FormField';
+import { useEffect, useState } from 'react';
 
 const validationSchema = Yup.object({
-  code: Yup.string().required('Code is required'),
-  name: Yup.string().required('Name is required'),
-  desc: Yup.string().required('Description is required'),
-  amount: Yup.number()
+  Code: Yup.string().required('Code is required'),
+  Name: Yup.string().required('Name is required'),
+  Description: Yup.string().required('Description is required'),
+  Amount: Yup.number()
     .required('Amount is required')
-    .min(0, 'Amount must be positive')
-})
+    .min(0, 'Amount must be positive'),
+});
 
 const initialValues = {
-  code: '',
-  name: '',
-  desc: '',
-  amount: 0
-}
+  Code: '',
+  Name: '',
+  Description: '',
+  Amount: 0,
+};
 
 function BudgetFundForm({ initialData, onSubmit, onClose }) {
-  const [formData, setFormData] = useState({ ...initialValues })
+  const [formData, setFormData] = useState({ ...initialValues });
 
   const handleSubmit = (values, { setSubmitting }) => {
-    onSubmit(values)
-    setSubmitting(false)
-    console.log('Form submitted with values:', values)
-  }
+    onSubmit(values);
+    setSubmitting(false);
+    console.log('Form submitted with values:', values);
+  };
 
   useEffect(() => {
     if (initialData?.ID) {
       setFormData({
-        id: initialData?.ID || '',
-        code: initialData?.Code || '',
-        name: initialData?.Name || '',
-        desc: initialData?.Description || '',
-        amount: initialData?.OriginalAmount || ''
-      })
+        ID: initialData?.ID || '',
+        Code: initialData?.Code || '',
+        Name: initialData?.Name || '',
+        Description: initialData?.Description || '',
+        Amount: initialData?.OriginalAmount || '',
+      });
     } else {
-      setFormData(initialValues)
+      setFormData(initialValues);
     }
-  }, [initialData])
+  }, [initialData]);
 
   return (
     <Formik
@@ -55,68 +55,72 @@ function BudgetFundForm({ initialData, onSubmit, onClose }) {
         touched,
         handleChange,
         handleBlur,
-        isSubmitting
+        isSubmitting,
       }) => (
-        <Form className='space-y-4'>
-          <div className='grid grid-cols-1 gap-2'>
+        <Form className="space-y-4">
+          <div className="grid grid-cols-1 gap-2">
             <FormField
-              label='Code'
-              name='code'
-              type='text'
+              label="Code"
+              name="Code"
+              type="text"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.code}
-              error={errors.code}
-              touched={touched.code}
+              value={values.Code}
+              error={errors.Code}
+              touched={touched.Code}
+              placeholder="e.g., 1-01-01-010"
               required
             />
             <FormField
-              label='Name'
-              name='name'
-              type='text'
+              label="Name"
+              name="Name"
+              type="text"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.name}
-              error={errors.name}
-              touched={touched.name}
+              value={values.Name}
+              error={errors.Name}
+              touched={touched.Name}
+              placeholder="Enter Name "
               required
             />
             <FormField
-              label='Amount'
-              name='amount'
-              type='text'
+              label="Amount"
+              name="Amount"
+              type="text"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.amount}
-              error={errors.amount}
-              touched={touched.amount}
+              value={values.Amount}
+              error={errors.Amount}
+              touched={touched.Amount}
+              placeholder="Enter Amount "
               required
             />
             <FormField
-              name='desc'
-              type='textarea'
-              label='Description'
+              name="Description"
+              type="textarea"
+              label="Description"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.desc}
-              error={errors.desc}
-              touched={touched.desc}
+              value={values.Description}
+              error={errors.Description}
+              touched={touched.Description}
+              placeholder="Enter Description"
               required
             />
           </div>
 
-          <div className='flex justify-end space-x-3'>
+          <div className="flex justify-end space-x-3">
             <button
-              type='button'
+              type="button"
               onClick={onClose}
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Cancel
             </button>
             <button
-              type='submit'
+              type="submit"
               disabled={isSubmitting}
-              className='px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               {initialData ? 'Update' : 'Save'}
             </button>
@@ -124,7 +128,7 @@ function BudgetFundForm({ initialData, onSubmit, onClose }) {
         </Form>
       )}
     </Formik>
-  )
+  );
 }
 
-export default BudgetFundForm
+export default BudgetFundForm;

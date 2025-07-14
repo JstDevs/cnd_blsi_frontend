@@ -1,155 +1,200 @@
-import React, { useState } from 'react'
-import { PlusIcon } from '@heroicons/react/24/solid'
-import Modal from '../../components/common/Modal'
-import BudgetFundForm from '../../components/forms/BudgetFundForm'
-import BudgetSubFundsForm from '../../components/forms/BudgetSubFundsForm'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Modal from '../../components/common/Modal';
+import BudgetSubFundsForm from '../../components/forms/BudgetSubFundsForm';
+import DataTable from '../../components/common/DataTable';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import {
+  fetchSubFunds,
+  addSubFund,
+  updateSubFund,
+  deleteSubFund,
+} from '@/features/budget/subFundsSlice'; // Update the import path as needed
+import { fetchFunds } from '@/features/budget/fundsSlice';
 
 const BudgetSubFundsPage = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [activeRow, setActiveRow] = useState(false)
+  const dispatch = useDispatch();
+  const { subFunds, isLoading } = useSelector((state) => state.subFunds);
+  const { funds, loading } = useSelector((state) => state.funds);
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeRow, setActiveRow] = useState(null);
 
-  const columns = ['Fund', 'Code', 'Name', 'Description', 'Amount']
+  const columns = [
+    {
+      key: 'FundsID',
+      header: 'Funds ID',
+      sortable: true,
+      className: 'font-medium text-neutral-900',
+      render: (value) => value || '—',
+    },
+    {
+      key: 'Code',
+      header: 'Code',
+      sortable: true,
+      render: (value) => <span className="font-medium">{value || '—'}</span>,
+    },
+    {
+      key: 'Name',
+      header: 'Name',
+      sortable: true,
+      render: (value) => <span className="font-medium">{value || '—'}</span>,
+    },
+    {
+      key: 'Description',
+      header: 'Description',
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-600">{value || 'No description'}</span>
+      ),
+    },
+    {
+      key: 'Amount',
+      header: 'Amount',
+      sortable: true,
+      className: 'text-right',
+      render: (value) => (
+        <span className="font-medium">
+          {value ? formatCurrency(value) : '—'}
+        </span>
+      ),
+    },
+  ];
 
-  const data = [
+  const actions = [
     {
-      Fund: 'General Fund',
-      Code: '20%',
-      Name: '20% Fund',
-      Description: 'The twenty percent fund.',
-      Amount: '12,000.00'
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: (row) => handleEdit(row),
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
-      Fund: 'General Fund',
-      Code: 'GF',
-      Name: 'General Fund',
-      Description: 'The main general fund.',
-      Amount: '20,000.00'
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: (row) => handleDelete(row),
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
-    {
-      Fund: 'Special Education Fund',
-      Code: 'SEF',
-      Name: 'Special Education Fund',
-      Description: 'The main special education fund.',
-      Amount: '35,000.00'
-    },
-    {
-      Fund: 'Trust Fund',
-      Code: 'TF',
-      Name: 'Trust Fund',
-      Description: 'The main trust fund.',
-      Amount: '25,000.00'
+  ];
+
+  // Currency formatter
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+    }).format(value);
+  };
+
+  const handleDelete = async (row) => {
+    try {
+      await dispatch(deleteSubFund(row.ID)).unwrap();
+      toast.success('Sub fund deleted successfully');
+    } catch (error) {
+      toast.error(error.payload || 'Failed to delete sub fund');
+      console.error(error);
     }
-  ]
+  };
 
-  const handleSubmit = (values) => {
-    if (activeRow) {
-      console.log('Updated')
-    } else {
-      console.log('Created')
+  const handleSubmit = async (values) => {
+    try {
+      if (activeRow) {
+        const updateData = {
+          IsNew: false,
+          ID: activeRow.ID,
+          FundsID: values.fund,
+          Code: values.code,
+          Name: values.name,
+          Description: values.desc,
+          Amount: values.amount,
+        };
+        await dispatch(updateSubFund(updateData)).unwrap();
+        toast.success('Sub fund updated successfully');
+      } else {
+        const createData = {
+          IsNew: true,
+          FundsID: values.fund,
+          Code: values.code,
+          Name: values.name,
+          Description: values.desc,
+          Amount: values.amount,
+        };
+        await dispatch(addSubFund(createData)).unwrap();
+        toast.success('Sub fund added successfully');
+      }
+      dispatch(fetchSubFunds());
+      setIsOpen(false);
+      setActiveRow(null);
+    } catch (error) {
+      toast.error(error.payload || 'Failed to save sub fund');
+      console.error(error);
     }
-  }
+  };
 
   const handleEdit = (data) => {
-    setActiveRow(data)
-    setIsOpen(true)
-  }
+    setActiveRow(data);
+    setIsOpen(true);
+  };
 
+  const handleViewSubFund = (row) => {
+    console.log('View row:', row);
+  };
+
+  useEffect(() => {
+    dispatch(fetchSubFunds());
+    dispatch(fetchFunds());
+  }, [dispatch]);
+  const fundsOptions = funds?.map((item) => ({
+    value: item.ID,
+    label: item.Name,
+  }));
   return (
     <>
-      <section className='space-y-8'>
-        {/* TITLE */}
-        <h1 className='text-xl font-semibold text-gray-800'>Sub Funds</h1>
-        <div className='space-y-4'>
-          {/* HEADER */}
-          <div className='flex flex-wrap gap-4 items-center justify-between'>
-            <div className='flex flex-wrap gap-3'>
-              <div className='w-full md:w-56'>
-                <input type='text' placeholder='Search...' />
-              </div>
-            </div>
-            <div>
-              <button onClick={() => handleEdit(null)} className='btn'>
-                <PlusIcon className='-ml-0.5 mr-2 h-5 w-5' aria-hidden='true' />
-                Add
-              </button>
-            </div>
+      <div className="page-header">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1>Sub Funds</h1>
+            <p>Manage budget sub funds and allocations</p>
           </div>
-          {/* COLUMNS */}
-          <div className='overflow-x-auto'>
-            <div className='py-2 align-middle inline-block min-w-full '>
-              <div className='shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'>
-                <table className='min-w-full divide-y divide-gray-200'>
-                  <thead className='bg-gray-50'>
-                    <tr>
-                      {columns?.map((item, index) => (
-                        <th
-                          scope='col'
-                          className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                        >
-                          {item}
-                        </th>
-                      ))}
-                      <th
-                        scope='col'
-                        className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className='bg-white divide-y divide-gray-200'>
-                    {data.map((item, index) => (
-                      <tr key={index}>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Fund}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Code}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Name}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Description}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {item.Amount}
-                        </td>
-                        <td className='px-6 py-4 flex items-center space-x-4 text-right text-sm font-medium'>
-                          <button
-                            onClick={() => handleEdit(item)}
-                            className='text-indigo-600 hover:text-indigo-900 cursor-pointer'
-                          >
-                            Edit
-                          </button>
-                          <button className='text-indigo-600 hover:text-indigo-900 cursor-pointer'>
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          <div className="flex space-x-2">
+            <button
+              type="button"
+              onClick={() => handleEdit(null)}
+              className="btn btn-primary flex items-center"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Sub Fund
+            </button>
           </div>
         </div>
-      </section>
+      </div>
+
+      <div className="mt-4">
+        <DataTable
+          columns={columns}
+          data={subFunds}
+          actions={actions}
+          loading={isLoading || loading}
+          onRowClick={handleViewSubFund}
+        />
+      </div>
 
       <Modal
-        size='sm'
+        size="sm"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title={activeRow ? 'Edit Sub-Fund' : 'Add New Sub-Fund'}
+        title={activeRow ? 'Edit Sub Fund' : 'Add New Sub Fund'}
       >
         <BudgetSubFundsForm
           onSubmit={handleSubmit}
           initialData={activeRow}
+          funds={fundsOptions}
           onClose={() => setIsOpen(false)}
         />
       </Modal>
     </>
-  )
-}
+  );
+};
 
-export default BudgetSubFundsPage
+export default BudgetSubFundsPage;

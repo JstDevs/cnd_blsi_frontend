@@ -13,7 +13,7 @@ import employeeReducer from '../features/settings/employeeSlice';
 import obligationRequestReducer from '../features/disbursement/obligationRequestSlice';
 import fundUtilizationReducer from '../features/disbursement/fundUtilizationSlice';
 import disbursementVoucherReducer from '../features/disbursement/disbursementVoucherSlice';
-import {travelOrderReducer} from '../features/disbursement/travelOrderSlice';
+import { travelOrderReducer } from '../features/disbursement/travelOrderSlice';
 import generalReceiptReducer from '../features/collections/generalReceiptSlice';
 import ppeReducer from '../features/settings/ppeSlice';
 import approvalMatrixReducer from '../features/settings/approvalMatrixSlice';
@@ -51,7 +51,7 @@ import { ppeCategoriesReducer } from '../features/settings/ppeCategoriesSlice';
 import { ppeSuppliersReducer } from '../features/settings/ppeSuppliersSlice';
 
 import { subFundsReducer } from '../features/budget/subFundsSlice';
-import { fundsReducer } from '../features/budget/fundsSlice';
+import budgetFundsSlice from '../features/budget/fundsSlice';
 import { budgetDashboardReducer } from '../features/budget/budgetDashboardSlice';
 import { vendorDetailsReducer } from '../features/settings/vendorDetailsSlice';
 import { customersReducer } from '../features/settings/customersSlice';
@@ -135,7 +135,7 @@ export const store = configureStore({
     financialStatementsReports: financialStatementReportsReducer,
     budget: budgetReducer,
     subFunds: subFundsReducer,
-    funds: fundsReducer,
+    funds: budgetFundsSlice,
     budgetDashboard: budgetDashboardReducer,
     vendorDetails: vendorDetailsReducer,
     // ----------------COLLECTION SLICE-------------

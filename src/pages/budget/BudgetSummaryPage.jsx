@@ -1,225 +1,166 @@
-import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import DataTable from '@/components/common/DataTable';
+import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
+import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
 const BudgetSummaryPage = () => {
-  const { departments } = useSelector((state) => state.departments)
-  const { subdepartments } = useSelector((state) => state.subdepartments)
-  const { accounts } = useSelector((state) => state.chartOfAccounts)
+  const dispatch = useDispatch();
 
-  const [data, setData] = useState([])
+  const { departments, isLoading: departmentsLoading } = useSelector(
+    (state) => state.departments
+  );
+  const { subdepartments, isLoading: subdepartmentsLoading } = useSelector(
+    (state) => state.subdepartments
+  );
+  const accounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
 
-  const columns = [
-    'Name',
-    'Fiscal Year',
-    'Department',
-    'Sub Department',
-    'Chart of Accounts',
-    'Fund',
-    'Project',
-    'Appropriation',
-    'Appropriation Balance',
-    'Total Amount',
-    'Allotment',
-    'Allotment Balance',
-    'Charges',
-    'Pre Encumbr',
-    'Encumbrance',
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ]
+  const [data, setData] = useState([]);
+  const [filters, setFilters] = useState({
+    department: '',
+    subDepartment: '',
+    chartOfAccounts: '',
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    dispatch(fetchDepartments());
+    dispatch(fetchSubdepartments());
+    dispatch(fetchAccounts());
+    fetchBudgetSummaries();
+  }, []);
 
   const fetchBudgetSummaries = async () => {
     try {
-      const response = await fetch(`${API_URL}/budget/budgetlist`, {
-        method: 'GET'
-      })
-      const res = await response.json()
-      if (res.success) {
-        setData(res.data || [])
-      } else {
-        console.log('Something went wrong')
-      }
-    } catch (error) {
-      throw new Error(error.message)
-    }
-  }
+      setLoading(true);
+      const response = await fetch(`${API_URL}/budgetSummary/`);
+      const res = await response.json();
 
-  useEffect(() => {
-    if (data?.length === 0) {
-      fetchBudgetSummaries()
+      setData(res || []);
+    } catch (error) {
+      console.error('Error fetching budget summaries:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [data])
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const filteredData = data.filter((item) => {
+    return (
+      (!filters.department || item.Department?.Name === filters.department) &&
+      (!filters.subDepartment ||
+        item.SubDepartment?.Name === filters.subDepartment) &&
+      (!filters.chartOfAccounts ||
+        item.ChartOfAccounts === filters.chartOfAccounts)
+    );
+  });
+
+  const columns = [
+    { key: 'Name', header: 'Name', sortable: true },
+    { key: 'FiscalYearID', header: 'Fiscal Year', sortable: true },
+    { key: 'Department', header: 'Department', sortable: true },
+    { key: 'SubDepartment', header: 'Sub Department', sortable: true },
+    { key: 'ChartOfAccounts', header: 'Chart of Accounts', sortable: true },
+    { key: 'Funds', header: 'Fund', sortable: true },
+    { key: 'Project', header: 'Project', sortable: true },
+    { key: 'Appropriation', header: 'Appropriation', sortable: true },
+    {
+      key: 'AppropriationBalance',
+      header: 'Appropriation Balance',
+      sortable: true,
+    },
+    { key: 'TotalAmount', header: 'Total Amount', sortable: true },
+    { key: 'ChargedAllotment', header: 'Allotment', sortable: true },
+    { key: 'AllotmentBalance', header: 'Allotment Balance', sortable: true },
+    { key: 'Charges', header: 'Charges', sortable: true },
+    { key: 'PreEncumbrance', header: 'Pre Encumbr.', sortable: true },
+    { key: 'Encumbrance', header: 'Encumbrance', sortable: true },
+    { key: 'January', header: 'January', sortable: true },
+    { key: 'February', header: 'February', sortable: true },
+    { key: 'March', header: 'March', sortable: true },
+    { key: 'April', header: 'April', sortable: true },
+    { key: 'May', header: 'May', sortable: true },
+    { key: 'June', header: 'June', sortable: true },
+    { key: 'July', header: 'July', sortable: true },
+    { key: 'August', header: 'August', sortable: true },
+    { key: 'September', header: 'September', sortable: true },
+    { key: 'October', header: 'October', sortable: true },
+    { key: 'November', header: 'November', sortable: true },
+    { key: 'December', header: 'December', sortable: true },
+  ];
 
   return (
-    <>
-      <section className='space-y-8'>
-        {/* TITLE */}
-        <h1 className='text-xl font-semibold text-gray-800'>Budget Summary</h1>
-        <div className='space-y-4'>
-          {/* HEADER */}
-          <div className='flex flex-wrap gap-4 items-center justify-between'>
-            <div className='flex flex-wrap gap-3'>
-              <div className='w-full md:w-56'>
-                <input type='text' placeholder='Search...' />
-              </div>
-              <div>
-                <select name='department' id='department'>
-                  <option value=''>Select Department</option>
-                  {departments?.map((item) => (
-                    <option key={item?.ID} value={item?.ID}>
-                      {item?.Name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select name='subDepartment' id='subDepartment'>
-                  <option value=''>Select Sub Department</option>
-                  {subdepartments?.map((item) => (
-                    <option key={item?.ID} value={item?.ID}>
-                      {item?.Name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select name='chartOfAccounts' id='chartOfAccounts'>
-                  <option value=''>Select Account</option>
-                  {accounts?.map((item) => (
-                    <option key={item?.ID} value={item?.ID}>
-                      {item?.Name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div></div>
-          </div>
-          {/* COLUMNS */}
-          <div className='overflow-x-auto'>
-            <div className='py-2 align-middle inline-block min-w-full '>
-              <div className='shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'>
-                <table className='min-w-full divide-y divide-gray-200'>
-                  <thead className='bg-gray-50'>
-                    <tr>
-                      {columns?.map((item, index) => (
-                        <th
-                          key={index}
-                          scope='col'
-                          className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                        >
-                          {item}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className='bg-white divide-y divide-gray-200'>
-                    {data?.map((person) => (
-                      <tr key={person.email}>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.Name || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.FiscalYearID || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.Department?.Name || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.SubDepartment?.Name || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.ChartOfAccounts || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.Funds?.Name || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.Project?.Name || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.Appropriation || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.AppropriationBalance || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.TotalAmount || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.ChargedAllotment || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.AllotmentBalance || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.Charges || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.PreEncumbrance || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.Encumbrance || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.January || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.February || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.March || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.April || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.May || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.June || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.June || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.August || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.September || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.October || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.November || 'N/A'}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person?.December || 'N/A'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
-  )
-}
+    <div className="page-container">
+      {/* Header */}
+      <div className="page-header">
+        <h1>Budget Summary</h1>
+        <p>Review the budget performance across months and categories.</p>
+      </div>
 
-export default BudgetSummaryPage
+      {/* Filters */}
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <select
+          name="department"
+          value={filters.department}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Department</option>
+          {departments?.map((d) => (
+            <option key={d.ID} value={d.Name}>
+              {d.Name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="subDepartment"
+          value={filters.subDepartment}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Sub Department</option>
+          {subdepartments?.map((sd) => (
+            <option key={sd.ID} value={sd.Name}>
+              {sd.Name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="chartOfAccounts"
+          value={filters.chartOfAccounts}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Chart of Account</option>
+          {accounts?.map((a) => (
+            <option key={a.ID} value={a.Name}>
+              {a.Name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Data Table */}
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        loading={loading || departmentsLoading || subdepartmentsLoading}
+        pagination={true}
+      />
+    </div>
+  );
+};
+
+export default BudgetSummaryPage;

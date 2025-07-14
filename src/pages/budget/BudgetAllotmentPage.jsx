@@ -1,64 +1,66 @@
-import React, { useEffect, useState } from 'react'
-import { PlusIcon } from '@heroicons/react/24/solid'
-import Modal from '../../components/common/Modal'
-import BudgetAllotmentForm from '../../components/forms/BudgetAllotmentForm'
-import { useSelector } from 'react-redux'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PlusIcon } from '@heroicons/react/24/solid';
+import { PencilIcon } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
-const API_URL = import.meta.env.VITE_API_URL
+import Modal from '@/components/common/Modal';
+import BudgetAllotmentForm from '@/components/forms/BudgetAllotmentForm';
+import DataTable from '@/components/common/DataTable';
+
+import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
+import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const BudgetAllotmentPage = () => {
-  const { user } = useSelector((state) => state.auth)
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
-  const [data, setData] = useState([])
-  const [isOpen, setIsOpen] = useState(false)
-  const [activeRow, setActiveRow] = useState(false)
+  const { departments } = useSelector((state) => state.departments);
+  const { subdepartments } = useSelector((state) => state.subdepartments);
+  const accounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
 
-  const columns = [
-    'Name',
-    'Fiscal Year',
-    'Department',
-    'Sub Department',
-    'Chart of Accounts',
-    'Fund',
-    'Project',
-    'Appropriation',
-    'Appropriation Balance',
-    'Total Amount',
-    'Allotment',
-    'Allotment Balance'
-  ]
+  const [data, setData] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeRow, setActiveRow] = useState(null);
+
+  const [filters, setFilters] = useState({
+    department: '',
+    subDepartment: '',
+    chartOfAccounts: '',
+  });
+
+  useEffect(() => {
+    dispatch(fetchDepartments());
+    dispatch(fetchSubdepartments());
+    dispatch(fetchAccounts());
+    fetchBudgetAllotments();
+  }, []);
 
   const fetchBudgetAllotments = async () => {
     try {
-      const response = await fetch(`${API_URL}/getAllotmentList`, {
-        method: 'GET'
-      })
-      const res = await response.json()
-      if (res?.status) {
-        const { data, status } = res || {}
-        setData(data || [])
-      } else {
-        console.log('Something went wrong')
-      }
-    } catch (error) {
-      throw new Error(error.message)
-    }
-  }
+      const res = await fetch(`${API_URL}/budgetAllotment/getAll`);
+      const data = await res.json();
 
-  const handleDelete = async (id) => {
-    try {
-      const response = await fetch(`${API_URL}/budget/${id}`, {
-        method: 'DELETE'
-      })
-      const res = await response.json()
-      if (res) {
-        fetchBudgetAllotments()
-        toast.success('Allotment deleted successfully')
-      }
+      setData(data);
     } catch (error) {
-      throw new Error(error.message)
+      toast.error('Failed to load data');
+      toast.error(error.message);
     }
-  }
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (values) => {
+    activeRow ? handleUpdate(values) : handleCreate(values);
+  };
 
   const handleCreate = async (values) => {
     try {
@@ -66,250 +68,172 @@ const BudgetAllotmentPage = () => {
         `${API_URL}/budget/createOrUpdateBudgetAllotment`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            IsNew: 'true',
-            AppropriationBalance: 123.45,
-            budgetId: 2,
-            amount: 100,
-            remarks: 'this is ok',
-            linkID: '',
-            attachments: '',
-            fiscalYear: 8,
-            departmentId: 1,
-            subDepartmentId: 1,
-            projectName: 'dfsaf',
-            fundSource: '2',
+            ...values,
             userId: user?.ID,
-            ChartofAccountsID: 123,
-            Appropriation: 123.45,
-            TotalAmount: 123.45,
-            Change: 123.45,
-            Supplemental: 123.45,
-            Transfer: 123.45,
-            Released: 123.45,
             isNew: 'true',
-            AllotmentBalance: 123.45,
-            ChargedAllotment: 123.45
-          })
+          }),
         }
-      )
-      const res = await response.json()
+      );
+      const res = await response.json();
       if (res) {
-        fetchBudgetAllotments()
-        setIsOpen(false)
-        toast.success('Allotment added successfully')
+        fetchBudgetAllotments();
+        toast.success('Allotment added');
+        setIsModalOpen(false);
       }
     } catch (error) {
-      throw new Error(error.message)
+      toast.error(error.message);
     }
-  }
+  };
 
   const handleUpdate = async (values) => {
     try {
       const response = await fetch(`${API_URL}/budget/${values?.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          IsNew: 'true',
-          AppropriationBalance: 123.45,
-          budgetId: 2,
-          amount: 100,
-          remarks: 'this is ok',
-          linkID: '',
-          attachments: '',
-          fiscalYear: 8,
-          departmentId: 1,
-          subDepartmentId: 1,
-          projectName: 'dfsaf',
-          fundSource: '2',
+          ...values,
           userId: user?.ID,
-          ChartofAccountsID: 123,
-          Appropriation: 123.45,
-          TotalAmount: 123.45,
-          Change: 123.45,
-          Supplemental: 123.45,
-          Transfer: 123.45,
-          Released: 123.45,
-          isNew: 'true',
-          AllotmentBalance: 123.45,
-          ChargedAllotment: 123.45
-        })
-      })
-      const res = await response.json()
+        }),
+      });
+      const res = await response.json();
       if (res) {
-        fetchBudgetAllotments()
-        setIsOpen(false)
-        toast.success('Budget updated successfully')
+        fetchBudgetAllotments();
+        toast.success('Allotment updated');
+        setIsModalOpen(false);
       }
     } catch (error) {
-      throw new Error(error.message)
+      toast.error(error.message);
     }
-  }
+  };
 
-  const handleSubmit = (values) => {
-    if (activeRow) {
-      handleUpdate(values)
-    } else {
-      handleCreate(values)
-    }
-  }
+  const handleEdit = (row) => {
+    setActiveRow(row);
+    setIsModalOpen(true);
+  };
 
-  const handleEdit = (data) => {
-    setActiveRow(data)
-    setIsOpen(true)
-  }
+  const columns = [
+    { key: 'Name', header: 'Name' },
+    { key: 'FiscalYear', header: 'Fiscal Year' },
+    { key: 'Department', header: 'Department' },
+    { key: 'SubDepartment', header: 'Sub Department' },
+    { key: 'ChartOfAccounts', header: 'Chart of Accounts' },
+    { key: 'Fund', header: 'Fund' },
+    { key: 'Project', header: 'Project' },
+    { key: 'Appropriation', header: 'Appropriation' },
+    { key: 'AppropriationBalance', header: 'Appropriation Balance' },
+    { key: 'TotalAmount', header: 'Total Amount' },
+    { key: 'Allotment', header: 'Allotment' },
+    { key: 'AllotmentBalance', header: 'Allotment Balance' },
+  ];
 
-  useEffect(() => {
-    if (data?.length === 0) {
-      fetchBudgetAllotments()
-    }
-  }, [data])
+  const actions = [
+    {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEdit,
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+  ];
 
+  const filteredData = data?.filter((item) => {
+    return (
+      (!filters.department || item.DepartmentID === filters.department) &&
+      (!filters.subDepartment ||
+        item.SubDepartmentID === filters.subDepartment) &&
+      (!filters.chartOfAccounts ||
+        item.ChartofAccountsID === filters.chartOfAccounts)
+    );
+  });
+  console.log('filteredData', filteredData, data);
   return (
-    <>
-      <section className='space-y-8'>
-        {/* TITLE */}
-        <h1 className='text-xl font-semibold text-gray-800'>
-          Budget Allotment
-        </h1>
-        <div className='space-y-4'>
-          {/* HEADER */}
-          <div className='flex flex-wrap gap-4 items-center justify-between'>
-            <div className='flex flex-wrap gap-3'>
-              <div className='w-full md:w-56'>
-                <input type='text' placeholder='Search...' />
-              </div>
-              <div>
-                <select name='department' id='department'>
-                  <option value=''>Select Department</option>
-                  <option value='operation'>Operation</option>
-                  <option value='management'>Management</option>
-                </select>
-              </div>
-              <div>
-                <select name='subDepartment' id='subDepartment'>
-                  <option value=''>Select Sub Department</option>
-                  <option value='operation'>Operation</option>
-                  <option value='management'>Management</option>
-                </select>
-              </div>
-              <div>
-                <select name='chartOfAccounts' id='chartOfAccounts'>
-                  <option value=''>Select Account</option>
-                  <option value='operation'>Operation</option>
-                  <option value='management'>Management</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <button onClick={() => handleEdit(null)} className='btn'>
-                <PlusIcon className='-ml-0.5 mr-2 h-5 w-5' aria-hidden='true' />
-                Add
-              </button>
-            </div>
-          </div>
-          {/* COLUMNS */}
-          <div className='overflow-x-auto'>
-            <div className='py-2 align-middle inline-block min-w-full '>
-              <div className='shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'>
-                <table className='min-w-full divide-y divide-gray-200'>
-                  <thead className='bg-gray-50'>
-                    <tr>
-                      {columns?.map((item, index) => (
-                        <th
-                          scope='col'
-                          className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                        >
-                          {item}
-                        </th>
-                      ))}
-                      <th
-                        scope='col'
-                        className='px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider'
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className='bg-white divide-y divide-gray-200'>
-                    {data.map((person) => (
-                      <tr key={person.email}>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Name}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.FiscalYear}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Department}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.SubDepartment}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.ChartOfAccounts}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Fund}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Project}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Appropriation}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.AppropriationBalance}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.TotalAmount}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.Allotment}
-                        </td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
-                          {person.AllotmentBalance}
-                        </td>
-                        <td className='px-6 py-4 flex items-center space-x-4 text-right text-sm font-medium'>
-                          <button
-                            onClick={() => handleEdit(item)}
-                            className='text-indigo-600 hover:text-indigo-900 cursor-pointer'
-                          >
-                            Edit
-                          </button>
-                          <button className='hidden text-indigo-600 hover:text-indigo-900 cursor-pointer'>
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+    <div className="page-container">
+      {/* Header */}
+      <div className="page-header flex justify-between items-center">
+        <div>
+          <h1>Budget Allotment</h1>
+          <p>Manage budget allotments here</p>
         </div>
-      </section>
+        <button
+          onClick={() => handleEdit(null)}
+          className="btn btn-primary flex items-center"
+        >
+          <PlusIcon className="h-5 w-5 mr-2" />
+          Add Allotment
+        </button>
+      </div>
 
+      {/* Filters */}
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <select
+          name="department"
+          value={filters.department}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Department</option>
+          {departments?.map((d) => (
+            <option key={d.ID} value={d.Name}>
+              {d.Name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="subDepartment"
+          value={filters.subDepartment}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Sub Department</option>
+          {subdepartments?.map((sd) => (
+            <option key={sd.ID} value={sd.Name}>
+              {sd.Name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="chartOfAccounts"
+          value={filters.chartOfAccounts}
+          onChange={handleFilterChange}
+          className="form-select"
+        >
+          <option value="">Select Chart of Account</option>
+          {accounts?.map((a) => (
+            <option key={a.ID} value={a.Name}>
+              {a.Name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        actions={actions}
+        loading={false}
+        pagination
+      />
+
+      {/* Modal */}
       <Modal
-        size='md'
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        title={activeRow ? 'Edit Allotment' : 'Add New Allotment'}
+        size="md"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={activeRow ? 'Edit Allotment' : 'Add Allotment'}
       >
         <BudgetAllotmentForm
           onSubmit={handleSubmit}
           initialData={activeRow}
-          onClose={() => setIsOpen(false)}
+          onClose={() => setIsModalOpen(false)}
         />
       </Modal>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default BudgetAllotmentPage
+export default BudgetAllotmentPage;
