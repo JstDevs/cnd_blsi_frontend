@@ -3,10 +3,11 @@ import * as Yup from 'yup';
 import FormField from '../common/FormField';
 import { useEffect, useState } from 'react';
 import { DocumentIcon } from '@heroicons/react/24/outline';
-import { TrashIcon } from 'lucide-react';
+import { Paperclip, Trash2, TrashIcon } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import SearchableDropdown from '../common/SearchableDropdown';
+import toast from 'react-hot-toast';
 
 const BURIAL_RECEIPT_SCHEMA = Yup.object().shape({
   CustomerName: Yup.string().required('Name is required'),
@@ -14,62 +15,67 @@ const BURIAL_RECEIPT_SCHEMA = Yup.object().shape({
   DeceasedCustomerName: Yup.string().required('Deceased name is required'),
   DeceasedCustomerID: Yup.number(),
 
-  nationality: Yup.string().required('Nationality is required'),
-  age: Yup.number().required('Age is required').min(0, 'Age must be positive'),
-  dateOfDeath: Yup.date().required('Date of death is required'),
-  causeOfDeath: Yup.string().required('Cause of death is required'),
-  cemeteryName: Yup.string().required('Cemetery name is required'),
-  serviceType: Yup.string().required('Service type is required'),
-  isInfectious: Yup.boolean(),
-  isEmbalmed: Yup.boolean(),
-  dispositionRemarks: Yup.string().when('serviceType', {
+  Nationality: Yup.string().required('Nationality is required'),
+  NationalityID: Yup.number().required('Nationality is required'),
+  Age: Yup.number().required('Age is required').min(0, 'Age must be positive'),
+  Sex: Yup.string().required('Sex is required'),
+  DeathDate: Yup.date().required('Date of death is required'),
+  CauseofDeath: Yup.string().required('Cause of death is required'),
+  Cementery: Yup.string().required('Cemetery name is required'),
+  BurialType: Yup.string().required('Service type is required'),
+  Infectious: Yup.boolean(),
+  Embalmed: Yup.boolean(),
+  Disposition: Yup.string().when('BurialType', {
     is: (val) => ['disinter', 'remove'].includes(val),
     then: Yup.string().required('Disposition remarks are required'),
   }),
-  invoiceDate: Yup.date().required('Invoice date is required'),
+  InvoiceDate: Yup.date().required('Invoice date is required'),
   paymentMethod: Yup.string().required('Payment method is required'),
-  amountReceived: Yup.number()
+  Total: Yup.number()
     .required('Amount received is required')
     .min(0, 'Amount must be positive'),
   referenceNumber: Yup.string(),
   Remarks: Yup.string(),
 });
-
+const API_URL = import.meta.env.VITE_API_URL;
 function BurialServiceReceiptForm({
   initialData,
   onClose,
   onSubmit,
   nationalities,
-  municipalities,
-  provinces,
+  // municipalities,
+  // provinces,
   customers,
-  users,
+  // users,
 }) {
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [formError, setFormError] = useState(null);
+  // const [selectedFiles, setSelectedFiles] = useState([]);
+  // const [formError, setFormError] = useState(null);
 
   const initialValues = {
+    InvoiceNumber: initialData?.InvoiceNumber || '',
     Name: initialData?.Name || '',
-    DeceasedCustomerName: '',
-    DeceasedCustomerID: '',
-    nationality: '',
-    age: '',
-    dateOfDeath: '',
-    causeOfDeath: '',
-    cemeteryName: '',
-    serviceType: 'inter',
-    isInfectious: false,
-    isEmbalmed: false,
-    dispositionRemarks: '',
+    DeceasedCustomerName: initialData?.DeceasedCustomerName || '',
+    DeceasedCustomerID: initialData?.DeceasedCustomerID || '',
+    Nationality: initialData?.Nationality || '',
+    NationalityID: initialData?.NationalityID || '',
+    Age: initialData?.Age || '',
+    Sex: initialData?.Sex || '',
+    DeathDate: initialData?.DeathDate || '',
+    CauseofDeath: initialData?.CauseofDeath || '',
+    Cementery: initialData?.Cementery || '',
+    BurialType: initialData?.BurialType || 'inter',
+    Infectious: initialData?.Infectious || false,
+    Embalmed: initialData?.Embalmed || false,
+    Disposition: initialData?.Disposition || '',
     InvoiceDate:
       initialData?.InvoiceDate || new Date().toISOString().split('T')[0],
     CustomerName: initialData?.CustomerName || '',
     CustomerID: initialData?.CustomerID || '',
-    paymentMethod: '',
-    amountReceived: '',
-    ReferenceNumber: '',
-    Remarks: '',
+    paymentMethod: initialData?.paymentMethod || '',
+    Total: initialData?.Total || '',
+    ReferenceNumber: initialData?.ReferenceNumber || '',
+    Remarks: initialData?.Remarks || '',
     Attachments: initialData?.Attachments || [],
   };
   // -------------FILE UPLOAD-------------
@@ -91,44 +97,19 @@ function BurialServiceReceiptForm({
 
   const handleServiceTypeChange = (e, setFieldValue) => {
     const value = e.target.value;
-    setFieldValue('serviceType', value);
-    setShowAdditionalFields(value !== 'inter');
+    setFieldValue('BurialType', value);
+    setShowAdditionalFields(value !== 'INTER');
   };
 
-  const TITLE_OPTIONS = [
-    { value: 'Mr', label: 'Mr.' },
-    { value: 'Mrs', label: 'Mrs.' },
-    { value: 'Miss', label: 'Miss.' },
-  ];
-
-  // const handleFileChange = (e) => {
-  //   if (e.target.files) {
-  //     const newFiles = Array.from(e.target.files).map((file) => ({
-  //       file,
-  //       id: Math.random().toString(36).substring(2, 9),
-  //       name: file.name,
-  //       size: file.size,
-  //       type: file.type,
-  //     }));
-  //     setSelectedFiles((prev) => [...prev, ...newFiles]);
-  //   }
-  // };
-
-  // const handleDeleteFile = (id) => {
-  //   setSelectedFiles((prev) => prev.filter((file) => file.id !== id));
-  // };
-
   const handleSubmit = async (values, { setSubmitting }) => {
+    // setFormError(null);
+    console.log('Form values:', values);
     try {
-      setFormError(null);
-      const formData = {
-        ...values,
-        attachments: selectedFiles,
-      };
-      await onSubmit(formData);
+      await onSubmit(values);
       onClose(); // Close the form after successful submission
     } catch (error) {
-      setFormError(error.message || 'Submission failed. Please try again.');
+      console.error('Submission failed:', error);
+      toast.error(error.message || 'Submission failed. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -137,9 +118,9 @@ function BurialServiceReceiptForm({
     value: customer.ID,
     label: customer.Name,
   }));
-  const nationalitiesOptions = nationalities?.map((nationality) => ({
-    value: nationality.ID,
-    label: nationality.Name,
+  const nationalitiesOptions = nationalities?.map((Nationality) => ({
+    value: Nationality.ID,
+    label: Nationality.Name,
   }));
   return (
     <div className="space-y-4">
@@ -164,23 +145,17 @@ function BurialServiceReceiptForm({
           setFieldValue,
           isSubmitting,
           handleBlur,
+          submitCount,
         }) => (
           <Form className="space-y-4 p-4 bg-white rounded-lg">
-            {/* Error Message */}
-            {formError && (
-              <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
-                {formError}
-              </div>
-            )}
-
             {/* Attachments Section */}
             <div className="mb-4">
-              <div>
+              <div className="space-y-2">
                 <h2 className="font-bold mb-2">Attachments</h2>
                 <input
                   type="file"
                   multiple
-                  onChange={() => handleFileUpload(e, setFieldValue, values)}
+                  onChange={(e) => handleFileUpload(e, setFieldValue, values)}
                   className="block w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-md file:border-0
@@ -189,63 +164,61 @@ function BurialServiceReceiptForm({
                   hover:file:bg-blue-100"
                 />
               </div>
-              {selectedFiles.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <h3 className="text-sm font-medium text-gray-700">
-                    Selected Files:
-                  </h3>
-                  <ul className="divide-y divide-gray-200">
-                    {selectedFiles.map((file) => (
-                      <li
-                        key={file.id}
-                        className="py-2 flex justify-between items-center"
+              {values.Attachments.length > 0 ? (
+                <div className="space-y-2 py-2 mt-2">
+                  {values.Attachments.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 border rounded"
+                    >
+                      <div className="flex items-center">
+                        <Paperclip className="h-4 w-4 text-gray-500 mr-2" />
+                        <span className="text-sm">
+                          {file.ID ? (
+                            <a
+                              href={`${API_URL}/uploads/${file.DataImage}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              {file.name || file.DataName}
+                            </a>
+                          ) : (
+                            file.name || file.DataName
+                          )}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          removeAttachment(index, setFieldValue, values)
+                        }
+                        className="text-red-500 hover:text-red-700"
                       >
-                        <div className="flex items-center space-x-2">
-                          <DocumentIcon className="h-5 w-5 text-gray-400" />
-                          <span className="text-sm text-gray-600 truncate max-w-xs">
-                            {file.name || file.DataName}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ({formatFileSize(file.size)})
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeAttachment(index, setFieldValue, values)
-                          }
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
+              ) : (
+                <p className="text-sm text-gray-500 mt-2">
+                  No attachments added
+                </p>
               )}
             </div>
 
             {/* Form Fields */}
             <div className="text-center">
               <FormField
-                name="receiptNumber"
+                name="InvoiceNumber"
                 type="text"
-                value={values.receiptNumber || 'BU-RE-36AL-CEIPT'}
+                value={values.InvoiceNumber || 'BU-RE-36AL-CEIPT'}
                 readOnly
                 className="font-bold text-center"
               />
             </div>
 
             <div>
-              {/* <FormField
-                label="MR. / MRS."
-                name="title"
-                type="select"
-                options={TITLE_OPTIONS}
-                placeholder="Select Title"
-                required
-                error={touched.name && errors.name}
-              /> */}
               <SearchableDropdown
                 label="MR. / MRS."
                 name="CustomerName"
@@ -294,7 +267,7 @@ function BurialServiceReceiptForm({
               />
               <SearchableDropdown
                 label="Nationality"
-                name="Nationality"
+                name="NationalityID"
                 type="select"
                 options={nationalitiesOptions}
                 required
@@ -303,62 +276,67 @@ function BurialServiceReceiptForm({
                   const selectedOption = nationalitiesOptions.find(
                     (option) => option.value === value
                   );
+                  setFieldValue('NationalityID', value || '');
                   setFieldValue('Nationality', selectedOption?.label || '');
                 }}
                 className="w-full"
-                selectedValue={values.Nationality}
+                selectedValue={values.NationalityID}
                 error={errors.Nationality}
                 touched={touched.Nationality}
               />
-              {/* <FormField
-                label="Nationality"
-                name="nationality"
-                type="select"
-                options={[
-                  { value: 'filipino', label: 'Filipino' },
-                  { value: 'non-filipino', label: 'Non-Filipino' },
-                ]}
-                required
-                error={touched.nationality && errors.nationality}
-              /> */}
               <FormField
                 label="Age"
-                name="age"
+                name="Age"
                 type="number"
                 required
-                error={touched.age && errors.age}
+                value={values.Age}
+                onChange={handleChange}
+                touched={touched.Age}
+                error={touched.Age && errors.Age}
               />
               <FormField
                 label="Sex"
-                name="sex"
+                name="Sex"
                 type="select"
                 options={[
-                  { value: 'male', label: 'Male' },
-                  { value: 'female', label: 'Female' },
+                  { value: 'Male', label: 'Male' },
+                  { value: 'Female', label: 'Female' },
                 ]}
+                value={values.Sex}
+                onChange={handleChange}
+                touched={touched.Sex}
                 required
                 error={touched.sex && errors.sex}
               />
               <FormField
                 label="Date of Death"
-                name="dateOfDeath"
+                name="DeathDate"
                 type="date"
                 required
-                error={touched.dateOfDeath && errors.dateOfDeath}
+                value={values.DeathDate}
+                onChange={handleChange}
+                touched={touched.DeathDate}
+                error={touched.DeathDate && errors.DeathDate}
               />
               <FormField
                 label="Cause of Death"
-                name="causeOfDeath"
+                name="CauseofDeath"
                 type="text"
                 required
-                error={touched.causeOfDeath && errors.causeOfDeath}
+                value={values.CauseofDeath}
+                onChange={handleChange}
+                touched={touched.CauseofDeath}
+                error={touched.CauseofDeath && errors.CauseofDeath}
               />
               <FormField
                 label="Name of Cemetery"
-                name="cemeteryName"
+                name="Cementery"
                 type="text"
                 required
-                error={touched.cemeteryName && errors.cemeteryName}
+                value={values.Cementery}
+                onChange={handleChange}
+                touched={touched.Cementery}
+                error={touched.Cementery && errors.Cementery}
               />
             </div>
 
@@ -366,13 +344,13 @@ function BurialServiceReceiptForm({
             <div className="space-y-2">
               <label className="block font-medium">Service Type</label>
               <div className="flex space-x-4">
-                {['inter', 'disinter', 'remove'].map((type) => (
+                {['INTER', 'DISINTER', 'REMOVE'].map((type) => (
                   <label key={type} className="inline-flex items-center">
                     <input
                       type="radio"
-                      name="serviceType"
+                      name="BurialType"
                       value={type}
-                      checked={values.serviceType === type}
+                      checked={values.BurialType === type}
                       onChange={(e) =>
                         handleServiceTypeChange(e, setFieldValue)
                       }
@@ -382,9 +360,9 @@ function BurialServiceReceiptForm({
                   </label>
                 ))}
               </div>
-              {touched.serviceType && errors.serviceType && (
+              {touched.BurialType && errors.BurialType && (
                 <div className="text-red-500 text-sm mt-1">
-                  {errors.serviceType}
+                  {errors.BurialType}
                 </div>
               )}
             </div>
@@ -396,8 +374,9 @@ function BurialServiceReceiptForm({
                   <label className="inline-flex items-center">
                     <input
                       type="checkbox"
-                      name="isInfectious"
-                      checked={values.isInfectious}
+                      name="Infectious"
+                      value={values.Infectious}
+                      checked={values.Infectious}
                       onChange={handleChange}
                       className="form-checkbox"
                     />
@@ -406,8 +385,9 @@ function BurialServiceReceiptForm({
                   <label className="inline-flex items-center">
                     <input
                       type="checkbox"
-                      name="isEmbalmed"
-                      checked={values.isEmbalmed}
+                      name="Embalmed"
+                      value={values.Embalmed}
+                      checked={values.Embalmed}
                       onChange={handleChange}
                       className="form-checkbox"
                     />
@@ -416,13 +396,14 @@ function BurialServiceReceiptForm({
                 </div>
                 <FormField
                   label="Disposition of Remains"
-                  name="dispositionRemarks"
+                  name="Disposition"
                   type="textarea"
                   rows={2}
-                  required={values.serviceType !== 'inter'}
-                  error={
-                    touched.dispositionRemarks && errors.dispositionRemarks
-                  }
+                  value={values.Disposition}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  required={values.BurialType !== 'INTER'}
+                  error={touched.Disposition && errors.Disposition}
                 />
               </div>
             )}
@@ -431,11 +412,15 @@ function BurialServiceReceiptForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 label="Invoice Date"
-                name="invoiceDate"
+                name="InvoiceDate"
                 type="date"
                 required
-                error={touched.invoiceDate && errors.invoiceDate}
+                value={values.InvoiceDate}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.InvoiceDate && errors.InvoiceDate}
               />
+              {/* TODO : Add Payment Method */}
               <FormField
                 label="Payment Method"
                 name="paymentMethod"
@@ -446,21 +431,33 @@ function BurialServiceReceiptForm({
                   { value: 'card', label: 'Credit Card' },
                 ]}
                 required
+                value={values.paymentMethod}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                touched={touched.paymentMethod}
                 error={touched.paymentMethod && errors.paymentMethod}
               />
               <FormField
                 label="Amount Received"
-                name="amountReceived"
+                name="Total"
                 type="number"
                 required
                 min="0"
-                error={touched.amountReceived && errors.amountReceived}
+                value={values.Total}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                touched={touched.Total}
+                error={touched.Total && errors.Total}
               />
               <FormField
                 label="Reference Number"
-                name="referenceNumber"
+                name="ReferenceNumber"
                 type="text"
-                error={touched.referenceNumber && errors.referenceNumber}
+                value={values.ReferenceNumber}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                touched={touched.ReferenceNumber}
+                error={touched.ReferenceNumber && errors.ReferenceNumber}
               />
             </div>
 
@@ -494,6 +491,19 @@ function BurialServiceReceiptForm({
                 {isSubmitting ? 'Submitting...' : 'Submit'}
               </button>
             </div>
+            {/* Error Message */}
+            {submitCount > 0 && Object.keys(errors).length > 0 && (
+              <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+                <h3 className="text-sm font-medium text-red-800">
+                  Please fix the following errors:
+                </h3>
+                <ul className="mt-2 text-sm text-red-700 list-disc pl-5 space-y-1">
+                  {Object.entries(errors).map(([fieldName, errorMessage]) => (
+                    <li key={fieldName}>{errorMessage}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </Form>
         )}
       </Formik>

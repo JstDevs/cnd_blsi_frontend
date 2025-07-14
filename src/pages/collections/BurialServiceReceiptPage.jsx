@@ -5,9 +5,9 @@ import Modal from '../../components/common/Modal';
 import DataTable from '../../components/common/DataTable';
 import { fetchNationalities } from '../../features/settings/nationalitiesSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMunicipalities } from '@/features/settings/municipalitiesSlice';
-import { fetchUsers } from '@/features/settings/userSlice';
-import { fetchProvinces } from '@/features/settings/provincesSlice';
+// import { fetchMunicipalities } from '@/features/settings/municipalitiesSlice';
+// import { fetchUsers } from '@/features/settings/userSlice';
+// import { fetchProvinces } from '@/features/settings/provincesSlice';
 import {
   fetchBurialRecords,
   deleteBurialRecord,
@@ -26,13 +26,13 @@ function BurialServiceReceiptPage() {
   const { nationalities, isLoading: nationalityLoading } = useSelector(
     (state) => state.nationalities
   );
-  const { users, isLoading: userLoading } = useSelector((state) => state.users);
-  const { municipalities, isLoading: municipalityLoading } = useSelector(
-    (state) => state.municipalities
-  );
-  const { provinces, isLoading: provinceLoading } = useSelector(
-    (state) => state.provinces
-  );
+  // const { users, isLoading: userLoading } = useSelector((state) => state.users);
+  // const { municipalities, isLoading: municipalityLoading } = useSelector(
+  //   (state) => state.municipalities
+  // );
+  // const { provinces, isLoading: provinceLoading } = useSelector(
+  //   (state) => state.provinces
+  // );
   const { records: burialRecord, isLoading } = useSelector(
     (state) => state.burialRecords
   );
@@ -42,9 +42,9 @@ function BurialServiceReceiptPage() {
 
   useEffect(() => {
     dispatch(fetchNationalities());
-    dispatch(fetchUsers());
-    dispatch(fetchMunicipalities());
-    dispatch(fetchProvinces());
+    // dispatch(fetchUsers());
+    // dispatch(fetchMunicipalities());
+    // dispatch(fetchProvinces());
     dispatch(fetchBurialRecords());
     dispatch(fetchCustomers());
   }, [dispatch]);
@@ -147,6 +147,7 @@ function BurialServiceReceiptPage() {
   };
 
   const handleFormSubmit = async (values) => {
+    const formData = new FormData();
     // Append all non-attachment fields
     for (const key in values) {
       if (key !== 'Attachments') {
@@ -165,32 +166,25 @@ function BurialServiceReceiptPage() {
     }
 
     // Handle attachments - simplified format
-    values?.Attachments.forEach((file, index) => {
-      formData.append(`Attachments[${index}].File`, file);
+    values?.Attachments.forEach((att, idx) => {
+      if (att.ID) {
+        formData.append(`Attachments[${idx}].ID`, att.ID);
+      } else {
+        formData.append(`Attachments[${idx}].File`, att);
+      }
     });
     // Add ID if editing existing receipt
-    if (ticket) {
+    if (selectedReceipt) {
       formData.append('IsNew', 'false');
-      formData.append('LinkID', ticket.LinkID);
-      formData.append('ID', ticket.ID);
+      formData.append('LinkID', selectedReceipt.LinkID);
+      formData.append('ID', selectedReceipt.ID);
     } else {
       formData.append('IsNew', 'true');
     }
     try {
-      // const submissionData = {
-      //   Items: values.items,
-      //   StartTime: new Date(values.startTime).toISOString(),
-      //   EndTime: new Date(values.endTime).toISOString(),
-      //   IssuedBy: values.issuedBy,
-      //   DateIssued: values.dateIssued,
-      //   PostingPeriod: values.postingPeriod,
-      //   AmountIssued: values.amountIssued,
-      //   Remarks: values.remarks,
-      // };
+      await dispatch(addBurialRecord(formData)).unwrap();
 
-      await dispatch(addMarriageRecord(formData)).unwrap();
-
-      ticket
+      selectedReceipt
         ? toast.success('Burial Receipt Updated Successfully')
         : toast.success('Burial Receipt Added Successfully');
       dispatch(fetchBurialRecords());
@@ -216,7 +210,7 @@ function BurialServiceReceiptPage() {
         'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
-  console.log({ burialRecord });
+  // console.log({ burialRecord });
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">

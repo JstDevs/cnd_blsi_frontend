@@ -64,10 +64,10 @@ export const addMarriageRecord = createAsyncThunk(
       const response = await fetch(`${API_URL}/marriagerecord`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          // 'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(marriagerecord),
+        body: marriagerecord,
       });
 
       const res = await response.json();

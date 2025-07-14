@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { fetchItems } from '@/features/settings/itemSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
-
+const API_URL = import.meta.env.VITE_API_URL;
 const generalServiceReceiptSchema = Yup.object().shape({
   Status: Yup.string().required('Status is required'),
   InvoiceNumber: Yup.string().required('Invoice number is required'),
@@ -119,6 +119,7 @@ function GeneralServiceReceiptModal({
     PaymentMethodID: 2,
     TransactionItemsAll: selectedReceipt?.TransactionItemsAll || [],
   };
+  console.log('initialValues', initialValues);
   // -------------FILE UPLOAD-------------
   const handleFileUpload = (event, setFieldValue, values) => {
     const files = Array.from(event.target.files);
@@ -157,8 +158,15 @@ function GeneralServiceReceiptModal({
     }
 
     // Handle attachments - simplified format
-    values?.Attachments.forEach((file, index) => {
-      formData.append(`Attachments[${index}].File`, file);
+    // values?.Attachments.forEach((file, index) => {
+    //   formData.append(`Attachments[${index}].File`, file);
+    // });
+    values?.Attachments.forEach((att, idx) => {
+      if (att.ID) {
+        formData.append(`Attachments[${idx}].ID`, att.ID);
+      } else {
+        formData.append(`Attachments[${idx}].File`, att);
+      }
     });
     // Add ID if editing existing receipt
     if (selectedReceipt) {
@@ -169,6 +177,7 @@ function GeneralServiceReceiptModal({
       formData.append('IsNew', 'true');
     }
 
+    console.log('Form Data:', values);
     try {
       await onSubmit(formData);
 
@@ -213,11 +222,12 @@ function GeneralServiceReceiptModal({
           values,
           setFieldValue,
           handleChange,
+          handleBlur,
           isSubmitting,
           errors,
           touched,
         }) => {
-          // console.log(values);
+          console.log(errors);
           return (
             <Form className="space-y-6">
               {/* Section 5: Attachments */}
@@ -234,7 +244,18 @@ function GeneralServiceReceiptModal({
                         <div className="flex items-center">
                           <Paperclip className="h-4 w-4 text-gray-500 mr-2" />
                           <span className="text-sm">
-                            {file.name || file.DataName}
+                            {file.ID ? (
+                              <a
+                                href={`${API_URL}/uploads/${file.DataImage}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                {file.name || file.DataName}
+                              </a>
+                            ) : (
+                              file.name || file.DataName
+                            )}
                           </span>
                         </div>
                         <button

@@ -79,7 +79,11 @@ function JournalEntryPage() {
     try {
       if (currentJournalEntry) {
         await dispatch(
-          updateJournalEntry({ ...values, ID: currentJournalEntry.ID })
+          updateJournalEntry({
+            ...values,
+            ID: currentJournalEntry.ID,
+            LinkID: currentJournalEntry.LinkID,
+          })
         ).unwrap();
       } else {
         await dispatch(addJournalEntry(values)).unwrap();
@@ -229,19 +233,21 @@ function JournalEntryPage() {
           actions={(row) => {
             const actionList = [];
             // if (row.Status === 'Rejected') {
-            //   actionList.push({
-            //     icon: PencilIcon,
-            //     title: 'Edit',
-            //     onClick: () => handleEdit(row),
-            //     className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-            //   });
+            actionList.push({
+              icon: PencilIcon,
+              title: 'Edit',
+              onClick: () => handleEdit(row),
+              className:
+                'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+            });
 
-            //   actionList.push({
-            //     icon: TrashIcon,
-            //     title: 'Delete',
-            //     onClick: () => handleDelete(row),
-            //     className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-            //   });
+            actionList.push({
+              icon: TrashIcon,
+              title: 'Delete',
+              onClick: () => handleDelete(row),
+              className:
+                'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+            });
             // }
 
             return actionList;

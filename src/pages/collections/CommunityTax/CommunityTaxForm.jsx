@@ -867,21 +867,19 @@ const CommunityTaxForm = ({
             {formik.isSubmitting ? 'Generating...' : 'Generate Certificate'}
           </Button>
         </div>
-        {!formik.isValid && Object.keys(formik.errors).length > 0 && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
-                  There {Object.keys(formik.errors).length === 1 ? 'is' : 'are'}{' '}
-                  {Object.keys(formik.errors).length} error
-                  {Object.keys(formik.errors).length === 1 ? '' : 's'} in your
-                  form
-                </h3>
-              </div>
-            </div>
+
+        {formik.submitCount > 0 && Object.keys(formik.errors).length > 0 && (
+          <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+            <h3 className="text-sm font-medium text-red-800">
+              Please fix the following errors:
+            </h3>
+            <ul className="mt-2 text-sm text-red-700 list-disc pl-5 space-y-1">
+              {Object.entries(formik.errors).map(
+                ([fieldName, errorMessage]) => (
+                  <li key={fieldName}>{errorMessage}</li>
+                )
+              )}
+            </ul>
           </div>
         )}
       </form>

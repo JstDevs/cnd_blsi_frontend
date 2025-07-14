@@ -10,6 +10,7 @@ import {
 } from '@/features/collections/MarriageSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { fetchCustomers } from '@/features/settings/customersSlice';
 
 function MarriageServiceReceiptPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,43 +19,57 @@ function MarriageServiceReceiptPage() {
   const { records: marriageRecords, isLoading } = useSelector(
     (state) => state.marriageRecords
   );
-
+  const { customers, isLoading: customerLoading } = useSelector(
+    (state) => state.customers
+  );
   useEffect(() => {
     dispatch(fetchMarriageRecords());
+    dispatch(fetchCustomers());
   }, [dispatch]);
-  console.log('generalReceipts', marriageRecords);
 
   const handleAddReceipt = async (values) => {
-    try {
-      const submissionData = {
-        Items: values.items,
-        StartTime: new Date(values.startTime).toISOString(),
-        EndTime: new Date(values.endTime).toISOString(),
-        IssuedBy: values.issuedBy,
-        DateIssued: values.dateIssued,
-        PostingPeriod: values.postingPeriod,
-        AmountIssued: values.amountIssued,
-        Remarks: values.remarks,
-      };
-
-      if (ticket) {
-        await dispatch(
-          addMarriageRecord({
-            IsNew: false,
-            ID: ticket.ID,
-            LinkID: ticket.LinkID,
-            ...submissionData,
-          })
-        ).unwrap();
-        toast.success('Marriage Receipt Updated Successfully');
-        dispatch(fetchMarriageRecords());
-      } else {
-        await dispatch(
-          addMarriageRecord({ IsNew: true, ...submissionData })
-        ).unwrap();
-        toast.success('Marriage Receipt Added Successfully');
-        dispatch(fetchMarriageRecords());
+    console.log('Form data to save:', values);
+    const formData = new FormData();
+    // Append all non-attachment fields
+    for (const key in values) {
+      if (key !== 'Attachments') {
+        // For non-file fields, convert to string if not already
+        const value =
+          typeof values[key] === 'object'
+            ? JSON.stringify(values[key])
+            : values[key];
+        // Rename TransactionItemsAll to Items
+        if (key === 'TransactionItemsAll') {
+          formData.append('Items', value);
+        } else {
+          formData.append(key, value);
+        }
       }
+    }
+
+    // Handle attachments - simplified format
+    values?.Attachments.forEach((att, idx) => {
+      if (att.ID) {
+        formData.append(`Attachments[${idx}].ID`, att.ID);
+      } else {
+        formData.append(`Attachments[${idx}].File`, att);
+      }
+    });
+    // Add ID if editing existing receipt
+    if (selectedReceipt) {
+      formData.append('IsNew', false);
+      formData.append('LinkID', selectedReceipt.LinkID);
+      formData.append('ID', selectedReceipt.ID);
+    } else {
+      formData.append('IsNew', true);
+    }
+    try {
+      await dispatch(addMarriageRecord(formData)).unwrap();
+
+      selectedReceipt
+        ? toast.success('Marriage Receipt Updated Successfully')
+        : toast.success('Marriage Receipt Added Successfully');
+      dispatch(fetchMarriageRecords());
     } catch (error) {
       toast.error(error.message || 'Something went wrong');
     } finally {
@@ -229,7 +244,7 @@ function MarriageServiceReceiptPage() {
         data={marriageRecords}
         actions={actions}
         className="bg-white rounded-lg shadow"
-        isLoading={isLoading}
+        isLoading={isLoading || customerLoading}
       />
 
       <Modal
@@ -239,6 +254,7 @@ function MarriageServiceReceiptPage() {
       >
         <MarriageServiceReceiptForm
           initialData={selectedReceipt}
+          customers={customers}
           onClose={handleCloseModal}
           onSubmit={handleAddReceipt}
         />
