@@ -62,6 +62,7 @@ import beginningBalanceSlice from '../features/disbursement/beginningBalanceSlic
 import generalJournalReducer from '../features/disbursement/generalJournalSlice';
 import generalLedgerReducer from '../features/reports/generalLedgerSlice';
 import trialBalanceReducer from '../features/reports/trialBalanceSlice';
+import statementComparisonReducer from '../features/budget/statementComparisonSlice';
 import subsidiaryLedgerReducer from '../features/reports/subsidiaryLedgerSlice';
 import financialStatementReportsReducer from '../features/reports/financialStatementSlice';
 import realPropertyTaxReducer from '../features/collections/realPropertyTaxSlice';
@@ -131,6 +132,7 @@ export const store = configureStore({
     generalJournal: generalJournalReducer,
     generalLedger: generalLedgerReducer,
     trialBalance: trialBalanceReducer,
+    statementComparison: statementComparisonReducer,
     subsidiaryLedger: subsidiaryLedgerReducer,
     financialStatementsReports: financialStatementReportsReducer,
     budget: budgetReducer,

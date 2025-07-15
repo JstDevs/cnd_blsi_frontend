@@ -451,7 +451,7 @@ function App() {
           />
           <Route
             path="/budget/statement-comparison"
-            element={<BudgetSummaryOfComparison />}
+            element={<StatementComparison />}
           />
           <Route
             path="/budget/statement-appropriation"

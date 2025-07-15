@@ -1,67 +1,187 @@
-import React, { useState } from "react";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import StatementComparisonForm from '../../../components/forms/StatementComparisonForm';
+import DataTable from '@/components/common/DataTable';
+import { fetchStatementComparisons, resetStatementComparisonState } from '@/features/budget/statementComparisonSlice';
+import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 
-const StatementComparison = () => {
-  const [fiscalYear, setFiscalYear] = useState("Test");
+function StatementComparison() {
+  const API_URL = import.meta.env.VITE_API_URL;
+  const dispatch = useDispatch();
+
+  const { statementComparisons, isLoading, error } = useSelector(state => state.statementComparison);
+  const { fiscalYears } = useSelector(state => state.fiscalYears);
+
+  // Format currency for display
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+    }).format(amount);
+  };
+  
+  useEffect(() => {
+    dispatch(resetStatementComparisonState());
+    dispatch(fetchFiscalYears());
+  }, [dispatch]);
+
+  // Table columns definition
+  const columns = [
+  {
+    key: 'Type',
+    header: 'Type',
+    sortable: true,
+  },
+  {
+    key: 'SubID',
+    header: 'Sub ID',
+    sortable: true,
+  },
+  {
+    key: 'Subtype',
+    header: 'Subtype',
+    sortable: true,
+  },
+  {
+    key: 'Category',
+    header: 'Category',
+    sortable: true,
+  },
+  {
+    key: 'Chart of Accounts',
+    header: 'Chart of Accounts',
+    sortable: true,
+  },
+  {
+    key: 'Account Code',
+    header: 'Account Code',
+    sortable: true,
+  },
+  {
+    key: 'Original',
+    header: 'Original',
+    sortable: true,
+    className: 'text-right',
+  },
+  {
+    key: 'Final',
+    header: 'Final',
+    sortable: true,
+    className: 'text-right',
+  },
+  {
+    key: 'Difference',
+    header: 'Difference',
+    sortable: true,
+    className: 'text-right',
+  },
+  {
+    key: 'Actual',
+    header: 'Actual',
+    sortable: true,
+    className: 'text-right',
+  },
+  {
+    key: 'Difference 2',
+    header: 'Difference 2',
+    sortable: true,
+    className: 'text-right',
+  },
+  {
+    key: 'Period',
+    header: 'Period',
+    sortable: true,
+  },
+  {
+    key: 'Municipality',
+    header: 'Municipality',
+    sortable: true,
+  },
+  {
+    key: 'Province',
+    header: 'Province',
+    sortable: true,
+  },
+];
+
+
+  
+  // Handle export to Excel
+  const handleExport = async (values) => {
+    try {
+      const response = await fetch(`${API_URL}/statementOfComparison/exportExcel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fiscalYearID: values.fiscalYearID,
+        })
+      });
+
+      if (!response.ok) throw new Error('Server response was not ok');
+
+      const blob = await response.blob();
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = `Statement_of_Comparison.xlsx`;
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/['"]/g, '');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Optional: custom file name
+      link.download = filename;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error('Export failed:', err);
+      alert(err.message || 'Failed to export');
+    }
+  };
+
+  // Handle view to Excel
+  const handleView = (values) => {
+    dispatch(fetchStatementComparisons(values));
+  };
 
   return (
-    <div className=" bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto bg-white shadow rounded-xl p-6">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-          Summary of Comparison of Budget and Actual Amount
-        </h1>
+    <div>
+      <div className="page-header">
+        <h1>Statement of Comparison of Budget and Actual Amount</h1>
+      </div>
+      
+      <div className="mt-4 p-6 bg-white rounded-md shadow">
+        <StatementComparisonForm
+          fiscalYears={fiscalYears}
+          onExportExcel={handleExport}
+          onView={handleView}
+          onClose={() => {}}
+        />
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end">
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
-              Fiscal Year
-            </label>
-            <select
-              value={fiscalYear}
-              onChange={(e) => setFiscalYear(e.target.value)}
-              className="w-full rounded-md border-gray-300 shadow-sm"
-            >
-              <option>Test</option>
-              <option>2025</option>
-              <option>2024</option>
-              <option>2023</option>
-            </select>
-          </div>
-
-          <div className="flex flex-wrap gap-3 md:col-span-2">
-            <button className="bg-blue-600 mt-2 sm:mt-0 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-              View
-            </button>
-            <button className="bg-green-600 mt-2 sm:mt-0 text-white px-4 py-2 rounded-md hover:bg-green-700">
-              Generate Journal
-            </button>
-            <button className="bg-gray-700 mt-2 sm:mt-0 text-white px-4 py-2 rounded-md hover:bg-gray-800">
-              Export to Excel
-            </button>
-          </div>
+      {error && (
+        <div className="mt-4 p-4 bg-error-50 border border-error-200 rounded-md">
+          <p className="text-error-700">{error}</p>
         </div>
+      )}
 
-        <div className="overflow-x-auto bg-white border rounded-lg">
-          <table className="min-w-full text-sm text-left text-gray-600">
-            <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-              <tr>
-                <th className="px-4 py-2">Department</th>
-                <th className="px-4 py-2">Budget</th>
-                <th className="px-4 py-2">Actual</th>
-                <th className="px-4 py-2">Difference</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="bg-white border-t">
-                <td className="px-4 py-2" colSpan={4}>
-                  No data available
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={statementComparisons}
+          loading={isLoading}
+          pagination={true}
+        />
       </div>
     </div>
   );
-};
+}
 
 export default StatementComparison;
