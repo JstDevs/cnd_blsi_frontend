@@ -229,7 +229,7 @@ function BurialServiceReceiptPage() {
         title={
           selectedReceipt
             ? 'Edit Burial Service Receipt'
-            : 'New Burial Service Receipt'
+            : 'New Burial Service Receipt '
         }
       >
         <BurialServiceReceiptForm
