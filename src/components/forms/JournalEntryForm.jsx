@@ -356,7 +356,7 @@ function JournalEntryForm({
                         onBlur={handleBlur}
                         error={errors.AccountingEntries?.[index]?.Debit}
                         touched={touched.AccountingEntries?.[index]?.Debit}
-                        disabled={hasCredit} // Disable if Credit has value
+                        // disabled={hasCredit} // Disable if Credit has value
                         required={!hasCredit} // Only required if Credit is empty
                       />
 
@@ -382,7 +382,7 @@ function JournalEntryForm({
                         onBlur={handleBlur}
                         error={errors.AccountingEntries?.[index]?.Credit}
                         touched={touched.AccountingEntries?.[index]?.Credit}
-                        disabled={hasDebit} // Disable if Debit has value
+                        // disabled={hasDebit} // Disable if Debit has value
                         required={!hasDebit} // Only required if Debit is empty
                       />
                     </div>

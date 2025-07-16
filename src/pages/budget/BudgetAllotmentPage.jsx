@@ -11,6 +11,7 @@ import DataTable from '@/components/common/DataTable';
 import { fetchDepartments } from '@/features/settings/departmentSlice';
 import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
 import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
+import axiosInstance from '@/utils/axiosInstance';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,11 +21,15 @@ const BudgetAllotmentPage = () => {
 
   const { departments } = useSelector((state) => state.departments);
   const { subdepartments } = useSelector((state) => state.subdepartments);
-  const accounts = useSelector(
+  const chartOfAccounts = useSelector(
     (state) => state.chartOfAccounts?.accounts || []
   );
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
+  const { funds } = useSelector((state) => state.funds);
+  const { projectDetails } = useSelector((state) => state.projectDetails);
 
   const [data, setData] = useState([]);
+  const [allotmentList, setAllotmentList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
 
@@ -39,14 +44,24 @@ const BudgetAllotmentPage = () => {
     dispatch(fetchSubdepartments());
     dispatch(fetchAccounts());
     fetchBudgetAllotments();
+    fetchAllotmentList();
   }, []);
 
   const fetchBudgetAllotments = async () => {
     try {
-      const res = await fetch(`${API_URL}/budgetAllotment/budgetList`);
-      const data = await res.json();
+      const res = await axiosInstance(`/budgetAllotment/list`);
 
-      setData(data);
+      setData(res.data);
+    } catch (error) {
+      toast.error('Failed to load data');
+      toast.error(error.message);
+    }
+  };
+  const fetchAllotmentList = async () => {
+    try {
+      const res = await axiosInstance('/budgetSupplemental/budgetList');
+
+      setAllotmentList(res?.data);
     } catch (error) {
       toast.error('Failed to load data');
       toast.error(error.message);
@@ -58,50 +73,28 @@ const BudgetAllotmentPage = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (values) => {
-    activeRow ? handleUpdate(values) : handleCreate(values);
-  };
-
-  const handleCreate = async (values) => {
+  const handleSubmit = async (formData) => {
     try {
-      const response = await fetch(`${API_URL}/budgetAllotment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...values,
-          userId: user?.ID,
-          isNew: 'true',
-        }),
+      // Make API call using your axiosInstance
+      const response = await axiosInstance.post('budgetAllotment', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-      const res = await response.json();
-      if (res) {
+      if (response.data) {
+        toast.success(
+          activeRow ? 'Allotment updated successfully' : 'New Allotment added'
+        );
+
         fetchBudgetAllotments();
-        toast.success('Allotment added');
-        setIsModalOpen(false);
+      } else {
+        toast.error('Failed to save supplemental');
       }
     } catch (error) {
-      toast.error(error.message);
-    }
-  };
-
-  const handleUpdate = async (values) => {
-    try {
-      const response = await fetch(`${API_URL}/budget/${values?.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...values,
-          userId: user?.ID,
-        }),
-      });
-      const res = await response.json();
-      if (res) {
-        fetchBudgetAllotments();
-        toast.success('Allotment updated');
-        setIsModalOpen(false);
-      }
-    } catch (error) {
-      toast.error(error.message);
+      console.error('Error submitting supplemental:', error);
+      toast.error(error.message || 'Failed to save supplemental');
+    } finally {
+      setIsModalOpen(false);
     }
   };
 
@@ -114,7 +107,7 @@ const BudgetAllotmentPage = () => {
     {
       key: 'Status',
       header: 'Status',
-      render: (_, row) => <span>{row.Status}</span>,
+      render: (value) => <span>{value}</span>,
     },
     {
       key: 'InvoiceNumber',
@@ -166,15 +159,17 @@ const BudgetAllotmentPage = () => {
   ];
 
   const filteredData = data?.filter((item) => {
+    console.log('item', item, filters);
+    const { Budget } = item;
     return (
-      (!filters.department || item.DepartmentID === filters.department) &&
+      (!filters.department || Budget?.DepartmentID == filters.department) &&
       (!filters.subDepartment ||
-        item.SubDepartmentID === filters.subDepartment) &&
+        Budget?.SubDepartmentID == filters.subDepartment) &&
       (!filters.chartOfAccounts ||
-        item.ChartofAccountsID === filters.chartOfAccounts)
+        Budget?.ChartofAccountsID == filters.chartOfAccounts)
     );
   });
-  console.log('filteredData', filteredData, data);
+  // console.log('filteredData', filteredData, data);
   return (
     <div className="page-container">
       {/* Header */}
@@ -200,9 +195,9 @@ const BudgetAllotmentPage = () => {
           onChange={handleFilterChange}
           className="form-select"
         >
-          <option value="">Select Department</option>
+          <option value="">All Department</option>
           {departments?.map((d) => (
-            <option key={d.ID} value={d.Name}>
+            <option key={d.ID} value={d.ID}>
               {d.Name}
             </option>
           ))}
@@ -214,9 +209,9 @@ const BudgetAllotmentPage = () => {
           onChange={handleFilterChange}
           className="form-select"
         >
-          <option value="">Select Sub Department</option>
+          <option value="">All Sub Department</option>
           {subdepartments?.map((sd) => (
-            <option key={sd.ID} value={sd.Name}>
+            <option key={sd.ID} value={sd.ID}>
               {sd.Name}
             </option>
           ))}
@@ -228,9 +223,9 @@ const BudgetAllotmentPage = () => {
           onChange={handleFilterChange}
           className="form-select"
         >
-          <option value="">Select Chart of Account</option>
-          {accounts?.map((a) => (
-            <option key={a.ID} value={a.Name}>
+          <option value="">All Chart of Account</option>
+          {chartOfAccounts?.map((a) => (
+            <option key={a.ID} value={a.ID}>
               {a.Name}
             </option>
           ))}
@@ -254,6 +249,31 @@ const BudgetAllotmentPage = () => {
         title={activeRow ? 'Edit Allotment' : 'Add Allotment'}
       >
         <BudgetAllotmentForm
+          allotmentList={allotmentList}
+          departmentOptions={departments.map((dept) => ({
+            value: dept.ID,
+            label: dept.Name,
+          }))}
+          subDepartmentOptions={subdepartments.map((subDept) => ({
+            value: subDept.ID,
+            label: subDept.Name,
+          }))}
+          chartOfAccountsOptions={chartOfAccounts.map((account) => ({
+            value: account.ID,
+            label: account.Name,
+          }))}
+          fundOptions={funds.map((fund) => ({
+            value: fund.ID,
+            label: fund.Name,
+          }))}
+          projectOptions={projectDetails.map((project) => ({
+            value: project.ID,
+            label: project.Title,
+          }))}
+          fiscalYearOptions={fiscalYears.map((fiscalYear) => ({
+            value: fiscalYear.ID,
+            label: fiscalYear.Name,
+          }))}
           onSubmit={handleSubmit}
           initialData={activeRow}
           onClose={() => setIsModalOpen(false)}

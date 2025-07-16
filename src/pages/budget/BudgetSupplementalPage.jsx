@@ -187,12 +187,13 @@ const BudgetSupplementalPage = () => {
   // Apply filters to data
   const filteredData = data.filter((item) => {
     console.log(filters, item);
+    const { Budget } = item;
     return (
-      (!filters.department || item.DepartmentID == filters.department) &&
+      (!filters.department || Budget?.DepartmentID == filters.department) &&
       (!filters.subDepartment ||
-        item.SubDepartmentID == filters.subDepartment) &&
+        Budget?.SubDepartmentID == filters.subDepartment) &&
       (!filters.chartOfAccounts ||
-        item.ChartofAccountsID == filters.chartOfAccounts)
+        Budget?.ChartofAccountsID == filters.chartOfAccounts)
     );
   });
 

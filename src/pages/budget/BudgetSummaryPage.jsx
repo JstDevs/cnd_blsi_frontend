@@ -67,12 +67,42 @@ const BudgetSummaryPage = () => {
 
   const columns = [
     { key: 'Name', header: 'Name', sortable: true },
-    { key: 'FiscalYearID', header: 'Fiscal Year', sortable: true },
-    { key: 'DepartmentID', header: 'Department', sortable: true },
-    { key: 'SubDepartmentID', header: 'Sub Department', sortable: true },
-    { key: 'ChartOfAccountsID', header: 'Chart of Accounts', sortable: true },
-    { key: 'FundsID', header: 'Fund', sortable: true },
-    { key: 'ProjectID', header: 'Project', sortable: true },
+    {
+      key: 'FiscalYearID',
+      header: 'Fiscal Year',
+      sortable: true,
+      render: (_, row) => row?.FiscalYear.Name,
+    },
+    {
+      key: 'DepartmentID',
+      header: 'Department',
+      sortable: true,
+      render: (_, row) => row?.Department?.Name,
+    },
+    {
+      key: 'SubDepartmentID',
+      header: 'Sub Department',
+      sortable: true,
+      render: (_, row) => row?.SubDepartment?.Name,
+    },
+    {
+      key: 'ChartofAccountsID',
+      header: 'Chart of Accounts',
+      sortable: true,
+      render: (_, row) => row?.ChartofAccounts?.Name,
+    },
+    {
+      key: 'FundsID',
+      header: 'Fund',
+      sortable: true,
+      render: (_, row) => row?.Funds?.Name,
+    },
+    {
+      key: 'ProjectID',
+      header: 'Project',
+      sortable: true,
+      render: (_, row) => row?.Project?.Title,
+    },
     { key: 'Appropriation', header: 'Appropriation', sortable: true },
     {
       key: 'AppropriationBalance',
@@ -115,7 +145,7 @@ const BudgetSummaryPage = () => {
           onChange={handleFilterChange}
           className="form-select"
         >
-          <option value="">Select Department</option>
+          <option value="">All Department</option>
           {departments?.map((d) => (
             <option key={d.ID} value={d.Name}>
               {d.Name}
@@ -129,7 +159,7 @@ const BudgetSummaryPage = () => {
           onChange={handleFilterChange}
           className="form-select"
         >
-          <option value="">Select Sub Department</option>
+          <option value="">All Sub Department</option>
           {subdepartments?.map((sd) => (
             <option key={sd.ID} value={sd.Name}>
               {sd.Name}
@@ -143,7 +173,7 @@ const BudgetSummaryPage = () => {
           onChange={handleFilterChange}
           className="form-select"
         >
-          <option value="">Select Chart of Account</option>
+          <option value="">All Chart of Account</option>
           {accounts?.map((a) => (
             <option key={a.ID} value={a.Name}>
               {a.Name}
