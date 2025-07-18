@@ -1,3 +1,4 @@
+import axiosInstance from '@/utils/axiosInstance';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { toast } from 'react-hot-toast';
 
@@ -7,8 +8,8 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const fetchFunds = createAsyncThunk(
   'budgetFunds/fetchBudgetFunds',
   async () => {
-    const response = await fetch(`${API_URL}/funds`, { method: 'GET' });
-    return await response.json();
+    const response = await axiosInstance(`/funds`);
+    return response.data;
   }
 );
 

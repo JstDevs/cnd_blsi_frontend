@@ -145,27 +145,15 @@ function UserPage() {
         const result = await dispatch(
           updateUser({ ...submissionData, ID: currentUser.ID })
         ).unwrap();
-
-        if (updateUser.fulfilled.match(result)) {
-          setIsModalOpen(false);
-          resetForm();
-        } else if (updateUser.rejected.match(result)) {
-          setErrors({ general: result.payload || 'Failed to update user.' });
-        }
       } else {
         const result = await dispatch(addUser(submissionData)).unwrap();
-
-        if (addUser.fulfilled.match(result)) {
-          setIsModalOpen(false);
-          resetForm();
-        } else if (addUser.rejected.match(result)) {
-          setErrors({ general: result.payload || 'Failed to add user.' });
-        }
       }
     } catch (error) {
       console.log(error);
       setErrors({ general: 'Unexpected error occurred.' });
     } finally {
+      resetForm();
+      setIsModalOpen(false);
       setSubmitting(false);
     }
   };
