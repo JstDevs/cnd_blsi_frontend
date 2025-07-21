@@ -8,12 +8,15 @@ import {
   fetchPpeCategories,
   addPpeCategory,
   updatePpeCategory,
-  deletePpeCategory
+  deletePpeCategory,
 } from '../../features/settings/ppeCategoriesSlice';
+import toast from 'react-hot-toast';
 
 function PpeCategoriesPage() {
   const dispatch = useDispatch();
-  const { ppeCategories, isLoading } = useSelector(state => state.ppeCategories);
+  const { ppeCategories, isLoading } = useSelector(
+    (state) => state.ppeCategories
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPpeCategory, setCurrentPpeCategory] = useState(null);
@@ -45,27 +48,40 @@ function PpeCategoriesPage() {
         await dispatch(deletePpeCategory(ppeCategoryToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setPpeCategoryToDelete(null);
+        toast.success('PPE category deleted successfully');
       } catch (error) {
         console.error('Failed to delete PPE category:', error);
+        toast.error('Failed to delete PPE category. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentPpeCategory) {
-      dispatch(updatePpeCategory({ ...values, ID: currentPpeCategory.ID }));
-    } else {
-      dispatch(addPpeCategory(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentPpeCategory) {
+        await dispatch(
+          updatePpeCategory({ ...values, ID: currentPpeCategory.ID })
+        ).unwrap();
+        toast.success('PPE category updated successfully');
+      } else {
+        await dispatch(addPpeCategory(values)).unwrap();
+        toast.success('PPE category saved successfully');
+      }
+      dispatch(fetchPpeCategories());
+    } catch (error) {
+      console.error('Failed to save PPE category:', error);
+      toast.error('Failed to save PPE category. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Name',
       header: 'Name',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -73,14 +89,16 @@ function PpeCategoriesPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -116,7 +134,7 @@ function PpeCategoriesPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentPpeCategory ? "Edit PPE Category" : "Add PPE Category"}
+        title={currentPpeCategory ? 'Edit PPE Category' : 'Add PPE Category'}
       >
         <PpeCategoriesForm
           initialData={currentPpeCategory}
@@ -133,7 +151,8 @@ function PpeCategoriesPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the PPE category "{ppeCategoryToDelete?.name}"?
+            Are you sure you want to delete the PPE category "
+            {ppeCategoryToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

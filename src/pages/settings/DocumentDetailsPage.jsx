@@ -9,6 +9,7 @@ import Modal from '../../components/common/Modal';
 import DocumentDetailsForm from '../../components/forms/DocumentDetailsForm';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { fetchDocumentTypeCategories } from '../../features/settings/documentTypeCategoriesSlice';
+import toast from 'react-hot-toast';
 
 const DocumentDetailsPage = () => {
   const dispatch = useDispatch();
@@ -54,8 +55,10 @@ const DocumentDetailsPage = () => {
         await dispatch(deleteDocumentDetail(documentToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setDocumentToDelete(null);
+        toast.success('Document detail deleted successfully');
       } catch (error) {
         console.error('Failed to delete document detail:', error);
+        toast.error('Failed to delete document detail. Please try again.');
         // Optionally show an error message to the user
       }
     }
@@ -189,7 +192,7 @@ const DocumentDetailsPage = () => {
         <div className="py-3">
           <p className="text-neutral-700">
             Are you sure you want to delete the document detail for{' '}
-            <span className="font-medium">{documentToDelete?.name}</span>?
+            <span className="font-medium">{documentToDelete?.Name}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

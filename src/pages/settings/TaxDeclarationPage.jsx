@@ -11,6 +11,7 @@ import {
   deleteTaxDeclaration,
 } from '../../features/settings/taxDeclarationSlice';
 import FormField from '@/components/common/FormField';
+import toast from 'react-hot-toast';
 
 function TaxDeclarationPage() {
   const dispatch = useDispatch();
@@ -56,15 +57,24 @@ function TaxDeclarationPage() {
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentTaxDeclaration) {
-      dispatch(
-        updateTaxDeclaration({ ...values, ID: currentTaxDeclaration.ID })
-      );
-    } else {
-      dispatch(addTaxDeclaration(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentTaxDeclaration) {
+        await dispatch(
+          updateTaxDeclaration({ ...values, ID: currentTaxDeclaration.ID })
+        ).unwrap();
+        toast.success('Tax declaration updated successfully');
+      } else {
+        await dispatch(addTaxDeclaration(values)).unwrap();
+        toast.success('Tax declaration saved successfully');
+      }
+      dispatch(fetchTaxDeclarations());
+    } catch (error) {
+      console.error('Failed to save tax declaration:', error);
+      toast.error('Failed to save tax declaration. Please try again.');
+    } finally {
+      // setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [

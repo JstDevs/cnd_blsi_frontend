@@ -2,14 +2,20 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import GeneralJournalForm from '../../components/forms/GeneralJournalForm';
 import DataTable from '../../components/common/DataTable';
-import { fetchGeneralJournals, resetGeneralJournalState } from '../../features/disbursement/generalJournalSlice';
+import {
+  fetchGeneralJournals,
+  resetGeneralJournalState,
+} from '../../features/disbursement/generalJournalSlice';
 import { fetchFunds } from '../../features/budget/fundsSlice';
+import toast from 'react-hot-toast';
 
 function GeneralJournalPage() {
   const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
-  const { generalJournals, isLoading, error } = useSelector(state => state.generalJournal);
-  const { funds } = useSelector(state => state.funds);
+  const { generalJournals, isLoading, error } = useSelector(
+    (state) => state.generalJournal
+  );
+  const { funds } = useSelector((state) => state.funds);
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -18,7 +24,7 @@ function GeneralJournalPage() {
       currency: 'PHP',
     }).format(amount);
   };
-  
+
   useEffect(() => {
     dispatch(resetGeneralJournalState()); // Reset state on mount
     dispatch(fetchFunds());
@@ -78,20 +84,20 @@ function GeneralJournalPage() {
     },
   ];
 
-  
   // Handle export to Excel
   const handleExport = async (values) => {
     try {
       const response = await fetch(`${API_URL}/generalJournal/exportExcel`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           startDate: values.startDate,
           endDate: values.endDate,
           fundID: values.fundID,
-        })
+        }),
       });
 
       if (!response.ok) throw new Error('Server response was not ok');
@@ -114,10 +120,9 @@ function GeneralJournalPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
     } catch (err) {
       console.error('Export failed:', err);
-      alert(err.message || 'Failed to export general journal');
+      toast.error(err.message || 'Failed to export general journal');
     }
   };
 
@@ -132,9 +137,9 @@ function GeneralJournalPage() {
         <h1>General Journal</h1>
         <p>Generate general journal reports.</p>
       </div>
-      
+
       <div className="mt-4 p-6 bg-white rounded-md shadow">
-        <GeneralJournalForm 
+        <GeneralJournalForm
           funds={funds}
           onExportExcel={handleExport}
           onView={handleView}
@@ -160,4 +165,4 @@ function GeneralJournalPage() {
   );
 }
 
-export default GeneralJournalPage; 
+export default GeneralJournalPage;

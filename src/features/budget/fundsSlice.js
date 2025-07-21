@@ -18,7 +18,10 @@ export const createBudgetFund = createAsyncThunk(
   async (values) => {
     const response = await fetch(`${API_URL}/funds`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
       body: JSON.stringify({ IsNew: true, ...values }),
     });
     const res = await response.json();
@@ -35,7 +38,10 @@ export const updateBudgetFund = createAsyncThunk(
   async (values) => {
     const response = await fetch(`${API_URL}/funds`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
       body: JSON.stringify({ IsNew: false, ...values }),
     });
     const res = await response.json();
@@ -52,6 +58,10 @@ export const deleteBudgetFund = createAsyncThunk(
   async (id) => {
     const response = await fetch(`${API_URL}/funds/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
     });
     const res = await response.json();
     if (res) {

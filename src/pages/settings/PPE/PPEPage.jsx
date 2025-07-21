@@ -7,6 +7,7 @@ import PPEForm from './PPEForm';
 import { fetchPPEs, deletePPE } from '../../../features/settings/ppeSlice';
 import { Printer } from 'lucide-react';
 import FormField from '@/components/common/FormField';
+import toast from 'react-hot-toast';
 // import { render } from '@headlessui/react/dist/utils/render';
 
 const FIELDS = [
@@ -67,9 +68,16 @@ function PPEPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeletePPE = (ppe) => {
-    if (window.confirm('Are you sure you want to delete this PPE entry?')) {
-      dispatch(deletePPE(ppe.ID));
+  const handleDeletePPE = async (ppe) => {
+    // if (window.confirm('Are you sure you want to delete this PPE entry?')) {
+    // }
+    try {
+      await dispatch(deletePPE(ppe.ID)).unwrap();
+      toast.success('PPE entry deleted successfully');
+      dispatch(fetchPPEs());
+    } catch (error) {
+      console.error('Failed to delete PPE entry:', error);
+      toast.error('Failed to delete PPE entry. Please try again.');
     }
   };
 
@@ -86,7 +94,7 @@ function PPEPage() {
         header: field.header,
         sortable: true,
         className: 'text-neutral-900',
-        render: (_, ppe) => ppe.Category.Name || 'N/A',
+        render: (_, ppe) => ppe?.Category?.Name || 'N/A',
       };
     }
     if (field.key === 'SupplierID') {
@@ -95,7 +103,7 @@ function PPEPage() {
         header: field.header,
         sortable: true,
         className: 'text-neutral-900',
-        render: (_, ppe) => ppe.Supplier.Name || 'N/A',
+        render: (_, ppe) => ppe?.Supplier?.Name || 'N/A',
       };
     }
 
@@ -121,7 +129,7 @@ function PPEPage() {
       title: 'Delete',
       onClick: handleDeletePPE,
       className:
-        'text-danger-600 hover:text-danger-900 p-1 rounded-full hover:bg-danger-50',
+        'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-danger-50',
     },
   ];
   const acknowledgingNo2Options = [

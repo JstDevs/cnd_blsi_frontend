@@ -2,17 +2,23 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import TrialBalanceForm from '../../components/forms/TrialBalanceForm';
 import DataTable from '../../components/common/DataTable';
-import { fetchTrialBalances, resetTrialBalanceState } from '../../features/reports/trialBalanceSlice';
+import {
+  fetchTrialBalances,
+  resetTrialBalanceState,
+} from '../../features/reports/trialBalanceSlice';
 import { fetchFunds } from '../../features/budget/fundsSlice';
-import { fetchEmployees } from "@/features/settings/employeeSlice";
+import { fetchEmployees } from '@/features/settings/employeeSlice';
+import toast from 'react-hot-toast';
 
 function TrialBalancePage() {
   const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
 
-  const { trialBalances, isLoading, error } = useSelector(state => state.trialBalance);
-  const { funds } = useSelector(state => state.funds);
-  const { employees } = useSelector(state => state.employees);
+  const { trialBalances, isLoading, error } = useSelector(
+    (state) => state.trialBalance
+  );
+  const { funds } = useSelector((state) => state.funds);
+  const { employees } = useSelector((state) => state.employees);
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -21,7 +27,7 @@ function TrialBalancePage() {
       currency: 'PHP',
     }).format(amount);
   };
-  
+
   useEffect(() => {
     dispatch(resetTrialBalanceState());
     dispatch(fetchFunds());
@@ -81,22 +87,26 @@ function TrialBalancePage() {
     },
   ];
 
-  
   // Handle export to Excel
   const handleExport = async (values) => {
     try {
-      const response = await fetch(`${API_URL}/trialBalanceReport/exportExcel`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          endDate: values.endDate,
-          fundID: values.fundID,
-          approverID: values.approverID,
-          ledger: values.ledger,
-        })
-      });
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${API_URL}/trialBalanceReport/exportExcel`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            endDate: values.endDate,
+            fundID: values.fundID,
+            approverID: values.approverID,
+            ledger: values.ledger,
+          }),
+        }
+      );
 
       if (!response.ok) throw new Error('Server response was not ok');
 
@@ -118,10 +128,9 @@ function TrialBalancePage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
     } catch (err) {
       console.error('Export failed:', err);
-      alert(err.message || 'Failed to export trial balance');
+      toast.error(err.message || 'Failed to export trial balance');
     }
   };
 
@@ -136,7 +145,7 @@ function TrialBalancePage() {
         <h1>Trial Balance</h1>
         <p>Generate trial balance reports.</p>
       </div>
-      
+
       <div className="mt-4 p-6 bg-white rounded-md shadow">
         <TrialBalanceForm
           funds={funds}

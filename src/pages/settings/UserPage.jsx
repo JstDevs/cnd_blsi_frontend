@@ -156,7 +156,7 @@ function UserPage() {
       } else {
         await dispatch(addUser(submissionData)).unwrap();
       }
-
+      dispatch(fetchUsers());
       toast.success('User saved successfully.');
     } catch (error) {
       console.log(error);

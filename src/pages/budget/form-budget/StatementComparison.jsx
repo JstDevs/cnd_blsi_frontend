@@ -7,6 +7,7 @@ import {
   resetStatementComparisonState,
 } from '@/features/budget/statementComparisonSlice';
 import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
+import toast from 'react-hot-toast';
 
 function StatementComparison() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -71,7 +72,10 @@ function StatementComparison() {
         `${API_URL}/statementOfComparison/exportExcel`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
           body: JSON.stringify({ fiscalYearID: values.fiscalYearID }),
         }
       );
@@ -95,7 +99,7 @@ function StatementComparison() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Export failed:', err);
-      alert(err.message || 'Failed to export');
+      toast.error(err.message || 'Failed to export');
     }
   };
 

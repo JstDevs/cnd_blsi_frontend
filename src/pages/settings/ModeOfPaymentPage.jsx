@@ -8,12 +8,15 @@ import {
   fetchModeOfPayments,
   addModeOfPayment,
   updateModeOfPayment,
-  deleteModeOfPayment
+  deleteModeOfPayment,
 } from '../../features/settings/modeOfPaymentSlice';
+import toast from 'react-hot-toast';
 
 function ModeOfPaymentPage() {
   const dispatch = useDispatch();
-  const { modeOfPayments, isLoading } = useSelector(state => state.modeOfPayments);
+  const { modeOfPayments, isLoading } = useSelector(
+    (state) => state.modeOfPayments
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModeOfPayment, setCurrentModeOfPayment] = useState(null);
@@ -45,32 +48,45 @@ function ModeOfPaymentPage() {
         await dispatch(deleteModeOfPayment(modeOfPaymentToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setModeOfPaymentToDelete(null);
+        toast.success('Mode of payment deleted successfully.');
       } catch (error) {
+        toast.error(error.message || 'Failed to delete mode of payment.');
         console.error('Failed to delete mode of payment:', error);
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentModeOfPayment) {
-      dispatch(updateModeOfPayment({ ...values, ID: currentModeOfPayment.ID }));
-    } else {
-      dispatch(addModeOfPayment(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentModeOfPayment) {
+        await dispatch(
+          updateModeOfPayment({ ...values, ID: currentModeOfPayment.ID })
+        ).unwrap();
+        toast.success('Mode of payment updated successfully.');
+      } else {
+        await dispatch(addModeOfPayment(values)).unwrap();
+        toast.success('Mode of payment added successfully.');
+      }
+      dispatch(fetchModeOfPayments());
+    } catch (error) {
+      console.error('Failed to save mode of payment:', error);
+      toast.error('Failed to save mode of payment. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Code',
       header: 'Code',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Name',
       header: 'Name',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -78,14 +94,16 @@ function ModeOfPaymentPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -121,7 +139,9 @@ function ModeOfPaymentPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentModeOfPayment ? "Edit Mode of Payment" : "Add Mode of Payment"}
+        title={
+          currentModeOfPayment ? 'Edit Mode of Payment' : 'Add Mode of Payment'
+        }
       >
         <ModeOfPaymentForm
           initialData={currentModeOfPayment}
@@ -138,7 +158,8 @@ function ModeOfPaymentPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the mode of payment "{modeOfPaymentToDelete?.name}"?
+            Are you sure you want to delete the mode of payment "
+            {modeOfPaymentToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -165,4 +186,4 @@ function ModeOfPaymentPage() {
   );
 }
 
-export default ModeOfPaymentPage; 
+export default ModeOfPaymentPage;

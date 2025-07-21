@@ -9,6 +9,7 @@ import {
 } from '../../features/settings/chartOfAccountsSlice';
 import ChartOfAccountsForm from './ChartOfAccountsForm';
 import { Settings } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 function ChartOfAccountsPage() {
   const dispatch = useDispatch();
@@ -44,8 +45,10 @@ function ChartOfAccountsPage() {
         await dispatch(deleteAccount(accountToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setAccountToDelete(null);
+        toast.success('Account deleted successfully');
       } catch (error) {
         console.error('Failed to delete account:', error);
+        toast.error('Failed to delete account. Please try again.');
       }
     }
   };

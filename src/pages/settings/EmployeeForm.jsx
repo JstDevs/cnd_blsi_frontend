@@ -17,6 +17,7 @@ import { fetchMunicipalities } from '@/features/settings/municipalitiesSlice';
 import { fetchBarangays } from '@/features/settings/barangaysSlice';
 import { fetchNationalities } from '@/features/settings/nationalitiesSlice';
 import SearchableDropdown from '@/components/common/SearchableDropdown';
+import toast from 'react-hot-toast';
 
 // Validation schema
 const employeeSchema = Yup.object().shape({
@@ -181,14 +182,18 @@ function EmployeeForm({ initialData, onClose }) {
     dispatch(action)
       .unwrap()
       .then(() => {
-        onClose();
+        initialData
+          ? toast.success('Employee updated successfully.')
+          : toast.success('Employee added successfully.');
+        dispatch(fetchEmployees());
       })
       .catch((error) => {
         console.error('Error submitting employee:', error);
+        toast.error('Failed to submit employee. Please try again.');
       })
       .finally(() => {
+        onClose();
         setIsSubmitting(false);
-        dispatch(fetchEmployees());
       });
   };
 

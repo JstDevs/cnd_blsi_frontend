@@ -2,18 +2,18 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import FinancialStatementsForm from '../../components/forms/FinancialStatementsForm';
 import DataTable from '../../components/common/DataTable';
-import { fetchFinancialStatements, resetFinancialStatementState } from '../../features/reports/financialStatementSlice';
+import {
+  fetchFinancialStatements,
+  resetFinancialStatementState,
+} from '../../features/reports/financialStatementSlice';
+import toast from 'react-hot-toast';
 
 function FinancialStatementsPage() {
   const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
-  const {
-    financialStatements,
-    isLoading,
-    error,
-  } = useSelector((state) => state.financialStatementsReports);
-
-  
+  const { financialStatements, isLoading, error } = useSelector(
+    (state) => state.financialStatementsReports
+  );
 
   useEffect(() => {
     dispatch(resetFinancialStatementState());
@@ -65,19 +65,23 @@ function FinancialStatementsPage() {
     },
   ];
 
-  
   // Handle export to Excel
   const handleExport = async (values) => {
     try {
-      const response = await fetch(`${API_URL}/financialStatementsReports/exportExcel`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          year: values.year,
-        })
-      });
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${API_URL}/financialStatementsReports/exportExcel`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            year: values.year,
+          }),
+        }
+      );
 
       if (!response.ok) throw new Error('Server response was not ok');
 
@@ -99,10 +103,9 @@ function FinancialStatementsPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
     } catch (err) {
       console.error('Export failed:', err);
-      alert(err.message || 'Failed to export');
+      toast.error(err.message || 'Failed to export');
     }
   };
 
@@ -115,9 +118,9 @@ function FinancialStatementsPage() {
     <div>
       <div className="page-header">
         <h1>Consolidated Comparison</h1>
-        <p>Generate reports.</p>
+        <p>Generate consolidated comparison reports.</p>
       </div>
-      
+
       <div className="mt-4 p-6 bg-white rounded-md shadow">
         <FinancialStatementsForm
           onExportExcel={handleExport}

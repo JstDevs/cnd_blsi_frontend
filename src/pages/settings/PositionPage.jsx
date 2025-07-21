@@ -8,12 +8,13 @@ import {
   fetchPositions,
   addPosition,
   updatePosition,
-  deletePosition
+  deletePosition,
 } from '../../features/settings/positionSlice';
+import toast from 'react-hot-toast';
 
 function PositionPage() {
   const dispatch = useDispatch();
-  const { positions, isLoading } = useSelector(state => state.positions);
+  const { positions, isLoading } = useSelector((state) => state.positions);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(null);
@@ -45,27 +46,40 @@ function PositionPage() {
         await dispatch(deletePosition(positionToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setPositionToDelete(null);
+        toast.success('Position deleted successfully');
       } catch (error) {
         console.error('Failed to delete position:', error);
+        toast.error('Failed to delete position. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentPosition) {
-      dispatch(updatePosition({ ...values, ID: currentPosition.ID }));
-    } else {
-      dispatch(addPosition(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentPosition) {
+        await dispatch(
+          updatePosition({ ...values, ID: currentPosition.ID })
+        ).unwrap();
+        toast.success('Position updated successfully');
+      } else {
+        await dispatch(addPosition(values)).unwrap();
+        toast.success('Position saved successfully');
+      }
+      dispatch(fetchPositions());
+    } catch (error) {
+      console.error('Failed to save position:', error);
+      toast.error('Failed to save position. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Name',
       header: 'Position',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -73,14 +87,16 @@ function PositionPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -116,7 +132,7 @@ function PositionPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentPosition ? "Edit Position" : "Add Position"}
+        title={currentPosition ? 'Edit Position' : 'Add Position'}
       >
         <PositionForm
           initialData={currentPosition}
@@ -133,7 +149,8 @@ function PositionPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the position "{positionToDelete?.name}"?
+            Are you sure you want to delete the position "
+            {positionToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

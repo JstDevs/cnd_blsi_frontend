@@ -8,12 +8,13 @@ import {
   fetchBaseUnits,
   addBaseUnit,
   updateBaseUnit,
-  deleteBaseUnit
+  deleteBaseUnit,
 } from '../../../features/settings/baseUnitSlice';
+import toast from 'react-hot-toast';
 
 function BaseUnitValue() {
   const dispatch = useDispatch();
-  const { baseUnits, isLoading } = useSelector(state => state.baseUnits);
+  const { baseUnits, isLoading } = useSelector((state) => state.baseUnits);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBaseUnit, setCurrentBaseUnit] = useState(null);
@@ -45,57 +46,70 @@ function BaseUnitValue() {
         await dispatch(deleteBaseUnit(baseUnitToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setBaseUnitToDelete(null);
+        toast.success('Base unit deleted successfully');
       } catch (error) {
         console.error('Failed to delete base unit:', error);
+        toast.error('Failed to delete base unit. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentBaseUnit) {
-      dispatch(updateBaseUnit({ ...values, ID: currentBaseUnit.ID }));
-    } else {
-      dispatch(addBaseUnit(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentBaseUnit) {
+        await dispatch(
+          updateBaseUnit({ ...values, ID: currentBaseUnit.ID })
+        ).unwrap();
+        toast.success('Base unit updated successfully');
+      } else {
+        await dispatch(addBaseUnit(values)).unwrap();
+        toast.success('Base unit added successfully');
+      }
+      dispatch(fetchBaseUnits());
+    } catch (error) {
+      console.error('Failed to save base unit:', error);
+      toast.error('Failed to save base unit. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'GeneralRevisionYear',
       header: 'General Revision Year',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Classification',
       header: 'Classification',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Location',
       header: 'Location',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Unit',
       header: 'Unit',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'ActualUse',
       header: 'Actual Use',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'SubClassification',
       header: 'Sub Classification',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Price',
       header: 'Sub Classification',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -103,14 +117,16 @@ function BaseUnitValue() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -146,7 +162,7 @@ function BaseUnitValue() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentBaseUnit ? "Edit Base Unit" : "Add Base Unit"}
+        title={currentBaseUnit ? 'Edit Base Unit' : 'Add Base Unit'}
       >
         <BaseUnitForm
           initialData={currentBaseUnit}
@@ -163,7 +179,8 @@ function BaseUnitValue() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the base unit "{baseUnitToDelete?.Name}"?
+            Are you sure you want to delete the base unit "
+            {baseUnitToDelete?.Unit}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

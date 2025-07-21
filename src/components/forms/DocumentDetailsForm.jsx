@@ -8,6 +8,7 @@ import {
   updateDocumentDetail,
 } from '../../features/settings/documentDetailsSlice';
 import FormField from '../common/FormField';
+import toast from 'react-hot-toast';
 
 export const getValidationSchema = (
   existingDocuments = [],
@@ -84,15 +85,19 @@ const DocumentDetailsForm = ({
         await dispatch(
           updateDocumentDetail({ ...values, ID: document.ID })
         ).unwrap();
+        toast.success('Document detail updated successfully');
       } else {
         await dispatch(addDocumentDetail(values)).unwrap();
+        toast.success('Document detail added successfully');
       }
-      onClose();
+
+      dispatch(fetchDocumentDetails());
     } catch (error) {
       console.error('Failed to save document details:', error);
+      toast.error('Failed to save document details. Please try again.');
     } finally {
       setSubmitting(false);
-      dispatch(fetchDocumentDetails());
+      onClose();
     }
   };
   // const validationSchema = getValidationSchema(document, documentList);

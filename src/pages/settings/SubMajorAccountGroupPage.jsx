@@ -13,6 +13,7 @@ import {
   deleteSubMajorAccountGroup,
 } from '../../features/settings/subMajorAccountGroupSlice';
 import { fetchMajorAccountGroups } from '../../features/settings/majorAccountGroupSlice';
+import toast from 'react-hot-toast';
 
 // Validation schema for sub major account group form
 const subMajorAccountGroupSchema = Yup.object().shape({
@@ -73,15 +74,25 @@ function SubMajorAccountGroupPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (subMajorAccountGroupToDelete) {
-      dispatch(deleteSubMajorAccountGroup(subMajorAccountGroupToDelete.ID));
-      setIsDeleteModalOpen(false);
-      setSubMajorAccountGroupToDelete(null);
+  const confirmDelete = async () => {
+    try {
+      if (subMajorAccountGroupToDelete) {
+        await dispatch(
+          deleteSubMajorAccountGroup(subMajorAccountGroupToDelete.ID)
+        ).unwrap();
+        setIsDeleteModalOpen(false);
+        setSubMajorAccountGroupToDelete(null);
+        toast.success('Sub major account group deleted successfully');
+      }
+    } catch (error) {
+      console.error('Failed to delete sub major account group:', error);
+      toast.error(
+        'Failed to delete sub major account group. Please try again.'
+      );
     }
   };
 
-  const handleSubmit = (values, { resetForm }) => {
+  const handleSubmit = async (values, { resetForm }) => {
     const accountSubTypeName =
       majorAccountGroups.find((d) => d.ID === Number(values.AccountSubTypeID))
         ?.Name || '';
@@ -91,18 +102,27 @@ function SubMajorAccountGroupPage() {
       accountSubTypeName,
     };
 
-    if (currentSubMajorAccountGroup) {
-      dispatch(
-        updateSubMajorAccountGroup({
-          ...submissionData,
-          ID: currentSubMajorAccountGroup.ID,
-        })
-      );
-    } else {
-      dispatch(addSubMajorAccountGroup(submissionData));
+    try {
+      if (currentSubMajorAccountGroup) {
+        await dispatch(
+          updateSubMajorAccountGroup({
+            ...submissionData,
+            ID: currentSubMajorAccountGroup.ID,
+          })
+        ).unwrap();
+        toast.success('Sub major account group updated successfully');
+      } else {
+        await dispatch(addSubMajorAccountGroup(submissionData)).unwrap();
+        toast.success('Sub major account group added successfully');
+      }
+      dispatch(fetchSubMajorAccountGroups());
+    } catch (error) {
+      console.error('Failed to save sub major account group:', error);
+      toast.error('Failed to save sub major account group. Please try again.');
+    } finally {
+      setIsModalOpen(false);
+      resetForm();
     }
-    setIsModalOpen(false);
-    resetForm();
   };
 
   // Table columns definition

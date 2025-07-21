@@ -8,12 +8,15 @@ import {
   fetchPpeSuppliers,
   addPpeSupplier,
   updatePpeSupplier,
-  deletePpeSupplier
+  deletePpeSupplier,
 } from '../../features/settings/ppeSuppliersSlice';
+import toast from 'react-hot-toast';
 
 function PpeSuppliersPage() {
   const dispatch = useDispatch();
-  const { ppeSuppliers, isLoading } = useSelector(state => state.ppeSuppliers);
+  const { ppeSuppliers, isLoading } = useSelector(
+    (state) => state.ppeSuppliers
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPpeSupplier, setCurrentPpeSupplier] = useState(null);
@@ -45,27 +48,40 @@ function PpeSuppliersPage() {
         await dispatch(deletePpeSupplier(ppeSupplierToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setPpeSupplierToDelete(null);
+        toast.success('PPE supplier deleted successfully');
       } catch (error) {
         console.error('Failed to delete PPE supplier:', error);
+        toast.error('Failed to delete PPE supplier. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentPpeSupplier) {
-      dispatch(updatePpeSupplier({ ...values, ID: currentPpeSupplier.ID }));
-    } else {
-      dispatch(addPpeSupplier(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentPpeSupplier) {
+        await dispatch(
+          updatePpeSupplier({ ...values, ID: currentPpeSupplier.ID })
+        ).unwrap();
+        toast.success('PPE supplier updated successfully');
+      } else {
+        await dispatch(addPpeSupplier(values)).unwrap();
+        toast.success('PPE supplier saved successfully');
+      }
+      dispatch(fetchPpeSuppliers());
+    } catch (error) {
+      console.error('Failed to save PPE supplier:', error);
+      toast.error('Failed to save PPE supplier. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Name',
       header: 'Name',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -73,14 +89,16 @@ function PpeSuppliersPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -116,7 +134,7 @@ function PpeSuppliersPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentPpeSupplier ? "Edit PPE Supplier" : "Add PPE Supplier"}
+        title={currentPpeSupplier ? 'Edit PPE Supplier' : 'Add PPE Supplier'}
       >
         <PpeSuppliersForm
           initialData={currentPpeSupplier}
@@ -133,7 +151,8 @@ function PpeSuppliersPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the PPE supplier "{ppeSupplierToDelete?.name}"?
+            Are you sure you want to delete the PPE supplier "
+            {ppeSupplierToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

@@ -8,63 +8,79 @@ import {
   fetchProjectDetails,
   addProjectDetail,
   updateProjectDetail,
-  deleteProjectDetail
+  deleteProjectDetail,
 } from '../../features/settings/projectDetailsSlice';
+import toast from 'react-hot-toast';
 
 function ProjectDetailsPage() {
   const dispatch = useDispatch();
-  const { projectDetails, isLoading } = useSelector(state => state.projectDetails);
+  const { projectDetails, isLoading } = useSelector(
+    (state) => state.projectDetails
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProject, setCurrentProject] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
-  
+
   useEffect(() => {
     dispatch(fetchProjectDetails());
   }, [dispatch]);
-  
+
   const handleAdd = () => {
     setCurrentProject(null);
     setIsModalOpen(true);
   };
-  
+
   const handleEdit = (project) => {
     setCurrentProject(project);
     setIsModalOpen(true);
   };
-  
+
   const handleDelete = (project) => {
     setProjectToDelete(project);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = async () => {
     if (projectToDelete) {
       try {
         await dispatch(deleteProjectDetail(projectToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setProjectToDelete(null);
+        toast.success('Project detail deleted successfully.');
       } catch (error) {
         console.error('Failed to delete project detail:', error);
+        toast.error('Failed to delete project detail. Please try again.');
       }
     }
   };
-  
-  const handleSubmit = (values) => {
-    if (currentProject) {
-      dispatch(updateProjectDetail({ ...values, ID: currentProject.ID }));
-    } else {
-      dispatch(addProjectDetail(values));
+
+  const handleSubmit = async (values) => {
+    try {
+      if (currentProject) {
+        await dispatch(
+          updateProjectDetail({ ...values, ID: currentProject.ID })
+        ).unwrap();
+        toast.success('Project detail updated successfully.');
+      } else {
+        await dispatch(addProjectDetail(values)).unwrap();
+        toast.success('Project detail added successfully.');
+      }
+      dispatch(fetchProjectDetails());
+    } catch (error) {
+      console.error('Failed to save project detail:', error);
+      toast.error('Failed to save project detail. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Title',
       header: 'Project Title',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'StartDate',
@@ -84,26 +100,28 @@ function ProjectDetailsPage() {
       sortable: true,
       // Optional: Add render function to display label instead of value if needed
     },
-     {
+    {
       key: 'Description',
       header: 'Description',
-      sortable: false // Description might be long, sorting might not be useful
-    }
+      sortable: false, // Description might be long, sorting might not be useful
+    },
   ];
-  
+
   const actions = [
     {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -112,7 +130,7 @@ function ProjectDetailsPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1>Project Details</h1>
-            <p>Manage project details</p>
+            <p>Manage project details sss</p>
           </div>
           <button
             type="button"
@@ -124,7 +142,7 @@ function ProjectDetailsPage() {
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -134,12 +152,12 @@ function ProjectDetailsPage() {
           emptyMessage="No project details found. Click 'Add Project Detail' to create one."
         />
       </div>
-      
+
       {/* Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentProject ? "Edit Project Detail" : "Add Project Detail"}
+        title={currentProject ? 'Edit Project Detail' : 'Add Project Detail'}
         size="lg"
       >
         <ProjectDetailsForm
@@ -148,7 +166,7 @@ function ProjectDetailsPage() {
           onSubmit={handleSubmit}
         />
       </Modal>
-      
+
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -157,7 +175,8 @@ function ProjectDetailsPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the project "{projectToDelete?.projectTitle}"?
+            Are you sure you want to delete the project "
+            {projectToDelete?.Title}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -184,4 +203,4 @@ function ProjectDetailsPage() {
   );
 }
 
-export default ProjectDetailsPage; 
+export default ProjectDetailsPage;

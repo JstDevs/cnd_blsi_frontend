@@ -174,9 +174,9 @@ function BusinessPermitPage() {
   };
 
   const handleDeletePermit = (permit) => {
-    if (window.confirm('Are you sure you want to delete this permit?')) {
-      console.log('Deleting permit:', permit);
-    }
+    // if (window.confirm('Are you sure you want to delete this permit?')) {
+    console.log('Deleting permit:', permit);
+    // }
   };
 
   const handleSave = () => {

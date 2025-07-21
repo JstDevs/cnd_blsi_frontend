@@ -7,6 +7,7 @@ import ItemForm from '../../components/forms/ItemForm';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
+import toast from 'react-hot-toast';
 
 const ItemPage = () => {
   const dispatch = useDispatch();
@@ -49,8 +50,10 @@ const ItemPage = () => {
         await dispatch(deleteItem(itemToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setItemToDelete(null);
+        toast.success('Item deleted successfully');
       } catch (error) {
         console.error('Failed to delete item:', error);
+        toast.error('Failed to delete item. Please try again.');
         // Optionally show an error message to the user
       }
     }
@@ -171,7 +174,7 @@ const ItemPage = () => {
         <div className="py-3">
           <p className="text-neutral-700">
             Are you sure you want to delete the item{' '}
-            <span className="font-medium">{itemToDelete?.name}</span>?
+            <span className="font-medium">{itemToDelete?.Name}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

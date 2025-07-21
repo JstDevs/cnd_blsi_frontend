@@ -8,12 +8,13 @@ import {
   fetchTaxCodes,
   addTaxCode,
   updateTaxCode,
-  deleteTaxCode
+  deleteTaxCode,
 } from '../../features/settings/taxCodeSlice';
+import toast from 'react-hot-toast';
 
 function TaxCodePage() {
   const dispatch = useDispatch();
-  const { taxCodes, isLoading } = useSelector(state => state.taxCodes);
+  const { taxCodes, isLoading } = useSelector((state) => state.taxCodes);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTaxCode, setCurrentTaxCode] = useState(null);
@@ -45,21 +46,34 @@ function TaxCodePage() {
         await dispatch(deleteTaxCode(taxCodeToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setTaxCodeToDelete(null);
+        toast.success('Tax code deleted successfully.');
       } catch (error) {
         console.error('Failed to delete tax code:', error);
+        toast.error('Failed to delete tax code. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     // Assuming rate is stored as a decimal, convert to percentage for display if needed later
     // When submitting, ensure it's in the correct format for your backend (decimal usually)
-    if (currentTaxCode) {
-      dispatch(updateTaxCode({ ...values, ID: currentTaxCode.ID }));
-    } else {
-      dispatch(addTaxCode(values));
+    try {
+      if (currentTaxCode) {
+        await dispatch(
+          updateTaxCode({ ...values, ID: currentTaxCode.ID })
+        ).unwrap();
+        toast.success('Tax code updated successfully.');
+      } else {
+        await dispatch(addTaxCode(values)).unwrap();
+        toast.success('Tax code added successfully.');
+      }
+      dispatch(fetchTaxCodes());
+    } catch (error) {
+      console.error('Failed to save tax code:', error);
+      toast.error('Failed to save tax code. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
@@ -72,19 +86,19 @@ function TaxCodePage() {
     {
       key: 'Code',
       header: 'Code',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Name',
       header: 'Nature of Payment',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Rate',
       header: 'Rate (%)',
       sortable: true,
-      render: (value) => `${value} %`
-    }
+      render: (value) => `${value} %`,
+    },
   ];
 
   const actions = [
@@ -92,14 +106,16 @@ function TaxCodePage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -135,7 +151,7 @@ function TaxCodePage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentTaxCode ? "Edit Tax Code" : "Add Tax Code"}
+        title={currentTaxCode ? 'Edit Tax Code' : 'Add Tax Code'}
       >
         <TaxCodeForm
           initialData={currentTaxCode}
@@ -152,7 +168,8 @@ function TaxCodePage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the tax code "{taxCodeToDelete?.code}"?
+            Are you sure you want to delete the tax code "
+            {taxCodeToDelete?.Code}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -179,4 +196,4 @@ function TaxCodePage() {
   );
 }
 
-export default TaxCodePage; 
+export default TaxCodePage;

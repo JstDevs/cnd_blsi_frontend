@@ -8,17 +8,22 @@ import {
   fetchDocumentTypeCategories,
   addDocumentTypeCategory,
   updateDocumentTypeCategory,
-  deleteDocumentTypeCategory
+  deleteDocumentTypeCategory,
 } from '../../features/settings/documentTypeCategoriesSlice';
+import toast from 'react-hot-toast';
 
 function DocumentTypeCategoriesPage() {
   const dispatch = useDispatch();
-  const { documentTypeCategories, isLoading } = useSelector(state => state.documentTypeCategories);
+  const { documentTypeCategories, isLoading } = useSelector(
+    (state) => state.documentTypeCategories
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentDocumentTypeCategory, setCurrentDocumentTypeCategory] = useState(null);
+  const [currentDocumentTypeCategory, setCurrentDocumentTypeCategory] =
+    useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [documentTypeCategoryToDelete, setDocumentTypeCategoryToDelete] = useState(null);
+  const [documentTypeCategoryToDelete, setDocumentTypeCategoryToDelete] =
+    useState(null);
 
   useEffect(() => {
     dispatch(fetchDocumentTypeCategories());
@@ -42,30 +47,50 @@ function DocumentTypeCategoriesPage() {
   const confirmDelete = async () => {
     if (documentTypeCategoryToDelete) {
       try {
-        await dispatch(deleteDocumentTypeCategory(documentTypeCategoryToDelete.ID)).unwrap();
+        await dispatch(
+          deleteDocumentTypeCategory(documentTypeCategoryToDelete.ID)
+        ).unwrap();
         setIsDeleteModalOpen(false);
         setDocumentTypeCategoryToDelete(null);
+        toast.success('Document type category deleted successfully');
       } catch (error) {
         console.error('Failed to delete document type category:', error);
+        toast.error(
+          'Failed to delete document type category. Please try again.'
+        );
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentDocumentTypeCategory) {
-      dispatch(updateDocumentTypeCategory({ ...values, ID: currentDocumentTypeCategory.ID }));
-    } else {
-      dispatch(addDocumentTypeCategory(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentDocumentTypeCategory) {
+        await dispatch(
+          updateDocumentTypeCategory({
+            ...values,
+            ID: currentDocumentTypeCategory.ID,
+          })
+        ).unwrap();
+        toast.success('Document type category updated successfully');
+      } else {
+        await dispatch(addDocumentTypeCategory(values)).unwrap();
+        toast.success('Document type category added successfully');
+      }
+      dispatch(fetchDocumentTypeCategories());
+    } catch (error) {
+      console.error('Failed to save document type category:', error);
+      toast.error('Failed to save document type category. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Name',
       header: 'Name',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -73,14 +98,16 @@ function DocumentTypeCategoriesPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -116,7 +143,11 @@ function DocumentTypeCategoriesPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentDocumentTypeCategory ? "Edit Document Type Category" : "Add Document Type Category"}
+        title={
+          currentDocumentTypeCategory
+            ? 'Edit Document Type Category'
+            : 'Add Document Type Category'
+        }
       >
         <DocumentTypeCategoriesForm
           initialData={currentDocumentTypeCategory}
@@ -133,7 +164,8 @@ function DocumentTypeCategoriesPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the document type category "{documentTypeCategoryToDelete?.name}"?
+            Are you sure you want to delete the document type category "
+            {documentTypeCategoryToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

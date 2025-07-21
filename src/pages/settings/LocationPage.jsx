@@ -36,6 +36,7 @@ import {
   updateBarangay,
   deleteBarangay,
 } from '../../features/settings/barangaysSlice';
+import toast from 'react-hot-toast';
 
 function LocationPage() {
   const [activeTab, setActiveTab] = useState('region');
@@ -43,13 +44,13 @@ function LocationPage() {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState(null);
-  
-          const pluralLabels = {
-            region: 'Regions',
-            province: 'Provinces',
-            municipality: 'Municipalities',
-            barangay: 'Barangays',
-          };
+
+  const pluralLabels = {
+    region: 'Regions',
+    province: 'Provinces',
+    municipality: 'Municipalities',
+    barangay: 'Barangays',
+  };
 
   const dispatch = useDispatch();
 
@@ -214,11 +215,17 @@ function LocationPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (locationToDelete) {
-      dispatch(getDeleteAction()(locationToDelete.ID));
-      setIsDeleteModalOpen(false);
-      setLocationToDelete(null);
+  const confirmDelete = async () => {
+    try {
+      if (locationToDelete) {
+        await dispatch(getDeleteAction()(locationToDelete.ID)).unwrap();
+        setIsDeleteModalOpen(false);
+        setLocationToDelete(null);
+        toast.success('Location deleted successfully');
+      }
+    } catch (error) {
+      console.error('Failed to delete location:', error);
+      toast.error('Failed to delete location. Please try again.');
     }
   };
 
@@ -249,9 +256,16 @@ function LocationPage() {
       const payload = currentLocation
         ? { ...currentLocation, ...values }
         : values;
-      await dispatch(action(payload)).unwrap();
-      setIsModalOpen(false);
-      setSubmitting(false);
+      try {
+        await dispatch(action(payload)).unwrap();
+        toast.success('Location saved successfully');
+      } catch (error) {
+        console.error('Failed to save location:', error);
+        toast.error('Failed to save location. Please try again.');
+      } finally {
+        setIsModalOpen(false);
+        setSubmitting(false);
+      }
     },
   });
 
@@ -457,7 +471,6 @@ function LocationPage() {
               {pluralLabels[tab]}
             </button>
           ))}
-
         </nav>
       </div>
 

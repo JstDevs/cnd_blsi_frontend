@@ -19,6 +19,7 @@ import { fetchIndustries } from '../../features/settings/industrySlice';
 import { fetchTaxCodes } from '../../features/settings/taxCodeSlice';
 import { fetchPaymentTerms } from '../../features/settings/paymentTermsSlice';
 import { fetchModeOfPayments } from '../../features/settings/modeOfPaymentSlice';
+import toast from 'react-hot-toast';
 
 function VendorDetailsPage() {
   const dispatch = useDispatch();
@@ -106,19 +107,31 @@ function VendorDetailsPage() {
         await dispatch(deleteVendorDetails(vendorDetailsToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setVendorDetailsToDelete(null);
+        toast.success('Vendor details deleted successfully');
       } catch (error) {
         console.error('Failed to delete vendor details:', error);
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentVendorDetails) {
-      dispatch(updateVendorDetails({ ...values, ID: currentVendorDetails.ID }));
-    } else {
-      dispatch(addVendorDetails(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentVendorDetails) {
+        await dispatch(
+          updateVendorDetails({ ...values, ID: currentVendorDetails.ID })
+        ).unwrap();
+        toast.success('Vendor details updated successfully');
+      } else {
+        await dispatch(addVendorDetails(values)).unwrap();
+        toast.success('Vendor details added successfully');
+      }
+      dispatch(fetchVendorDetails());
+    } catch (error) {
+      console.error('Failed to save vendor details:', error);
+      toast.error('Failed to save vendor details. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
@@ -354,7 +367,7 @@ function VendorDetailsPage() {
         <div className="py-3">
           <p className="text-neutral-700">
             Are you sure you want to delete the vendor details "
-            {vendorDetailsToDelete?.name}"?
+            {vendorDetailsToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

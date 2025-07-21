@@ -6,12 +6,14 @@ import * as Yup from 'yup';
 import FormField from '../../components/common/FormField';
 import {
   addAccount,
+  fetchAccounts,
   updateAccount,
 } from '../../features/settings/chartOfAccountsSlice';
 import { fetchAccountGroups } from '../../features/settings/accountGroupSlice';
 import { fetchMajorAccountGroups } from '../../features/settings/majorAccountGroupSlice';
 import { fetchSubMajorAccountGroups } from '../../features/settings/subMajorAccountGroupSlice';
 import SearchableDropdown from '@/components/common/SearchableDropdown';
+import toast from 'react-hot-toast';
 
 // Auto-generate account code component
 const AutoGenerateAccountCode = ({
@@ -123,7 +125,7 @@ function ChartOfAccountsForm({ initialData, onClose }) {
         NormalBalance: '',
       };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     setIsSubmitting(true);
 
     const action = initialData
@@ -133,10 +135,13 @@ function ChartOfAccountsForm({ initialData, onClose }) {
     dispatch(action)
       .unwrap()
       .then(() => {
+        toast.success('Account updated successfully');
+        dispatch(fetchAccounts());
         onClose();
       })
       .catch((error) => {
         console.error('Error submitting account:', error);
+        toast.error('Failed to submit account. Please try again.');
       })
       .finally(() => {
         setIsSubmitting(false);

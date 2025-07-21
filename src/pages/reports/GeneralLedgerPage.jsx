@@ -116,12 +116,13 @@ function GeneralLedgerPage() {
 
   // Handle export to Excel
   const handleExport = async (values) => {
-    console.log({ values });
+    // console.log({ values });
     try {
       const response = await fetch(`${API_URL}/generalLedger/exportExcel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify(values),
       });

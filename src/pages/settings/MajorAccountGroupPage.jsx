@@ -13,6 +13,7 @@ import {
   deleteMajorAccountGroup,
 } from '../../features/settings/majorAccountGroupSlice';
 import { fetchAccountGroups } from '../../features/settings/accountGroupSlice';
+import toast from 'react-hot-toast';
 
 // Validation schema for major account group form
 const majorAccountGroupSchema = Yup.object().shape({
@@ -70,8 +71,16 @@ function MajorAccountGroupPage() {
   };
 
   const confirmDelete = () => {
-    if (majorAccountGroupToDelete) {
-      dispatch(deleteMajorAccountGroup(majorAccountGroupToDelete.ID));
+    try {
+      if (majorAccountGroupToDelete) {
+        dispatch(deleteMajorAccountGroup(majorAccountGroupToDelete.ID));
+
+        toast.success('Major account group deleted successfully');
+      }
+    } catch (error) {
+      console.error('Failed to delete major account group:', error);
+      toast.error('Failed to delete major account group. Please try again.');
+    } finally {
       setIsDeleteModalOpen(false);
       setMajorAccountGroupToDelete(null);
     }
@@ -87,17 +96,24 @@ function MajorAccountGroupPage() {
       accountTypeName,
     };
 
-    if (currentMajorAccountGroup) {
-      await dispatch(
-        updateMajorAccountGroup({
-          ...submissionData,
-          ID: currentMajorAccountGroup.ID,
-        })
-      ).unwrap();
-    } else {
-      await dispatch(addMajorAccountGroup(submissionData)).unwrap();
+    try {
+      if (currentMajorAccountGroup) {
+        await dispatch(
+          updateMajorAccountGroup({
+            ...submissionData,
+            ID: currentMajorAccountGroup.ID,
+          })
+        ).unwrap();
+        toast.success('Major account group updated successfully');
+      } else {
+        await dispatch(addMajorAccountGroup(submissionData)).unwrap();
+        toast.success('Major account group added successfully');
+      }
+      dispatch(fetchMajorAccountGroups());
+    } catch (error) {
+      console.error('Failed to save major account group:', error);
+      toast.error('Failed to save major account group. Please try again.');
     }
-    fetchMajorAccountGroups();
     setIsModalOpen(false);
     resetForm();
   };

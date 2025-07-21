@@ -126,8 +126,8 @@ const BudgetFundTransferPage = () => {
   };
 
   const handleDelete = (id) => {
-    if (!window.confirm('Are you sure you want to delete this transfer?'))
-      return;
+    // if (!window.confirm('Are you sure you want to delete this transfer?'))
+    // return;
     console.log('Deleted transfer with id:', id);
     toast.success('Transfer deleted successfully');
   };

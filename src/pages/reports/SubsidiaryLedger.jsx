@@ -96,10 +96,12 @@ function SubsidiaryLedger() {
   // Handle export to Excel
   const handleExport = async (values) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/subsidiaryLeadger/exportExcel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(values),
       });

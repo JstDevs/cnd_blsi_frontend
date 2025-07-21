@@ -3,11 +3,16 @@ import { useEffect } from 'react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { addItem, updateItem } from '../../features/settings/itemSlice';
+import {
+  addItem,
+  fetchItems,
+  updateItem,
+} from '../../features/settings/itemSlice';
 import FormField from '../common/FormField';
 import { fetchItemUnits } from '../../features/settings/itemUnitsSlice';
-import { fetchTaxCodes} from '../../features/settings/taxCodeSlice';
-import { fetchAccounts} from '../../features/settings/chartOfAccountsSlice';
+import { fetchTaxCodes } from '../../features/settings/taxCodeSlice';
+import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import toast from 'react-hot-toast';
 
 const ItemForm = ({ item, onClose }) => {
   const dispatch = useDispatch();
@@ -35,8 +40,7 @@ const ItemForm = ({ item, onClose }) => {
     ChargeAccountID: Yup.string().required('Charge Account is required'),
     UnitID: Yup.string().required('Unit is required'),
     TAXCodeID: Yup.string().required('Tax Code is required'),
-    PurchaseOrSales: Yup.string()
-      .required('Type is required'),
+    PurchaseOrSales: Yup.string().required('Type is required'),
     TaxRate: Yup.number()
       .required('Tax Rate is required')
       .min(0, 'Tax Rate cannot be negative'),
@@ -62,14 +66,18 @@ const ItemForm = ({ item, onClose }) => {
     try {
       if (item) {
         await dispatch(updateItem({ ...values, ID: item.ID })).unwrap();
+        toast.success('Item updated successfully.');
       } else {
         await dispatch(addItem(values)).unwrap();
+        toast.success('Item added successfully.');
       }
-      onClose();
+      dispatch(fetchItems());
     } catch (error) {
       console.error('Failed to save item:', error);
+      toast.error('Failed to save item. Please try again.');
     } finally {
       setSubmitting(false);
+      onClose();
     }
   };
 
@@ -79,7 +87,14 @@ const ItemForm = ({ item, onClose }) => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isSubmitting,
+      }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -120,7 +135,10 @@ const ItemForm = ({ item, onClose }) => {
               onBlur={handleBlur}
               error={errors.ChargeAccountID}
               touched={touched.ChargeAccountID}
-              options={accounts.map(account => ({ value: account.ID, label: account.Name }))}
+              options={accounts.map((account) => ({
+                value: account.ID,
+                label: account.Name,
+              }))}
             />
 
             <FormField
@@ -145,12 +163,15 @@ const ItemForm = ({ item, onClose }) => {
               onBlur={handleBlur}
               error={errors.UnitID}
               touched={touched.UnitID}
-              options={itemUnits.map(unit => ({ value: unit.ID, label: unit.Code + ' - ' + unit.Name }))}
+              options={itemUnits.map((unit) => ({
+                value: unit.ID,
+                label: unit.Code + ' - ' + unit.Name,
+              }))}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <FormField
+            <FormField
               label="Tax Code"
               name="TAXCodeID"
               type="select"
@@ -160,7 +181,10 @@ const ItemForm = ({ item, onClose }) => {
               onBlur={handleBlur}
               error={errors.TAXCodeID}
               touched={touched.TAXCodeID}
-              options={taxCodes.map(code => ({ value: code.ID, label: code.Code }))}
+              options={taxCodes.map((code) => ({
+                value: code.ID,
+                label: code.Code,
+              }))}
             />
 
             <FormField
@@ -176,8 +200,8 @@ const ItemForm = ({ item, onClose }) => {
             />
           </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <FormField
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
               label="EWT"
               name="EWT"
               type="number"
@@ -203,11 +227,7 @@ const ItemForm = ({ item, onClose }) => {
           </div>
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-outline"
-            >
+            <button type="button" onClick={onClose} className="btn btn-outline">
               Cancel
             </button>
             <button
@@ -224,4 +244,4 @@ const ItemForm = ({ item, onClose }) => {
   );
 };
 
-export default ItemForm; 
+export default ItemForm;

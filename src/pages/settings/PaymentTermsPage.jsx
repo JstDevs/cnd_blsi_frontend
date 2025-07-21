@@ -8,12 +8,15 @@ import {
   fetchPaymentTerms,
   addPaymentTerm,
   updatePaymentTerm,
-  deletePaymentTerm
+  deletePaymentTerm,
 } from '../../features/settings/paymentTermsSlice';
+import toast from 'react-hot-toast';
 
 function PaymentTermsPage() {
   const dispatch = useDispatch();
-  const { paymentTerms, isLoading } = useSelector(state => state.paymentTerms);
+  const { paymentTerms, isLoading } = useSelector(
+    (state) => state.paymentTerms
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPaymentTerm, setCurrentPaymentTerm] = useState(null);
@@ -45,37 +48,50 @@ function PaymentTermsPage() {
         await dispatch(deletePaymentTerm(paymentTermToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setPaymentTermToDelete(null);
+        toast.success('Payment term deleted successfully.');
       } catch (error) {
         console.error('Failed to delete payment term:', error);
+        toast.error('Failed to delete payment term. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentPaymentTerm) {
-      dispatch(updatePaymentTerm({ ...values, ID: currentPaymentTerm.ID }));
-    } else {
-      dispatch(addPaymentTerm(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentPaymentTerm) {
+        await dispatch(
+          updatePaymentTerm({ ...values, ID: currentPaymentTerm.ID })
+        ).unwrap();
+        toast.success('Payment term updated successfully.');
+      } else {
+        await dispatch(addPaymentTerm(values)).unwrap();
+        toast.success('Payment term added successfully.');
+      }
+      dispatch(fetchPaymentTerms());
+    } catch (error) {
+      console.error('Failed to save payment term:', error);
+      toast.error('Failed to save payment term. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Code',
       header: 'Code',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Name',
       header: 'Name',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'NumberOfDays',
       header: 'Number of Days',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -83,14 +99,16 @@ function PaymentTermsPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -126,7 +144,7 @@ function PaymentTermsPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentPaymentTerm ? "Edit Payment Term" : "Add Payment Term"}
+        title={currentPaymentTerm ? 'Edit Payment Term' : 'Add Payment Term'}
       >
         <PaymentTermsForm
           initialData={currentPaymentTerm}
@@ -143,7 +161,8 @@ function PaymentTermsPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the payment term "{paymentTermToDelete?.name}"?
+            Are you sure you want to delete the payment term "
+            {paymentTermToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -170,4 +189,4 @@ function PaymentTermsPage() {
   );
 }
 
-export default PaymentTermsPage; 
+export default PaymentTermsPage;

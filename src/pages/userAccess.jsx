@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserroles } from '../features/settings/userrolesSlice';
 import { fetchModules } from '../features/settings/modulesSlice';
 import { PlusIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -38,51 +39,49 @@ export default function UserAccessPage() {
       setSelectedRole(userroles[0]);
     }
   }, [userroles]);
+  const fetchModuleAccess = async () => {
+    try {
+      const response = await fetch(
+        `${API_URL}/moduleAccess/${selectedRole.ID}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
 
+      const res = await response.json();
+      if (!response.ok)
+        throw new Error(res.message || 'Failed to fetch access');
+
+      const accessMap = {};
+      res.forEach((entry) => {
+        accessMap[entry.ModuleID] = {
+          id: entry.ID,
+          view: !!entry.View,
+          add: !!entry.Add,
+          edit: !!entry.Edit,
+          delete: !!entry.Delete,
+          print: !!entry.Print,
+          mayor: !!entry.Mayor,
+        };
+      });
+
+      const permissionsByModule = {};
+      modules.forEach((mod) => {
+        permissionsByModule[mod.ID] = accessMap[mod.ID] || {
+          ...defaultPermissions,
+        };
+      });
+
+      setPermissions(permissionsByModule);
+    } catch (err) {
+      console.error('Error loading module access:', err.message);
+    }
+  };
   // Fetch module access for selected role
   useEffect(() => {
     if (!selectedRole?.ID || modules.length === 0) return;
-
-    const fetchModuleAccess = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/moduleAccess/${selectedRole.ID}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
-        );
-
-        const res = await response.json();
-        if (!response.ok)
-          throw new Error(res.message || 'Failed to fetch access');
-
-        const accessMap = {};
-        res.forEach((entry) => {
-          accessMap[entry.ModuleID] = {
-            id: entry.ID,
-            view: !!entry.View,
-            add: !!entry.Add,
-            edit: !!entry.Edit,
-            delete: !!entry.Delete,
-            print: !!entry.Print,
-            mayor: !!entry.Mayor,
-          };
-        });
-
-        const permissionsByModule = {};
-        modules.forEach((mod) => {
-          permissionsByModule[mod.ID] = accessMap[mod.ID] || {
-            ...defaultPermissions,
-          };
-        });
-
-        setPermissions(permissionsByModule);
-      } catch (err) {
-        console.error('Error loading module access:', err.message);
-      }
-    };
 
     fetchModuleAccess();
   }, [selectedRole, modules]);
@@ -158,10 +157,11 @@ export default function UserAccessPage() {
         throw new Error(res.message || 'Failed to save permissions');
       }
 
-      alert('Permissions saved successfully!');
+      toast.success('Permissions saved successfully!');
+      // fetchModuleAccess();
     } catch (err) {
       console.error('Save failed:', err.message);
-      alert('Error saving permissions.');
+      toast.error('Error saving permissions.');
     }
   };
 

@@ -58,8 +58,13 @@ function Customer() {
         await dispatch(deleteCustomer(customerToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setCustomerToDelete(null);
+        toast.success('Customer deleted successfully');
       } catch (error) {
         console.error('Failed to delete Individual/Citizen:', error);
+        toast.error(
+          error.message ||
+            'Failed to delete Individual/Citizen. Please try again.'
+        );
       }
     }
   };
@@ -70,15 +75,17 @@ function Customer() {
         await dispatch(
           updateCustomer({ ...values, ID: currentCustomer.ID })
         ).unwrap();
+        toast.success('Customer updated successfully');
       } else {
         await dispatch(addCustomer(values)).unwrap();
+        toast.success('Customer added successfully');
       }
+      dispatch(fetchCustomers());
     } catch (error) {
       console.error('Failed to save Individual/Citizen:', error);
       toast.error(error.message || 'Failed to save Individual/Citizen');
     } finally {
       setCurrentCustomer(null);
-      dispatch(fetchCustomers());
       setIsModalOpen(false);
     }
   };
@@ -187,7 +194,7 @@ function Customer() {
         <div className="flex justify-between items-center">
           <div>
             <h1>Individuals/Citizens</h1>
-            <p>Manage Individuals/Citizens</p>
+            <p>Manage Individuals/Citizens here</p>
           </div>
           <button
             type="button"
@@ -234,8 +241,7 @@ function Customer() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the individual/citizen "
-            {customerToDelete?.Name}"?
+            Are you sure you want to delete the individual/citizen?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

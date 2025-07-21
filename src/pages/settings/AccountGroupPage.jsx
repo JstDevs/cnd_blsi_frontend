@@ -6,7 +6,13 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
 import Modal from '../../components/common/Modal';
-import { fetchAccountGroups, addAccountGroup, updateAccountGroup, deleteAccountGroup } from '../../features/settings/accountGroupSlice';
+import {
+  fetchAccountGroups,
+  addAccountGroup,
+  updateAccountGroup,
+  deleteAccountGroup,
+} from '../../features/settings/accountGroupSlice';
+import toast from 'react-hot-toast';
 
 // Validation schema for account group form
 const accountGroupSchema = Yup.object().shape({
@@ -20,7 +26,9 @@ const accountGroupSchema = Yup.object().shape({
 
 function AccountGroupPage() {
   const dispatch = useDispatch();
-  const { accountGroups, isLoading, error } = useSelector(state => state.accountGroups);
+  const { accountGroups, isLoading, error } = useSelector(
+    (state) => state.accountGroups
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentAccountGroup, setCurrentAccountGroup] = useState(null);
@@ -45,25 +53,42 @@ function AccountGroupPage() {
     setAccountGroupToDelete(accountGroup);
     setIsDeleteModalOpen(true);
   };
-  
-  const confirmDelete = () => {
-    if (accountGroupToDelete) {
-      dispatch(deleteAccountGroup(accountGroupToDelete.ID));
-      setIsDeleteModalOpen(false);
-      setAccountGroupToDelete(null);
+
+  const confirmDelete = async () => {
+    try {
+      if (accountGroupToDelete) {
+        await dispatch(deleteAccountGroup(accountGroupToDelete.ID)).unwrap();
+        toast.success('Account group deleted successfully');
+        setIsDeleteModalOpen(false);
+        setAccountGroupToDelete(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete account group:', error);
+      toast.error('Failed to delete account group. Please try again.');
     }
   };
-  
-  const handleSubmit = (values, { resetForm }) => {
-    if (currentAccountGroup) {
-      dispatch(updateAccountGroup({ ...values, ID: currentAccountGroup.ID }));
-    } else {
-      dispatch(addAccountGroup(values));
+
+  const handleSubmit = async (values, { resetForm }) => {
+    try {
+      if (currentAccountGroup) {
+        await dispatch(
+          updateAccountGroup({ ...values, ID: currentAccountGroup.ID })
+        ).unwrap();
+        toast.success('Account group updated successfully');
+      } else {
+        await dispatch(addAccountGroup(values)).unwrap();
+        toast.success('Account group added successfully');
+      }
+      dispatch(fetchAccountGroups());
+    } catch (error) {
+      console.error('Error submitting account group:', error);
+      toast.error('Failed to submit account group. Please try again.');
+    } finally {
+      setIsModalOpen(false);
+      resetForm();
     }
-    setIsModalOpen(false);
-    resetForm();
   };
-  
+
   // Table columns definition
   const columns = [
     {
@@ -78,20 +103,22 @@ function AccountGroupPage() {
       sortable: true,
     },
   ];
-  
+
   // Actions for table rows
   const actions = [
     {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditAccountGroup,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteAccountGroup,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
@@ -113,7 +140,7 @@ function AccountGroupPage() {
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -127,7 +154,7 @@ function AccountGroupPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentAccountGroup ? "Edit Account Type" : "Add Account Type"}
+        title={currentAccountGroup ? 'Edit Account Type' : 'Add Account Type'}
       >
         <Formik
           initialValues={{
@@ -137,10 +164,17 @@ function AccountGroupPage() {
           validationSchema={accountGroupSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            isSubmitting,
+          }) => (
             <Form className="space-y-4">
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Code"
                 name="Code"
                 type="text"
@@ -153,7 +187,7 @@ function AccountGroupPage() {
                 touched={touched.Code}
               />
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Name"
                 name="Name"
                 type="text"
@@ -185,7 +219,7 @@ function AccountGroupPage() {
           )}
         </Formik>
       </Modal>
-      
+
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -194,10 +228,12 @@ function AccountGroupPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete <span className="font-medium">{accountGroupToDelete?.Name}</span>?
+            Are you sure you want to delete{' '}
+            <span className="font-medium">{accountGroupToDelete?.Name}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
-            This action cannot be undone and may affect related records in the system.
+            This action cannot be undone and may affect related records in the
+            system.
           </p>
         </div>
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">

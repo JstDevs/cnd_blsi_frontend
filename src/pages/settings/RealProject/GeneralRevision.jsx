@@ -1,20 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchGeneralRevisions,
   addGeneralRevision,
   updateGeneralRevision,
   deleteGeneralRevision,
-} from "@/features/settings/generalRevisionSlice";
-import Modal from "@/components/common/Modal";
-import DataTable from "@/components/common/DataTable";
-import { Button } from "@/components/common/Button";
-import GeneralRevisionForm from "@/components/forms/GeneralRevisionForm";
+} from '@/features/settings/generalRevisionSlice';
+import Modal from '@/components/common/Modal';
+import DataTable from '@/components/common/DataTable';
+import { Button } from '@/components/common/Button';
+import GeneralRevisionForm from '@/components/forms/GeneralRevisionForm';
+import toast from 'react-hot-toast';
 
 const GeneralRevision = () => {
   const dispatch = useDispatch();
-  const { generalRevisions, isLoading } = useSelector((state) => state.generalRevisions);
+  const { generalRevisions, isLoading } = useSelector(
+    (state) => state.generalRevisions
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -35,13 +38,24 @@ const GeneralRevision = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (values) => {
-    if (currentRevision) {
-      dispatch(updateGeneralRevision({ ...values, ID: currentRevision.ID }));
-    } else {
-      dispatch(addGeneralRevision(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentRevision) {
+        await dispatch(
+          updateGeneralRevision({ ...values, ID: currentRevision.ID })
+        ).unwrap();
+        toast.success('Revision updated successfully');
+      } else {
+        await dispatch(addGeneralRevision(values)).unwrap();
+        toast.success('Revision added successfully');
+      }
+      dispatch(fetchGeneralRevisions());
+    } catch (error) {
+      console.error('Failed to save general revision:', error);
+      toast.error('Failed to save general revision. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const handleDelete = (revision) => {
@@ -49,10 +63,16 @@ const GeneralRevision = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (revisionToDelete) {
-      dispatch(deleteGeneralRevision(revisionToDelete.ID));
-      setIsDeleteModalOpen(false);
+  const confirmDelete = async () => {
+    try {
+      if (revisionToDelete) {
+        await dispatch(deleteGeneralRevision(revisionToDelete.ID)).unwrap();
+        toast.success('Revision deleted successfully');
+        setIsDeleteModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to delete revision:', error);
+      toast.error('Failed to delete revision. Please try again.');
     }
   };
 
@@ -60,29 +80,30 @@ const GeneralRevision = () => {
     {
       key: 'General_Revision_Date_Year',
       header: 'General Revision Date (Year)',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'GeneralRevisionCode',
       header: 'General Revision Code',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
-  
 
   const actions = [
     {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
   // const columns = [
   //   { Header: "Revision Year", accessor: "revisionYear" },
@@ -140,7 +161,9 @@ const GeneralRevision = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentRevision ? "Edit General Revision" : "Add General Revision"}
+        title={
+          currentRevision ? 'Edit General Revision' : 'Add General Revision'
+        }
         size="lg"
       >
         <GeneralRevisionForm
@@ -158,7 +181,7 @@ const GeneralRevision = () => {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the revision{" "}
+            Are you sure you want to delete the revision{' '}
             <strong>{revisionToDelete?.revisionYear}</strong>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
@@ -173,7 +196,11 @@ const GeneralRevision = () => {
           >
             Cancel
           </button>
-          <button type="button" onClick={confirmDelete} className="btn btn-danger">
+          <button
+            type="button"
+            onClick={confirmDelete}
+            className="btn btn-danger"
+          >
             Delete
           </button>
         </div>

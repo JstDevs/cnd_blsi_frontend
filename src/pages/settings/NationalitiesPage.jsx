@@ -8,12 +8,15 @@ import {
   fetchNationalities,
   addNationality,
   updateNationality,
-  deleteNationality
+  deleteNationality,
 } from '../../features/settings/nationalitiesSlice';
+import toast from 'react-hot-toast';
 
 function NationalitiesPage() {
   const dispatch = useDispatch();
-  const { nationalities, isLoading } = useSelector(state => state.nationalities);
+  const { nationalities, isLoading } = useSelector(
+    (state) => state.nationalities
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentNationality, setCurrentNationality] = useState(null);
@@ -45,27 +48,40 @@ function NationalitiesPage() {
         await dispatch(deleteNationality(nationalityToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setNationalityToDelete(null);
+        toast.success('Nationality deleted successfully');
       } catch (error) {
         console.error('Failed to delete nationality:', error);
+        toast.error('Failed to delete nationality. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentNationality) {
-      dispatch(updateNationality({ ...values, ID: currentNationality.ID }));
-    } else {
-      dispatch(addNationality(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentNationality) {
+        await dispatch(
+          updateNationality({ ...values, ID: currentNationality.ID })
+        ).unwrap();
+        toast.success('Nationality updated successfully');
+      } else {
+        await dispatch(addNationality(values)).unwrap();
+        toast.success('Nationality saved successfully');
+      }
+      dispatch(fetchNationalities());
+    } catch (error) {
+      console.error('Failed to save nationality:', error);
+      toast.error('Failed to save nationality. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Name',
       header: 'Nationality',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -73,14 +89,16 @@ function NationalitiesPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -116,7 +134,7 @@ function NationalitiesPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentNationality ? "Edit Nationality" : "Add Nationality"}
+        title={currentNationality ? 'Edit Nationality' : 'Add Nationality'}
       >
         <NationalitiesForm
           initialData={currentNationality}
@@ -133,7 +151,8 @@ function NationalitiesPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the nationality "{nationalityToDelete?.name}"?
+            Are you sure you want to delete the nationality "
+            {nationalityToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

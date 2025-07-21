@@ -8,6 +8,7 @@ import {
   deleteEmployee,
 } from '../../features/settings/employeeSlice';
 import EmployeeForm from './EmployeeForm';
+import toast from 'react-hot-toast';
 
 function EmployeePage() {
   const dispatch = useDispatch();
@@ -37,11 +38,17 @@ function EmployeePage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (employeeToDelete) {
-      dispatch(deleteEmployee(employeeToDelete.ID));
-      setIsDeleteModalOpen(false);
-      setEmployeeToDelete(null);
+  const confirmDelete = async () => {
+    try {
+      if (employeeToDelete) {
+        dispatch(deleteEmployee(employeeToDelete.ID));
+        setIsDeleteModalOpen(false);
+        setEmployeeToDelete(null);
+        toast.success('Employee deleted successfully');
+      }
+    } catch (error) {
+      console.error('Failed to delete employee:', error);
+      toast.error('Failed to delete employee. Please try again.');
     }
   };
 

@@ -14,7 +14,10 @@ const validationSchema = Yup.object().shape({
   accountCode: Yup.string().required('Account code is required'),
   description: Yup.string().required('Description is required'),
   debit: Yup.number().min(0, 'Debit amount must be greater than or equal to 0'),
-  credit: Yup.number().min(0, 'Credit amount must be greater than or equal to 0'),
+  credit: Yup.number().min(
+    0,
+    'Credit amount must be greater than or equal to 0'
+  ),
 });
 
 const BeginningBalanceForm = ({ initialData, onClose }) => {
@@ -36,25 +39,22 @@ const BeginningBalanceForm = ({ initialData, onClose }) => {
 
   return (
     <Formik
-      initialValues={initialData || {
-        date: new Date().toISOString().split('T')[0],
-        accountCode: '',
-        description: '',
-        debit: '',
-        credit: '',
-      }}
+      initialValues={
+        initialData || {
+          date: new Date().toISOString().split('T')[0],
+          accountCode: '',
+          description: '',
+          debit: '',
+          credit: '',
+        }
+      }
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
       {({ isValid, dirty }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Date"
-              name="date"
-              type="date"
-              required
-            />
+            <FormField label="Date" name="date" type="date" required />
             <FormField
               label="Account Code"
               name="accountCode"
@@ -62,7 +62,10 @@ const BeginningBalanceForm = ({ initialData, onClose }) => {
               required
               options={[
                 { value: '1-01-01-010', label: '1-01-01-010 - Cash in Bank' },
-                { value: '1-01-02-020', label: '1-01-02-020 - Cash - Treasury' },
+                {
+                  value: '1-01-02-020',
+                  label: '1-01-02-020 - Cash - Treasury',
+                },
               ]}
             />
           </div>
@@ -151,18 +154,18 @@ const BeginningBalancePage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this entry?')) {
-      try {
-        setIsLoading(true);
-        // TODO: Replace with actual API call
-        console.log('Deleting entry:', id);
-        toast.success('Entry deleted successfully');
-      } catch (error) {
-        toast.error(error.message || 'Failed to delete entry');
-      } finally {
-        setIsLoading(false);
-      }
+    // if (window.confirm('Are you sure you want to delete this entry?')) {
+    try {
+      setIsLoading(true);
+      // TODO: Replace with actual API call
+      console.log('Deleting entry:', id);
+      toast.success('Entry deleted successfully');
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete entry');
+    } finally {
+      setIsLoading(false);
     }
+    // }
   };
 
   const formatCurrency = (amount) => {
@@ -220,7 +223,9 @@ const BeginningBalancePage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Beginning Balance</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Beginning Balance
+        </h1>
         <Button onClick={handleAdd}>
           <FiPlus className="w-5 h-5 mr-2" />
           Add Entry
@@ -228,11 +233,7 @@ const BeginningBalancePage = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow">
-        <DataTable
-          columns={columns}
-          data={mockEntries}
-          isLoading={isLoading}
-        />
+        <DataTable columns={columns} data={mockEntries} isLoading={isLoading} />
       </div>
 
       <Modal
@@ -249,4 +250,4 @@ const BeginningBalancePage = () => {
   );
 };
 
-export default BeginningBalancePage; 
+export default BeginningBalancePage;
