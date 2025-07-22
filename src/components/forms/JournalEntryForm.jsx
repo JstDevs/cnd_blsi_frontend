@@ -98,15 +98,20 @@ function JournalEntryForm({
               formData.append(`Attachments[${idx}].File`, att.File);
             }
           });
-        } else {
+        } else if (key !== 'CheckDate') {
           formData.append(key, JSON.stringify(values[key]));
         }
       }
-      initialData && formData.append('LinkID', initialData.LinkID);
 
-      values.InvoiceDate
-        ? formData.append('CheckDate', values.InvoiceDate)
-        : null;
+      // Handle CheckDate separately
+      formData.append(
+        'CheckDate',
+        JSON.stringify(values.CheckDate || values.InvoiceDate)
+      );
+      // Optional: LinkID if editing
+      if (initialData) {
+        formData.append('LinkID', initialData.LinkID);
+      }
       try {
         await onSubmit(formData);
       } catch (err) {
