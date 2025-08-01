@@ -27,7 +27,7 @@ const SearchableDropdown = ({
   };
 
   return (
-    <div className="w-full ">
+    <div className="w-full form-group">
       <Combobox value={selectedValue} onChange={onSelect}>
         {({ open }) => (
           <>

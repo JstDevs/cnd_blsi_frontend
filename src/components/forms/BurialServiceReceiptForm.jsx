@@ -141,7 +141,7 @@ function BurialServiceReceiptForm({
           handleBlur,
           submitCount,
         }) => (
-          <Form className="space-y-4 p-4 bg-white rounded-lg">
+          <Form className="space-y-4  bg-white rounded-lg">
             {/* Attachments Section */}
             <div className="mb-4">
               <div className="space-y-2">

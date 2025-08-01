@@ -328,13 +328,13 @@ const CommunityTaxForm = ({
       >
         {/* Certificate Header Info */}
         <div className="rounded-lg border bg-white text-card-foreground bg-white/80 backdrop-blur-sm">
-          <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+          <div className="flex flex-col space-y-1.5 sm:p-6 p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
             <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
               <Calendar className="h-5 w-5" />
               Certificate Information
             </h3>
           </div>
-          <div className="p-6 pt-2">
+          <div className="sm:p-6 p-3 pt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
                 <FormField
@@ -407,13 +407,13 @@ const CommunityTaxForm = ({
 
         {/* Personal Information */}
         <div className="rounded-lg border bg-white text-card-foreground bg-white/80 backdrop-blur-sm">
-          <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+          <div className="flex flex-col space-y-1.5 sm:p-6 p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
             <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
               <User className="h-5 w-5" />
               Personal Information
             </h3>
           </div>
-          <div className="p-6 pt-2">
+          <div className="sm:p-6 p-3 pt-2">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
                 <FormField
@@ -584,13 +584,13 @@ const CommunityTaxForm = ({
 
         {/* Tax Information */}
         <div className="rounded-lg border bg-white text-card-foreground bg-white/80 backdrop-blur-sm">
-          <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+          <div className="flex flex-col space-y-1.5 sm:p-6 p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
             <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
               Tax Assessment
             </h3>
           </div>
-          <div className="p-6 pt-2">
+          <div className="sm:p-6 p-3 pt-2">
             <div className="space-y-6">
               {/* Basic Community Tax */}
               <div className="bg-blue-50 p-4 rounded-lg">
@@ -643,7 +643,7 @@ const CommunityTaxForm = ({
                         during the preceding year (₱1.00 for every ₱1,000)
                       </p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 max-sm:flex-col">
                       <div>
                         <FormField
                           label="Taxable Amount:"
@@ -687,7 +687,7 @@ const CommunityTaxForm = ({
                         (₱1.00 for every ₱1,000)
                       </p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 max-sm:flex-col">
                       <div>
                         <FormField
                           label="Taxable Amount:"
@@ -729,7 +729,7 @@ const CommunityTaxForm = ({
                         3. Income from real property (₱1.00 for every ₱1,000)
                       </p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 max-sm:flex-col">
                       <div>
                         <FormField
                           label="Taxable Amount:"
@@ -768,7 +768,7 @@ const CommunityTaxForm = ({
               </div>
 
               {/* Summary */}
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-lg">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white sm:p-6 p-3 rounded-lg">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Left Section - Total and Interest */}
                   <div className="space-y-4">

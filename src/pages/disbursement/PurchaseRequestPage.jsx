@@ -9,19 +9,25 @@ import { fetchDepartments } from '../../features/settings/departmentSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 import { fetchItems } from '../../features/settings/itemSlice';
 import { fetchItemUnits } from '../../features/settings/itemUnitsSlice';
-import { fetchPurchaseRequests, 
-  addPurchaseRequest, 
-  deletePurchaseRequest, 
-  updatePurchaseRequest  } from '../../features/disbursement/purchaseRequestSlice';
+import {
+  fetchPurchaseRequests,
+  addPurchaseRequest,
+  deletePurchaseRequest,
+  updatePurchaseRequest,
+} from '../../features/disbursement/purchaseRequestSlice';
 
 function PurchaseRequestPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentRequest, setCurrentRequest] = useState(null);
-  const { departments } = useSelector(state => state.departments);
-  const chartOfAccounts = useSelector(state => state.chartOfAccounts?.accounts || []);
-  const {items} = useSelector(state => state.items);
-  const {itemUnits} = useSelector(state => state.itemUnits);
-  const { purchaseRequests, isLoading } = useSelector(state => state.purchaseRequests);
+  const { departments } = useSelector((state) => state.departments);
+  const chartOfAccounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
+  const { items } = useSelector((state) => state.items);
+  const { itemUnits } = useSelector((state) => state.itemUnits);
+  const { purchaseRequests, isLoading } = useSelector(
+    (state) => state.purchaseRequests
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [requestToDelete, setRequestToDelete] = useState(null);
 
@@ -54,8 +60,6 @@ function PurchaseRequestPage() {
     setCurrentRequest(null);
   };
 
-  
-  
   const confirmDelete = async () => {
     if (requestToDelete) {
       try {
@@ -69,8 +73,6 @@ function PurchaseRequestPage() {
     }
   };
 
-   
-
   const handleSubmit = async (values) => {
     try {
       const estimatedCost = values.Items.reduce(
@@ -79,7 +81,8 @@ function PurchaseRequestPage() {
       );
 
       const totalCost = values.Items.reduce(
-        (sum, e) => sum + ((parseFloat(e.Cost) || 0) * (parseFloat(e.Quantity) || 0)),
+        (sum, e) =>
+          sum + (parseFloat(e.Cost) || 0) * (parseFloat(e.Quantity) || 0),
         0
       );
       const payload = {
@@ -90,8 +93,7 @@ function PurchaseRequestPage() {
 
       if (currentRequest) {
         await dispatch(updatePurchaseRequest(payload)).unwrap();
-      }
-      else {
+      } else {
         await dispatch(addPurchaseRequest(payload)).unwrap();
       }
 
@@ -197,7 +199,7 @@ function PurchaseRequestPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Purchase Requests</h1>
             <p>Manage purchase requests and authorizations</p>
@@ -205,7 +207,7 @@ function PurchaseRequestPage() {
           <button
             type="button"
             onClick={handleAddRequest}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary max-sm:w-full"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Purchase Request
@@ -213,7 +215,7 @@ function PurchaseRequestPage() {
         </div>
       </div>
 
-      <div className="mt-4">        
+      <div className="mt-4">
         <DataTable
           columns={columns}
           actions={actions}
@@ -226,32 +228,34 @@ function PurchaseRequestPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={currentRequest ? "Edit Purchase Request" : "Add Purchase Request"}
+        title={
+          currentRequest ? 'Edit Purchase Request' : 'Add Purchase Request'
+        }
         size="xxxl"
       >
-        <PurchaseRequestForm 
-          initialData={currentRequest} 
-          departmentsOptions={departments.map(dept => ({
+        <PurchaseRequestForm
+          initialData={currentRequest}
+          departmentsOptions={departments.map((dept) => ({
             value: dept.ID,
-            label: dept.Name
+            label: dept.Name,
           }))}
-          chartOfAccountsOptions={chartOfAccounts.map(item => ({
+          chartOfAccountsOptions={chartOfAccounts.map((item) => ({
             value: item.ID,
             label: item.Name,
           }))}
-          itemsOptions={items.map(item => ({
+          itemsOptions={items.map((item) => ({
             value: item.ID,
             label: item.Name,
           }))}
-          itemsUnitsOptions={itemUnits.map(unit => ({
+          itemsUnitsOptions={itemUnits.map((unit) => ({
             value: unit.ID,
             label: unit.Name,
           }))}
           onSubmit={handleSubmit}
-          onClose={handleCloseModal} 
+          onClose={handleCloseModal}
         />
       </Modal>
-      
+
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -260,7 +264,8 @@ function PurchaseRequestPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the purchase request "{requestToDelete?.Name}"?
+            Are you sure you want to delete the purchase request "
+            {requestToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -283,7 +288,6 @@ function PurchaseRequestPage() {
           </button>
         </div>
       </Modal>
-
     </div>
   );
 }

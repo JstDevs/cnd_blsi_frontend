@@ -59,7 +59,7 @@ function CashbookForm({ onSubmit }) {
         handleChange,
       }) => (
         <Form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-4">
             <FormField
               label="From Date"
               name="StartDate"
@@ -81,21 +81,20 @@ function CashbookForm({ onSubmit }) {
               error={errors.EndDate}
               touched={touched.EndDate}
             />
+            <FormField
+              label="Fund"
+              name="fund"
+              type="select"
+              required
+              value={values.fund}
+              onChange={handleChange}
+              error={errors.fund}
+              touched={touched.fund}
+              options={fundsOptions}
+            />
           </div>
 
-          <FormField
-            label="Fund"
-            name="fund"
-            type="select"
-            required
-            value={values.fund}
-            onChange={handleChange}
-            error={errors.fund}
-            touched={touched.fund}
-            options={fundsOptions}
-          />
-
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <div className="flex justify-end  max-sm:flex-col gap-3 pt-4 border-t border-neutral-200">
             <button
               type="submit"
               onClick={() => setFieldValue('action', 'view')}

@@ -251,7 +251,7 @@ function CommunityTaxCorporationPage() {
             <button
               type="button"
               onClick={handleCreateCertificate}
-              className="btn btn-primary flex items-center"
+              className="btn btn-primary max-sm:w-full"
             >
               <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
               New Certificate
@@ -273,10 +273,10 @@ function CommunityTaxCorporationPage() {
       {currentView === 'form' && (
         <div>
           <div className="flex justify-between items-start mb-6 flex-col  gap-8">
-            <div className="flex items-center">
+            <div className="flex sm:items-center gap-4 max-sm:flex-col">
               <button
                 onClick={handleBackToList}
-                className="mr-4 p-1 rounded-full hover:bg-neutral-100"
+                className="mr-4 p-1 rounded-full hover:bg-neutral-100 w-fit"
               >
                 <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
               </button>
@@ -293,32 +293,38 @@ function CommunityTaxCorporationPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-end gap-2 justify-end w-full">
-              <SearchableDropdown
-                options={
-                  vendorDetails?.map((vendors) => ({
-                    label: vendors.Name,
-                    value: vendors.ID,
-                  })) || []
-                }
-                selectedValue={selectedVendor?.ID}
-                label="Choose Vendor"
-                placeholder="Choose Vendor"
-                onSelect={handleVendorChange}
-                required
-              />
+            <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-end gap-2 w-full">
+              <div className="sm:w-auto w-full">
+                <SearchableDropdown
+                  options={
+                    vendorDetails?.map((vendors) => ({
+                      label: vendors.Name,
+                      value: vendors.ID,
+                    })) || []
+                  }
+                  selectedValue={selectedVendor?.ID}
+                  label="Choose Vendor"
+                  placeholder="Choose Vendor"
+                  onSelect={handleVendorChange}
+                  required
+                />
+              </div>
 
-              <button
-                type="button"
-                onClick={handleShowList}
-                className="btn btn-secondary flex-initial"
-              >
-                Show List
-              </button>
-              <button className="btn btn-primary flex-initial">
-                Add Attachments
-              </button>
-              <button className="btn btn-outline flex-initial">Print</button>
+              <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={handleShowList}
+                  className="btn btn-secondary w-full sm:w-auto"
+                >
+                  Show List
+                </button>
+                <button className="btn btn-primary w-full sm:w-auto">
+                  Add Attachments
+                </button>
+                <button className="btn btn-outline w-full sm:w-auto">
+                  Print
+                </button>
+              </div>
             </div>
           </div>
 

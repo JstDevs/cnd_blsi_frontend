@@ -119,7 +119,7 @@ function StatementComparison() {
         </div>
       </div>
 
-      <div className="mt-4 p-6 bg-white rounded-md shadow">
+      <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
         <StatementComparisonForm
           fiscalYears={fiscalYears}
           onExportExcel={handleExport}

@@ -3,7 +3,12 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
 
-function BeginningBalanceForm({ fiscalYears = [], onSubmit, onAddClick, onTransferClick }) {
+function BeginningBalanceForm({
+  fiscalYears = [],
+  onSubmit,
+  onAddClick,
+  onTransferClick,
+}) {
   const validationSchema = Yup.object({
     FiscalYearID: Yup.string().required('Fiscal Year is required'),
   });
@@ -17,14 +22,21 @@ function BeginningBalanceForm({ fiscalYears = [], onSubmit, onAddClick, onTransf
       initialValues={initialValues}
       validationSchema={validationSchema}
       validateOnMount={true}
-      onSubmit={onSubmit} 
+      onSubmit={onSubmit}
     >
-      {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isSubmitting,
+      }) => (
         <Form>
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-between sm:gap-4 w-full">
             {/* Left Side: Fiscal Year + Search */}
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="w-auto sm:w-auto">
+            <div className="flex flex-wrap items-center sm:gap-4 w-full sm:w-auto">
+              <div className="w-full sm:w-auto">
                 <FormField
                   type="select"
                   label="Fiscal Year"
@@ -38,28 +50,27 @@ function BeginningBalanceForm({ fiscalYears = [], onSubmit, onAddClick, onTransf
                   required
                 />
               </div>
+            </div>
 
+            {/* Right Side: Add + Transfer */}
+            <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto">
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn btn-primary w-full sm:w-auto"
                 disabled={isSubmitting}
               >
                 Search
               </button>
-            </div>
-
-            {/* Right Side: Add + Transfer */}
-            <div className="flex gap-2">
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-secondary w-full sm:w-auto"
                 onClick={onAddClick}
               >
                 Add
               </button>
               <button
                 type="button"
-                className="btn btn-outline"
+                className="btn btn-outline w-full sm:w-auto"
                 onClick={onTransferClick}
               >
                 Transfer

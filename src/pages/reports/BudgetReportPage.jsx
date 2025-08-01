@@ -150,10 +150,10 @@ function BudgetReportPage() {
             <h1>Budget Reports</h1>
             <p>View and generate budget utilization reports</p>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2  max-sm:w-full ">
             <button
               onClick={handleExport}
-              className="btn btn-outline flex items-center"
+              className="btn btn-outline  max-sm:w-full "
             >
               <ArrowDownTrayIcon className="h-5 w-5 mr-2" /> Export
             </button>
@@ -166,7 +166,7 @@ function BudgetReportPage() {
 
       <div className="mt-4 card p-4">
         <div className="flex flex-wrap gap-4 items-end mb-4">
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <FormField
               label="Start Date"
               name="startDate"
@@ -176,7 +176,7 @@ function BudgetReportPage() {
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <FormField
               label="End Date"
               name="endDate"
@@ -186,7 +186,7 @@ function BudgetReportPage() {
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <FormField
               label="Fiscal Year"
               name="fiscalYearID"
@@ -197,7 +197,7 @@ function BudgetReportPage() {
               options={fiscalYears.map((y) => ({ label: y.Name, value: y.ID }))}
             />
           </div>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <FormField
               label="Fund"
               name="fundsID"
@@ -208,7 +208,7 @@ function BudgetReportPage() {
               options={funds.map((f) => ({ label: f.Name, value: f.ID }))}
             />
           </div>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <FormField
               label="Department"
               name="departmentID"

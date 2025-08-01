@@ -221,7 +221,7 @@ function CommunityTaxPage() {
       {/* // TABLE VIEW  */}
       {currentView === 'list' && (
         <>
-          <div className="flex justify-between items-center mb-6 page-header">
+          <div className="flex justify-between sm:items-center mb-6 page-header gap-4 max-sm:flex-col">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
                 Community Tax Certificate
@@ -231,7 +231,7 @@ function CommunityTaxPage() {
             <button
               type="button"
               onClick={handleCreateCertificate}
-              className="btn btn-primary flex items-center"
+              className="btn btn-primary max-sm:w-full"
             >
               <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
               New Certificate
@@ -253,10 +253,10 @@ function CommunityTaxPage() {
       {currentView === 'form' && (
         <>
           <div className="flex justify-between items-start mb-6 flex-col  gap-8">
-            <div className="flex items-center">
+            <div className="flex sm:items-center gap-4 max-sm:flex-col">
               <button
                 onClick={handleBackToList}
-                className="mr-4 p-1 rounded-full hover:bg-neutral-100"
+                className="mr-4 p-1 rounded-full hover:bg-neutral-100 w-fit"
               >
                 <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
               </button>
@@ -267,38 +267,42 @@ function CommunityTaxPage() {
                     : 'Community Tax Certificate (INDIVIDUAL)'}
                 </h1>
                 <p className="text-gray-600">
-                  {currentCertificate
-                    ? 'Update the certificate details'
-                    : 'Fill out the form to create a new certificate'}
+                  {currentCertificate ? 'Update the certificate details' : ''}
                 </p>
               </div>
             </div>
-            <div className="flex items-end gap-2 justify-end w-full">
-              <SearchableDropdown
-                options={
-                  customers?.map((customer) => ({
-                    label: customer.Name,
-                    value: customer.ID,
-                  })) || []
-                }
-                placeholder="Choose Citizen"
-                selectedValue={selectedCustomer?.ID}
-                onSelect={handleCustomerChange}
-                label="Choose Citizen"
-                required
-              />
+            <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-end gap-2 w-full">
+              <div className="w-full sm:w-auto">
+                <SearchableDropdown
+                  options={
+                    customers?.map((customer) => ({
+                      label: customer.Name,
+                      value: customer.ID,
+                    })) || []
+                  }
+                  placeholder="Choose Citizen"
+                  selectedValue={selectedCustomer?.ID}
+                  onSelect={handleCustomerChange}
+                  label="Choose Citizen"
+                  required
+                />
+              </div>
 
-              <button
-                type="button"
-                onClick={handleShowList}
-                className="btn btn-secondary flex-initial"
-              >
-                Show List
-              </button>
-              <button className="btn btn-primary flex-initial">
-                Add Attachments
-              </button>
-              <button className="btn btn-outline flex-initial">Print</button>
+              <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={handleShowList}
+                  className="btn btn-secondary w-full sm:w-auto"
+                >
+                  Show List
+                </button>
+                <button className="btn btn-primary w-full sm:w-auto">
+                  Add Attachments
+                </button>
+                <button className="btn btn-outline w-full sm:w-auto">
+                  Print
+                </button>
+              </div>
             </div>
           </div>
 

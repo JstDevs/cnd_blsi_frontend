@@ -60,7 +60,7 @@ function GeneralLedgerForm({
       }) => (
         <Form className="space-y-4">
           {/* Row 1 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-4 gap-1">
             {/* <div>
               <label className="form-label">Chart of Accounts<span className="text-red-500">*</span></label>
               <Select
@@ -95,6 +95,7 @@ function GeneralLedgerForm({
               options={accountOptions}
               error={errors.ChartofAccountsID}
               touched={touched.ChartofAccountsID}
+              className="w-full mb-3"
             />
             <FormField
               label="Cut Off Date"
@@ -125,7 +126,7 @@ function GeneralLedgerForm({
           </div>
 
           {/* Row 3: Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <div className="flex justify-end gap-3 max-sm:flex-col pt-4 border-t border-neutral-200">
             <button
               type="submit"
               className="btn btn-primary"

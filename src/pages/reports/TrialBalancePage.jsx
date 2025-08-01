@@ -146,7 +146,7 @@ function TrialBalancePage() {
         <p>Generate trial balance reports.</p>
       </div>
 
-      <div className="mt-4 p-6 bg-white rounded-md shadow">
+      <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
         <TrialBalanceForm
           funds={funds}
           employees={employees}

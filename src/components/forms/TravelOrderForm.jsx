@@ -134,7 +134,7 @@ function TravelOrderForm({
           required
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 sm:gap-4">
           <FormField
             label="Start Date"
             name="DateStart"
@@ -159,7 +159,7 @@ function TravelOrderForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 sm:gap-4">
           <FormField
             label="Place/Office to be visited"
             name="Place"
@@ -184,7 +184,7 @@ function TravelOrderForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 sm:gap-4">
           <FormField
             type="textarea"
             label="Remarks"
@@ -212,7 +212,7 @@ function TravelOrderForm({
           <label className="font-medium block mb-2">
             Means of Transportation
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1  sm:grid-cols-3 gap-2">
             <label className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -276,7 +276,7 @@ function TravelOrderForm({
           name="Travelers"
           render={({ remove, push }) => (
             <div>
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-2 ">
                 <label className="font-medium">Travelers</label>
                 <Button
                   type="button"
@@ -287,7 +287,10 @@ function TravelOrderForm({
                 </Button>
               </div>
               {values.Travelers.map((traveler, index) => (
-                <div key={index} className="flex items-center space-x-4 mb-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between gap-4 mb-2 w-full"
+                >
                   <FormField
                     type="select"
                     label={`Employee ${index + 1}`}
@@ -306,13 +309,13 @@ function TravelOrderForm({
                     onBlur={handleBlur}
                     error={errors.Travelers?.[index]?.TravelerID}
                     touched={touched.Travelers?.[index]?.TravelerID}
-                    className="min-w-[300px]"
+                    className="w-full sm:min-w-[300px]"
                     required
                   />
                   <Button
                     type="button"
                     onClick={() => remove(index)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-1"
+                    className="bg-red-600 hover:bg-red-700 text-white p-2 py-3"
                     disabled={values.Travelers.length === 1}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -343,7 +346,7 @@ function TravelOrderForm({
               {values.TravelPayments?.map((TravelPayment, index) => (
                 <div
                   key={index}
-                  className="flex flex-wrap items-start gap-4 !mb-4"
+                  className="flex sm:flex-wrap max-sm:flex-col  sm:gap-4 w-full  !mb-4"
                 >
                   {/* Amount */}
                   <FormField
@@ -355,7 +358,7 @@ function TravelOrderForm({
                     onBlur={handleBlur}
                     error={errors.TravelPayments?.[index]?.Amount}
                     touched={touched.TravelPayments?.[index]?.Amount}
-                    className="max-w-[180px] flex-1"
+                    className="w-full sm:max-w-[180px] "
                     required
                   />
 
@@ -373,7 +376,7 @@ function TravelOrderForm({
                     onBlur={handleBlur}
                     error={errors.TravelPayments?.[index]?.BudgetID}
                     touched={touched.TravelPayments?.[index]?.BudgetID}
-                    className="min-w-[200px] flex-1"
+                    className="w-full sm:min-w-[200px] "
                     required
                   />
 
@@ -391,7 +394,7 @@ function TravelOrderForm({
                     onBlur={handleBlur}
                     error={errors.TravelPayments?.[index]?.Type}
                     touched={touched.TravelPayments?.[index]?.Type}
-                    className="min-w-[100px] flex-1"
+                    className="w-full sm:min-w-[100px] "
                     required
                   />
 
@@ -399,7 +402,7 @@ function TravelOrderForm({
                   <Button
                     type="button"
                     onClick={() => remove(index)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-1 my-auto"
+                    className="bg-red-600 hover:bg-red-700 text-white p-2 py-3 my-auto ml-auto"
                     disabled={values.TravelPayments.length === 1}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -439,7 +442,10 @@ function TravelOrderForm({
               </div>
 
               {values.TravelDocuments?.map((doc, index) => (
-                <div key={index} className="flex items-center gap-4 mb-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between gap-4 mb-2 w-full"
+                >
                   <FormField
                     type="text"
                     label={`Document ${index + 1}`}
@@ -449,13 +455,13 @@ function TravelOrderForm({
                     onBlur={handleBlur}
                     error={errors.TravelDocuments?.[index]?.Name}
                     touched={touched.TravelDocuments?.[index]?.Name}
-                    className="flex-1 min-w-[300px]"
+                    className="w-full sm:min-w-[300px]"
                     required
                   />
                   <Button
                     type="button"
                     onClick={() => remove(index)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-1"
+                    className="bg-red-600 hover:bg-red-700 text-white p-2 py-3"
                     disabled={values.TravelDocuments.length === 1}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -505,7 +511,7 @@ function TravelOrderForm({
                   <Button
                     type="button"
                     onClick={() => remove(index)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-1"
+                    className="bg-red-600 hover:bg-red-700 text-white p-2 py-3"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -571,7 +577,7 @@ function TravelOrderForm({
                   <Button
                     type="button"
                     onClick={() => remove(index)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-1"
+                    className="bg-red-600 hover:bg-red-700 text-white p-2 py-3"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

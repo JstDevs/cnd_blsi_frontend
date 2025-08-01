@@ -165,7 +165,7 @@ function GeneralLedgerPage() {
         <p>Generate general ledger reports.</p>
       </div>
 
-      <div className="mt-4 p-6 bg-white rounded-md shadow">
+      <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
         <GeneralLedgerForm
           funds={funds}
           accountOptions={accounts.map((acc) => ({

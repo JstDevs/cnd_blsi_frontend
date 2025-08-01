@@ -226,7 +226,7 @@ function MarriageServiceReceiptPage() {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6 page-header">
+      <div className="flex justify-between sm:items-center mb-6 page-header gap-4 max-sm:flex-col">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">
             Marriage Service Receipts
@@ -236,7 +236,7 @@ function MarriageServiceReceiptPage() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary flex items-center"
+          className="btn btn-primary max-sm:w-full"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           Add Receipt

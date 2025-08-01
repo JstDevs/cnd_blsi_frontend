@@ -9,7 +9,7 @@ function DisbursementJournalForm({
   disbursementTypes = [],
   onView,
   onGenerateJournal,
-  onExportExcel
+  onExportExcel,
 }) {
   const submitAction = useRef(null); // ✅ to track which button was clicked
 
@@ -51,10 +51,17 @@ function DisbursementJournalForm({
       onSubmit={handleSubmit}
       validateOnMount={true}
     >
-      {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
-        <Form className="space-y-4">
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isSubmitting,
+      }) => (
+        <Form>
           {/* Row 1 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 sm:gap-4">
             <FormField
               label="Start Date"
               name="DateStart"
@@ -80,12 +87,12 @@ function DisbursementJournalForm({
           </div>
 
           {/* Row 2 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-4">
             <FormField
               type="select"
               label="Chart of Accounts"
               name="ChartOfAccountID"
-              options={chartOfAccounts.map(item => ({
+              options={chartOfAccounts.map((item) => ({
                 value: item.ID,
                 label: item.Name,
               }))}
@@ -100,7 +107,7 @@ function DisbursementJournalForm({
               type="select"
               label="Fund"
               name="FundID"
-              options={funds.map(item => ({
+              options={funds.map((item) => ({
                 value: item.ID,
                 label: item.Name,
               }))}
@@ -115,7 +122,7 @@ function DisbursementJournalForm({
               type="select"
               label="Disbursement Type"
               name="DisbursementType"
-              options={disbursementTypes.map(type => ({
+              options={disbursementTypes.map((type) => ({
                 value: type.value,
                 label: type.label,
               }))}
@@ -129,7 +136,7 @@ function DisbursementJournalForm({
           </div>
 
           {/* Row 3: Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <div className="flex justify-end gap-3 max-sm:flex-col pt-4 border-t border-neutral-200">
             <button
               type="submit"
               className="btn btn-primary"

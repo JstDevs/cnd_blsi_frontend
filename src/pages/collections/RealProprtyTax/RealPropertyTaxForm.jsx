@@ -444,13 +444,13 @@ const RealPropertyTaxForm = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Basic Information Row */}
         <div className="bg-white rounded-lg shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-lg">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white sm:p-6 p-3 rounded-t-lg">
             <h3 className="text-2xl font-semibold flex items-center gap-2">
               <FileText className="h-5 w-5" />
               Basic Information
             </h3>
           </div>
-          <div className="p-6">
+          <div className="sm:p-6 p-3">
             {/* First Row */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
               <FormField
@@ -557,7 +557,7 @@ const RealPropertyTaxForm = () => {
               Previous Balance Land Values
             </h3>
           </div>
-          <div className="p-6">
+          <div className="sm:p-6 p-3">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
               <FormField
                 label="Land Values"
@@ -657,7 +657,7 @@ const RealPropertyTaxForm = () => {
               Present Year Balance
             </h3>
           </div>
-          <div className="p-6">
+          <div className="sm:p-6 p-3">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
               <FormField
                 label="Land Values"
@@ -792,13 +792,13 @@ const RealPropertyTaxForm = () => {
 
         {/* Right Panel Information */}
         <div className="bg-white rounded-lg shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-lg">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white sm:p-6 p-3 rounded-t-lg">
             <h3 className="text-2xl font-semibold flex items-center gap-2">
               <Calendar className="h-5 w-5" />
               Payment Summary
             </h3>
           </div>
-          <div className="p-6">
+          <div className="sm:p-6 p-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <FormField
                 label="Amount Received"

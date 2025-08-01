@@ -4,11 +4,7 @@ import * as Yup from 'yup';
 import FormField from '../common/FormField';
 import Select from 'react-select';
 
-function FinancialStatementsForm({
-  onView,
-  onGenerateJournal,
-  onExportExcel
-}) {
+function FinancialStatementsForm({ onView, onGenerateJournal, onExportExcel }) {
   const submitAction = useRef(null);
 
   const validationSchema = Yup.object({
@@ -41,7 +37,15 @@ function FinancialStatementsForm({
       onSubmit={handleSubmit}
       validateOnMount={true}
     >
-      {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isSubmitting,
+        setFieldValue,
+      }) => (
         <Form className="space-y-4">
           {/* Row 1 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
@@ -59,10 +63,10 @@ function FinancialStatementsForm({
           </div>
 
           {/* Row 3: Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <div className="flex justify-end pt-4 border-t border-neutral-200 max-sm:flex-col  gap-4">
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary "
               disabled={isSubmitting}
               onClick={() => (submitAction.current = 'view')}
             >
@@ -70,7 +74,7 @@ function FinancialStatementsForm({
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary text-center"
               disabled={isSubmitting}
               // onClick={() => (submitAction.current = 'generate')}
             >

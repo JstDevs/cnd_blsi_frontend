@@ -22,8 +22,8 @@ function LoginPage() {
   };
 
   return (
-    <div className="bg-neutral-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+    <div className="bg-neutral-100 flex items-center justify-center  sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-4 sm:p-8 rounded-lg shadow-md">
         <div>
           <h2 className="mt-6 text-center text-2xl font-bold text-neutral-900">
             LGU Management System

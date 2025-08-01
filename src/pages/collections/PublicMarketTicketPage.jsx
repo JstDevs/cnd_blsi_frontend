@@ -124,11 +124,15 @@ const PublicMarketTicketPage = () => {
   ];
   return (
     <>
-      <div className="flex justify-between items-center mb-6 page-header">
+      <div className="flex justify-between items-center mb-6 page-header max-sm:flex-wrap gap-4">
         <h1 className="text-2xl font-semibold text-gray-900">
           Public Market Tickets
         </h1>
-        <Button onClick={handleAdd} disabled={isLoading}>
+        <Button
+          onClick={handleAdd}
+          disabled={isLoading}
+          className="max-sm:w-full"
+        >
           <FiPlus className="w-5 h-5 mr-2" />
           Add Ticket
         </Button>

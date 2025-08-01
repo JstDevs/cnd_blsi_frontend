@@ -3,7 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import BeginningBalanceForm from '../../components/forms/BeginningBalanceForm';
 import DataTable from '../../components/common/DataTable';
-import { fetchBeginningBalance, addBeginningBalance, deleteBeginningBalance, updateBeginningBalance, transferBeginningBalance, resetBeginningBalanceState  } from '../../features/disbursement/beginningBalanceSlice';
+import {
+  fetchBeginningBalance,
+  addBeginningBalance,
+  deleteBeginningBalance,
+  updateBeginningBalance,
+  transferBeginningBalance,
+  resetBeginningBalanceState,
+} from '../../features/disbursement/beginningBalanceSlice';
 import { fetchFiscalYears } from '../../features/settings/fiscalYearSlice';
 import BeginningBalanceAddForm from '../../components/forms/BeginningBalanceAddForm';
 import BeginningBalanceTransferForm from '../../components/forms/BeginningBalanceTransferForm';
@@ -18,23 +25,27 @@ function truncate(str, maxLength) {
 }
 
 function BeginningBalancePage() {
+  const chartOfAccounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
+  const { funds } = useSelector((state) => state.funds);
 
-  const chartOfAccounts = useSelector(state => state.chartOfAccounts?.accounts || []);
-  const { funds } = useSelector(state => state.funds);
-  
   const dispatch = useDispatch();
-  const { fiscalYears } = useSelector(state => state.fiscalYears);
-  const { beginningBalance, isLoading, error } = useSelector(state => state.beginningBalance);
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
+  const { beginningBalance, isLoading, error } = useSelector(
+    (state) => state.beginningBalance
+  );
   const [showAddModal, setShowAddModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [currentBeginningBalance, setCurrentBeginningBalance] = useState(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [beginningBalanceToDelete, setBeginningBalanceToDelete] = useState(null);
+  const [beginningBalanceToDelete, setBeginningBalanceToDelete] =
+    useState(null);
   const [searchFilters, setSearchFilters] = useState(null);
 
   useEffect(() => {
-    dispatch(resetBeginningBalanceState()); 
+    dispatch(resetBeginningBalanceState());
     dispatch(fetchFiscalYears());
     dispatch(fetchFunds());
     dispatch(fetchAccounts());
@@ -44,8 +55,7 @@ function BeginningBalancePage() {
     try {
       if (currentBeginningBalance) {
         await dispatch(updateBeginningBalance(values)).unwrap();
-      }
-      else {
+      } else {
         await dispatch(addBeginningBalance(values)).unwrap();
       }
 
@@ -66,12 +76,14 @@ function BeginningBalancePage() {
       await dispatch(transferBeginningBalance(values)).unwrap();
 
       dispatch(resetBeginningBalanceState());
-      await dispatch(fetchBeginningBalance({ FiscalYearID: values.NextFiscalYearID })).unwrap();
+      await dispatch(
+        fetchBeginningBalance({ FiscalYearID: values.NextFiscalYearID })
+      ).unwrap();
 
       if (searchFilters) {
         await dispatch(fetchBeginningBalance(searchFilters)).unwrap();
       }
-      
+
       toast.success('Success');
     } catch (error) {
       toast.error(error || 'Transfer failed');
@@ -98,7 +110,9 @@ function BeginningBalancePage() {
   const confirmDelete = async () => {
     if (beginningBalanceToDelete) {
       try {
-        await dispatch(deleteBeginningBalance(beginningBalanceToDelete.ID)).unwrap();
+        await dispatch(
+          deleteBeginningBalance(beginningBalanceToDelete.ID)
+        ).unwrap();
         setIsDeleteModalOpen(false);
         setBeginningBalanceToDelete(null);
 
@@ -108,7 +122,6 @@ function BeginningBalancePage() {
       }
     }
   };
-
 
   // Table columns definition
   const columns = [
@@ -138,14 +151,16 @@ function BeginningBalancePage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -165,10 +180,10 @@ function BeginningBalancePage() {
         <h1>Beginning Balance</h1>
         <p>Generate beginning balance reports.</p>
       </div>
-      
-      <div className="mt-4 p-6 bg-white rounded-md shadow">
-        <BeginningBalanceForm 
-          fiscalYears={fiscalYears.map(item => ({
+
+      <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
+        <BeginningBalanceForm
+          fiscalYears={fiscalYears.map((item) => ({
             value: item.ID,
             label: item.Name,
           }))}
@@ -183,29 +198,35 @@ function BeginningBalancePage() {
       <Modal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        title={currentBeginningBalance ? "Edit Beginning Balance" : "Add Beginning Balance"}
+        title={
+          currentBeginningBalance
+            ? 'Edit Beginning Balance'
+            : 'Add Beginning Balance'
+        }
         size="xl"
       >
         <BeginningBalanceAddForm
           onSubmit={handleAddSubmit}
           initialData={currentBeginningBalance}
-          fiscalYears={fiscalYears.map(item => ({
+          fiscalYears={fiscalYears.map((item) => ({
             value: item.ID,
             label: item.Name,
           }))}
-          fundsOptions={funds.map(item => ({
+          fundsOptions={funds.map((item) => ({
             value: item.ID,
             label: item.Name,
           }))}
           onClose={() => setShowAddModal(false)}
-          chartOfAccountsOptions={chartOfAccounts.map(item => ({
+          chartOfAccountsOptions={chartOfAccounts.map((item) => ({
             value: item.ID,
-            label: `${item.AccountCode} - ${item.Name} - [${truncate(item.Description, 50)}]`,
+            label: `${item.AccountCode} - ${item.Name} - [${truncate(
+              item.Description,
+              50
+            )}]`,
           }))}
         />
       </Modal>
 
-      
       {/* Form Modal */}
       <Modal
         isOpen={showTransferModal}
@@ -215,7 +236,7 @@ function BeginningBalancePage() {
       >
         <BeginningBalanceTransferForm
           onSubmit={handleTransferSubmit}
-          fiscalYears={fiscalYears.map(item => ({
+          fiscalYears={fiscalYears.map((item) => ({
             value: item.ID,
             label: item.Name,
           }))}
@@ -223,7 +244,6 @@ function BeginningBalancePage() {
         />
       </Modal>
 
-      
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -232,7 +252,8 @@ function BeginningBalancePage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the beginning balance "{beginningBalanceToDelete?.Name}"?
+            Are you sure you want to delete the beginning balance "
+            {beginningBalanceToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -256,7 +277,6 @@ function BeginningBalancePage() {
         </div>
       </Modal>
 
-
       {error && (
         <div className="mt-4 p-4 bg-error-50 border border-error-200 rounded-md">
           <p className="text-error-700">{error}</p>
@@ -276,4 +296,4 @@ function BeginningBalancePage() {
   );
 }
 
-export default BeginningBalancePage; 
+export default BeginningBalancePage;

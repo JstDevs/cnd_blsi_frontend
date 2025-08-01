@@ -179,7 +179,7 @@ function FundUtilizationPage() {
       {currentView === 'list' && (
         <div>
           <div className="page-header">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
               <div>
                 <h1>Fund Utilization Request & Status</h1>
                 <p>Manage and track your fund utilization requests.</p>
@@ -187,7 +187,7 @@ function FundUtilizationPage() {
               <button
                 type="button"
                 onClick={handleCreateOR}
-                className="btn btn-primary flex items-center"
+                className="btn btn-primary max-sm:w-full"
               >
                 <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
                 Create
@@ -225,10 +225,10 @@ function FundUtilizationPage() {
         <div>
           <div className="page-header">
             <div className="flex justify-between items-center">
-              <div className="flex items-center">
+              <div className="flex sm:items-center max-sm:flex-col gap-4">
                 <button
                   onClick={handleBackToList}
-                  className="mr-4 p-1 rounded-full hover:bg-neutral-100"
+                  className="mr-4 p-1 rounded-full hover:bg-neutral-100 w-fit"
                 >
                   <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
                 </button>

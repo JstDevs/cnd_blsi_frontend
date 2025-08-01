@@ -169,7 +169,7 @@ const BudgetStatementOfAppropriation = () => {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 items-end mb-4">
-        <div className="w-44">
+        <div className="w-full sm:w-44">
           <label>Start Date</label>
           <input
             type="date"
@@ -178,7 +178,7 @@ const BudgetStatementOfAppropriation = () => {
             onChange={(e) => setStartDate(e.target.value)}
           />
         </div>
-        <div className="w-44">
+        <div className="w-full sm:w-44">
           <label>End Date</label>
           <input
             type="date"
@@ -187,7 +187,7 @@ const BudgetStatementOfAppropriation = () => {
             onChange={(e) => setEndDate(e.target.value)}
           />
         </div>
-        <div className="w-44">
+        <div className="w-full sm:w-44">
           <label>Fiscal Year</label>
           <select
             className="form-select"
@@ -202,7 +202,7 @@ const BudgetStatementOfAppropriation = () => {
             ))}
           </select>
         </div>
-        <div className="w-44">
+        <div className="w-full sm:w-44">
           <label>Fund</label>
           <select
             className="form-select"
@@ -217,7 +217,7 @@ const BudgetStatementOfAppropriation = () => {
             ))}
           </select>
         </div>
-        <div className="w-44">
+        <div className="w-full sm:w-44">
           <label>Department</label>
           <select
             className="form-select"
@@ -235,7 +235,7 @@ const BudgetStatementOfAppropriation = () => {
       </div>
 
       {/* Buttons */}
-      <div className="grid grid-cols-3 gap-2 w-max mb-4">
+      <div className="grid grid-cols-2 w-full  sm:grid-cols-3 gap-2 sm:w-max mb-4">
         <button
           onClick={() => handleFetchData('appropriations')}
           className="btn btn-primary"

@@ -105,7 +105,7 @@ function CashbookPage() {
         <h1 className="text-2xl font-semibold text-gray-900">Cashbook</h1>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-white rounded-lg shadow p-3 sm:p-6 mb-6">
         <CashbookForm onSubmit={handleSubmit} />
       </div>
 

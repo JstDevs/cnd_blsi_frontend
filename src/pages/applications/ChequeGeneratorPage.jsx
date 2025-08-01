@@ -274,16 +274,16 @@ function ChequeGeneratorPage() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
             <h1>Cheque Generator</h1>
             <p>Generate and print cheques</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 max-sm:w-full">
             <button
               type="submit"
               onClick={formik.handleSubmit}
-              className="btn btn-primary flex items-center"
+              className="btn btn-primary max-sm:w-full"
               disabled={formik.isSubmitting}
             >
               {currentCheck ? (
@@ -458,7 +458,7 @@ function ChequeGeneratorPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <FormField
                     type="text"
@@ -488,7 +488,7 @@ function ChequeGeneratorPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <FormField
                     type="text"
@@ -657,7 +657,7 @@ function ChequeGeneratorPage() {
       </div>
 
       {/* Original Cheque Preview */}
-      <div className="mt-6 bg-white p-6 rounded-lg shadow border">
+      <div className="mt-6 bg-white p-3 sm:p-6 rounded-lg shadow border">
         <h2 className="text-lg font-medium mb-4">Cheque Preview</h2>
         <div className="border border-gray-300 p-6 rounded-lg bg-white shadow">
           <div className="space-y-6">

@@ -200,17 +200,14 @@ function BurialServiceReceiptPage() {
   // console.log({ burialRecord });
   return (
     <>
-      <div className="flex justify-between items-center mb-6 page-header">
+      <div className="flex justify-between sm:items-center mb-6 page-header max-sm:flex-col gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">
             Burial Service Receipts
           </h1>
           <p className="text-gray-600">Manage Burial Service Receipts</p>
         </div>
-        <button
-          onClick={handleAdd}
-          className="btn btn-primary flex items-center"
-        >
+        <button onClick={handleAdd} className="btn btn-primary max-sm:w-full ">
           <PlusIcon className="h-5 w-5 mr-2" />
           Add New Receipt
         </button>

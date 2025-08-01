@@ -9,7 +9,7 @@ function StatementComparisonForm({
   accLoading = false,
   onView,
   onGenerateJournal,
-  onExportExcel
+  onExportExcel,
 }) {
   const submitAction = useRef(null);
 
@@ -43,7 +43,15 @@ function StatementComparisonForm({
       onSubmit={handleSubmit}
       validateOnMount={true}
     >
-      {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isSubmitting,
+        setFieldValue,
+      }) => (
         <Form className="space-y-4">
           {/* Row 1 */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -51,7 +59,7 @@ function StatementComparisonForm({
               type="select"
               label="Fiscal Year"
               name="fiscalYearID"
-              options={fiscalYears.map(item => ({
+              options={fiscalYears.map((item) => ({
                 value: item.ID,
                 label: item.Name,
               }))}
@@ -65,7 +73,7 @@ function StatementComparisonForm({
           </div>
 
           {/* Row 3: Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <div className="flex justify-end gap-3 max-sm:flex-col pt-4 border-t border-neutral-200">
             <button
               type="submit"
               className="btn btn-primary"

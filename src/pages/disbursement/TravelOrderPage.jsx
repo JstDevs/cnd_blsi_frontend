@@ -204,7 +204,7 @@ function TravelOrderPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center gap-4 max-sm:flex-col">
           <div>
             <h1>Travel Orders</h1>
             <p>Manage travel orders and authorizations</p>
@@ -212,7 +212,7 @@ function TravelOrderPage() {
           <button
             type="button"
             onClick={handleCreateTO}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary max-sm:w-full"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Create Travel Order

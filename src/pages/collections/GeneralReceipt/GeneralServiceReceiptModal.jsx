@@ -205,17 +205,17 @@ function GeneralServiceReceiptModal({
       }
       size="xl"
     >
-      <div className="w-full py-4 flex justify-end gap-4 items-center">
-        <button type="button" className="btn btn-secondary flex-initial">
+      <div className="w-full py-4 flex justify-end gap-4 items-center max-sm:flex-col">
+        <button type="button" className="btn btn-secondary max-sm:w-full">
           Show List
         </button>
         <button
-          className="btn btn-primary flex-initial"
+          className="btn btn-primary max-sm:w-full"
           onClick={() => setShowAttachmentModal(true)}
         >
           Add Attachments
         </button>
-        <button className="btn btn-outline flex-initial">Print</button>
+        <button className="btn btn-outline max-sm:w-full">Print</button>
       </div>
 
       <Formik
@@ -239,7 +239,7 @@ function GeneralServiceReceiptModal({
           return (
             <Form className="space-y-6">
               {/* Section 5: Attachments */}
-              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+              <div className="bg-gray-50 sm:p-4 rounded-lg space-y-4">
                 <h3 className="font-medium text-lg">Attachments</h3>
 
                 {values.Attachments.length > 0 ? (
@@ -283,7 +283,7 @@ function GeneralServiceReceiptModal({
                 )}
               </div>
               {/* Section 1: Basic Information */}
-              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+              <div className="bg-gray-50 sm:p-4 rounded-lg space-y-4">
                 <h3 className="font-medium text-lg">Basic Information</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -345,7 +345,7 @@ function GeneralServiceReceiptModal({
               </div>
 
               {/* Section 2: Payor Information */}
-              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+              <div className="bg-gray-50 sm:p-4 rounded-lg space-y-4">
                 <h3 className="font-medium text-lg">Payor Information</h3>
 
                 <div>
@@ -416,7 +416,7 @@ function GeneralServiceReceiptModal({
               </div>
 
               {/* Section 3: Items */}
-              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+              <div className="bg-gray-50 sm:p-4 rounded-lg space-y-4">
                 <h3 className="font-medium text-lg">Items</h3>
 
                 <FieldArray name="TransactionItemsAll">
@@ -574,7 +574,7 @@ function GeneralServiceReceiptModal({
               </div>
 
               {/* Section  4: Payment Information */}
-              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+              <div className="bg-gray-50 sm:p-4 rounded-lg space-y-4">
                 <h3 className="font-medium text-lg">Payment Information</h3>
 
                 <div className="space-y-2">
@@ -597,7 +597,7 @@ function GeneralServiceReceiptModal({
                         onClick={() =>
                           setFieldValue('PaymentMethodID', method.value)
                         }
-                        className={`px-4 py-2 text-sm font-medium border ${
+                        className={`px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium border ${
                           values.PaymentMethodID === method.value
                             ? 'bg-blue-600 text-white border-blue-600'
                             : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
@@ -683,7 +683,7 @@ function GeneralServiceReceiptModal({
                   size="md"
                 >
                   <div className="space-y-4">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg sm:p-4 text-center">
                       <label className="cursor-pointer">
                         <div className="flex flex-col items-center justify-center">
                           <Paperclip className="h-8 w-8 text-gray-400" />
@@ -723,7 +723,7 @@ function GeneralServiceReceiptModal({
                 </button>
               </div>
               {/* {submitCount > 0 && Object.keys(errors).length > 0 && (
-                <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+                <div className="mt-4 sm:p-4 bg-red-50 border-l-4 border-red-500 rounded">
                   <h3 className="text-sm font-medium text-red-800">
                     Please fix the following errors:
                   </h3>

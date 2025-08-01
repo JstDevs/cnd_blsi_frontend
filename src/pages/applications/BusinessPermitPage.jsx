@@ -194,7 +194,7 @@ function BusinessPermitPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
             <h1>Business Permit Applications</h1>
             <p>Manage business permit applications and registrations</p>
@@ -202,7 +202,7 @@ function BusinessPermitPage() {
           <button
             type="button"
             onClick={handleCreatePermit}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary max-sm:w-full "
           >
             <PlusIcon className="h-5 w-5 mr-2" />
             New Application

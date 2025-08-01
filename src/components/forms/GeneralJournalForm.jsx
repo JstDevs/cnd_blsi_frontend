@@ -7,7 +7,7 @@ function GeneralJournalForm({
   funds = [],
   onView,
   onGenerateJournal,
-  onExportExcel
+  onExportExcel,
 }) {
   const submitAction = useRef(null); // ✅ to track which button was clicked
 
@@ -45,10 +45,17 @@ function GeneralJournalForm({
       onSubmit={handleSubmit}
       validateOnMount={true}
     >
-      {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isSubmitting,
+      }) => (
         <Form className="space-y-4">
           {/* Row 1 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-4">
             <FormField
               label="Start Date"
               name="DateStart"
@@ -75,7 +82,7 @@ function GeneralJournalForm({
               type="select"
               label="Fund"
               name="FundID"
-              options={funds.map(item => ({
+              options={funds.map((item) => ({
                 value: item.ID,
                 label: item.Name,
               }))}
@@ -89,7 +96,7 @@ function GeneralJournalForm({
           </div>
 
           {/* Row 3: Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <div className="flex justify-end max-sm:flex-col gap-3 pt-4 border-t border-neutral-200">
             <button
               type="submit"
               className="btn btn-primary"

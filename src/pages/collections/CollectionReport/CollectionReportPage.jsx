@@ -282,7 +282,7 @@ function CollectionReportPage() {
         </h1>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-white rounded-lg shadow p-3 sm:p-6 mb-6">
         <CollectionReportForm
           onSubmitCollectionReport={handleSubmit}
           activeReportType={activeReportType}

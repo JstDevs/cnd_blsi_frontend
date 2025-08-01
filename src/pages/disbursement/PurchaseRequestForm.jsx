@@ -79,7 +79,7 @@ function PurchaseRequestForm({
         setFieldValue,
       }) => (
         <Form className="space-y-1">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-4">
             <FormField
               className="p-3 focus:outline-none"
               label="Department"
@@ -121,7 +121,7 @@ function PurchaseRequestForm({
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-4">
             <FormField
               className="p-3 focus:outline-none"
               label="PR No."
@@ -159,7 +159,7 @@ function PurchaseRequestForm({
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-4">
             <FormField
               className="p-3 focus:outline-none"
               label="PR Date"
@@ -238,8 +238,8 @@ function PurchaseRequestForm({
                     key={index}
                     className="space-y-2 border p-4 rounded-md bg-neutral-50"
                   >
-                    <div className="flex flex-wrap gap-2 w-full">
-                      <div className="flex-1 min-w-[200px]">
+                    <div className="flex max-sm:flex-col flex-wrap gap-2 w-full">
+                      <div className="flex-1 w-full sm:min-w-[200px]">
                         <div>
                           <label className="form-label">
                             Item <span className="text-error-500">*</span>
@@ -272,7 +272,7 @@ function PurchaseRequestForm({
                         )}
                       </div>
                       <FormField
-                        className="flex-1 max-w-[180px]"
+                        className="flex-1 w-full sm:max-w-[180px]"
                         type="number"
                         label="Quantity"
                         name={`Items[${index}].Quantity`}
@@ -284,7 +284,7 @@ function PurchaseRequestForm({
                         required
                       />
                       <FormField
-                        className="flex-1 max-w-[150px]"
+                        className="flex-1 w-full sm:max-w-[150px]"
                         type="select"
                         label="Unit"
                         name={`Items[${index}].Unit`}
@@ -297,7 +297,7 @@ function PurchaseRequestForm({
                         required
                       />
                       <FormField
-                        className="flex-1 max-w-[200px]"
+                        className="flex-1 w-full sm:max-w-[200px]"
                         type="number"
                         label="Cost"
                         name={`Items[${index}].Cost`}
@@ -324,22 +324,24 @@ function PurchaseRequestForm({
                 ))}
 
                 {/* ✅ Totals Row */}
-                <div className="grid grid-cols-6 gap-4 border-t pt-4 font-semibold">
-                  <div className="col-span-2 text-right">Total:</div>
+                <div className="grid grid-cols-3 sm:grid-cols-6 sm:gap-4 border-t pt-4 font-semibold">
+                  <div className=" col-span-1 sm:col-span-2 sm:text-right">
+                    Total:
+                  </div>
 
-                  <div className="col-span-2 text-right">
+                  <div className="col-span-1 sm:col-span-2 text-right">
                     <div className="font-bold">
                       {values.Items.reduce(
                         (sum, e) => sum + (parseFloat(e.Cost) || 0),
                         0
                       ).toFixed(2)}{' '}
-                      <span className="text-sm font-normal text-gray-500">
+                      <span className="text-sm max-sm:block font-normal text-gray-500">
                         (Estimated Cost)
                       </span>
                     </div>
                   </div>
 
-                  <div className="col-span-2 text-right">
+                  <div className="col-span-1 sm:col-span-2 text-right">
                     <div className="font-bold">
                       {values.Items.reduce(
                         (sum, e) =>
@@ -348,7 +350,7 @@ function PurchaseRequestForm({
                             (parseFloat(e.Quantity) || 0),
                         0
                       ).toFixed(2)}{' '}
-                      <span className="text-sm font-normal text-gray-500">
+                      <span className="text-sm max-sm:block font-normal text-gray-500">
                         (Cost)
                       </span>
                     </div>

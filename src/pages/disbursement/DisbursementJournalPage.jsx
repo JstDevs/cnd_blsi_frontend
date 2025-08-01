@@ -191,7 +191,7 @@ function DisbursementJournalPage() {
         <p>Generate disbursement journal reports.</p>
       </div>
 
-      <div className="mt-4 p-6 bg-white rounded-md shadow">
+      <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
         <DisbursementJournalForm
           chartOfAccounts={chartOfAccounts}
           funds={funds}

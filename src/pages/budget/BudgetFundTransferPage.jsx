@@ -139,16 +139,16 @@ const BudgetFundTransferPage = () => {
   return (
     <>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center max-sm:flex-wrap gap-4">
           <div>
             <h1>Fund Transfer</h1>
             <p>Manage fund transfers between accounts</p>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 max-sm:w-full">
             <button
               type="button"
               onClick={() => handleEdit(null)}
-              className="btn btn-primary flex items-center"
+              className="btn btn-primary max-sm:w-full"
             >
               <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
               Add Transfer

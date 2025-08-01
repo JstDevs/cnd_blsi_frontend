@@ -522,7 +522,7 @@ const CTCForm = ({
                         PHILIPPINES (₱2.00 FOR EVERY ₱5,000.00)
                       </p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 max-sm:flex-col">
                       <div>
                         <FormField
                           name="assessedValueRealProperty"
@@ -566,7 +566,7 @@ const CTCForm = ({
                         (₱2.00 FOR EVERY ₱5,000.00)
                       </p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 max-sm:flex-col">
                       <div>
                         <FormField
                           name="grossReceipts"

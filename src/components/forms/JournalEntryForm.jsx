@@ -132,7 +132,7 @@ function JournalEntryForm({
     <FormikProvider value={formik}>
       <form onSubmit={formik.handleSubmit} className="space-y-4">
         {/* Row 1 */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-4">
           <FormField
             type="select"
             label="Type"
@@ -169,7 +169,7 @@ function JournalEntryForm({
             required
           />
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-4">
           <FormField
             type="text"
             label="OBR No"
@@ -206,7 +206,7 @@ function JournalEntryForm({
         {/* Row 4 */}
         {/* Only show Check Number if not Cash type */}
         {selectedType === 'Check Disbursement' && (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-4">
             <FormField
               type="text"
               label="DV No"
@@ -277,9 +277,9 @@ function JournalEntryForm({
                     key={index}
                     className="space-y-2 border p-4 rounded-md bg-neutral-50"
                   >
-                    <div className="flex flex-wrap gap-2 w-full">
+                    <div className="flex max-sm:flex-col sm:flex-wrap gap-2 w-full">
                       <FormField
-                        className="flex-1 min-w-[200px]"
+                        className="flex-1 w-full sm:min-w-[200px]"
                         type="select"
                         label="Responsibility Center"
                         name={`AccountingEntries[${index}].ResponsibilityCenter`}
@@ -297,13 +297,11 @@ function JournalEntryForm({
                         }
                         required
                       />
-                      <div className="flex-1 min-w-[200px]">
-                        <div>
-                          <label className="form-label">
-                            Accounts and Explanation{' '}
-                            <span className="text-error-500">*</span>
-                          </label>
-                        </div>
+                      <div className="flex-1 sm:min-w-[200px]">
+                        <label className="form-label">
+                          Accounts and Explanation{' '}
+                          <span className="text-error-500">*</span>
+                        </label>
                         <Select
                           label="Accounts and Explanation"
                           options={accountOptions}
@@ -344,7 +342,7 @@ function JournalEntryForm({
                       required
                     /> */}
                       <FormField
-                        className="flex-1 max-w-[150px] disabled:bg-gray-200 disabled:cursor-not-allowed"
+                        className="flex-1 sm:max-w-[150px] disabled:bg-gray-200 disabled:cursor-not-allowed"
                         type="number"
                         label="Debit"
                         name={`AccountingEntries[${index}].Debit`}
@@ -370,7 +368,7 @@ function JournalEntryForm({
                       />
 
                       <FormField
-                        className="flex-1 max-w-[150px] disabled:bg-gray-200 disabled:cursor-not-allowed"
+                        className="flex-1 sm:max-w-[150px] disabled:bg-gray-200 disabled:cursor-not-allowed"
                         type="number"
                         label="Credit"
                         name={`AccountingEntries[${index}].Credit`}

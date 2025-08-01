@@ -189,7 +189,7 @@ function DisbursementVoucherPage() {
       {currentView === 'list' && (
         <div>
           <div className="page-header">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between sm:items-center gap-4 max-sm:flex-col">
               <div>
                 <h1>Disbursement Vouchers</h1>
                 <p>Manage disbursement vouchers</p>
@@ -197,7 +197,7 @@ function DisbursementVoucherPage() {
               <button
                 type="button"
                 onClick={handleCreateDV}
-                className="btn btn-primary flex items-center"
+                className="btn btn-primary max-sm:w-full"
               >
                 <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
                 Create DV
@@ -235,10 +235,10 @@ function DisbursementVoucherPage() {
         <div>
           <div className="page-header">
             <div className="flex justify-between items-center">
-              <div className="flex items-center">
+              <div className="flex sm:items-center gap-4 max-sm:flex-col">
                 <button
                   onClick={handleBackToList}
-                  className="mr-4 p-1 rounded-full hover:bg-neutral-100"
+                  className="mr-4 p-1 rounded-full hover:bg-neutral-100 w-fit"
                 >
                   <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
                 </button>

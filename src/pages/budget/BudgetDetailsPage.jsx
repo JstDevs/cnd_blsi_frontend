@@ -258,7 +258,7 @@ const BudgetDetailsPage = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header flex justify-between items-center">
+      <div className="page-header flex justify-between items-center flex-wrap gap-4">
         <div>
           <h1>Budget Details</h1>
           <p>View and manage detailed budget entries</p>
@@ -268,7 +268,7 @@ const BudgetDetailsPage = () => {
             setActiveRow(null);
             setIsModalOpen(true);
           }}
-          className="btn btn-primary flex items-center"
+          className="btn btn-primary max-sm:w-full "
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           Add Budget
