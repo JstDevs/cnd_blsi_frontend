@@ -32,7 +32,7 @@ function InvoiceChargeAccountsPage() {
 
   return (
     <div>
-      <div className="bg-white p-6 rounded-lg shadow border">
+      <div className="bg-white p-3 sm:p-6 rounded-lg shadow border">
         <InvoiceChargeAccountForm
           // onClose={() => {}}
           onSubmit={handleSubmit}

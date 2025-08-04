@@ -139,9 +139,9 @@ const InvoiceChargeAccountForm = ({
               Real Property Tax Shares Settings
             </h3>
             <div className="grid grid-cols-1 gap-4">
-              <div className="bg-neutral-50 p-4 rounded-lg space-y-4">
+              <div className="bg-neutral-50 p-2 sm:p-4 rounded-lg space-y-4">
                 <h4 className="font-medium text-neutral-700">Due to LGUs</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 sm:gap-4">
                   <FormField
                     label="Account"
                     name="DueToLGU"
@@ -171,11 +171,11 @@ const InvoiceChargeAccountForm = ({
                 </div>
               </div>
 
-              <div className="bg-neutral-50 p-4 rounded-lg space-y-4">
+              <div className="bg-neutral-50 p-2 sm:p-4 rounded-lg space-y-4">
                 <h4 className="font-medium text-neutral-700">
                   Due From Local Government Units
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 sm:gap-4">
                   <FormField
                     label="Account"
                     name="DueFromLGU"
@@ -212,7 +212,7 @@ const InvoiceChargeAccountForm = ({
             <h3 className="text-lg font-medium text-neutral-900">
               Special Education Funds
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 sm:gap-4">
               <FormField
                 label="Real Property Tax"
                 name="RealPropertyTax"

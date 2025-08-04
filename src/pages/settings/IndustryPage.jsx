@@ -102,7 +102,7 @@ function IndustryPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Industries</h1>
             <p>Manage industries</p>
@@ -110,7 +110,7 @@ function IndustryPage() {
           <button
             type="button"
             onClick={handleAdd}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary max-sm:w-full"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Industry

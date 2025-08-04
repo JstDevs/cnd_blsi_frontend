@@ -155,26 +155,28 @@ function TaxDeclarationPage() {
             <h1>Tax Declarations</h1>
             <p>Manage Tax Declarations</p>
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center max-sm:flex-col max-sm:w-full">
             <button
               type="button"
               onClick={handleAdd}
-              className="btn btn-primary flex items-center"
+              className="btn btn-primary max-sm:w-full"
             >
               <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
               Add Tax Declaration
             </button>
-            <FormField
-              type="select"
-              name="year"
-              label="Year"
-              placeholder="Select a year"
-              options={[
-                { value: '2023', label: '2023' },
-                { value: '2024', label: '2024' },
-                { value: '2025', label: '2025' },
-              ]}
-            />
+            <div className="max-sm:w-full">
+              <FormField
+                type="select"
+                name="year"
+                label="Year"
+                placeholder="Select a year"
+                options={[
+                  { value: '2023', label: '2023' },
+                  { value: '2024', label: '2024' },
+                  { value: '2025', label: '2025' },
+                ]}
+              />
+            </div>
           </div>
         </div>
       </div>

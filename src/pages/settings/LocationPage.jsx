@@ -440,7 +440,7 @@ function LocationPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Locations</h1>
             <p>Manage regions, provinces, municipalities, and barangays</p>
@@ -448,7 +448,7 @@ function LocationPage() {
           <button
             type="button"
             onClick={handleCreateLocation}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary max-sm:w-full"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
             Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
@@ -488,7 +488,7 @@ function LocationPage() {
         onClose={() => setIsModalOpen(false)}
         title={currentLocation ? `Edit ${activeTab}` : `New ${activeTab}`}
       >
-        <form onSubmit={formik.handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={formik.handleSubmit} className="sm:p-4 space-y-4">
           {getFormFields()}
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button

@@ -158,7 +158,7 @@ function EmployeePage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Employees</h1>
             <p>Manage employee information and records</p>
@@ -166,7 +166,7 @@ function EmployeePage() {
           <button
             type="button"
             onClick={handleAddEmployee}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary max-sm:w-full"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Employee

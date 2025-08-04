@@ -324,7 +324,7 @@ const LGUMaintenance = () => {
     Name: id,
   }));
   return (
-    <div className="py-6 px-4">
+    <div className="sm:py-6 sm:px-4">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-blue-800">LGU Maintenance</h1>
         <p className="mt-2 text-gray-600">
@@ -349,7 +349,7 @@ const LGUMaintenance = () => {
           )}
         </div>
 
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           <div className="flex flex-col items-center mb-6">
             <img
               src={image}
@@ -361,7 +361,7 @@ const LGUMaintenance = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="mt-2"
+                className="mt-2 w-full"
               />
             )}
           </div>

@@ -8,12 +8,12 @@ import {
   fetchModules,
   addModule,
   updateModule,
-  deleteModule
+  deleteModule,
 } from '../../features/settings/modulesSlice';
 
 function ModulesPage() {
   const dispatch = useDispatch();
-  const { modules, isLoading } = useSelector(state => state.modules);
+  const { modules, isLoading } = useSelector((state) => state.modules);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModule, setCurrentModule] = useState(null);
@@ -64,8 +64,8 @@ function ModulesPage() {
     {
       key: 'Description',
       header: 'Name',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -73,20 +73,22 @@ function ModulesPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Modules</h1>
             <p>Manage Modules</p>
@@ -94,7 +96,7 @@ function ModulesPage() {
           <button
             type="button"
             onClick={handleAdd}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary max-sm:w-full"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Module
@@ -116,7 +118,7 @@ function ModulesPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentModule ? "Edit Module" : "Add Module"}
+        title={currentModule ? 'Edit Module' : 'Add Module'}
       >
         <ModulesForm
           initialData={currentModule}

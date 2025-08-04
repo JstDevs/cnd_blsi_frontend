@@ -112,7 +112,7 @@ function ChartOfAccountsPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center gap-4 flex-wrap">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Chart of Accounts</h1>
             <p>Manage account codes and their settings</p>
@@ -121,7 +121,7 @@ function ChartOfAccountsPage() {
             <button
               type="button"
               onClick={handleAddAccount}
-              className="btn btn-primary flex items-center"
+              className="btn btn-primary max-sm:w-full"
             >
               <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
               Add Account

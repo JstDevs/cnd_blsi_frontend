@@ -166,7 +166,7 @@ export default function UserAccessPage() {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="sm:p-4 space-y-4">
       {/* Header */}
       <header className="page-header space-y-2">
         <div>

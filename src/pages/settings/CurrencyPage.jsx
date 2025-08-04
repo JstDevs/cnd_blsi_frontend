@@ -151,7 +151,7 @@ function CurrencyPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Currencies</h1>
             <p>Manage LGU currencies and their details</p>
@@ -159,7 +159,7 @@ function CurrencyPage() {
           <button
             type="button"
             onClick={handleAddCurrency}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary max-sm:w-full"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Currency

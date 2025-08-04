@@ -131,18 +131,15 @@ const ItemPage = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto">
+      <div className="flex justify-between sm:items-center max-sm:flex-col gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Item List</h1>
           <p className="mt-1 text-sm text-gray-500">
             Manage inventory items, assets, and services
           </p>
         </div>
-        <button
-          onClick={handleAdd}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
+        <button onClick={handleAdd} className="btn btn-primary max-sm:w-full">
           <PlusIcon className="h-5 w-5 mr-2" />
           Add Item
         </button>
