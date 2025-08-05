@@ -22,7 +22,7 @@ import {
 } from '../../features/disbursement/fundUtilizationSlice';
 import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
 import { current } from '@reduxjs/toolkit';
-
+const API_URL = import.meta.env.VITE_API_URL;
 const payeeTypes = [
   { value: 'Employee', label: 'Employee' },
   { value: 'Vendor', label: 'Vendor' },

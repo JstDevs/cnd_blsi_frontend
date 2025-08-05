@@ -33,7 +33,7 @@ import {
 import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
 
 import { obligationRequestItemsCalculator } from '../../utils/obligationRequestItemsCalculator';
-
+const API_URL = import.meta.env.VITE_API_URL;
 const payeeTypes = [
   { value: 'Employee', label: 'Employee' },
   { value: 'Vendor', label: 'Vendor' },

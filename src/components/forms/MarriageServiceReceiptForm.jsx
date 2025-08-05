@@ -6,7 +6,7 @@ import { Paperclip, Trash2, TrashIcon } from 'lucide-react';
 import { DocumentIcon } from '@heroicons/react/24/outline';
 import SearchableDropdown from '../common/SearchableDropdown';
 import toast from 'react-hot-toast';
-
+const API_URL = import.meta.env.VITE_API_URL;
 const MARRIAGE_SERVICE_RECEIPT_SCHEMA = Yup.object().shape({
   InvoiceNumber: Yup.string().required('Invoice number is required'),
   CustomerName: Yup.string().required('Customer is required'),

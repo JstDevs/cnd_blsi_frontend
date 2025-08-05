@@ -24,7 +24,7 @@ import { fetchEmployees } from '@/features/settings/employeeSlice';
 import toast from 'react-hot-toast';
 import { convertAmountToWords } from '@/utils/amountToWords';
 import axiosInstance from '@/utils/axiosInstance';
-
+const API_URL = import.meta.env.VITE_API_URL;
 // Validation schema
 const chequeSchema = Yup.object().shape({
   payee: Yup.string().required('Payee is required'),

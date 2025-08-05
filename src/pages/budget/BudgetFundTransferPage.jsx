@@ -4,120 +4,157 @@ import { PencilIcon, TrashIcon } from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import BudgetFundTransferForm from '../../components/forms/BudgetFundTransferForm';
 import DataTable from '../../components/common/DataTable';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchFundOptions,
+  fetchFundTransfers,
+  createFundTransfer,
+} from '@/features/budget/fundTransferSlice';
+import toast from 'react-hot-toast';
 
 const BudgetFundTransferPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
-  const [data] = useState([
-    {
-      id: 1,
-      Code: '100',
-      Name: 'General Fund',
-      Description: 'The general fund.',
-      OriginalAmount: '50,10,00,00,050.00',
-      Balance: '50,10,00,00,050.00',
-      Total: '50,10,00,00,050.00',
-    },
-    {
-      id: 2,
-      Code: '300',
-      Name: 'Trust Fund',
-      Description: 'The trust fund.',
-      OriginalAmount: '1,99,950.00',
-      Balance: '3,00,000.00',
-      Total: '3,00,000.00',
-    },
-    {
-      id: 3,
-      Code: '200',
-      Name: 'Special Education Fund',
-      Description: 'The special education fund.',
-      OriginalAmount: '2,00,000.00',
-      Balance: '2,00,000.00',
-      Total: '2,00,000.00',
-    },
-    {
-      id: 4,
-      Code: '000',
-      Name: 'Test Fund',
-      Description: 'This is just a test fund. This will also be deleted.',
-      OriginalAmount: '1,00,000.00',
-      Balance: '1,00,000.00',
-      Total: '1,00,000.00',
-    },
-  ]);
+  const dispatch = useDispatch();
+  const {
+    transfers: data,
+    fundOptions,
+    loading,
+    error,
+  } = useSelector((state) => state.fundTransfer);
 
+  // console.log(data, fundOptions, loading, error);
+  useEffect(() => {
+    dispatch(fetchFundOptions());
+    dispatch(fetchFundTransfers());
+  }, []);
   const columns = [
     {
-      key: 'Code',
-      header: 'Code',
+      key: 'InvoiceNumber',
+      header: 'Invoice Number',
       sortable: true,
       className: 'font-medium text-neutral-900',
       render: (value) => value || '—',
     },
     {
-      key: 'Name',
-      header: 'Name',
+      key: 'FundsID',
+      header: 'Fund Source',
       sortable: true,
-      render: (value) => <span className="font-medium">{value || '—'}</span>,
-    },
-    {
-      key: 'Description',
-      header: 'Description',
-      sortable: true,
-      render: (value) => (
-        <span className="text-gray-600">{value || 'No description'}</span>
+      render: (value, record) => (
+        <span className="text-gray-600">
+          {record?.Funds?.Name || value || '—'}
+        </span>
       ),
     },
     {
-      key: 'OriginalAmount',
-      header: 'Original Amount',
+      key: 'TargetID',
+      header: 'Fund Target',
       sortable: true,
-      className: 'text-right',
-      render: (value) => <span className="font-medium">{value || '—'}</span>,
+      render: (value, record) => (
+        <span className="text-gray-600">
+          {record?.targetFunds?.Name || value || '—'}
+        </span>
+      ),
     },
     {
-      key: 'Balance',
-      header: 'Balance',
+      key: 'Status',
+      header: 'Status',
       sortable: true,
-      className: 'text-right',
+      render: (value) => (
+        <span
+          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            value === 'Requested'
+              ? 'bg-warning-100 text-warning-800'
+              : value === 'Approved'
+              ? 'bg-success-100 text-success-800'
+              : 'bg-error-100 text-error-800'
+          }`}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: 'InvoiceDate',
+      header: 'Invoice Date',
+      sortable: true,
       render: (value) => <span className="font-medium">{value || '—'}</span>,
     },
     {
       key: 'Total',
       header: 'Total',
       sortable: true,
-      className: 'text-right',
+      render: (value) => <span className="font-medium">{value || '—'}</span>,
+    },
+    {
+      key: 'Remarks',
+      header: 'Remarks',
+      sortable: true,
       render: (value) => <span className="font-medium">{value || '—'}</span>,
     },
   ];
 
-  const actions = [
-    {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: (row) => handleEdit(row),
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: (row) => handleDelete(row.id),
-      className:
-        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-    },
-  ];
+  // const actions = [
+  // {
+  //   icon: PencilIcon,
+  //   title: 'Edit',
+  //   onClick: (row) => handleEdit(row),
+  //   className:
+  //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  // },
+  // {
+  //   icon: TrashIcon,
+  //   title: 'Delete',
+  //   onClick: (row) => handleDelete(row.id),
+  //   className:
+  //     'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+  // },
+  // ];
+  const actions = (row) => {
+    const baseActions = [];
 
-  const handleSubmit = (values) => {
-    if (activeRow) {
-      console.log('Updated:', values);
-      toast.success('Transfer updated successfully');
-    } else {
-      console.log('Created:', values);
-      toast.success('Transfer created successfully');
+    // Only add Edit action if status is "Rejected" , use Requested to Test it
+    if (row.Status === 'Rejected') {
+      baseActions.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: () => handleEdit(row),
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
     }
-    setIsOpen(false);
+
+    // Uncomment if you want to add Delete action for all statuses
+    /*
+  baseActions.push({
+    icon: TrashIcon,
+    title: 'Delete',
+    onClick: () => handleDelete(row.id),
+    className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+  });
+  */
+
+    return baseActions;
+  };
+  const handleSubmit = async (values) => {
+    try {
+      if (activeRow) {
+        // console.log('Updated:', { values });
+        await dispatch(createFundTransfer(values)).unwrap();
+        await dispatch(fetchFundTransfers()).unwrap();
+        toast.success('Transfer updated successfully');
+      } else {
+        // console.log('Created:', { values });
+        await dispatch(createFundTransfer(values)).unwrap();
+        await dispatch(fetchFundTransfers()).unwrap();
+        toast.success('Transfer created successfully');
+      }
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('An error occurred');
+    }
   };
 
   const handleEdit = (data) => {
@@ -126,8 +163,6 @@ const BudgetFundTransferPage = () => {
   };
 
   const handleDelete = (id) => {
-    // if (!window.confirm('Are you sure you want to delete this transfer?'))
-    // return;
     console.log('Deleted transfer with id:', id);
     toast.success('Transfer deleted successfully');
   };
@@ -162,13 +197,13 @@ const BudgetFundTransferPage = () => {
           columns={columns}
           data={data}
           actions={actions}
-          loading={false}
+          loading={loading}
           onRowClick={handleViewTransfer}
         />
       </div>
 
       <Modal
-        size="md"
+        size="xl"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title={activeRow ? 'Edit Fund Transfer' : 'Add Fund Transfer'}
@@ -177,6 +212,7 @@ const BudgetFundTransferPage = () => {
           onSubmit={handleSubmit}
           initialData={activeRow}
           onClose={() => setIsOpen(false)}
+          fundOptions={fundOptions}
         />
       </Modal>
     </>

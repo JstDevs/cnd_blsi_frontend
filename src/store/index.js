@@ -52,6 +52,8 @@ import { ppeSuppliersReducer } from '../features/settings/ppeSuppliersSlice';
 
 import { subFundsReducer } from '../features/budget/subFundsSlice';
 import budgetFundsSlice from '../features/budget/fundsSlice';
+import fundTransferReducer from '../features/budget/fundTransferSlice';
+import budgetTransferReducer from '../features/budget/budgetTransferSlice';
 import { budgetDashboardReducer } from '../features/budget/budgetDashboardSlice';
 import { vendorDetailsReducer } from '../features/settings/vendorDetailsSlice';
 import { customersReducer } from '../features/settings/customersSlice';
@@ -135,6 +137,9 @@ export const store = configureStore({
     statementComparison: statementComparisonReducer,
     subsidiaryLedger: subsidiaryLedgerReducer,
     financialStatementsReports: financialStatementReportsReducer,
+    // ----------------BUDGET SLICES---------------------
+    fundTransfer: fundTransferReducer,
+    budgetTransfer: budgetTransferReducer,
     budget: budgetReducer,
     subFunds: subFundsReducer,
     funds: budgetFundsSlice,
