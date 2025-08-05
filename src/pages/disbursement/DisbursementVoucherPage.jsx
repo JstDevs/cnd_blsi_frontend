@@ -236,13 +236,13 @@ function DisbursementVoucherPage() {
                 const actionList = [];
 
                 if (row.Status.toLowerCase().includes('rejected')) {
-                  // actionList.push({
-                  //   icon: PencilIcon,
-                  //   title: 'Edit',
-                  //   onClick: () => handleEditOR(row),
-                  //   className:
-                  //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-                  // });
+                  actionList.push({
+                    icon: PencilIcon,
+                    title: 'Edit',
+                    onClick: () => handleEditOR(row),
+                    className:
+                      'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+                  });
                 } else if (row.Status === 'Requested') {
                   actionList.push(
                     {

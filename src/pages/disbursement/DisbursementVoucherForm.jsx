@@ -173,11 +173,11 @@ function DisbursementVoucherForm({
       ? initialData.Attachments
       : [],
     OBR_LinkID: initialData?.OBR_LinkID || '',
-    contraAccount: initialData?.contraAccount || '',
+    contraAccount: initialData?.ContraAccountID || '',
     modeOfPayment: initialData?.modeOfPayment || '',
     bank: initialData?.bank || '',
     checkNumber: initialData?.checkNumber || '',
-    receivedPaymentBy: initialData?.receivedPaymentBy || '',
+    receivedPaymentBy: initialData?.ReceivedPaymentBy || '',
   };
 
   const handleSubmit = (values) => {
@@ -286,9 +286,10 @@ function DisbursementVoucherForm({
     } else {
       fd.append('IsNew', true);
     }
-    const action = initialData
-      ? updateDisbursementVoucher({ formData: fd, id: initialData.ID }).unwrap()
-      : createDisbursementVoucher(fd);
+    // const action = initialData
+    //   ? updateDisbursementVoucher({ formData: fd, id: initialData.ID }).unwrap()
+    //   : createDisbursementVoucher(fd);
+    const action = createDisbursementVoucher(fd);
 
     dispatch(action)
       .unwrap()
