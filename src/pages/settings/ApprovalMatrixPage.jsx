@@ -10,6 +10,7 @@ import {
   updateApprovalMatrix,
   deleteApprovalMatrix,
 } from '../../features/settings/approvalMatrixSlice';
+import toast from 'react-hot-toast';
 
 function ApprovalMatrixPage() {
   const dispatch = useDispatch();
@@ -60,8 +61,10 @@ function ApprovalMatrixPage() {
         await dispatch(deleteApprovalMatrix(matrixToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setMatrixToDelete(null);
+        toast.success('Approval matrix deleted successfully');
       } catch (error) {
         console.error('Failed to delete approval matrix:', error);
+        toast.error('Failed to delete approval matrix. Please try again.');
         // Optionally show an error message to the user
       }
     }
@@ -73,13 +76,16 @@ function ApprovalMatrixPage() {
         await dispatch(
           updateApprovalMatrix({ ...values, ID: currentMatrix.ID })
         ).unwrap();
+        toast.success('Approval matrix updated successfully');
       } else {
         await dispatch(addApprovalMatrix(values)).unwrap(); // <- Important: unwrap to catch errors
+        toast.success('Approval matrix saved successfully');
       }
       dispatch(fetchApprovalMatrix());
       setIsModalOpen(false); // Only close modal on success
     } catch (err) {
       console.error('Failed to submit approval matrix:', err);
+      toast.error('Failed to submit approval matrix. Please try again.');
       // Optionally display error inside the form or at modal level
     }
   };
@@ -133,8 +139,8 @@ function ApprovalMatrixPage() {
           actions={actions}
           loading={isLoading}
         />
-        {error && <div className="text-error-600 mt-2">{error}</div>}
       </div>
+      {error && <div className="text-error-600 mt-2">{error}</div>}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
