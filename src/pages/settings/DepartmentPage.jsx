@@ -135,7 +135,7 @@ function DepartmentPage() {
           'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
       });
     }
-    if (Delete && row.ID >= 4) {
+    if (Delete && row.ID > 4) {
       baseActions.push({
         icon: TrashIcon,
         title: 'Delete',
