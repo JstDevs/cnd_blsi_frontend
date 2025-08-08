@@ -21,7 +21,7 @@ const AutoGenerateAccountCode = ({
   majorAccountGroups,
   subMajorAccountGroups,
 }) => {
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue, errors, touched } = useFormikContext();
 
   // Get code by ID from different groups
   const getCodeById = (id, group) => {
@@ -66,8 +66,8 @@ const AutoGenerateAccountCode = ({
       placeholder="e.g., 03-02-02-65465"
       value={values.AccountCode}
       readOnly
-      error={values.errors?.AccountCode}
-      touched={values.touched?.AccountCode}
+      error={touched.AccountCode && errors.AccountCode}
+      touched={touched.AccountCode}
     />
   );
 };
@@ -76,7 +76,7 @@ const AutoGenerateAccountCode = ({
 const accountSchema = Yup.object().shape({
   AccountCode: Yup.string()
     .required('Account no is required')
-    .max(20, 'Account no must be at most 20 characters'),
+    .max(30, 'Account no must be at most 30 characters'),
   Code: Yup.string()
     .required('General Ledger Code is required')
     .max(10, 'General Ledger Code must be at most 10 characters'),
@@ -172,7 +172,7 @@ function ChartOfAccountsForm({ initialData, onClose }) {
               subMajorAccountGroups={subMajorAccountGroups}
             />
           </div>
-
+          {console.log('values', values, errors)}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               className="p-3 focus:outline-none"
