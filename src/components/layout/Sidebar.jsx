@@ -254,7 +254,7 @@ const navigation = [
         href: '/settings/subdepartments',
         moduleId: 76,
       },
-      { name: 'Modules', href: '/settings/modules' }, // commented (no mapping)
+      // { name: 'Modules', href: '/settings/modules' }, // commented (no mapping)
       {
         name: 'Users',
         submenu: [

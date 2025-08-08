@@ -46,7 +46,9 @@ function ObligationRequestAddItemForm({
     },
     validationSchema,
     onSubmit: (vals) => {
-      const selectedTax = taxCodeFull.find(t => String(t.ID) === String(vals.TAXCodeID));
+      const selectedTax = taxCodeFull.find(
+        (t) => String(t.ID) === String(vals.TAXCodeID)
+      );
 
       const computed = obligationRequestItemsCalculator({
         price: vals.Price,
@@ -57,20 +59,24 @@ function ObligationRequestAddItemForm({
         ewtRate: vals.withheldEWT,
       });
 
-      
-       const rcSelected   = responsibilityOptions
-                         .find(o => String(o.value) === String(vals.ResponsibilityCenter));
-  const cSelected    = budgetOptions
-                         .find(o => String(o.value) === String(vals.ChargeAccountID));
-  const itemSelected = particularsOptions
-                         .find(o => String(o.value) === String(vals.ItemID));
+      const rcSelected = responsibilityOptions.find(
+        (o) => String(o.value) === String(vals.ResponsibilityCenter)
+      );
+      const cSelected = budgetOptions.find(
+        (o) => String(o.value) === String(vals.ChargeAccountID)
+      );
+      const itemSelected = particularsOptions.find(
+        (o) => String(o.value) === String(vals.ItemID)
+      );
 
-      onSubmit({ 
-        ...vals, 
-        ...computed, 
-        responsibilityCenterName : rcSelected ? rcSelected.label : '', 
-        chargeAccountName : cSelected ? cSelected.label : '', 
-        itemName : itemSelected ? itemSelected.label : '' 
+      onSubmit({
+        ...vals,
+        ...computed,
+        responsibilityCenterName: rcSelected ? rcSelected.label : '',
+        chargeAccountName: cSelected ? cSelected.label : '',
+        itemName: itemSelected ? itemSelected.label : '',
+        TaxName: selectedTax?.Name,
+        TaxRate: selectedTax?.Rate,
       });
       onClose();
     },
@@ -79,11 +85,19 @@ function ObligationRequestAddItemForm({
   const prev = useRef({ ...formik.values });
 
   useEffect(() => {
-    const watched = ['Price', 'Quantity', 'DiscountRate', 'TAXCodeID', 'Vatable'];
-    if (!watched.some(k => formik.values[k] !== prev.current[k])) return;
+    const watched = [
+      'Price',
+      'Quantity',
+      'DiscountRate',
+      'TAXCodeID',
+      'Vatable',
+    ];
+    if (!watched.some((k) => formik.values[k] !== prev.current[k])) return;
     prev.current = { ...formik.values };
 
-    const selectedTax = taxCodeFull.find(t => String(t.ID) === String(formik.values.TAXCodeID));
+    const selectedTax = taxCodeFull.find(
+      (t) => String(t.ID) === String(formik.values.TAXCodeID)
+    );
     const computed = obligationRequestItemsCalculator({
       price: formik.values.Price,
       quantity: formik.values.Quantity,
@@ -109,10 +123,13 @@ function ObligationRequestAddItemForm({
     taxCodeFull,
   ]);
 
-  const currentTaxRate = taxCodeFull.find(
-    (t) => String(t.ID) === String(formik.values.TAXCodeID)
-  )?.Rate ?? '';
-
+  const currentTaxRate =
+    taxCodeFull.find((t) => String(t.ID) === String(formik.values.TAXCodeID))
+      ?.Rate ?? '';
+  // const selectedTax = taxCodeFull.find(
+  //   (t) => String(t.ID) === String(vals.TAXCodeID)
+  // );
+  console.log('selectedTax', taxCodeFull);
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-6">
       {/* Row 1 */}
@@ -126,9 +143,12 @@ function ObligationRequestAddItemForm({
             {...formik.getFieldProps('ResponsibilityCenter')}
             required
           />
-          {formik.touched.ResponsibilityCenter && formik.errors.ResponsibilityCenter && (
-            <p className="text-red-500 text-sm">{formik.errors.ResponsibilityCenter}</p>
-          )}
+          {formik.touched.ResponsibilityCenter &&
+            formik.errors.ResponsibilityCenter && (
+              <p className="text-red-500 text-sm">
+                {formik.errors.ResponsibilityCenter}
+              </p>
+            )}
         </div>
 
         <div>
@@ -141,7 +161,9 @@ function ObligationRequestAddItemForm({
             required
           />
           {formik.touched.ChargeAccountID && formik.errors.ChargeAccountID && (
-            <p className="text-red-500 text-sm">{formik.errors.ChargeAccountID}</p>
+            <p className="text-red-500 text-sm">
+              {formik.errors.ChargeAccountID}
+            </p>
           )}
         </div>
 
