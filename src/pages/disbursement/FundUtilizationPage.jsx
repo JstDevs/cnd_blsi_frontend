@@ -266,7 +266,9 @@ function FundUtilizationPage() {
               }))}
               individualOptions={customers.map((customer) => ({
                 value: customer.ID,
-                label: customer.Name,
+                label:
+                  customer.Name ||
+                  `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
               }))}
               employeeData={employees}
               vendorData={vendorDetails}

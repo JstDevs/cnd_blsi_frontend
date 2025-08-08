@@ -305,7 +305,9 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
           required
           options={customers.map((customer) => ({
             value: customer.ID,
-            label: customer.Name,
+            label:
+              customer.Name ||
+              `${customer.FirstName} (${customer.MiddleName} ${customer.LastName})`,
           }))}
           {...{
             value: values.OwnerID,
@@ -361,7 +363,9 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
           label="Beneficial/Administrator User"
           options={customers.map((customer) => ({
             value: customer.ID,
-            label: customer.Name,
+            label:
+              customer.Name ||
+              `${customer.FirstName} (${customer.MiddleName} ${customer.LastName})`,
           }))}
           name="BeneficialorAdminUserID"
           type="select"

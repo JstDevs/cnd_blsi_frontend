@@ -317,7 +317,9 @@ function DisbursementVoucherPage() {
               }))}
               individualOptions={customers.map((customer) => ({
                 value: customer.ID,
-                label: customer.Name,
+                label:
+                  customer.Name ||
+                  `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
               }))}
               chartOfAccountsOptions={(chartOfAccounts || []).map(
                 (account) => ({
