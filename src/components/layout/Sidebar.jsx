@@ -268,26 +268,7 @@ const navigation = [
           { name: 'User', href: '/settings/users', moduleId: 82 },
         ],
       },
-      {
-        name: 'Real Property',
-        submenu: [
-          {
-            name: 'Tax Declaration',
-            href: '/settings/tax-declaration',
-            moduleId: 79,
-          },
-          {
-            name: 'Base Unit Value',
-            href: '/settings/base-unit-value',
-            moduleId: 20,
-          },
-          {
-            name: 'General Revision',
-            href: '/settings/general-revision',
-            moduleId: 51,
-          },
-        ],
-      },
+      { name: 'Locations', href: '/settings/locations' }, // no mapping DONE
       {
         name: 'Accounting Settings',
         submenu: [
@@ -364,8 +345,31 @@ const navigation = [
           { name: 'Industry', href: '/settings/industry', moduleId: 53 },
         ],
       },
-      { name: 'Locations', href: '/settings/locations' }, // no mapping DONE
-      { name: 'Individual/Citizen', href: '/settings/customer', moduleId: 38 },
+      {
+        name: 'Real Property',
+        submenu: [
+          {
+            name: 'Tax Declaration',
+            href: '/settings/tax-declaration',
+            moduleId: 79,
+          },
+          {
+            name: 'Base Unit Value',
+            href: '/settings/base-unit-value',
+            moduleId: 20,
+          },
+          {
+            name: 'General Revision',
+            href: '/settings/general-revision',
+            moduleId: 51,
+          },
+        ],
+      },
+      {
+        name: 'LGU Maintenance',
+        href: '/settings/lgu-maintenance',
+        moduleId: 58,
+      },
       {
         name: 'Chart of Accounts Settings',
         submenu: [
@@ -391,6 +395,7 @@ const navigation = [
           },
         ],
       },
+
       {
         name: 'Vendors',
         submenu: [
@@ -424,6 +429,7 @@ const navigation = [
           },
         ],
       },
+      { name: 'Individual/Citizen', href: '/settings/customer', moduleId: 38 },
       {
         name: 'PPE Settings',
         submenu: [
@@ -439,11 +445,6 @@ const navigation = [
             moduleId: 96,
           },
         ],
-      },
-      {
-        name: 'LGU Maintenance',
-        href: '/settings/lgu-maintenance',
-        moduleId: 58,
       },
     ],
   },
