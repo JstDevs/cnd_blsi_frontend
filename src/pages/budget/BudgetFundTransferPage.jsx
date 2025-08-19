@@ -13,6 +13,7 @@ import {
 } from '@/features/budget/fundTransferSlice';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import axiosInstance from '@/utils/axiosInstance';
 
 const BudgetFundTransferPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -113,12 +114,13 @@ const BudgetFundTransferPage = () => {
   const handleBFTAction = async (info, action) => {
     setIsLoading(true);
     try {
-      // const response = await axiosInstance.post(
-      //   `/budgetSupplemental/${action}`,
-      //   { ID: info.ID, LinkID: info.LinkID, Reason: 'This is the reason' }
-      // );
+      const response = await axiosInstance.post(`/fundTransfer/${action}`, {
+        ID: info.ID,
+        LinkID: info.LinkID,
+        Reason: 'This is the reason',
+      });
       console.log(`${action}d:`, response.data);
-      fetchFundTransfers();
+      dispatch(fetchFundTransfers());
       toast.success(`Budget Fund Transfer ${action}d successfully`);
     } catch (error) {
       console.error(`Error ${action}ing Budget Fund Transfer:`, error);
@@ -130,7 +132,7 @@ const BudgetFundTransferPage = () => {
   const actions = (row) => {
     const actionList = [];
 
-    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+    if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
       actionList.push({
         icon: PencilIcon,
         title: 'Edit',
@@ -146,7 +148,7 @@ const BudgetFundTransferPage = () => {
       //   className:
       //     'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
       // });
-    } else if (row.Status === 'Requested') {
+    } else if (row?.Status === 'Requested') {
       actionList.push(
         {
           icon: CheckLine,

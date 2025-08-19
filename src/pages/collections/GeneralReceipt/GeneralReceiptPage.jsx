@@ -34,7 +34,7 @@ function GeneralReceiptPage() {
   const [isServiceReceiptModalOpen, setIsServiceReceiptModalOpen] =
     useState(false);
   const [currentReceipt, setCurrentReceipt] = useState(null);
-
+  const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
   useEffect(() => {
     dispatch(fetchGeneralServiceReceipts());
   }, [dispatch]);
@@ -202,13 +202,12 @@ function GeneralReceiptPage() {
   //   },
   // ];
   const handleGRPAction = async (dv, action) => {
-    setApprovalLoading(true);
+    setIsLoadingReceipt(true);
     try {
-      // TODO CHANGE THIS ENDPOINT
-      // const response = await axiosInstance.post(
-      //   `/disbursementVoucher/${action}`,
-      //   { ID: dv.ID }
-      // );
+      const response = await axiosInstance.post(
+        `/disbursementVoucher/${action}`,
+        { ID: dv.ID }
+      );
       console.log(`${action}d:`, response.data);
       dispatch(fetchGeneralServiceReceipts());
       toast.success(`General Receipt ${action}d successfully`);
@@ -216,7 +215,7 @@ function GeneralReceiptPage() {
       console.error(`Error ${action}ing General Receipt:`, error);
       toast.error(`Error ${action}ing General Receipt`);
     } finally {
-      setApprovalLoading(false);
+      setIsLoadingReceipt(false);
     }
   };
   const actions = (row) => {
@@ -306,8 +305,8 @@ function GeneralReceiptPage() {
           columns={columns}
           data={generalReceipts}
           actions={actions}
-          loading={isLoading}
-          onRowClick={handleViewReceipt}
+          loading={isLoading || isLoadingReceipt}
+          // onRowClick={handleViewReceipt}
         />
       </div>
 
