@@ -38,7 +38,7 @@ const SearchableDropdown = ({
 
             <div className="relative">
               <div
-                className={`relative w-full cursor-default overflow-hidden rounded-md bg-white text-left shadow-sm sm:text-sm transition-all duration-200 ${
+                className={`relative w-full cursor-default overflow-hidden rounded-md bg-white text-left sm:text-sm transition-all duration-200 ${
                   touched && error
                     ? 'border border-red-500'
                     : 'border border-gray-300'
@@ -77,7 +77,7 @@ const SearchableDropdown = ({
                 <p className="mt-1 text-sm text-red-600">{error}</p>
               )}
 
-              <Combobox.Options className="absolute z-[500] mt-1.5 w-full max-h-60 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm animate-fadeIn">
+              <Combobox.Options className="absolute z-[500] mt-1.5 w-full max-h-60 overflow-auto rounded-md bg-white py-1 text-base  ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm animate-fadeIn">
                 {filteredOptions.length === 0 && query !== '' ? (
                   <div className="relative cursor-default select-none py-2 px-4 text-gray-500">
                     No results found

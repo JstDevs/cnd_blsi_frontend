@@ -8,6 +8,8 @@ import { fetchRegions } from '../../features/settings/regionsSlice';
 import { fetchProvinces } from '../../features/settings/provincesSlice';
 import { fetchMunicipalities } from '../../features/settings/municipalitiesSlice';
 import { fetchBarangays } from '../../features/settings/barangaysSlice';
+import { NationalityOptions } from '@/utils/Nationality';
+import SearchableDropdown from '../common/SearchableDropdown';
 
 function CustomerForm({ initialData, onSubmit, onClose }) {
   const dispatch = useDispatch();
@@ -162,7 +164,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           touched={touched.Gender}
           required
         />
-        <FormField
+        {/* <FormField
           label="Citizenship"
           name="Citizenship"
           value={values.Citizenship}
@@ -171,6 +173,19 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           error={touched.Citizenship && errors.Citizenship}
           touched={touched.Citizenship}
           required
+        /> */}
+        <SearchableDropdown
+          label="Citizenship"
+          name="Citizenship"
+          type="select"
+          required
+          selectedValue={values.Citizenship}
+          onSelect={(value) => {
+            setFieldValue('Citizenship', value);
+          }}
+          options={NationalityOptions}
+          error={errors.Citizenship && errors.Citizenship}
+          touched={touched.Citizenship}
         />
         <FormField
           label="Date of Birth"
