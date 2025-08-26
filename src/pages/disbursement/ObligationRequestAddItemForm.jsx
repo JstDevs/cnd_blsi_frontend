@@ -20,7 +20,7 @@ function ObligationRequestAddItemForm({
     ChargeAccountID: Yup.string().required('Required'),
     ItemID: Yup.string().required('Required'),
     Remarks: Yup.string().required('Required'),
-    FPP: Yup.string().required('Required'),
+    FPP: Yup.string(),
     Price: Yup.number().required('Required'),
     Quantity: Yup.number().required('Required'),
     ItemUnitID: Yup.string().required('Required'),
@@ -49,15 +49,15 @@ function ObligationRequestAddItemForm({
       const selectedTax = taxCodeFull.find(
         (t) => String(t.ID) === String(vals.TAXCodeID)
       );
-
-      const computed = obligationRequestItemsCalculator({
-        price: vals.Price,
-        quantity: vals.Quantity,
-        taxRate: selectedTax?.Rate || 0,
-        discountPercent: vals.DiscountRate,
-        vatable: vals.Vatable,
-        ewtRate: vals.withheldEWT,
-      });
+      console.log('selectedTax', vals);
+      // const computed = obligationRequestItemsCalculator({
+      //   price: vals.Price,
+      //   quantity: vals.Quantity,
+      //   taxRate: selectedTax?.Rate || 0,
+      //   discountPercent: vals.DiscountRate,
+      //   vatable: vals.Vatable,
+      //   ewtRate: vals.withheldEWT,
+      // });
 
       const rcSelected = responsibilityOptions.find(
         (o) => String(o.value) === String(vals.ResponsibilityCenter)
@@ -71,7 +71,7 @@ function ObligationRequestAddItemForm({
 
       onSubmit({
         ...vals,
-        ...computed,
+        // ...computed,
         responsibilityCenterName: rcSelected ? rcSelected.label : '',
         chargeAccountName: cSelected ? cSelected.label : '',
         itemName: itemSelected ? itemSelected.label : '',
@@ -203,7 +203,7 @@ function ObligationRequestAddItemForm({
             label="FPP"
             name="FPP"
             {...formik.getFieldProps('FPP')}
-            required
+            // required
           />
           {formik.touched.FPP && formik.errors.FPP && (
             <p className="text-red-500 text-sm">{formik.errors.FPP}</p>
@@ -277,6 +277,7 @@ function ObligationRequestAddItemForm({
             name="withheldEWT"
             value={formik.values.withheldEWT}
             readOnly
+            className="bg-gray-200 cursor-not-allowed"
             disabled
           />
         </div>

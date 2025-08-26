@@ -56,7 +56,7 @@ const validationSchema = Yup.object().shape({
   ),
 });
 
-const RealPropertyTaxForm = () => {
+const RealPropertyTaxForm = ({ onSubmit, onCancel, onBack }) => {
   const [formData, setFormData] = useState({
     owner: '',
     municipality: 'MAKATI',
@@ -914,7 +914,11 @@ const RealPropertyTaxForm = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center pb-8">
-          <button variant="outline" className="btn btn-outline">
+          <button
+            variant="outline"
+            className="btn btn-outline"
+            onClick={onBack}
+          >
             Cancel
           </button>
           <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg">

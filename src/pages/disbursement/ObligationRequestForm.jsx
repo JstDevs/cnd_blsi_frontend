@@ -620,7 +620,7 @@ function ObligationRequestForm({
                 <FieldArray name="accountingEntries">
                   {({ push, remove }) => (
                     <>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center flex-wrap gap-2">
                         <h3 className="text-lg font-medium">Items</h3>
                         <button
                           type="button"
@@ -632,41 +632,72 @@ function ObligationRequestForm({
                       </div>
 
                       {values.accountingEntries.length > 0 && (
-                        <div className="space-y-2">
-                          <div className="grid grid-cols-6 gap-2 font-semibold text-sm">
+                        <div className="space-y-2 mt-4">
+                          {/* Header */}
+                          <div className="hidden md:grid md:grid-cols-6 gap-2 font-semibold text-sm">
                             <span>RC</span>
                             <span>REMARKS</span>
                             <span>PARTICULARS</span>
-                            <span>FPP</span>
+                            {/* <span>FPP</span> */}
                             <span>ACCOUNT CODE</span>
                             <span className="text-right">SUB-TOTAL</span>
+                            <span /> {/* Empty for actions */}
                           </div>
+
+                          {/* Rows */}
                           {values.accountingEntries.map((entry, idx) => (
                             <div
                               key={idx}
-                              className="grid grid-cols-6 gap-2 text-sm items-center border p-2 rounded"
+                              className="grid grid-cols-1 md:grid-cols-6 gap-2 text-sm items-center border p-2 rounded"
                             >
-                              <span>{entry.responsibilityCenterName}</span>
-                              <span>{entry.Remarks}</span>
-                              <span>{entry.itemName}</span>
-                              <span>{entry.FPP}</span>
-                              <span>{entry.chargeAccountName}</span>
+                              <span>
+                                <span className="md:hidden font-semibold">
+                                  RC:{' '}
+                                </span>
+                                {entry.responsibilityCenterName}
+                              </span>
+                              <span>
+                                <span className="md:hidden font-semibold">
+                                  Remarks:{' '}
+                                </span>
+                                {entry.Remarks}
+                              </span>
+                              <span>
+                                <span className="md:hidden font-semibold">
+                                  Particulars:{' '}
+                                </span>
+                                {entry.itemName}
+                              </span>
+                              {/* <span>{entry.FPP}</span> */}
+                              <span>
+                                <span className="md:hidden font-semibold">
+                                  Account Code:{' '}
+                                </span>
+                                {entry.chargeAccountName}
+                              </span>
                               <span className="text-right">
+                                <span className="md:hidden font-semibold">
+                                  Sub-total:{' '}
+                                </span>
                                 {parseFloat(entry.subtotal).toFixed(2)}
                               </span>
-                              <div className="col-span-6 text-right">
+                              <div className="text-right">
                                 <button
                                   type="button"
                                   onClick={() => remove(idx)}
-                                  className="text-red-600 text-xs"
+                                  className="text-red-600 text-xs hover:text-red-900"
                                 >
-                                  ✕
+                                  <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
                             </div>
                           ))}
-                          <div className="grid grid-cols-6 gap-2 font-semibold pt-2 border-t">
-                            <div className="col-span-5 text-right">Total:</div>
+
+                          {/* Footer Total */}
+                          <div className="grid grid-cols-1 md:grid-cols-6 gap-2 font-semibold pt-2 border-t">
+                            <div className="md:col-span-5 text-right">
+                              Total:
+                            </div>
                             <div className="text-right">
                               {values.accountingEntries
                                 .reduce((sum, e) => sum + Number(e.subtotal), 0)
@@ -693,7 +724,7 @@ function ObligationRequestForm({
                           taxCodeFull={taxCodeFull}
                           onClose={() => setShowEntryModal(false)}
                           onSubmit={(entry) => {
-                            // console.log('Adding entry:', entry);
+                            console.log('Adding entry:', entry);
                             push(entry);
                             setShowEntryModal(false);
                           }}
@@ -702,6 +733,7 @@ function ObligationRequestForm({
                     </>
                   )}
                 </FieldArray>
+
                 {errors.accountingEntries && (
                   <p className="mt-1 text-sm text-red-600">
                     {errors.accountingEntries}

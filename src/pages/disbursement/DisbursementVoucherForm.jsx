@@ -86,7 +86,7 @@ function DisbursementVoucherForm({
         selectedRequestType === 'Standalone Request'
           ? Yup.array()
           : Yup.array().min(1, 'At least one item is required'),
-      contraAccount: Yup.string().required('Contra Account is required'),
+      // contraAccount: Yup.string().required('Contra Account is required'),
       modeOfPayment: Yup.string().required('Mode of Payment is required'),
       bank:
         selectedModeOfPayment === 'Check'
@@ -99,7 +99,24 @@ function DisbursementVoucherForm({
       receivedPaymentBy: Yup.string().required(
         'Received Payment By is required'
       ),
-      Amount: Yup.string().required('Amount By is required'),
+      // Amount: Yup.string().required('Amount By is required'),
+      // Updated validation for contra accounts array
+      contraAccounts: Yup.array()
+        .min(1, 'At least one contra account is required')
+        .of(
+          Yup.object().shape({
+            account: Yup.string().required('Account is required'),
+            normalBalance: Yup.string()
+              .oneOf(
+                ['Debit', 'Credit'],
+                'Normal balance must be Debit or Credit'
+              )
+              .required('Normal balance is required'),
+            amount: Yup.number()
+              .min(0, 'Amount must be positive')
+              .required('Amount is required'),
+          })
+        ),
     });
   };
   const handleAddEntry = (entry) => {
@@ -186,12 +203,12 @@ function DisbursementVoucherForm({
       ? initialData.Attachments
       : [],
     OBR_LinkID: initialData?.OBR_LinkID || '',
-    contraAccount: initialData?.ContraAccountID || '',
+    // contraAccount: initialData?.ContraAccountID || '',
     modeOfPayment: initialData?.modeOfPayment || '',
     bank: initialData?.bank || '',
     checkNumber: initialData?.checkNumber || '',
     receivedPaymentBy: initialData?.ReceivedPaymentBy || '',
-    Amount: initialData?.Amount || '',
+    // Amount: initialData?.Amount || '',
   };
 
   const handleSubmit = (values) => {
@@ -293,12 +310,23 @@ function DisbursementVoucherForm({
       }
     });
 
-    fd.append('ContraAccountID', values.contraAccount);
+    // fd.append('ContraAccountID', values.contraAccount);
     fd.append('ModeOfPayment', values.modeOfPayment);
     fd.append('BankID', values.bank);
     fd.append('CheckNumber', values.checkNumber);
     fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
-    fd.append('Amount', values.Amount);
+    // fd.append('Amount', values.Amount);
+    // NEW: Handle contra accounts array
+    fd.append(
+      'ContraAccounts',
+      JSON.stringify(
+        values.contraAccounts.map((account) => ({
+          ContraAccountID: parseInt(account.account),
+          NormalBalance: account.normalBalance,
+          Amount: parseFloat(account.amount),
+        }))
+      )
+    );
     if (initialData) {
       fd.append('LinkID', initialData.LinkID);
       fd.append('IsNew', false);
@@ -335,7 +363,7 @@ function DisbursementVoucherForm({
         return null;
     }
   };
-  console.log({ taxCodeFull });
+  // console.log({ taxCodeFull });
   return (
     <div className="max-w-7xl mx-auto p-2 sm:p-6 bg-white">
       <Formik
@@ -513,6 +541,7 @@ function DisbursementVoucherForm({
               setFieldValue('checkNumber', '');
             }
           };
+          console.log('values', errors);
           return (
             <Form className="space-y-8">
               {/* Payee Type Selection */}
@@ -719,7 +748,6 @@ function DisbursementVoucherForm({
                   )}
                 </div>
               </div>
-
               {/* ── Accounting Entries ─────────────────────────────────────── */}
               <FieldArray name="accountingEntries">
                 {({ push, remove }) => (
@@ -749,12 +777,12 @@ function DisbursementVoucherForm({
                           <span>AMOUNT</span>
                           <span>AMOUNT DUE</span>
                           <span>REMARKS</span>
-                          <span>FPP</span>
+                          {/* <span>FPP</span> */}
                           <span>ACCOUNT</span>
                           <span>ACCOUNT CODE</span>
                           {/* <span>FUND CODE</span> */}
                         </div>
-                        {console.log(values.accountingEntries)}
+                        {/* {console.log(values.accountingEntries)} */}
                         {/* data rows */}
                         {values.accountingEntries.map((entry, idx) => (
                           <div
@@ -785,10 +813,10 @@ function DisbursementVoucherForm({
                                 <span className="font-semibold">REMARKS:</span>
                                 <span>{entry.Remarks}</span>
                               </div>
-                              <div className="flex justify-between">
+                              {/* <div className="flex justify-between">
                                 <span className="font-semibold">FPP:</span>
                                 <span>{entry.FPP}</span>
-                              </div>
+                              </div> */}
                               <div className="flex justify-between">
                                 <span className="font-semibold">ACCOUNT:</span>
                                 <span>{entry.chargeAccountName}</span>
@@ -902,7 +930,6 @@ function DisbursementVoucherForm({
                     {errors.accountingEntries}
                   </p>
                 )}
-
               {/* ── Tax Summary (auto‑calculated) ───────────────────────────── */}
               {(() => {
                 // Build a quick “hash → totals” on each render
@@ -922,7 +949,7 @@ function DisbursementVoucherForm({
                 });
 
                 const taxRows = Object.values(summary);
-                console.log('taxRows', taxRows);
+                // console.log('taxRows', taxRows);
                 return taxRows.length ? (
                   <div className="space-y-2">
                     <hr />
@@ -957,38 +984,182 @@ function DisbursementVoucherForm({
                 ) : null;
               })()}
               <hr />
+
               {/* ── Payment Details ─────────────────────────────────────────────── */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Payment Details</h3>
 
-                {/* Row 1 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Contra Account (React Select) */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Contra Account
-                    </label>
-                    <Select
-                      name="contraAccount"
-                      options={chartOfAccountsOptions} // or use a proper contra account options array
-                      onChange={(opt) =>
-                        setFieldValue('contraAccount', opt?.value)
-                      }
-                      value={
-                        chartOfAccountsOptions.find(
-                          (p) => p.value === values.contraAccount
-                        ) || null
-                      }
-                      className="basic-single"
-                      classNamePrefix="select"
-                    />
-                    {errors.contraAccount && touched.contraAccount && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.contraAccount}
-                      </p>
-                    )}
-                  </div>
+                {/* Contra Accounts Section */}
+                <FieldArray name="contraAccounts">
+                  {({ push, remove }) => (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Contra Accounts{' '}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-primary"
+                          onClick={() =>
+                            push({
+                              code: '',
+                              account: '',
+                              amount: '',
+                              normalBalance: '',
+                            })
+                          }
+                        >
+                          <PlusIcon className="w-4 h-4 mr-1" />
+                          Add Contra Account
+                        </button>
+                      </div>
 
+                      {values.contraAccounts?.length > 0 && (
+                        <div className="space-y-3">
+                          {/* Header row (hidden on mobile) */}
+                          <div className="hidden md:grid grid-cols-4 gap-2 font-semibold text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                            <span>Account</span>
+                            <span>Normal Balance</span>
+                            <span>Amount</span>
+                            <span>Actions</span>
+                          </div>
+
+                          {/* Contra account rows */}
+                          {values.contraAccounts.map((contraAccount, index) => (
+                            <div
+                              key={index}
+                              className="border border-gray-200 rounded-lg p-3 space-y-3 md:space-y-0 md:grid md:grid-cols-4 md:gap-2 md:items-center"
+                            >
+                              {/* Mobile labels + Desktop grid */}
+
+                              {/* Account Selection */}
+                              <div className="space-y-1">
+                                <label className="block text-xs font-medium text-gray-600 md:hidden">
+                                  Account
+                                </label>
+                                <Select
+                                  name={`contraAccounts[${index}].account`}
+                                  options={chartOfAccountsOptions}
+                                  onChange={(opt) => {
+                                    setFieldValue(
+                                      `contraAccounts[${index}].account`,
+                                      opt?.value || ''
+                                    );
+                                    setFieldValue(
+                                      `contraAccounts[${index}].code`,
+                                      opt?.code || ''
+                                    );
+                                  }}
+                                  value={
+                                    chartOfAccountsOptions.find(
+                                      (option) =>
+                                        option.value === contraAccount.account
+                                    ) || null
+                                  }
+                                  className="basic-single"
+                                  classNamePrefix="select"
+                                  placeholder="Select account..."
+                                />
+                                <ErrorMessage
+                                  name={`contraAccounts[${index}].account`}
+                                  component="p"
+                                  className="text-xs text-red-600 mt-1"
+                                />
+                              </div>
+
+                              {/* Normal Balance */}
+                              <div className="space-y-1">
+                                <label className="block text-xs font-medium text-gray-600 md:hidden">
+                                  Normal Balance
+                                </label>
+                                <select
+                                  name={`contraAccounts[${index}].normalBalance`}
+                                  value={contraAccount.normalBalance}
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                                  <option value="">Select balance type</option>
+                                  <option value="Debit">Debit</option>
+                                  <option value="Credit">Credit</option>
+                                </select>
+                                <ErrorMessage
+                                  name={`contraAccounts[${index}].normalBalance`}
+                                  component="p"
+                                  className="text-xs text-red-600 mt-1"
+                                />
+                              </div>
+
+                              {/* Amount */}
+                              <div className="space-y-1">
+                                <label className="block text-xs font-medium text-gray-600 md:hidden">
+                                  Amount
+                                </label>
+                                <input
+                                  type="number"
+                                  name={`contraAccounts[${index}].amount`}
+                                  value={contraAccount.amount}
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  placeholder="0.00"
+                                  step="0.01"
+                                  min="0"
+                                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                                <ErrorMessage
+                                  name={`contraAccounts[${index}].amount`}
+                                  component="p"
+                                  className="text-xs text-red-600 mt-1"
+                                />
+                              </div>
+
+                              {/* Actions */}
+                              <div className="flex justify-end md:justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => remove(index)}
+                                  className="text-red-600 cursor-pointer hover:text-red-900 p-1 rounded"
+                                  disabled={values.contraAccounts.length === 1}
+                                >
+                                  <TrashIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+
+                          {/* Total */}
+                          <div className="bg-gray-50 p-3 rounded-lg">
+                            <div className="flex justify-between items-center font-semibold">
+                              <span>Total Contra Accounts:</span>
+                              <span>
+                                {values.contraAccounts
+                                  .reduce(
+                                    (sum, account) =>
+                                      sum + Number(account.amount || 0),
+                                    0
+                                  )
+                                  .toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Validation error for contra accounts */}
+                      {errors.contraAccounts && touched.contraAccounts && (
+                        <p className="text-sm text-red-600">
+                          {typeof errors.contraAccounts === 'string'
+                            ? errors.contraAccounts
+                            : 'Please check contra account entries'}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </FieldArray>
+
+                {/* Row 1 - Mode of Payment */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Mode of Payment */}
                   <div>
                     <FormField
@@ -1010,13 +1181,12 @@ function DisbursementVoucherForm({
                   </div>
                 </div>
 
-                {/* Row 2 */}
+                {/* Row 2 - Conditional fields based on payment mode */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Bank */}
                   {selectedModeOfPayment === 'Check' && (
                     <>
                       {/* Bank */}
-
                       <FormField
                         type="text"
                         label="Bank"
@@ -1030,7 +1200,6 @@ function DisbursementVoucherForm({
                       />
 
                       {/* Check Number */}
-
                       <FormField
                         type="text"
                         label="Check No."
@@ -1056,7 +1225,8 @@ function DisbursementVoucherForm({
                     touched={touched.receivedPaymentBy}
                     required
                   />
-                  <FormField
+
+                  {/* <FormField
                     type="text"
                     label="Amount"
                     name="Amount"
@@ -1066,7 +1236,7 @@ function DisbursementVoucherForm({
                     error={errors.Amount}
                     touched={touched.Amount}
                     required
-                  />
+                  /> */}
                 </div>
               </div>
               <hr />
@@ -1157,76 +1327,115 @@ function DisbursementVoucherForm({
 }
 
 export default DisbursementVoucherForm;
-//  {values.accountingEntries.length > 0 && (
-//                         <div className="space-y-2">
-//                           <hr />
-//                           {/* header row */}
-//                           <div className="grid grid-cols-8 gap-2 font-semibold text-sm">
-//                             <span>ITEM</span>
-//                             <span>AMOUNT</span>
-//                             <span>AMOUNT DUE</span>
-//                             <span>REMARKS</span>
-//                             <span>FPP</span>
-//                             <span>ACCOUNT</span>
-//                             <span>ACCOUNT CODE</span>
-//                             <span>FUND CODE</span>
-//                           </div>
+// {/* ── Payment Details ─────────────────────────────────────────────── */}
+//               <div className="space-y-4">
+//                 <h3 className="text-lg font-medium">Payment Details</h3>
 
-//                           {/* data rows */}
-//                           {values.accountingEntries.map((entry, idx) => (
-//                             <div
-//                               key={idx}
-//                               className="grid grid-cols-8 gap-2 text-sm items-center border p-2 rounded"
-//                             >
-//                               <span>{entry.itemName}</span>
-//                               <span>
-//                                 {parseFloat(entry.subtotal).toFixed(2)}
-//                               </span>
-//                               <span>
-//                                 {parseFloat(entry.subtotal).toFixed(2)}
-//                               </span>
-//                               <span>{entry.Remarks}</span>
-//                               <span>{entry.FPP}</span>
-//                               <span>{entry.accountCode}</span>
-//                               <span>{entry.accountName}</span>
-//                               <span>{entry.fundCode}</span>
-//                               <div className="col-span-8 text-right">
-//                                 <button
-//                                   type="button"
-//                                   onClick={() => remove(idx)}
-//                                   className="text-red-600 hover:text-red-800 text-xs"
-//                                 >
-//                                   <Trash2 />
-//                                 </button>
-//                               </div>
-//                             </div>
-//                           ))}
+//                 {/* Row 1 */}
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                   {/* Contra Account (React Select) */}
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-1">
+//                       Contra Account
+//                     </label>
+//                     <Select
+//                       name="contraAccount"
+//                       options={chartOfAccountsOptions} // or use a proper contra account options array
+//                       onChange={(opt) =>
+//                         setFieldValue('contraAccount', opt?.value)
+//                       }
+//                       value={
+//                         chartOfAccountsOptions.find(
+//                           (p) => p.value === values.contraAccount
+//                         ) || null
+//                       }
+//                       className="basic-single"
+//                       classNamePrefix="select"
+//                     />
+//                     {errors.contraAccount && touched.contraAccount && (
+//                       <p className="mt-1 text-sm text-red-600">
+//                         {errors.contraAccount}
+//                       </p>
+//                     )}
+//                   </div>
 
-//                           {/* footer total */}
-//                           <div className="grid grid-cols-8 gap-2 font-semibold pt-2 border-t">
-//                             <div className="col-span-7 text-right">Total:</div>
-//                             <div className="text-right">
-//                               {values.accountingEntries
-//                                 .reduce(
-//                                   (sum, e) => sum + Number(e.subtotal || 0),
-//                                   0
-//                                 )
-//                                 .toFixed(2)}
-//                             </div>
-//                           </div>
+//                   {/* Mode of Payment */}
+//                   <div>
+//                     <FormField
+//                       type="select"
+//                       label="Mode of Payment"
+//                       name="modeOfPayment"
+//                       options={[
+//                         { value: 'Cash', label: 'Cash' },
+//                         { value: 'Check', label: 'Check' },
+//                         { value: 'Others', label: 'Others' },
+//                       ]}
+//                       value={values.modeOfPayment}
+//                       onChange={handleModeOfPaymentChange}
+//                       onBlur={handleBlur}
+//                       error={errors.modeOfPayment}
+//                       touched={touched.modeOfPayment}
+//                       required
+//                     />
+//                   </div>
+//                 </div>
 
-//                           {/* footer total */}
-//                           <div className="grid grid-cols-1 gap-2 font-semibold pt-2 border-t">
-//                             <div className="text-right">
-//                               {convertAmountToWords(
-//                                 values.accountingEntries
-//                                   .reduce(
-//                                     (sum, e) => sum + Number(e.subtotal || 0),
-//                                     0
-//                                   )
-//                                   .toFixed(2)
-//                               )}
-//                             </div>
-//                           </div>
-//                         </div>
-//                       )}
+//                 {/* Row 2 */}
+//                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//                   {/* Bank */}
+//                   {selectedModeOfPayment === 'Check' && (
+//                     <>
+//                       {/* Bank */}
+
+//                       <FormField
+//                         type="text"
+//                         label="Bank"
+//                         name="bank"
+//                         value={values.bank}
+//                         onChange={handleChange}
+//                         onBlur={handleBlur}
+//                         error={errors.bank}
+//                         touched={touched.bank}
+//                         required={selectedModeOfPayment === 'Check'}
+//                       />
+
+//                       {/* Check Number */}
+
+//                       <FormField
+//                         type="text"
+//                         label="Check No."
+//                         name="checkNumber"
+//                         value={values.checkNumber}
+//                         onChange={handleChange}
+//                         onBlur={handleBlur}
+//                         error={errors.checkNumber}
+//                         touched={touched.checkNumber}
+//                         required={selectedModeOfPayment === 'Check'}
+//                       />
+//                     </>
+//                   )}
+
+//                   <FormField
+//                     type="text"
+//                     label="Received Payment By"
+//                     name="receivedPaymentBy"
+//                     value={values.receivedPaymentBy}
+//                     onChange={handleChange}
+//                     onBlur={handleBlur}
+//                     error={errors.receivedPaymentBy}
+//                     touched={touched.receivedPaymentBy}
+//                     required
+//                   />
+//                   <FormField
+//                     type="text"
+//                     label="Amount"
+//                     name="Amount"
+//                     value={values.Amount}
+//                     onChange={handleChange}
+//                     onBlur={handleBlur}
+//                     error={errors.Amount}
+//                     touched={touched.Amount}
+//                     required
+//                   />
+//                 </div>
+//               </div>

@@ -312,9 +312,7 @@ const CommunityTaxForm = ({
   };
   // Reusable helper
   const handleEarningsChange = (field, value) => {
-    const interestRate = calculateInterestRate();
-    const tax = Math.floor(Number(value) / 1000);
-    const interest = tax * interestRate * 0.01;
+    const tax = Math.floor(Number(value || 0) / 1000);
 
     const taxDueMap = {
       BusinessEarnings: 'BusinessTaxDue',
@@ -325,18 +323,8 @@ const CommunityTaxForm = ({
     // Set tax due for that specific field
     formik.setFieldValue(taxDueMap[field], tax);
 
-    // Get existing totals (default to 0 if empty)
-    const currentTotal = Number(formik.values.Total || 0);
-    const currentAmount = Number(formik.values.AmountReceived || 0);
-    const currentInterest = Number(formik.values.InterestAmount || 0);
-
-    // Add new values on top of existing
-    formik.setFieldValue(
-      'InterestAmount',
-      (currentInterest + interest).toFixed(2)
-    );
-    formik.setFieldValue('Total', currentTotal + tax + interest);
-    formik.setFieldValue('AmountReceived', currentAmount + tax + interest);
+    // Recalculate total after updating individual tax
+    setTimeout(() => recalculateTotal(), 0);
   };
 
   // Helper function to get field error props
@@ -356,15 +344,40 @@ const CommunityTaxForm = ({
       }
 
       if (name === 'BasicTax') {
-        formik.setFieldValue('Total', value);
-        formik.setFieldValue('AmountReceived', value);
+        // Recalculate everything when BasicTax changes
+        recalculateTotal();
       }
     },
     onBlur: formik.handleBlur,
     error: formik.touched[fieldName] && formik.errors[fieldName],
     disabled: isReadOnly,
   });
+  const recalculateTotal = () => {
+    // Get all current values
+    const basicTax = Number(formik.values.BasicTax || 0);
+    const businessTaxDue = Number(formik.values.BusinessTaxDue || 0);
+    const occupationTaxDue = Number(formik.values.OccupationTaxDue || 0);
+    const propertyTaxDue = Number(formik.values.PropertyTaxDue || 0);
 
+    // A = Sum of all Community Due Amount (capped at 5000)
+    const communityTaxSum = businessTaxDue + occupationTaxDue + propertyTaxDue;
+    const A = Math.min(communityTaxSum, 5000);
+
+    // B = Interest rate
+    const B = calculateInterestRate() / 100; // Convert percentage to decimal
+
+    // C = Basic Tax (Taxable Amount)
+    const C = basicTax;
+
+    // Total = (A * (1 + B)) + C
+    const total = A * (1 + B) + C;
+    const interestAmount = A * B;
+
+    // Update form values
+    formik.setFieldValue('InterestAmount', interestAmount.toFixed(2));
+    formik.setFieldValue('Total', total.toFixed(2));
+    formik.setFieldValue('AmountReceived', total.toFixed(2));
+  };
   // Calculate amount in words whenever AmountReceived changes
   // useEffect(() => {
   //   calculateAmountsInWords();

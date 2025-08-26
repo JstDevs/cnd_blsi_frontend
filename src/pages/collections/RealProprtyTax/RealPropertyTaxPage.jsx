@@ -310,7 +310,7 @@ function RealPropertyTaxPage() {
           <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">
             <RealPropertyTaxForm
               initialData={currentProperty}
-              onCancel={handleBackToList}
+              onBack={handleBackToList}
               onSubmitSuccess={handleBackToList}
             />
           </div>
