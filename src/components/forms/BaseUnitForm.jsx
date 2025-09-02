@@ -2,21 +2,27 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
 import { useEffect } from 'react';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchRealPropertyTaxes } from '@/features/collections/realPropertyTaxSlice';
+const currentYear = new Date().getFullYear();
+const validationSchema = Yup.object({
+  GeneralRevisionYear: Yup.number().required(
+    'General Revision Year is required'
+  ),
+  Classification: Yup.string().required('Classification is required'),
+  Unit: Yup.string().required('Unit is required'),
+  ActualUse: Yup.string().required('Actual Use is required'),
+  SubClassification: Yup.string().required('Sub Class No is required'),
+  Price: Yup.number().required('Unit Value is required'),
+  Location: Yup.string().required('Location or Description is required'),
+});
 function BaseUnitForm({ initialData, onSubmit, onClose }) {
-  const currentYear = new Date().getFullYear();
-
-  const validationSchema = Yup.object({
-    GeneralRevisionYear: Yup.number().required(
-      'General Revision Year is required'
-    ),
-    Classification: Yup.string().required('Classification is required'),
-    Unit: Yup.string().required('Unit is required'),
-    ActualUse: Yup.string().required('Actual Use is required'),
-    SubClassification: Yup.string().required('Sub Class No is required'),
-    Price: Yup.number().required('Unit Value is required'),
-    Location: Yup.string().required('Location or Description is required'),
-  });
+  const { generalRevisions, isLoading: isLoadingGeneralRevisions } =
+    useSelector((state) => state.generalRevisions);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchRealPropertyTaxes());
+  }, []);
 
   const formik = useFormik({
     initialValues: initialData || {
@@ -74,10 +80,13 @@ function BaseUnitForm({ initialData, onSubmit, onClose }) {
       }
     }
   }, [formik.values.Classification]);
-
+  const generalRevisionsOptions = generalRevisions?.map((revision) => ({
+    value: revision.ID,
+    label: revision.General_Revision_Date_Year,
+  }));
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-4">
-      <FormField
+      {/* <FormField
         label="General Revision Year"
         name="GeneralRevisionYear"
         type="number"
@@ -86,9 +95,21 @@ function BaseUnitForm({ initialData, onSubmit, onClose }) {
         onBlur={formik.handleBlur}
         error={formik.errors.GeneralRevisionYear}
         touched={formik.touched.GeneralRevisionYear}
+        disabled={isLoadingGeneralRevisions}
+        required
+      /> */}
+      <FormField
+        label="General Revision Year"
+        name="GeneralRevisionYear"
+        type="select"
+        options={generalRevisionsOptions}
+        value={formik.values.GeneralRevisionYear}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.errors.GeneralRevisionYear}
+        touched={formik.touched.GeneralRevisionYear}
         required
       />
-
       <FormField
         label="Classification"
         name="Classification"

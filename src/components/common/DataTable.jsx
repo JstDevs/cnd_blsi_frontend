@@ -16,7 +16,7 @@ function DataTable({
   selectedRow = null,
   emptyMessage = 'No data available',
 }) {
-  console.log(selectedRow);
+  // console.log(selectedRow);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');

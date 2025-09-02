@@ -12,10 +12,13 @@ import {
 } from '../../../features/settings/baseUnitSlice';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { fetchGeneralRevisions } from '@/features/settings/generalRevisionSlice';
 
 function BaseUnitValue() {
   const dispatch = useDispatch();
   const { baseUnits, isLoading } = useSelector((state) => state.baseUnits);
+  const { generalRevisions, isLoading: isLoadingGeneralRevisions } =
+    useSelector((state) => state.generalRevisions);
   // ---------------------USE MODULE PERMISSIONS------------------START ( Base Unit Value Page  - MODULE ID = 20 )
   const { Add, Edit, Delete } = useModulePermissions(20);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +28,7 @@ function BaseUnitValue() {
 
   useEffect(() => {
     dispatch(fetchBaseUnits());
+    dispatch(fetchGeneralRevisions());
   }, [dispatch]);
 
   const handleAdd = () => {
@@ -81,6 +85,9 @@ function BaseUnitValue() {
       key: 'GeneralRevisionYear',
       header: 'General Revision Year',
       sortable: true,
+      render: (baseUnit) =>
+        generalRevisions?.find((rev) => rev.ID === baseUnit)
+          ?.General_Revision_Date_Year || '',
     },
     {
       key: 'Classification',
@@ -157,7 +164,7 @@ function BaseUnitValue() {
           columns={columns}
           data={baseUnits}
           actions={actions}
-          loading={isLoading}
+          loading={isLoading || isLoadingGeneralRevisions}
           emptyMessage="No base units found. Click 'Add Base Unit' to create one."
         />
       </div>

@@ -13,21 +13,25 @@ import {
 import FormField from '@/components/common/FormField';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { fetchGeneralRevisions } from '@/features/settings/generalRevisionSlice';
 
 function TaxDeclarationPage() {
   const dispatch = useDispatch();
   const { taxDeclarations, isLoading } = useSelector(
     (state) => state.taxDeclarations
   );
+  const { generalRevisions, isLoading: isLoadingGeneralRevisions } =
+    useSelector((state) => state.generalRevisions);
   // ---------------------USE MODULE PERMISSIONS------------------START ( Tax Declaration Page  - MODULE ID = 79 )
   const { Add, Edit, Delete } = useModulePermissions(79);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTaxDeclaration, setCurrentTaxDeclaration] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [taxDeclarationToDelete, setTaxDeclarationToDelete] = useState(null);
-
+  const [selectedYear, setSelectedYear] = useState('');
   useEffect(() => {
     dispatch(fetchTaxDeclarations());
+    dispatch(fetchGeneralRevisions());
   }, [dispatch]);
 
   const handleAdd = () => {
@@ -36,6 +40,8 @@ function TaxDeclarationPage() {
   };
 
   const handleEdit = (taxDeclaration) => {
+    if (!selectedYear)
+      return toast.error('Please select a general revision year first.');
     setCurrentTaxDeclaration(taxDeclaration);
     setIsModalOpen(true);
   };
@@ -60,14 +66,26 @@ function TaxDeclarationPage() {
   };
 
   const handleSubmit = async (values) => {
+    const GeneralRevisions = generalRevisions?.find(
+      (rev) => rev.ID === Number(selectedYear)
+    );
     try {
       if (currentTaxDeclaration) {
         await dispatch(
-          updateTaxDeclaration({ ...values, ID: currentTaxDeclaration.ID })
+          updateTaxDeclaration({
+            ...values,
+            ID: currentTaxDeclaration.ID,
+            GeneralRevision: GeneralRevisions?.General_Revision_Date_Year,
+          })
         ).unwrap();
         toast.success('Tax declaration updated successfully');
       } else {
-        await dispatch(addTaxDeclaration(values)).unwrap();
+        await dispatch(
+          addTaxDeclaration({
+            ...values,
+            GeneralRevision: GeneralRevisions?.General_Revision_Date_Year,
+          })
+        ).unwrap();
         toast.success('Tax declaration saved successfully');
       }
       dispatch(fetchTaxDeclarations());
@@ -147,7 +165,10 @@ function TaxDeclarationPage() {
         'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
-
+  const generalRevisionsOptions = generalRevisions?.map((revision) => ({
+    value: revision.ID,
+    label: revision.General_Revision_Date_Year,
+  }));
   return (
     <div>
       <div className="page-header">
@@ -161,7 +182,8 @@ function TaxDeclarationPage() {
               <button
                 type="button"
                 onClick={handleAdd}
-                className="btn btn-primary max-sm:w-full"
+                className="btn btn-primary max-sm:w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={selectedYear === ''}
               >
                 <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
                 Add Tax Declaration
@@ -171,13 +193,11 @@ function TaxDeclarationPage() {
               <FormField
                 type="select"
                 name="year"
-                label="Year"
+                label="General Revision Year"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
                 placeholder="Select a year"
-                options={[
-                  { value: '2023', label: '2023' },
-                  { value: '2024', label: '2024' },
-                  { value: '2025', label: '2025' },
-                ]}
+                options={generalRevisionsOptions}
               />
             </div>
           </div>
@@ -189,7 +209,7 @@ function TaxDeclarationPage() {
           columns={columns}
           data={taxDeclarations}
           actions={actions}
-          loading={isLoading}
+          loading={isLoading || isLoadingGeneralRevisions}
           emptyMessage="No tax declarations found. Click 'Add Tax Declaration' to create one."
         />
       </div>

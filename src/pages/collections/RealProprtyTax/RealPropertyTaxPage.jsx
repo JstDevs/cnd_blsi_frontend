@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   PlusIcon,
@@ -10,117 +10,36 @@ import {
 import DataTable from '@/components/common/DataTable';
 import RealPropertyTaxForm from './RealPropertyTaxForm';
 import { useModulePermissions } from '@/utils/useModulePremission';
-
-// Add sample data (will be used if Redux state is empty)
-const sampleProperties = [
-  {
-    id: 1,
-    tdNo: 'TD-001',
-    owner: 'John Doe',
-    address: '123 Main St',
-    beneficialUser: 'Jane Doe',
-    beneficialAddress: '456 Oak St',
-    octTctCloaNo: 'OCT-123',
-    cct: 'CCT-456',
-    dated: '2024-03-20',
-    propertyIdentificationNo: '12345',
-    tin: '123-456-789',
-    ownerTelephoneNo: '1234567890',
-    beneficialTin: '987-654-321',
-    beneficialTelephoneNo: '0987654321',
-    surveyNo: 'S-001',
-    lotNo: 'L-001',
-    blockNo: 'B-001',
-    boundaries: {
-      taxable: true,
-      north: 'Street A',
-      south: 'Street B',
-      east: 'Street C',
-      west: 'Street D',
-    },
-    cancelledTdNo: 'TD-000',
-    cancelledOwner: 'Previous Owner',
-    effectivityOfAssessment: '2024-01-01',
-    previousOwner: 'Previous Owner',
-    previousAssessedValue: '1000000',
-    propertyDetails: {
-      kind: 'Land',
-      numberOf: '1',
-      description: 'Residential lot',
-    },
-    assessmentDetails: {
-      kind: 'Land',
-      actualUse: 'Residential',
-      classification: 'Class 1',
-      areaSize: 'Medium',
-      assessmentLevel: '20%',
-      marketValue: '1500000',
-    },
-    status: 'Active',
-  },
-  {
-    id: 2,
-    tdNo: 'TD-002',
-    owner: 'Maria Santos',
-    address: '456 Pine St',
-    beneficialUser: 'Carlos Santos',
-    beneficialAddress: '456 Pine St',
-    octTctCloaNo: 'OCT-456',
-    cct: 'CCT-789',
-    dated: '2024-02-15',
-    propertyIdentificationNo: '67890',
-    tin: '456-789-012',
-    ownerTelephoneNo: '9876543210',
-    beneficialTin: '456-789-012',
-    beneficialTelephoneNo: '9876543210',
-    surveyNo: 'S-002',
-    lotNo: 'L-002',
-    blockNo: 'B-002',
-    boundaries: {
-      taxable: true,
-      north: 'Street E',
-      south: 'Street F',
-      east: 'Street G',
-      west: 'Street H',
-    },
-    cancelledTdNo: '',
-    cancelledOwner: '',
-    effectivityOfAssessment: '2024-01-01',
-    previousOwner: '',
-    previousAssessedValue: '0',
-    propertyDetails: {
-      kind: 'Land',
-      numberOf: '1',
-      description: 'Commercial lot',
-    },
-    assessmentDetails: {
-      kind: 'Land',
-      actualUse: 'Commercial',
-      classification: 'Class 2',
-      areaSize: 'Large',
-      assessmentLevel: '30%',
-      marketValue: '2500000',
-    },
-    status: 'Active',
-  },
-];
+import {
+  fetchRealPropertyTaxes,
+  saveRealPropertyTax,
+} from '@/features/collections/realPropertyTaxSlice';
+import { fetchGeneralRevisions } from '@/features/settings/generalRevisionSlice';
+import { fetchCustomers } from '@/features/settings/customersSlice';
+import toast from 'react-hot-toast';
+import { CheckLine, TrashIcon, X } from 'lucide-react';
 
 function RealPropertyTaxPage() {
   const dispatch = useDispatch();
-  const { realPropertyTaxes: reduxProperties, isLoading } = useSelector(
+  const { realPropertyTaxes, isLoading } = useSelector(
     (state) => state.realPropertyTax
   );
+  const { generalRevisions, isLoading: isLoadingGeneralRevisions } =
+    useSelector((state) => state.generalRevisions);
+  const { customers, isLoading: isLoadingCustomers } = useSelector(
+    (state) => state.customers
+  );
   // ---------------------USE MODULE PERMISSIONS------------------START (RealPropertyTaxPage - MODULE ID =  70 )
-  const { Add, Edit } = useModulePermissions(70);
+  const { Add, Edit, Print } = useModulePermissions(70);
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentProperty, setCurrentProperty] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
 
-  // Use sample data if Redux state is empty
-  const properties =
-    reduxProperties && reduxProperties.length > 0
-      ? reduxProperties
-      : sampleProperties;
+  useEffect(() => {
+    dispatch(fetchRealPropertyTaxes());
+    dispatch(fetchGeneralRevisions());
+    dispatch(fetchCustomers());
+  }, []);
 
   const handleCreateProperty = () => {
     setCurrentProperty(null);
@@ -146,52 +65,30 @@ function RealPropertyTaxPage() {
     setCurrentView('list');
     setCurrentProperty(null);
   };
-
-  // Filter properties based on search term
-  const filteredProperties = properties?.filter((prop) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      prop.tdNo.toLowerCase().includes(searchLower) ||
-      prop.owner.toLowerCase().includes(searchLower) ||
-      prop.address.toLowerCase().includes(searchLower) ||
-      prop.propertyIdentificationNo.toLowerCase().includes(searchLower)
-    );
-  });
-
   // Table columns definition
   const columns = [
     {
-      key: 'tdNo',
+      key: 'Status',
+      header: 'Status',
+      sortable: true,
+      render: (value) => renderStatusBadge(value),
+    },
+    {
+      key: 'CustomerName',
+      header: 'Customer Name',
+      sortable: true,
+    },
+    {
+      key: 'T_D_No',
       header: 'TD No.',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
+
     {
-      key: 'owner',
-      header: 'Owner',
+      key: 'LinkID',
+      header: 'Link ID',
       sortable: true,
-    },
-    {
-      key: 'address',
-      header: 'Address',
-      sortable: true,
-    },
-    {
-      key: 'propertyIdentificationNo',
-      header: 'Property ID',
-      sortable: true,
-    },
-    {
-      key: 'dated',
-      header: 'Date',
-      sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      sortable: true,
-      render: (value) => renderStatusBadge(value),
     },
   ];
 
@@ -203,10 +100,10 @@ function RealPropertyTaxPage() {
       case 'Active':
         bgColor = 'bg-success-100 text-success-800';
         break;
-      case 'Inactive':
+      case 'Requested':
         bgColor = 'bg-warning-100 text-warning-800';
         break;
-      case 'Cancelled':
+      case 'Rejected':
         bgColor = 'bg-error-100 text-error-800';
         break;
       default:
@@ -222,23 +119,128 @@ function RealPropertyTaxPage() {
     );
   };
 
-  const actions = [
-    {
+  const handleRPTAction = async (dv, action) => {
+    const actionConfig = {
+      approve: {
+        endpoint: 'postTransaction',
+        payload: {
+          id: dv.id,
+          linkID: dv.LinkID,
+          approvalLinkID: dv.approvalLinkID,
+          approvalProgress: dv.approvalProgress,
+          amountReceived: dv.amountReceived,
+          ApprovalOrder: dv.ApprovalOrder,
+          transactionApprovalVersion: dv.transactionApprovalVersion,
+        },
+        successMsg: 'Real Property approved successfully',
+        errorMsg: 'Error approving Real Property',
+      },
+      reject: {
+        endpoint: 'rejectTransaction',
+        payload: {
+          id: dv.id,
+          approvalLinkID: dv.approvalLinkID,
+          reasonForRejection: dv.reasonForRejection,
+        },
+        successMsg: 'Real Property rejected successfully',
+        errorMsg: 'Error rejecting Real Property',
+      },
+    };
+
+    const config = actionConfig[action];
+    if (!config) {
+      console.error('Invalid action:', action);
+      return;
+    }
+
+    setIsLoadingReceipt(true);
+    try {
+      const { data } = await axiosInstance.post(
+        `/real-property-tax/${config.endpoint}`,
+        config.payload
+      );
+
+      console.log(`${action} response:`, data);
+      dispatch(fetchRealPropertyTaxes());
+      toast.success(config.successMsg);
+    } catch (error) {
+      const errMsg = error.response?.data?.message || config.errorMsg;
+      console.error(errMsg, error);
+      toast.error(errMsg);
+    } finally {
+      setIsLoadingReceipt(false);
+    }
+  };
+
+  const actions = (row) => {
+    const actionList = [];
+
+    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+      actionList.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: () => handleEditProperty(row),
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+      // actionList.push({
+      //   icon: TrashIcon,
+      //   title: 'Delete',
+      //   onClick: () => {},
+      //   className:
+      //     'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      // });
+    } else if (row.Status === 'Requested') {
+      actionList.push(
+        {
+          icon: CheckLine,
+          title: 'Post',
+          onClick: () => handleRPTAction(row, 'approve'),
+          className:
+            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+        },
+        {
+          icon: X,
+          title: 'Reject',
+          onClick: () => handleRPTAction(row, 'reject'),
+          className:
+            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+        }
+      );
+    }
+    actionList.push({
       icon: EyeIcon,
       title: 'View',
-      onClick: handleViewProperty,
+      onClick: () => {},
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    Edit && {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEditProperty,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-  ];
+    });
+    return actionList;
+  };
+  const handleSubmitSuccess = async (payload) => {
+    // console.log('payload', payload);
+    try {
+      await dispatch(saveRealPropertyTax(payload)).unwrap();
 
+      dispatch(fetchRealPropertyTaxes());
+      handleBackToList();
+      toast.success('Property saved successfully');
+    } catch (error) {
+      console.error('Error saving property:', error);
+      toast.error('Failed to save property. Please try again.');
+    }
+  };
+  const individualOptions = customers?.map((customer) => ({
+    value: customer.ID,
+    label:
+      customer.Name ||
+      `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
+  }));
+  const generalRevisionsOptions = generalRevisions?.map((revision) => ({
+    value: revision.ID,
+    label: revision.General_Revision_Date_Year,
+  }));
+  // console.log('individualOptions', generalRevisionsOptions);
   return (
     <>
       {currentView === 'list' && (
@@ -266,9 +268,14 @@ function RealPropertyTaxPage() {
 
           <DataTable
             columns={columns}
-            data={filteredProperties}
+            data={realPropertyTaxes}
             actions={actions}
-            loading={isLoading}
+            loading={
+              isLoading ||
+              isLoadingGeneralRevisions ||
+              isLoadingCustomers ||
+              isLoadingReceipt
+            }
             // onRowClick={() => handleViewProperty(null)}
             selectedRow={currentProperty}
           />
@@ -298,21 +305,26 @@ function RealPropertyTaxPage() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => {
-                console.log('Print');
-              }}
-              className="btn btn-primary"
-            >
-              <PrinterIcon className="h-5 w-5 mr-2" aria-hidden="true" /> Print
-            </button>
+            {Print && (
+              <button
+                onClick={() => {
+                  console.log('Print');
+                }}
+                className="btn btn-primary"
+              >
+                <PrinterIcon className="h-5 w-5 mr-2" aria-hidden="true" />{' '}
+                Print
+              </button>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">
             <RealPropertyTaxForm
               initialData={currentProperty}
               onBack={handleBackToList}
-              onSubmitSuccess={handleBackToList}
+              onCreateOrEdit={handleSubmitSuccess}
+              individualOptions={individualOptions}
+              generalRevisionsOptions={generalRevisionsOptions}
             />
           </div>
         </div>

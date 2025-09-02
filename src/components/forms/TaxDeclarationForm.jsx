@@ -8,17 +8,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 
 function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
-  // const [assessmentRows, setAssessmentRows] = useState(initialData?.AssessmentRows || [
-  //   {
-  //     Kind: '',
-  //     Classification: '',
-  //     Area: '',
-  //     MarketValue: '',
-  //     ActualUse: '',
-  //     AssessmentLevel: '',
-  //     AssessmentValue: '',
-  //   },
-  // ]);
   const dispatch = useDispatch();
   const { customers } = useSelector((state) => state.customers);
 
@@ -163,7 +152,7 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
       South: Yup.string().required('South is required'),
       East: Yup.string().required('East is required'),
       West: Yup.string().required('West is required'),
-      Taxable: Yup.boolean().oneOf([true], 'Field is required'),
+      Taxable: Yup.boolean(),
       CancelTDNumber: Yup.string().required('Cancel TD Number is required'),
       Effectivity: Yup.string().required('Effectivity is required'),
       OwnerPrevious: Yup.string().required('Owner Previous is required'),
@@ -265,7 +254,7 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
     updated[index][field] = value;
     setAssessmentRows(updated);
   };
-  // console.log(errors);
+  console.log(errors);
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -309,10 +309,8 @@ function GeneralServiceReceiptModal({
                     required
                     onChange={handleChange}
                     value={values.InvoiceNumber}
-                    error={errors.InvoiceNumber}
+                    error={errors.InvoiceNumber && touched.InvoiceNumber}
                     touched={touched.InvoiceNumber}
-                    readOnly
-                    className="bg-gray-100 text-blue-600 cursor-not-allowed font-semibold"
                   />
                 </div>
 
@@ -347,7 +345,7 @@ function GeneralServiceReceiptModal({
                     required
                     onChange={handleChange}
                     value={values.FundsID}
-                    error={errors.FundsID}
+                    error={touched.FundsID && errors.FundsID}
                     touched={touched.FundsID}
                   />
                 </div>
