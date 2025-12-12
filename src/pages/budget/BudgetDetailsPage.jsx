@@ -166,92 +166,286 @@ const BudgetDetailsPage = () => {
   };
 
   const columns = [
-    { key: 'Name', header: 'Name' },
+    { 
+      key: 'Name', 
+      header: 'Budget Name',
+      className: 'text-neutral-900 font-medium',
+      render: (value) => (
+        <span className="text-neutral-900 font-medium">{value || 'N/A'}</span>
+      ),
+    },
     {
       key: 'FiscalYearID',
       header: 'Fiscal Year',
       render: (_, row) => {
-        // const row = fiscalYears?.find((f) => f.ID === value);
-        return <span>{row?.FiscalYear?.Name || 'N/A'}</span>;
+        const fiscalYear = row?.FiscalYear?.Name;
+        return fiscalYear ? (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            {fiscalYear}
+          </span>
+        ) : (
+          <span className="text-neutral-400">N/A</span>
+        );
       },
     },
     {
       key: 'DepartmentID',
       header: 'Department',
-
       render: (_, row) => {
-        // const departmentName = departments?.find((d) => d.ID === value)?.Name;
-        return <span>{row?.Department?.Name || 'N/A'}</span>;
+        const deptName = row?.Department?.Name;
+        return deptName ? (
+          <span className="text-neutral-700">{deptName}</span>
+        ) : (
+          <span className="text-neutral-400">N/A</span>
+        );
       },
     },
     {
       key: 'SubDepartmentID',
       header: 'Sub Department',
       render: (_, row) => {
-        // const departmentName = subdepartments?.find(
-        //   (d) => d.ID === value
-        // )?.Name;
-        return <span>{row?.SubDepartment?.Name || 'N/A'}</span>;
+        const subDeptName = row?.SubDepartment?.Name;
+        return subDeptName ? (
+          <span className="text-neutral-700">{subDeptName}</span>
+        ) : (
+          <span className="text-neutral-400">N/A</span>
+        );
       },
     },
     {
       key: 'ChartofAccountsID',
       header: 'Chart of Accounts',
       render: (_, row) => {
-        // const departmentName = accounts?.find((d) => d.ID === value)?.Name;
-        return <span>{row?.ChartofAccounts?.Name || 'N/A'}</span>;
+        const accountName = row?.ChartofAccounts?.Name;
+        return accountName ? (
+          <span className="text-neutral-700">{accountName}</span>
+        ) : (
+          <span className="text-neutral-400">N/A</span>
+        );
       },
     },
     {
       key: 'FundID',
       header: 'Fund',
       render: (_, row) => {
-        // const departmentName = funds?.find((d) => d.ID === value)?.Name;
-        return <span>{row?.Funds?.Name || 'N/A'}</span>;
+        const fundName = row?.Funds?.Name;
+        return fundName ? (
+          <span className="text-neutral-700">{fundName}</span>
+        ) : (
+          <span className="text-neutral-400">N/A</span>
+        );
       },
     },
     {
       key: 'ProjectID',
       header: 'Project',
       render: (_, row) => {
-        // const departmentName = projectDetails?.find(
-        //   (d) => d.ID === value
-        // )?.Title;
-        return <span>{row?.Project?.Title || 'N/A'}</span>;
+        const projectTitle = row?.Project?.Title;
+        return projectTitle ? (
+          <span className="text-neutral-700">{projectTitle}</span>
+        ) : (
+          <span className="text-neutral-400">N/A</span>
+        );
       },
     },
-    { key: 'Appropriation', header: 'Appropriation', render: formatCurrency },
+    { 
+      key: 'Appropriation', 
+      header: 'Appropriation',
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-green-700">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
     {
       key: 'AppropriationBalance',
       header: 'Appropriation Balance',
-      render: formatCurrency,
+      className: 'text-right',
+      render: (value) => {
+        const numValue = Number(value) || 0;
+        const isPositive = numValue >= 0;
+        return (
+          <span className={`text-right font-medium ${isPositive ? 'text-green-700' : 'text-red-600'}`}>
+            {formatCurrency(value)}
+          </span>
+        );
+      },
     },
-    { key: 'TotalAmount', header: 'Total Amount', render: formatCurrency },
-    // { key: 'Allotment', header: 'Allotment' },
+    { 
+      key: 'TotalAmount', 
+      header: 'Total Amount',
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-blue-700">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
     {
       key: 'AllotmentBalance',
       header: 'Allotment Balance',
-      render: formatCurrency,
+      className: 'text-right',
+      render: (value) => {
+        const numValue = Number(value) || 0;
+        const isPositive = numValue >= 0;
+        return (
+          <span className={`text-right font-medium ${isPositive ? 'text-green-700' : 'text-red-600'}`}>
+            {formatCurrency(value)}
+          </span>
+        );
+      },
     },
-    { key: 'ChargedAllotment', header: 'Charges', render: formatCurrency },
+    { 
+      key: 'ChargedAllotment', 
+      header: 'Charges',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right font-medium text-orange-700">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
     {
       key: 'PreEncumbrance',
       header: 'Pre Encumbrance',
-      render: formatCurrency,
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right font-medium text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
-    { key: 'Encumbrance', header: 'Encumbrance', render: formatCurrency },
-    { key: 'January', header: 'January', render: formatCurrency },
-    { key: 'February', header: 'February', render: formatCurrency },
-    { key: 'March', header: 'March', render: formatCurrency },
-    { key: 'April', header: 'April', render: formatCurrency },
-    { key: 'May', header: 'May', render: formatCurrency },
-    { key: 'June', header: 'June', render: formatCurrency },
-    { key: 'July', header: 'July', render: formatCurrency },
-    { key: 'August', header: 'August', render: formatCurrency },
-    { key: 'September', header: 'September', render: formatCurrency },
-    { key: 'October', header: 'October', render: formatCurrency },
-    { key: 'November', header: 'November', render: formatCurrency },
-    { key: 'December', header: 'December', render: formatCurrency },
+    { 
+      key: 'Encumbrance', 
+      header: 'Encumbrance',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right font-medium text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'January', 
+      header: 'Jan',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'February', 
+      header: 'Feb',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'March', 
+      header: 'Mar',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'April', 
+      header: 'Apr',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'May', 
+      header: 'May',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'June', 
+      header: 'Jun',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'July', 
+      header: 'Jul',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'August', 
+      header: 'Aug',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'September', 
+      header: 'Sep',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'October', 
+      header: 'Oct',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'November', 
+      header: 'Nov',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    { 
+      key: 'December', 
+      header: 'Dec',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right text-neutral-600">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
   ];
 
   // Actions always visible but disabled based on permissions
@@ -269,8 +463,8 @@ const BudgetDetailsPage = () => {
             toast.error('You do not have permission to edit');
           },
       className: Edit
-        ? 'text-primary-600 hover:text-primary-900 p-1.5 rounded-md hover:bg-primary-50 transition-colors'
-        : 'text-neutral-400 cursor-not-allowed p-1.5 rounded-md opacity-50',
+        ? 'text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-all duration-200 shadow-sm hover:shadow'
+        : 'text-neutral-400 cursor-not-allowed p-2 rounded-lg opacity-50',
       disabled: !Edit,
     },
     {
@@ -286,8 +480,8 @@ const BudgetDetailsPage = () => {
             toast.error('You do not have permission to delete');
           },
       className: Delete
-        ? 'text-red-600 hover:text-red-800 p-1.5 rounded-md hover:bg-red-50 transition-colors'
-        : 'text-neutral-400 cursor-not-allowed p-1.5 rounded-md opacity-50',
+        ? 'text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow'
+        : 'text-neutral-400 cursor-not-allowed p-2 rounded-lg opacity-50',
       disabled: !Delete,
     },
   ].filter(Boolean); // Ensure no null/undefined items

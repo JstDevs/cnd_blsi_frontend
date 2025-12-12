@@ -156,40 +156,36 @@ function DataTable({
       )}
 
       <div className="overflow-x-auto relative">
-        <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
-            <tr>
+        <table className="min-w-full">
+          <thead>
+            <tr className="bg-gradient-to-r from-neutral-50 to-neutral-100 border-b-2 border-neutral-200">
               {columns.map((column) => (
                 <th
                   key={column.key}
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap" // Added whitespace-nowrap
+                  className="px-6 py-4 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider cursor-pointer whitespace-nowrap transition-colors hover:bg-neutral-100"
                   onClick={() =>
                     column.sortable !== false && requestSort(column.key)
                   }
                 >
-                  <div className="flex items-center gap-1">
-                    {' '}
-                    {/* Changed space-x-1 to gap-1 for better consistency */}
+                  <div className="flex items-center gap-2">
                     <span>{column.header}</span>
                     {column.sortable !== false && (
                       <span className="flex flex-col shrink-0">
-                        {' '}
-                        {/* Added shrink-0 to prevent icons from shrinking */}
                         <ChevronUpIcon
-                          className={`h-3 w-3 ${
+                          className={`h-3 w-3 transition-colors ${
                             sortConfig.key === column.key &&
                             sortConfig.direction === 'asc'
                               ? 'text-primary-600'
-                              : 'text-neutral-400'
+                              : 'text-neutral-300'
                           }`}
                         />
                         <ChevronDownIcon
-                          className={`h-3 w-3 -mt-1 ${
+                          className={`h-3 w-3 -mt-1 transition-colors ${
                             sortConfig.key === column.key &&
                             sortConfig.direction === 'desc'
                               ? 'text-primary-600'
-                              : 'text-neutral-400'
+                              : 'text-neutral-300'
                           }`}
                         />
                       </span>
@@ -200,24 +196,25 @@ function DataTable({
               {safeActions.length > 0 && (
                 <th
                   scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap sticky right-0 bg-neutral-50 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]"
+                  className="px-6 py-4 text-right text-xs font-semibold text-neutral-700 uppercase tracking-wider cursor-pointer whitespace-nowrap sticky right-0 bg-gradient-to-r from-neutral-50 to-neutral-100 z-10 border-l-2 border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]"
                 >
                   <span>Actions</span>
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-neutral-200">
+          <tbody className="bg-white divide-y divide-neutral-100">
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={row.id || rowIndex}
-                // className={
-                //   onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : ''
-                // }
-                className={`${
-                  onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : ''
+                className={`transition-all duration-150 ${
+                  onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : 'hover:bg-neutral-50/50'
                 } ${
-                  selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-100' : ''
+                  selectedRow && selectedRow?.ID === row.ID 
+                    ? 'bg-blue-50 border-l-4 border-blue-500' 
+                    : ''
+                } ${
+                  rowIndex % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
                 }`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
@@ -225,7 +222,7 @@ function DataTable({
                   <td
                     key={`${row.id || rowIndex}-${column.key}`}
                     className={`px-6 py-4 whitespace-nowrap text-sm ${
-                      column.className || 'text-neutral-500'
+                      column.className || 'text-neutral-700'
                     }`}
                   >
                     {column.render
@@ -239,65 +236,73 @@ function DataTable({
                       const rowActions = safeActions(row);
                       return (
                         rowActions?.length > 0 && (
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2 sticky right-0 bg-white z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]">
-                            {rowActions.map((action, i) => (
-                              <button
-                                key={i}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (!action.disabled && action.onClick) {
-                                    action.onClick(row);
+                          <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l-2 border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
+                            (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
+                          } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''}`}>
+                            <div className="flex items-center justify-end gap-1.5">
+                              {rowActions.map((action, i) => (
+                                <button
+                                  key={i}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!action.disabled && action.onClick) {
+                                      action.onClick(row);
+                                    }
+                                  }}
+                                  disabled={action.disabled}
+                                  className={
+                                    action.className ||
+                                    'text-primary-600 hover:text-primary-900'
                                   }
-                                }}
-                                disabled={action.disabled}
-                                className={
-                                  action.className ||
-                                  'text-primary-600 hover:text-primary-900'
-                                }
-                                title={action.title}
-                              >
-                                {action.icon ? (
-                                  <action.icon
-                                    className="h-5 w-5"
-                                    aria-hidden="true"
-                                  />
-                                ) : (
-                                  action.label
-                                )}
-                              </button>
-                            ))}
+                                  title={action.title}
+                                >
+                                  {action.icon ? (
+                                    <action.icon
+                                      className="h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                  ) : (
+                                    action.label
+                                  )}
+                                </button>
+                              ))}
+                            </div>
                           </td>
                         )
                       );
                     })()
                   : safeActions.length > 0 && (
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2 sticky right-0 bg-white z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]">
-                        {safeActions.map((action, i) => (
-                          <button
-                            key={i}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!action?.disabled && action?.onClick) {
-                                action.onClick(row);
+                      <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l-2 border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
+                        (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
+                      } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''}`}>
+                        <div className="flex items-center justify-end gap-1.5">
+                          {safeActions.map((action, i) => (
+                            <button
+                              key={i}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!action?.disabled && action?.onClick) {
+                                  action.onClick(row);
+                                }
+                              }}
+                              disabled={action?.disabled}
+                              className={
+                                action?.className ||
+                                'text-primary-600 hover:text-primary-900'
                               }
-                            }}
-                            disabled={action?.disabled}
-                            className={
-                              action?.className ||
-                              'text-primary-600 hover:text-primary-900'
-                            }
-                            title={action?.title}
-                          >
-                            {action?.icon ? (
-                              <action.icon
-                                className="h-5 w-5"
-                                aria-hidden="true"
-                              />
-                            ) : (
-                              action?.label
-                            )}
-                          </button>
-                        ))}
+                              title={action?.title}
+                            >
+                              {action?.icon ? (
+                                <action.icon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              ) : (
+                                action?.label
+                              )}
+                            </button>
+                          ))}
+                        </div>
                       </td>
                     )}
               </tr>
