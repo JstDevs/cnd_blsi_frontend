@@ -16,6 +16,8 @@ function DataTable({
   selectedRow = null,
   emptyMessage = 'No data available',
 }) {
+  // Ensure actions is always an array
+  const safeActions = Array.isArray(actions) ? actions : [];
   // console.log(selectedRow);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -153,7 +155,7 @@ function DataTable({
         </div>
       )}
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto relative">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
@@ -195,10 +197,10 @@ function DataTable({
                   </div>
                 </th>
               ))}
-              {actions.length > 0 && (
+              {safeActions.length > 0 && (
                 <th
                   scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap"
+                  className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap sticky right-0 bg-neutral-50 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]"
                 >
                   <span>Actions</span>
                 </th>
@@ -232,19 +234,22 @@ function DataTable({
                   </td>
                 ))}
 
-                {typeof actions === 'function'
+                {typeof safeActions === 'function'
                   ? (() => {
-                      const rowActions = actions(row);
+                      const rowActions = safeActions(row);
                       return (
                         rowActions?.length > 0 && (
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2 sticky right-0 bg-white z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]">
                             {rowActions.map((action, i) => (
                               <button
                                 key={i}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  action.onClick(row);
+                                  if (!action.disabled && action.onClick) {
+                                    action.onClick(row);
+                                  }
                                 }}
+                                disabled={action.disabled}
                                 className={
                                   action.className ||
                                   'text-primary-600 hover:text-primary-900'
@@ -265,15 +270,18 @@ function DataTable({
                         )
                       );
                     })()
-                  : actions.length > 0 && (
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                        {actions.map((action, i) => (
+                  : safeActions.length > 0 && (
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2 sticky right-0 bg-white z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]">
+                        {safeActions.map((action, i) => (
                           <button
                             key={i}
                             onClick={(e) => {
                               e.stopPropagation();
-                              action.onClick(row);
+                              if (!action?.disabled && action?.onClick) {
+                                action.onClick(row);
+                              }
                             }}
+                            disabled={action?.disabled}
                             className={
                               action?.className ||
                               'text-primary-600 hover:text-primary-900'
