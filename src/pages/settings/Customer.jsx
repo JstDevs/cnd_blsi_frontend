@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import {
+  Plus,
+  PencilIcon,
+  TrashIcon,
+  Users,
+  Building,
+  Globe,
+} from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import CustomerForm from '../../components/forms/CustomerForm';
@@ -38,6 +45,17 @@ function Customer() {
     dispatch(fetchModeOfPayments());
   }, [dispatch]);
 
+  const summaryStats = useMemo(() => {
+    const total = customers?.length || 0;
+    const orgKinds = new Set(
+      customers?.map((c) => c.KindofOrganization).filter(Boolean)
+    ).size;
+    const countries = new Set(
+      customers?.map((c) => c.Citizenship).filter(Boolean)
+    ).size;
+    return { total, orgKinds, countries };
+  }, [customers]);
+
   const handleAdd = () => {
     setCurrentCustomer(null);
     setIsModalOpen(true);
@@ -49,7 +67,6 @@ function Customer() {
   };
 
   const handleDelete = (customer) => {
-    console.log('Delete customer:', customer);
     setCustomerToDelete(customer);
     setIsDeleteModalOpen(true);
   };
@@ -62,10 +79,8 @@ function Customer() {
         setCustomerToDelete(null);
         toast.success('Customer deleted successfully');
       } catch (error) {
-        console.error('Failed to delete Individual/Citizen:', error);
         toast.error(
-          error.message ||
-            'Failed to delete Individual/Citizen. Please try again.'
+          error?.message || 'Failed to delete Individual/Citizen. Please try again.'
         );
       }
     }
@@ -84,8 +99,7 @@ function Customer() {
       }
       dispatch(fetchCustomers());
     } catch (error) {
-      console.error('Failed to save Individual/Citizen:', error);
-      toast.error(error.message || 'Failed to save Individual/Citizen');
+      toast.error(error?.message || 'Failed to save Individual/Citizen');
     } finally {
       setCurrentCustomer(null);
       setIsModalOpen(false);
@@ -93,68 +107,33 @@ function Customer() {
   };
 
   const columns = [
-    // {
-    //   key: 'Code',
-    //   header: 'Code',
-    //   sortable: true,
-    //   render: (value) => value || 'N/A',
-    // },
     {
       key: 'Name',
       header: 'Name',
       sortable: true,
-      render: (value, row) =>
-        value ||
-        row.FirstName + ' ' + row.MiddleName + ' ' + row.LastName ||
-        'N/A',
+      className: 'text-neutral-900 font-medium',
+      render: (value, row) => {
+        const full = [row.FirstName, row.MiddleName, row.LastName]
+          .filter(Boolean)
+          .join(' ');
+        return (
+          <span className="text-neutral-900 font-medium">
+            {value || full || 'N/A'}
+          </span>
+        );
+      },
     },
     {
       key: 'TIN',
       header: 'TIN',
       sortable: true,
-      render: (value) => value || 'N/A',
+      render: (value) => <span className="text-neutral-700">{value || 'N/A'}</span>,
     },
-    // {
-    //   key: 'PaymentTermsID',
-    //   header: 'Payment Terms',
-    //   sortable: true,
-    //   render: (value) => {
-    //     const terms = paymentTerms.find((t) => t.ID == value);
-    //     return terms?.Name || 'N/A';
-    //   },
-    // },
-    // {
-    //   key: 'PaymentMethodID',
-    //   header: 'Payment Method',
-    //   sortable: true,
-    //   render: (value) => {
-    //     const method = modeOfPayments.find((m) => m.ID == value);
-    //     return method?.Name || 'N/A';
-    //   },
-    // },
-    // {
-    //   key: 'TaxCodeID',
-    //   header: 'Tax Code',
-    //   sortable: true,
-    //   render: (value) => {
-    //     const tax = taxCodes.find((t) => t.ID == value);
-    //     return tax?.Code || 'N/A';
-    //   },
-    // },
-    // {
-    //   key: 'IndustryTypeID',
-    //   header: 'Industry Type',
-    //   sortable: true,
-    //   render: (value) => {
-    //     const industry = industries.find((i) => i.ID == value);
-    //     return industry?.Name || 'N/A';
-    //   },
-    // },
     {
       key: 'ZIPCode',
       header: 'ZIP Code',
       sortable: true,
-      render: (value) => value || 'N/A',
+      render: (value) => <span className="text-neutral-600">{value || 'N/A'}</span>,
     },
     {
       key: 'PlaceofIncorporation',
@@ -178,7 +157,7 @@ function Customer() {
       key: 'StreetAddress',
       header: 'Address',
       sortable: true,
-      render: (value) => value || 'N/A',
+      render: (value) => <span className="text-neutral-700">{value || 'N/A'}</span>,
     },
     {
       key: 'Citizenship',
@@ -192,12 +171,6 @@ function Customer() {
       sortable: true,
       render: (value) => value || 'N/A',
     },
-    // {
-    //   key: 'DateofRegistration',
-    //   header: 'Date of Registration',
-    //   sortable: true,
-    //   render: (value) => value || 'N/A',
-    // },
   ];
 
   const actions = [
@@ -206,44 +179,105 @@ function Customer() {
       title: 'Edit',
       onClick: handleEdit,
       className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+        'text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-all duration-200 shadow-sm hover:shadow',
     },
     Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
       className:
-        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+        'text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow',
     },
-  ];
+  ].filter(Boolean);
 
   return (
-    <div>
-      <div className="page-header">
-        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
-          <div>
-            <h1>Individuals/Citizens</h1>
-            <p>Manage Individuals/Citizens here</p>
+    <div className="page-container">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <Users className="h-6 w-6 text-primary-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">Individuals/Citizens</h1>
+                <p className="text-sm text-neutral-600 mt-0.5">
+                  Manage individual / citizen records and profiles
+                </p>
+              </div>
+            </div>
           </div>
-          {Add && (
-            <button
-              type="button"
-              onClick={handleAdd}
-              className="btn btn-primary max-sm:w-full"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Add Individual/Citizen
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {Add && (
+              <button
+                type="button"
+                onClick={handleAdd}
+                className="btn btn-primary flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <Plus className="h-5 w-5" />
+                Add Individual/Citizen
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Summary cards */}
+        {!isLoading && customers?.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-700 mb-1">Total Individuals</p>
+                  <p className="text-2xl font-bold text-blue-900">{summaryStats.total}</p>
+                </div>
+                <div className="p-3 bg-blue-200 rounded-lg">
+                  <Users className="h-6 w-6 text-blue-700" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700 mb-1">Org Types</p>
+                  <p className="text-2xl font-bold text-green-900">{summaryStats.orgKinds}</p>
+                </div>
+                <div className="p-3 bg-green-200 rounded-lg">
+                  <Building className="h-6 w-6 text-green-700" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-700 mb-1">Citizenships</p>
+                  <p className="text-2xl font-bold text-purple-900">{summaryStats.countries}</p>
+                </div>
+                <div className="p-3 bg-purple-200 rounded-lg">
+                  <Globe className="h-6 w-6 text-purple-700" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mt-4">
+      {/* Table Section */}
+      <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Individual / Citizen Records
+            <span className="ml-2 text-sm font-normal text-neutral-600">
+              ({customers?.length || 0} {(customers?.length || 0) === 1 ? 'record' : 'records'})
+            </span>
+          </h2>
+        </div>
         <DataTable
           columns={columns}
-          data={customers}
+          data={customers || []}
           actions={actions}
           loading={isLoading}
+          pagination={true}
           emptyMessage="No individuals/citizens found. Click 'Add Individual/Citizen' to create one."
         />
       </div>
@@ -252,9 +286,7 @@ function Customer() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={
-          currentCustomer ? 'Edit Individual/Citizen' : 'Add Individual/Citizen'
-        }
+        title={currentCustomer ? 'Edit Individual/Citizen' : 'Add Individual/Citizen'}
         size="lg"
       >
         <CustomerForm
@@ -300,3 +332,4 @@ function Customer() {
 }
 
 export default Customer;
+
