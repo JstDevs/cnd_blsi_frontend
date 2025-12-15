@@ -8,16 +8,14 @@ import Modal from '@/components/common/Modal';
 import axiosInstance from '@/utils/axiosInstance';
 import { formatCurrency } from '@/utils/currencyFormater';
 import {
-  ChartBarIcon,
-  FunnelIcon,
-  CurrencyDollarIcon,
-  BanknotesIcon,
-  DocumentTextIcon,
-  CalendarIcon,
-  BuildingOfficeIcon,
-  BuildingOffice2Icon,
-  AcademicCapIcon,
-} from '@heroicons/react/24/outline';
+  FileText,
+  DollarSign,
+  FilterIcon,
+  XIcon,
+  TrendingUp,
+  Calendar,
+  BarChart3,
+} from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -43,6 +41,18 @@ const BudgetSummaryPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const handleClearFilters = () => {
+    setFilters({
+      department: '',
+      subDepartment: '',
+      chartOfAccounts: '',
+    });
+  };
+
+  const hasActiveFilters =
+    filters.department || filters.subDepartment || filters.chartOfAccounts;
 
   useEffect(() => {
     dispatch(fetchDepartments());
@@ -455,182 +465,196 @@ const BudgetSummaryPage = () => {
   };
   return (
     <div className="page-container">
-      {/* Enhanced Header */}
-      <div className="page-header">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary-100 rounded-lg">
-            <ChartBarIcon className="h-8 w-8 text-primary-600" />
+      {/* Header Section */}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <FileText className="h-6 w-6 text-primary-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">
+                  Budget Summary
+                </h1>
+                <p className="text-sm text-neutral-600 mt-0.5">
+                  Review and analyze budget performance across departments, months, and categories
+                </p>
+              </div>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-neutral-900">
-              Budget Summary
-            </h1>
-            <p className="mt-1 text-sm text-neutral-600">
-              Review and analyze budget performance across departments, months,
-              and categories
-            </p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`btn btn-outline flex items-center gap-2 transition-all ${
+                showFilters || hasActiveFilters
+                  ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
+                  : 'hover:bg-neutral-50'
+              }`}
+            >
+              <FilterIcon className="h-4 w-4" />
+              Filters
+              {hasActiveFilters && (
+                <span className="ml-1 px-2 py-0.5 text-xs font-semibold bg-primary-600 text-white rounded-full">
+                  {[filters.department, filters.subDepartment, filters.chartOfAccounts].filter(Boolean).length}
+                </span>
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Summary Statistics Cards */}
+        {!loading && filteredData.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700 mb-1">Total Appropriation</p>
+                  <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryStats.totalAppropriation)}</p>
+                </div>
+                <div className="p-3 bg-green-200 rounded-lg">
+                  <DollarSign className="h-6 w-6 text-green-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-700 mb-1">Total Amount</p>
+                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(summaryStats.totalAmount)}</p>
+                </div>
+                <div className="p-3 bg-blue-200 rounded-lg">
+                  <BarChart3 className="h-6 w-6 text-blue-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-orange-700 mb-1">Total Charges</p>
+                  <p className="text-2xl font-bold text-orange-900">{formatCurrency(summaryStats.totalCharges)}</p>
+                </div>
+                <div className="p-3 bg-orange-200 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-orange-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-700 mb-1">Total Records</p>
+                  <p className="text-2xl font-bold text-purple-900">{summaryStats.count}</p>
+                </div>
+                <div className="p-3 bg-purple-200 rounded-lg">
+                  <FileText className="h-6 w-6 text-purple-700" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Filters Panel */}
+        {(showFilters || hasActiveFilters) && (
+          <div className="bg-white border border-neutral-200 rounded-xl shadow-md p-5 mb-6 transition-all">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <FilterIcon className="h-5 w-5 text-primary-600" />
+                <h3 className="text-base font-semibold text-neutral-800">Filter Options</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="text-xs font-medium text-neutral-600 hover:text-neutral-900 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors border border-neutral-200"
+                  >
+                    <XIcon className="h-3.5 w-3.5" />
+                    Clear All
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="p-1.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
+                  title="Close filters"
+                >
+                  <XIcon className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-neutral-700">
+                  Department
+                </label>
+                <select
+                  name="department"
+                  value={filters.department}
+                  onChange={handleFilterChange}
+                  className="w-full px-4 py-2.5 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white transition-all hover:border-neutral-400"
+                >
+                  <option value="">All Departments</option>
+                  {departments?.map((d) => (
+                    <option key={d.ID} value={d.Name}>
+                      {d.Name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-neutral-700">
+                  Sub Department
+                </label>
+                <select
+                  name="subDepartment"
+                  value={filters.subDepartment}
+                  onChange={handleFilterChange}
+                  className="w-full px-4 py-2.5 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white transition-all hover:border-neutral-400"
+                >
+                  <option value="">All Sub Departments</option>
+                  {subdepartments?.map((sd) => (
+                    <option key={sd.ID} value={sd.Name}>
+                      {sd.Name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-neutral-700">
+                  Chart of Accounts
+                </label>
+                <select
+                  name="chartOfAccounts"
+                  value={filters.chartOfAccounts}
+                  onChange={handleFilterChange}
+                  className="w-full px-4 py-2.5 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white transition-all hover:border-neutral-400"
+                >
+                  <option value="">All Accounts</option>
+                  {accounts?.map((a) => (
+                    <option key={a.ID} value={a.Name}>
+                      {a.Name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Summary Statistics Cards */}
-      {!loading && filteredData.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-neutral-600 mb-1">
-                  Total Appropriation
-                </p>
-                <p className="text-2xl font-bold text-green-700">
-                  {formatCurrency(summaryStats.totalAppropriation)}
-                </p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-lg">
-                <CurrencyDollarIcon className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-neutral-600 mb-1">
-                  Total Amount
-                </p>
-                <p className="text-2xl font-bold text-blue-700">
-                  {formatCurrency(summaryStats.totalAmount)}
-                </p>
-              </div>
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <BanknotesIcon className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-neutral-600 mb-1">
-                  Total Charges
-                </p>
-                <p className="text-2xl font-bold text-orange-700">
-                  {formatCurrency(summaryStats.totalCharges)}
-                </p>
-              </div>
-              <div className="p-3 bg-orange-100 rounded-lg">
-                <DocumentTextIcon className="h-6 w-6 text-orange-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-neutral-600 mb-1">
-                  Total Records
-                </p>
-                <p className="text-2xl font-bold text-neutral-700">
-                  {summaryStats.count}
-                </p>
-              </div>
-              <div className="p-3 bg-neutral-100 rounded-lg">
-                <ChartBarIcon className="h-6 w-6 text-neutral-600" />
-              </div>
-            </div>
-          </div>
+      {/* Table Section */}
+      <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Budget Summary Entries
+            <span className="ml-2 text-sm font-normal text-neutral-600">
+              ({filteredData.length} {filteredData.length === 1 ? 'entry' : 'entries'})
+            </span>
+          </h2>
         </div>
-      )}
-
-      {/* Enhanced Filters Card */}
-      <div className="card mb-6 p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <FunnelIcon className="h-5 w-5 text-neutral-600" />
-          <h2 className="text-lg font-semibold text-neutral-900">Filters</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label
-              htmlFor="department-filter"
-              className="block text-sm font-medium text-neutral-700 mb-2"
-            >
-              <div className="flex items-center gap-2">
-                <BuildingOfficeIcon className="h-4 w-4" />
-                Department
-              </div>
-            </label>
-            <select
-              id="department-filter"
-              name="department"
-              value={filters.department}
-              onChange={handleFilterChange}
-              className="form-select w-full"
-            >
-              <option value="">All Departments</option>
-              {departments?.map((d) => (
-                <option key={d.ID} value={d.Name}>
-                  {d.Name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="subDepartment-filter"
-              className="block text-sm font-medium text-neutral-700 mb-2"
-            >
-              <div className="flex items-center gap-2">
-                <BuildingOffice2Icon className="h-4 w-4" />
-                Sub Department
-              </div>
-            </label>
-            <select
-              id="subDepartment-filter"
-              name="subDepartment"
-              value={filters.subDepartment}
-              onChange={handleFilterChange}
-              className="form-select w-full"
-            >
-              <option value="">All Sub Departments</option>
-              {subdepartments?.map((sd) => (
-                <option key={sd.ID} value={sd.Name}>
-                  {sd.Name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="chartOfAccounts-filter"
-              className="block text-sm font-medium text-neutral-700 mb-2"
-            >
-              <div className="flex items-center gap-2">
-                <AcademicCapIcon className="h-4 w-4" />
-                Chart of Accounts
-              </div>
-            </label>
-            <select
-              id="chartOfAccounts-filter"
-              name="chartOfAccounts"
-              value={filters.chartOfAccounts}
-              onChange={handleFilterChange}
-              className="form-select w-full"
-            >
-              <option value="">All Chart of Accounts</option>
-              {accounts?.map((a) => (
-                <option key={a.ID} value={a.Name}>
-                  {a.Name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Data Table */}
-      <div className="card overflow-hidden">
         <DataTable
           columns={columns}
           data={filteredData}
@@ -663,7 +687,7 @@ const BudgetSummaryDetail = ({ data }) => {
       {/* Basic Information Section */}
       <div className="bg-neutral-50 rounded-lg p-6 border border-neutral-200">
         <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-          <DocumentTextIcon className="h-5 w-5 text-primary-600" />
+          <FileText className="h-5 w-5 text-primary-600" />
           Basic Information
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -729,7 +753,7 @@ const BudgetSummaryDetail = ({ data }) => {
       {/* Financial Summary Section */}
       <div className="bg-neutral-50 rounded-lg p-6 border border-neutral-200">
         <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-          <CurrencyDollarIcon className="h-5 w-5 text-primary-600" />
+          <DollarSign className="h-5 w-5 text-primary-600" />
           Financial Summary
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -823,7 +847,7 @@ const BudgetSummaryDetail = ({ data }) => {
       {/* Monthly Distribution Section */}
       <div className="bg-neutral-50 rounded-lg p-6 border border-neutral-200">
         <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-          <CalendarIcon className="h-5 w-5 text-primary-600" />
+          <Calendar className="h-5 w-5 text-primary-600" />
           Monthly Distribution
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
