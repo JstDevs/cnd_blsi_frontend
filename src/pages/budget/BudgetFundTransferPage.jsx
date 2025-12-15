@@ -6,11 +6,12 @@ import {
   TrashIcon,
   X,
   FileText,
-  DollarSign,
+  // DollarSign,
   ArrowRightLeft,
   Calendar,
   CheckCircle2,
   AlertCircle,
+  PhilippinePeso,
 } from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import BudgetFundTransferForm from '../../components/forms/BudgetFundTransferForm';
@@ -319,7 +320,7 @@ const BudgetFundTransferPage = () => {
                   </p>
                 </div>
                 <div className="p-2 sm:p-3 bg-green-200 rounded-lg flex-shrink-0">
-                  <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-green-700" />
+                  <PhilippinePeso className="h-5 w-5 sm:h-6 sm:w-6 text-green-700" />
                 </div>
               </div>
             </div>

@@ -11,9 +11,10 @@ import {
   FilterIcon,
   XIcon,
   FileText,
-  DollarSign,
+  // DollarSign,
   Calendar,
   CheckCircle2,
+  PhilippinePeso,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -402,7 +403,7 @@ const BudgetAllotmentPage = () => {
                 <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryStats.totalAmount)}</p>
               </div>
               <div className="p-3 bg-green-200 rounded-lg">
-                <DollarSign className="h-6 w-6 text-green-700" />
+                <PhilippinePeso className="h-6 w-6 text-green-700" />
               </div>
             </div>
           </div>

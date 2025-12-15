@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { PlusIcon, PencilIcon, TrashIcon, FilterIcon, XIcon, DollarSign, TrendingUp, FileText, Calendar } from 'lucide-react';
+import { PlusIcon, PencilIcon, TrashIcon, FilterIcon, XIcon, DollarSign, TrendingUp, FileText, Calendar, PhilippinePeso } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import Modal from '@/components/common/Modal';
@@ -584,7 +584,7 @@ const BudgetDetailsPage = () => {
                 <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryStats.totalAppropriation)}</p>
               </div>
               <div className="p-3 bg-green-200 rounded-lg">
-                <DollarSign className="h-6 w-6 text-green-700" />
+                <PhilippinePeso className="h-6 w-6 text-green-700" />
               </div>
             </div>
           </div>

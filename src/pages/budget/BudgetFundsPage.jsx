@@ -8,8 +8,9 @@ import {
   PencilIcon,
   TrashIcon,
   FileText,
-  DollarSign,
+  // DollarSign,
   Wallet,
+  PhilippinePeso,
 } from 'lucide-react';
 import {
   createBudgetFund,
@@ -194,7 +195,7 @@ const BudgetFundsPage = () => {
                   <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryStats.totalAmount)}</p>
                 </div>
                 <div className="p-3 bg-green-200 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-green-700" />
+                  <PhilippinePeso className="h-6 w-6 text-green-700" />
                 </div>
               </div>
             </div>

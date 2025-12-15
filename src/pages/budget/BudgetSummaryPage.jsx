@@ -9,7 +9,8 @@ import axiosInstance from '@/utils/axiosInstance';
 import { formatCurrency } from '@/utils/currencyFormater';
 import {
   FileText,
-  DollarSign,
+  // DollarSign,
+  PhilippinePeso,
   FilterIcon,
   XIcon,
   TrendingUp,
@@ -513,7 +514,7 @@ const BudgetSummaryPage = () => {
                   <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryStats.totalAppropriation)}</p>
                 </div>
                 <div className="p-3 bg-green-200 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-green-700" />
+                  <PhilippinePeso className="h-6 w-6 text-green-700" />
                 </div>
               </div>
             </div>
@@ -847,7 +848,7 @@ const BudgetSummaryDetail = ({ data }) => {
       {/* Monthly Distribution Section */}
       <div className="bg-neutral-50 rounded-lg p-6 border border-neutral-200">
         <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-primary-600" />
+          <CalendarIcon className="h-5 w-5 text-primary-600" />
           Monthly Distribution
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
