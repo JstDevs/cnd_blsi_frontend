@@ -76,9 +76,39 @@ export const fetchDisbursementChart = (
 
 // --------------------------COLLECTIONS----------------------------
 // Collection Totals
-export const fetchCollectionTotals = (dateRange = 'Day') => {
+// Accepts either a simple dateRange string OR an options object:
+// - string: 'Day' | 'Month' | 'Year'
+// - object: { dateRange?, startDate?, endDate?, categories?[] }
+export const fetchCollectionTotals = (options = 'Day') => {
+  let params = {};
+
+  if (typeof options === 'string') {
+    params.dateRange = options;
+  } else if (options && typeof options === 'object') {
+    const {
+      dateRange = 'Day',
+      startDate,
+      endDate,
+      categories,
+      ...rest
+    } = options;
+
+    params.dateRange = dateRange;
+
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    if (Array.isArray(categories) && categories.length > 0) {
+      params.categories = categories.join(',');
+    }
+
+    // Allow passing any additional filter fields if the API supports them
+    Object.assign(params, rest);
+  } else {
+    params.dateRange = 'Day';
+  }
+
   return axiosInstance('/profileDashboard/collectionTotals', {
-    params: { dateRange },
+    params,
   });
 };
 

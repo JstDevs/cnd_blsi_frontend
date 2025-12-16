@@ -114,7 +114,15 @@ const StatCard = ({
 function DashboardPage() {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(true);
-  const [revenueRange, setRevenueRange] = useState('month');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const categoryOptions = [
+    { key: 'general', label: 'General Services' },
+    { key: 'marriage', label: 'Marriage Services' },
+    { key: 'burial', label: 'Burial Services' },
+    { key: 'cedula', label: 'Cedula' },
+  ];
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [revenueTotals, setRevenueTotals] = useState({
     general: 0,
     marriage: 0,
@@ -142,8 +150,17 @@ function DashboardPage() {
       setLoading(true);
       try {
         // Fetch in parallel to reduce load time
+        const activeCategories =
+          categoryFilter === 'all'
+            ? categoryOptions.map((c) => c.key)
+            : [categoryFilter];
+
         const [revenueRes, budgetRes, disbursementRes] = await Promise.all([
-          fetchCollectionTotals(revenueRange),
+          fetchCollectionTotals({
+            startDate: startDate || undefined,
+            endDate: endDate || undefined,
+            categories: activeCategories,
+          }),
           fetchBudgetList(''),
           fetchDisbursementChart('month'),
         ]);
@@ -213,7 +230,7 @@ function DashboardPage() {
       setLoading(false);
       setAuthError('Please sign in to load dashboard data.');
     }
-  }, [revenueRange, isAuthenticated]);
+  }, [startDate, endDate, categoryFilter, isAuthenticated]);
 
   useEffect(() => {
     // Show welcome message only right after login (per session)
@@ -227,11 +244,28 @@ function DashboardPage() {
     }
   }, [user, isAuthenticated]);
 
+  const activeCategoryKeys =
+    categoryFilter === 'all'
+      ? categoryOptions.map((c) => c.key)
+      : [categoryFilter];
+
+  const selectedCategoryOption =
+    categoryFilter === 'all'
+      ? null
+      : categoryOptions.find((c) => c.key === categoryFilter);
+
+  const getCategoryAmount = (key) => {
+    if (key === 'general') return revenueTotals.general;
+    if (key === 'marriage') return revenueTotals.marriage;
+    if (key === 'burial') return revenueTotals.burial;
+    return revenueTotals.cedula;
+  };
+
   const totalRevenue =
-    revenueTotals.general +
-    revenueTotals.marriage +
-    revenueTotals.burial +
-    revenueTotals.cedula;
+    (activeCategoryKeys.includes('general') ? revenueTotals.general : 0) +
+    (activeCategoryKeys.includes('marriage') ? revenueTotals.marriage : 0) +
+    (activeCategoryKeys.includes('burial') ? revenueTotals.burial : 0) +
+    (activeCategoryKeys.includes('cedula') ? revenueTotals.cedula : 0);
 
   const formatCurrency = (value) =>
     new Intl.NumberFormat('en-PH', {
@@ -273,29 +307,53 @@ function DashboardPage() {
       )}
 
       <div className="bg-white border border-neutral-200 rounded-lg p-4 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <p className="text-sm text-neutral-500">Select revenue range</p>
-            <select
-              value={revenueRange}
-              onChange={(e) => setRevenueRange(e.target.value)}
-              className="mt-1 px-3 py-2 border border-neutral-200 rounded-md focus:ring-primary-500 focus:border-primary-500"
-            >
-              <option value="day">Day</option>
-              <option value="month">Month</option>
-              <option value="year">Year</option>
-            </select>
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-neutral-500">Start date</p>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="mt-1 px-3 py-2 w-full border border-neutral-200 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+            <div>
+              <p className="text-sm text-neutral-500">End date</p>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="mt-1 px-3 py-2 w-full border border-neutral-200 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+            <div>
+              <p className="text-sm text-neutral-500">Revenue category</p>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="mt-1 px-3 py-2 w-full border border-neutral-200 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option value="all">All categories</option>
+                {categoryOptions.map((opt) => (
+                  <option key={opt.key} value={opt.key}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <p className="text-xs text-neutral-400">
             Data sourced from collection totals and budget/disbursement
-            dashboards.
+            dashboards. Selected dates and category will apply to the total
+            revenue and revenue-by-category summaries.
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
-          title={`Total Revenue (${revenueRange})`}
+          title="Total Revenue (selected range)"
           value={loading ? '...' : formatCurrency(totalRevenue)}
           icon={CurrencyDollarIcon}
           loading={loading}
@@ -320,26 +378,64 @@ function DashboardPage() {
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white border border-neutral-200 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-3">
-            Revenue by Category
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: 'General Services', value: revenueTotals.general },
-              { label: 'Marriage Services', value: revenueTotals.marriage },
-              { label: 'Burial Services', value: revenueTotals.burial },
-              { label: 'Cedula', value: revenueTotals.cedula },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="rounded-md border border-neutral-200 p-3 bg-neutral-50"
-              >
-                <p className="text-sm text-neutral-500">{item.label}</p>
-                <p className="text-lg font-semibold text-neutral-900">
-                  {loading ? '...' : formatCurrency(item.value)}
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-neutral-900">
+              Revenue by Category
+            </h3>
+            {selectedCategoryOption && (
+              <div className="text-right">
+                <p className="text-xs uppercase tracking-wide text-neutral-400">
+                  Focused category
+                </p>
+                <p className="text-sm font-medium text-primary-700">
+                  {selectedCategoryOption.label}
                 </p>
               </div>
-            ))}
+            )}
+          </div>
+
+          {selectedCategoryOption && (
+            <div className="mb-4 rounded-md bg-primary-50 border border-primary-100 px-4 py-3">
+              <p className="text-xs text-primary-600 uppercase tracking-wide">
+                Selected category total
+              </p>
+              <p className="mt-1 text-lg font-semibold text-primary-800">
+                {loading
+                  ? '...'
+                  : formatCurrency(getCategoryAmount(selectedCategoryOption.key))}
+              </p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            {categoryOptions.map((item) => {
+              const isActive = activeCategoryKeys.includes(item.key);
+              return (
+                <div
+                  key={item.key}
+                  className={`rounded-md border p-3 transition ${
+                    isActive
+                      ? 'border-primary-200 bg-primary-50 shadow-sm'
+                      : 'border-neutral-200 bg-neutral-50'
+                  }`}
+                >
+                  <p
+                    className={`text-sm ${
+                      isActive ? 'text-primary-700 font-medium' : 'text-neutral-500'
+                    }`}
+                  >
+                    {item.label}
+                  </p>
+                  <p
+                    className={`text-lg font-semibold ${
+                      isActive ? 'text-primary-900' : 'text-neutral-900'
+                    }`}
+                  >
+                    {loading ? '...' : formatCurrency(getCategoryAmount(item.key))}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
 
