@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { getApiUrl } from './apiConfig';
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api', // Update as needed
+  baseURL: getApiUrl(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -11,6 +12,12 @@ const axiosInstance = axios.create({
 // Optional: request interceptor to include token if using auth
 axiosInstance.interceptors.request.use(
   (config) => {
+    // Update baseURL dynamically in case window.location changes (e.g., network access)
+    const apiUrl = getApiUrl();
+    if (apiUrl) {
+      config.baseURL = apiUrl;
+    }
+    
     const token = localStorage.getItem('token'); // or sessionStorage / Redux
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

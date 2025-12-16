@@ -158,7 +158,7 @@ function DashboardPage() {
         });
 
         // Budget remaining per department
-        const budgetList = budgetRes?.data || [];
+        const budgetList = Array.isArray(budgetRes?.data) ? budgetRes.data : [];
         const remainingByDept = budgetList.map((item) => {
           const appropriation = parseFloat(item.Appropriation || 0);
           const supplemental = parseFloat(item.Supplemental || 0);
@@ -417,7 +417,7 @@ function DashboardPage() {
         </div>
       </div>
 
-      {/* Old navigation shortcuts hidden per request */}
+      {/* Old navigation shortcuts hidden */}
       {/*
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
         {sections.map((section) => (
