@@ -38,6 +38,7 @@ function SubdepartmentPage() {
   const subdepartmentSchema = Yup.object().shape({
     Code: Yup.string()
       .required('Subdepartment code is required')
+      .min(3, 'Subdepartment code must be at least 3 characters')
       .max(15, 'Subdepartment code must be at most 15 characters')
       .test(
         'unique-code',
@@ -100,12 +101,56 @@ function SubdepartmentPage() {
   const confirmDelete = async () => {
     try {
       if (subdepartmentToDelete) {
+        // Check if subdepartment is used in budget before deletion
+        const API_URL = import.meta.env.VITE_API_URL;
+        const token = localStorage.getItem('token');
+        
+        const budgetResponse = await fetch(`${API_URL}/budget`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (budgetResponse.ok) {
+          const budgetData = await budgetResponse.json();
+          const budgets = budgetData?.items || [];
+          
+          // Check if any budget uses this subdepartment
+          const isUsedInBudget = budgets.some(
+            (budget) => budget.SubDepartmentID === subdepartmentToDelete.ID
+          );
+
+          if (isUsedInBudget) {
+            toast.error(
+              'Cannot delete subdepartment. It is currently being used in budget records.'
+            );
+            setIsDeleteModalOpen(false);
+            setSubdepartmentToDelete(null);
+            return;
+          }
+        }
+
+        // Proceed with deletion if not used in budget
         await dispatch(deleteSubdepartment(subdepartmentToDelete.ID)).unwrap();
         toast.success('Subdepartment deleted successfully.');
       }
     } catch (error) {
       console.error('Failed to delete subdepartment:', error);
-      toast.error('Failed to delete subdepartment. Please try again.');
+      // Check if error message indicates it's used in budget
+      const errorMessage = error?.message || error?.toString() || '';
+      if (
+        errorMessage.toLowerCase().includes('budget') ||
+        errorMessage.toLowerCase().includes('used') ||
+        errorMessage.toLowerCase().includes('reference')
+      ) {
+        toast.error(
+          'Cannot delete subdepartment. It is currently being used in budget records.'
+        );
+      } else {
+        toast.error('Failed to delete subdepartment. Please try again.');
+      }
     } finally {
       setSubdepartmentToDelete(null);
       setIsDeleteModalOpen(false);
@@ -326,7 +371,7 @@ function SubdepartmentPage() {
           <p className="text-neutral-700">
             Are you sure you want to delete the subdepartment{' '}
             <span className="font-medium">
-              {subdepartmentToDelete?.subdepartmentName}
+              {subdepartmentToDelete?.Name || subdepartmentToDelete?.subdepartmentName}
             </span>
             ?
           </p>

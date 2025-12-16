@@ -14,6 +14,7 @@ import {
   fetchBudgetList,
   fetchDisbursementChart,
 } from './userProfile/profileUtil';
+import { PhilippinePeso } from 'lucide-react';
 
 // const sections = [
 //   {
@@ -355,7 +356,7 @@ function DashboardPage() {
         <StatCard
           title="Total Revenue (selected range)"
           value={loading ? '...' : formatCurrency(totalRevenue)}
-          icon={CurrencyDollarIcon}
+          icon={PhilippinePeso}
           loading={loading}
         />
         <StatCard
