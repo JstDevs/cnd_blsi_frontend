@@ -9,23 +9,38 @@ export const fetchUserroles = createAsyncThunk(
     try {
       const token = localStorage.getItem('token');
 
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+
       const response = await fetch(`${API_URL}/userAccess`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       const res = await response.json();
 
       if (!response.ok) {
+        const errorMessage = res.message || res.error || `Server error: ${response.status}`;
         throw new Error(res.message || 'Failed to fetch');
       }
 
       return res;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+     } catch (error) {
+      // Handle different error types
+      if (error.name === 'AbortError') {
+        return thunkAPI.rejectWithValue('Request timeout. Please check your connection.');
+      }
+      if (error.message) {
+        return thunkAPI.rejectWithValue(error.message);
+      }
+      return thunkAPI.rejectWithValue('Failed to fetch user roles. Please try again.');
     }
   }
 );
@@ -127,7 +142,7 @@ const userrolesSlice = createSlice({
       })
       .addCase(fetchUserroles.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch user roles';
+        state.error = action.payload || action.error?.message || 'Failed to fetch user roles';
         console.warn('Failed to fetch user roles, using mock data.', state.error);
         state.userroles = mockUserroles;
       })

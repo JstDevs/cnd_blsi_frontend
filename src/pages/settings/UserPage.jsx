@@ -57,7 +57,7 @@ const userSchema = Yup.object().shape({
 
 function UserPage() {
   const dispatch = useDispatch();
-  const { users, isLoading } = useSelector((state) => state.users);
+  const { users, isLoading, error: usersError } = useSelector((state) => state.users);
   // const { departments } = useSelector((state) => state.departments);
   // ---------------------USE MODULE PERMISSIONS------------------START ( User  Page  - MODULE ID =82 )
   const { Add, Edit, Delete } = useModulePermissions(82);
@@ -69,7 +69,7 @@ function UserPage() {
     useState(false);
   const [userToResetPassword, setUserToResetPassword] = useState(null);
 
-  const { userroles, isLoading: isLoadingRoles } = useSelector(
+  const { userroles, isLoading: isLoadingRoles, error: userrolesError } = useSelector(
     (state) => state.userroles
   );
 
@@ -91,6 +91,17 @@ function UserPage() {
     dispatch(fetchEmployees());
     dispatch(fetchUserroles());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (usersError) {
+      console.error('Users error:', usersError);
+      toast.error(usersError);
+    }
+    if (userrolesError) {
+      console.error('User roles error:', userrolesError);
+      toast.error(userrolesError);
+    }
+  }, [usersError, userrolesError]);
 
   const handleAddUser = () => {
     setCurrentUser(null);
@@ -225,11 +236,20 @@ function UserPage() {
   ];
 
   // Modify users to include UserAccessValue
-  const modifiedUsers = users.map((user) => ({
+  const modifiedUsers = Array.isArray(users) ? users.map((user) => ({
     ...user,
     UserAccessValue: userroles.find((role) => role.ID === user.UserAccessID)
       ?.Description,
-  }));
+  })) : [];
+
+  // Debug logging
+  useEffect(() => {
+    console.log('📊 Users state:', users);
+    console.log('📊 Users is array?', Array.isArray(users));
+    console.log('📊 Users length:', Array.isArray(users) ? users.length : 'N/A');
+    console.log('📊 Modified users:', modifiedUsers);
+    console.log('📊 Modified users length:', modifiedUsers.length);
+  }, [users, modifiedUsers]);
 
   return (
     <div>

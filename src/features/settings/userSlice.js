@@ -74,6 +74,15 @@ export const fetchUsers = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
+      
+      console.log('🔵 Starting fetchUsers...');
+      console.log('🔵 API_URL:', API_URL);
+      console.log('🔵 Token exists:', !!token);
+
+
+       // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
 
       const response = await fetch(`${API_URL}/users`, {
         method: 'GET',
@@ -81,17 +90,82 @@ export const fetchUsers = createAsyncThunk(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        signal: controller.signal,
       });
+      
+      console.log('🟢 Fetch completed. Status:', response.status);
+      console.log('🟢 Response OK?', response.ok);
 
-      const res = await response.json();
+      clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        throw new Error(res.message || 'Failed to fetch');
+      // Try to parse response, handle both JSON and text responses
+      let res;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        res = await response.json();
+      } else {
+        const text = await response.text();
+        console.warn('⚠️ Non-JSON response:', text);
+        try {
+          res = JSON.parse(text);
+        } catch (e) {
+          throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+        }
       }
 
-      return res.items;
+      console.log('🟡 Response parsed:', res);
+      console.log('🟡 Response type:', typeof res);
+      console.log('🟡 Is array?', Array.isArray(res));
+      
+      if (!response.ok) {
+        const errorMessage = res.message || res.error || `Server error: ${response.status}`;
+        console.error('🔴 Server error response:', res);
+        throw new Error(errorMessage);
+      }
+
+      // DEBUG: Check API response structure
+      console.log('API Response:', res);
+      console.log('Response type:', typeof res);
+      console.log('Is array?', Array.isArray(res));
+      console.log('Has items?', res.items);
+      console.log('Has data?', res.data);
+
+      // Handle different response structures
+      if (Array.isArray(res)) {
+        return res; // API returns array directly
+      } else if (Array.isArray(res.items)) {
+        return res.items; // API returns { items: [...] }
+      } else if (Array.isArray(res.data)) {
+        return res.data; // API returns { data: [...] }
+      } else {
+        console.warn('Unexpected API response structure:', res);
+        return []; // Fallback to empty array
+      }
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      // Handle different error types
+      console.error('🔴 ERROR in fetchUsers:', error);
+      console.error('🔴 Error name:', error.name);
+      console.error('🔴 Error message:', error.message);
+      
+      if (error.name === 'AbortError') {
+        return thunkAPI.rejectWithValue('Request timeout. Please check your connection.');
+      }
+      
+      // Handle network errors
+      if (error.message && error.message.includes('Failed to fetch')) {
+        return thunkAPI.rejectWithValue('Network error. Please check your connection and try again.');
+      }
+      
+      // Handle JSON parsing errors
+      if (error.message && error.message.includes('JSON')) {
+        return thunkAPI.rejectWithValue('Invalid response from server. Please contact support.');
+      }
+      
+      if (error.message) {
+        return thunkAPI.rejectWithValue(error.message);
+      }
+      
+      return thunkAPI.rejectWithValue('Failed to fetch users. Please try again.');
     }
   }
 );
@@ -229,12 +303,18 @@ const userSlice = createSlice({
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.users = action.payload;
+        console.log('✅ fetchUsers.fulfilled - Payload:', action.payload);
+        console.log('✅ Payload type:', typeof action.payload);
+        console.log('✅ Is array?', Array.isArray(action.payload));
+        console.log('✅ Payload length:', Array.isArray(action.payload) ? action.payload.length : 'N/A');
+        state.users = Array.isArray(action.payload) ? action.payload : [];
         state.error = null;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        console.error('❌ fetchUsers.rejected - Error:', action.payload || action.error?.message);
+        state.error = action.payload || action.error?.message || 'Failed to fetch users';
+        // Don't clear users on error, keep existing data
       })
       // Add user
       .addCase(addUser.pending, (state) => {
