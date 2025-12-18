@@ -80,16 +80,54 @@ function EmployeePage() {
     return age;
   };
 
+  // Age bracket helper
+  const getAgeBracket = (age) => {
+    if (age == null || isNaN(age)) return 'Unknown';
+
+    if (age >= 18 && age <= 25) return '18-25';
+    if (age >= 26 && age <= 50) return '26-50';
+    if (age >= 51 && age <= 60) return '51-60';
+    if (age >= 60) return '61+';
+
+    return 'Below 18';
+  };
+
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
     const total = employees?.length || 0;
-    const departments = new Set(employees?.map((emp) => emp.Department?.Name).filter(Boolean)).size;
-    const positions = new Set(employees?.map((emp) => emp.Position?.Name).filter(Boolean)).size;
+    // const departments = new Set(employees?.map((emp) => emp.Department?.Name).filter(Boolean)).size;
+    // const positions = new Set(employees?.map((emp) => emp.Position?.Name).filter(Boolean)).size;
+
+    const initialBracketCounts = {
+      '18-25': 0,
+      '26-50': 0,
+      '51-60': 0,
+      '61+': 0,
+      'Below 18': 0,
+      Unknown: 0,
+    };
+    
+    const maleByBracket = { ...initialBracketCounts };
+    const femaleByBracket = { ...initialBracketCounts };
+
+    (employees || []).forEach((emp) => {
+      const age = calculateAge(emp.Birthday);
+      const bracket = getAgeBracket(age);
+      const gender = (emp.Gender || '').toLowerCase();
+
+      if (gender === 'male') {
+        maleByBracket[bracket] = (maleByBracket[bracket] || 0) + 1;
+      } else if (gender === 'female') {
+        femaleByBracket[bracket] = (femaleByBracket[bracket] || 0) + 1;
+      }
+    });
     
     return {
       total,
-      departments,
-      positions,
+      // departments,
+      // positions,
+      maleByBracket,
+      femaleByBracket,
     };
   }, [employees]);
 
@@ -256,7 +294,7 @@ function EmployeePage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            {/* <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-green-700 mb-1">Departments</p>
@@ -266,9 +304,43 @@ function EmployeePage() {
                   <Building className="h-6 w-6 text-green-700" />
                 </div>
               </div>
+            </div> */}
+
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700 mb-1">
+                    Males by Age Bracket
+                  </p>
+                  <p className="text-2xl font-bold text-green-900 mb-2">
+                    {Object.values(summaryStats.maleByBracket).reduce(
+                      (a, b) => a + b,
+                      0
+                    )}
+                  </p>
+                  <p className="text-xs text-green-700 mb-2">Total Males</p>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-white/70 text-green-700 border border-green-200">
+                      18-25: {summaryStats.maleByBracket['18-25']}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-white/70 text-green-700 border border-green-200">
+                      26-50: {summaryStats.maleByBracket['26-50']}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-white/70 text-green-700 border border-green-200">
+                      51-60: {summaryStats.maleByBracket['51-60']}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-white/70 text-green-700 border border-green-200">
+                      61+: {summaryStats.maleByBracket['61+']}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-3 bg-green-200 rounded-lg">
+                  <Users className="h-6 w-6 text-green-700" />
+                </div>
+              </div>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            {/* <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-purple-700 mb-1">Positions</p>
@@ -278,7 +350,41 @@ function EmployeePage() {
                   <Briefcase className="h-6 w-6 text-purple-700" />
                 </div>
               </div>
+            </div> */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-700 mb-1">
+                    Females by Age Bracket
+                  </p>
+                  <p className="text-2xl font-bold text-purple-900 mb-2">
+                    {Object.values(summaryStats.femaleByBracket).reduce(
+                      (a, b) => a + b,
+                      0
+                    )}
+                  </p>
+                  <p className="text-xs text-purple-700 mb-2">Total Females</p>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-white/70 text-purple-700 border border-purple-200">
+                      18-25: {summaryStats.femaleByBracket['18-25']}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-white/70 text-purple-700 border border-purple-200">
+                      26-50: {summaryStats.femaleByBracket['26-50']}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-white/70 text-purple-700 border border-purple-200">
+                      51-60: {summaryStats.femaleByBracket['51-60']}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-white/70 text-purple-700 border border-purple-200">
+                      61+: {summaryStats.femaleByBracket['61+']}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-3 bg-purple-200 rounded-lg">
+                  <Users className="h-6 w-6 text-purple-700" />
+                </div>
+              </div>
             </div>
+
           </div>
         )}
       </div>
