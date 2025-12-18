@@ -41,7 +41,7 @@ function Header({ toggleSidebar, isSidebarOpen }) {
   };
   // Handle role change
   const handleRoleChange = (e) => {
-    const selectedRoleId = e.target.value;
+    const selectedRoleId = Number(e.target.value);
     const role = user.accessList.find((r) => r.ID === selectedRoleId);
     if (role) {
       dispatch(updateSelectedRole(role));
