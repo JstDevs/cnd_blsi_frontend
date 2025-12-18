@@ -191,7 +191,7 @@ function DashboardPage() {
             charges -
             encumbrance -
             preEncumbrance;
-          return { id: item.ID, name: item.Name, remaining };
+          return { id: item.ID, name: item.Department?.Name || item.Name || 'N/A', remaining };
         });
         setBudgetRemaining(remainingByDept);
 
