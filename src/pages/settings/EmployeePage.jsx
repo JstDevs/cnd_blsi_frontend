@@ -67,6 +67,19 @@ function EmployeePage() {
     setCurrentEmployee(null);
   };
 
+  // Calculate age from birthday
+  const calculateAge = (birthday) => {
+    if (!birthday) return '—';
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
     const total = employees?.length || 0;
@@ -110,19 +123,20 @@ function EmployeePage() {
       render: (value) => <span className="text-neutral-700 font-medium">{value || '—'}</span>,
     },
     {
-      key: 'Department',
-      header: 'Department',
+      key: 'Age',
+      header: 'Age',
       sortable: true,
-      render: (value) => (
-        <span className="text-neutral-700">{value?.Name || '—'}</span>
-      ),
+      render: (value, row) => {
+        const age = calculateAge(row.Birthday);
+        return <span className="text-neutral-700">{age}</span>;
+      },
     },
     {
-      key: 'Position',
-      header: 'Position',
+      key: 'Gender',
+      header: 'Gender',
       sortable: true,
       render: (value) => (
-        <span className="text-neutral-700">{value?.Name || '—'}</span>
+        <span className="text-neutral-700">{value || '—'}</span>
       ),
     },
     {

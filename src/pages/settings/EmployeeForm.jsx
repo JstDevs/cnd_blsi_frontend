@@ -43,7 +43,7 @@ const employeeSchema = Yup.object().shape({
   EmailAddress: Yup.string()
     .email('Invalid email address')
     .required('Email is required'),
-  IDNumber: Yup.number(),
+  IDNumber: Yup.string().nullable(),
   DepartmentID: Yup.number().required('Department is required'),
   PositionID: Yup.string().required('Position is required'),
   NationalityID: Yup.string().required('Nationality is required'),
@@ -169,6 +169,9 @@ function EmployeeForm({ initialData, onClose }) {
       ...values,
       DepartmentID: Number(values.DepartmentID),
       departmentName,
+      IDNumber: values.IDNumber && values.IDNumber.trim() !== ''
+      ? values.IDNumber
+      : null,
     };
 
     const action = initialData
