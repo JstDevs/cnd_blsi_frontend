@@ -16,16 +16,21 @@ import {
   ListBulletIcon,
   EllipsisHorizontalIcon,
   ReceiptPercentIcon,
-  BanknotesIcon,
 } from '@heroicons/react/24/outline';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
-import { CalculatorIcon, CoinsIcon, Ellipsis } from 'lucide-react';
+import { CalculatorIcon, ChartBar, CoinsIcon, Ellipsis, LayoutDashboardIcon, ReceiptTextIcon, BanknoteIcon } from 'lucide-react';
+
+const DashboardIcon = LayoutDashboardIcon;
+const DisbursementIcon = BanknoteIcon;
+const CollectionsIcon = ReceiptTextIcon;
+const BudgetIcon = CalculatorIcon;
+const SettingsIcon = Cog6ToothIcon;
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: ChartBarIcon }, // public, no moduleId
+  { name: 'Dashboard', href: '/dashboard', icon: DashboardIcon }, // public, no moduleId
   {
     name: 'Disbursement',
-    icon: BanknotesIcon,
+    icon: DisbursementIcon,
     submenu: [
       { name: 'Obligation Request',       href: '/disbursement/obligation-requests',    moduleId: 62, },
       { name: 'Disbursement Voucher',     href: '/disbursement/vouchers',               moduleId: 40, },
@@ -50,7 +55,7 @@ const navigation = [
   },
   {
     name: 'Collections',
-    icon: ReceiptPercentIcon,
+    icon: CollectionsIcon,
     submenu: [
       { name: 'Community Tax Individual',   href: '/collections/community-tax',             moduleId: 34, },
       { name: 'Community Tax Corporate',    href: '/collections/community-tax-corporation', moduleId: 35, },
@@ -71,7 +76,7 @@ const navigation = [
   },
   {
     name: 'Budget',
-    icon: CalculatorIcon,
+    icon: BudgetIcon,
     submenu: [
       { name: 'Funds',                href: '/budget/funds',          moduleId: 48 },
       { name: 'Sub-funds',            href: '/budget/sub-funds',      moduleId: 97 },
@@ -93,7 +98,7 @@ const navigation = [
   },
   {
     name: 'Settings',
-    icon: Cog6ToothIcon,
+    icon: SettingsIcon,
     submenu: [
       { name: 'Departments',        href: '/settings/departments',        moduleId: 39, },
       { name: 'Subdepartments',     href: '/settings/subdepartments',     moduleId: 76, },
