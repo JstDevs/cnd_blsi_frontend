@@ -15,15 +15,17 @@ import {
   ArchiveBoxIcon,
   ListBulletIcon,
   EllipsisHorizontalIcon,
+  ReceiptPercentIcon,
+  BanknotesIcon,
 } from '@heroicons/react/24/outline';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
-import { CoinsIcon, Ellipsis } from 'lucide-react';
+import { CalculatorIcon, CoinsIcon, Ellipsis } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: ChartBarIcon }, // public, no moduleId
   {
     name: 'Disbursement',
-    icon: CurrencyDollarIcon,
+    icon: BanknotesIcon,
     submenu: [
       { name: 'Obligation Request',       href: '/disbursement/obligation-requests',    moduleId: 62, },
       { name: 'Disbursement Voucher',     href: '/disbursement/vouchers',               moduleId: 40, },
@@ -48,7 +50,7 @@ const navigation = [
   },
   {
     name: 'Collections',
-    icon: ReceiptRefundIcon,
+    icon: ReceiptPercentIcon,
     submenu: [
       { name: 'Community Tax Individual',   href: '/collections/community-tax',             moduleId: 34, },
       { name: 'Community Tax Corporate',    href: '/collections/community-tax-corporation', moduleId: 35, },
@@ -69,7 +71,7 @@ const navigation = [
   },
   {
     name: 'Budget',
-    icon: DocumentDuplicateIcon,
+    icon: CalculatorIcon,
     submenu: [
       { name: 'Funds',                href: '/budget/funds',          moduleId: 48 },
       { name: 'Sub-funds',            href: '/budget/sub-funds',      moduleId: 97 },
