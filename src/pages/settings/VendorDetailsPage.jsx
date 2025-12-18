@@ -65,12 +65,43 @@ function VendorDetailsPage() {
     dispatch(fetchModeOfPayments());
   }, [dispatch]);
 
+  // const summaryStats = useMemo(() => {
+  //   const total = vendorDetails?.length || 0;
+  //   const vatable = vendorDetails?.filter((v) => v.Vatable)?.length || 0;
+  //   const types = new Set(vendorDetails?.map((v) => v.TypeID).filter(Boolean)).size;
+  //   return { total, vatable, types };
+  // }, [vendorDetails]);
+
   const summaryStats = useMemo(() => {
     const total = vendorDetails?.length || 0;
-    const vatable = vendorDetails?.filter((v) => v.Vatable)?.length || 0;
-    const types = new Set(vendorDetails?.map((v) => v.TypeID).filter(Boolean)).size;
-    return { total, vatable, types };
-  }, [vendorDetails]);
+
+    const vatableCount = vendorDetails?.filter((v) => v.Vatable)?.length || 0;
+    const nonVatableCount = vendorDetails?.filter((v) => !v.Vatable)?.length || 0;
+
+    const typeCountMap =
+      vendorDetails?.reduce((acc, v) => {
+        if (!v.TypeID) return acc;
+        const key = v.TypeID;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {}) || {};
+
+    const typeCounts = Object.entries(typeCountMap).map(([typeId, count]) => {
+      const type = vendorTypes.find((t) => t.ID == typeId);
+      return {
+        id: typeId,
+        name: type?.Name || 'Unknown type',
+        count,
+      };
+    });
+
+    return {
+      total,
+      vatableCount,
+      nonVatableCount,
+      typeCounts,
+    };
+  }, [vendorDetails, vendorTypes]);
 
   const regionOptions = regions.map((r) => ({ value: r.ID, label: r.Name }));
   const provinceOptions = provinces.map((p) => ({
@@ -354,7 +385,7 @@ function VendorDetailsPage() {
           </div>
         </div>
 
-        {/* Summary cards */}
+        {/* Summary cards
         {!isLoading && vendorDetails?.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
@@ -389,6 +420,152 @@ function VendorDetailsPage() {
                   <FileText className="h-6 w-6 text-purple-700" />
                 </div>
               </div>
+            </div>
+          </div>
+        )} */}
+
+        {/* Summary cards */}
+        {!isLoading && vendorDetails?.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {/* Total Vendors */}
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-700 mb-1">Total Vendors</p>
+                  <p className="text-2xl font-bold text-blue-900">{summaryStats.total}</p>
+                </div>
+                <div className="p-3 bg-blue-200 rounded-lg">
+                  <Building className="h-6 w-6 text-blue-700" />
+                </div>
+              </div>
+            </div>
+
+            {/* Vatable vs Non‑Vatable */}
+            <div className="bg-gradient-to-br from-emerald-50 via-green-50 to-emerald-100 border border-emerald-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-sm font-semibold text-emerald-800">
+                    Vatable vs Non‑Vatable
+                  </p>
+                  <p className="text-xs text-emerald-700/80">
+                    Tax status distribution of vendors
+                  </p>
+                </div>
+                <div className="p-3 bg-emerald-200 rounded-xl shadow-sm">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-800" />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="flex-1 bg-white/60 rounded-lg px-3 py-2 border border-emerald-100">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                      <span className="text-xs font-medium text-emerald-800">
+                        Vatable
+                      </span>
+                    </div>
+                    <span className="text-sm font-semibold text-emerald-900">
+                      {summaryStats.vatableCount}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full bg-emerald-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 rounded-full transition-all"
+                      style={{
+                        width:
+                          summaryStats.total > 0
+                            ? `${(summaryStats.vatableCount / summaryStats.total) * 100}%`
+                            : '0%',
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex-1 bg-white/60 rounded-lg px-3 py-2 border border-emerald-100">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-amber-500" />
+                      <span className="text-xs font-medium text-amber-800">
+                        Non‑Vatable
+                      </span>
+                    </div>
+                    <span className="text-sm font-semibold text-amber-900">
+                      {summaryStats.nonVatableCount}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full bg-amber-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-amber-500 rounded-full transition-all"
+                      style={{
+                        width:
+                          summaryStats.total > 0
+                            ? `${(summaryStats.nonVatableCount / summaryStats.total) * 100}%`
+                            : '0%',
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Vendors per Type */}
+            <div className="bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-100 border border-purple-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-sm font-semibold text-purple-900">
+                    Vendors per Type
+                  </p>
+                  <p className="text-xs text-purple-700/80">
+                    Count of vendors for each type
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-200 rounded-xl shadow-sm">
+                  <FileText className="h-5 w-5 text-purple-900" />
+                </div>
+              </div>
+
+              {summaryStats.typeCounts.length === 0 ? (
+                <p className="text-sm text-purple-700/80 mt-1">
+                  No vendor types available.
+                </p>
+              ) : (
+                <div className="mt-1 space-y-1.5">
+                  {summaryStats.typeCounts.slice(0, 4).map((t, index) => (
+                    <div
+                      key={t.id}
+                      className="flex items-center justify-between text-xs bg-white/70 border border-purple-100 rounded-md px-2.5 py-1.5"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            index === 0
+                              ? 'bg-purple-700'
+                              : index === 1
+                              ? 'bg-fuchsia-500'
+                              : index === 2
+                              ? 'bg-violet-500'
+                              : 'bg-purple-400'
+                          }`}
+                        />
+                        <span className="text-[11px] text-neutral-800 truncate max-w-[7.5rem]">
+                          {t.name}
+                        </span>
+                      </div>
+                      <span className="font-semibold text-purple-900">
+                        {t.count}
+                      </span>
+                    </div>
+                  ))}
+
+                  {summaryStats.typeCounts.length > 4 && (
+                    <p className="text-[11px] text-purple-800/80 mt-1">
+                      + {summaryStats.typeCounts.length - 4} more type
+                      {summaryStats.typeCounts.length - 4 > 1 ? 's' : ''}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
