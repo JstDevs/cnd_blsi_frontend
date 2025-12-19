@@ -279,8 +279,8 @@ function EmployeePage() {
           </div>
         </div>
 
-        {/* Summary Statistics Cards */}
-        {!isLoading && employees?.length > 0 && (
+        {/* Summary Statistics Cards - COMMENTED OUT FOR FUTURE USE */}
+        {/* {!isLoading && employees?.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
@@ -306,7 +306,7 @@ function EmployeePage() {
               </div>
             </div> */}
 
-            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            {/* <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-green-700 mb-1">
@@ -338,7 +338,7 @@ function EmployeePage() {
                   <Users className="h-6 w-6 text-green-700" />
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
@@ -351,7 +351,7 @@ function EmployeePage() {
                 </div>
               </div>
             </div> */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            {/* <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-purple-700 mb-1">
@@ -383,21 +383,31 @@ function EmployeePage() {
                   <Users className="h-6 w-6 text-purple-700" />
                 </div>
               </div>
-            </div>
+            </div> */}
 
-          </div>
-        )}
+          {/* </div>
+        )} */}
       </div>
 
       {/* Table Section */}
       <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
-          <h2 className="text-lg font-semibold text-neutral-900">
-            Employee Records
-            <span className="ml-2 text-sm font-normal text-neutral-600">
-              ({employees?.length || 0} {(employees?.length || 0) === 1 ? 'employee' : 'employees'})
-            </span>
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-neutral-900">
+              Employee Records
+              <span className="ml-2 text-sm font-normal text-neutral-600">
+                ({employees?.length || 0} {(employees?.length || 0) === 1 ? 'employee' : 'employees'})
+              </span>
+            </h2>
+            {!isLoading && employees?.length > 0 && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                <Users className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-900">
+                  Total Employee: {summaryStats.total}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
         <DataTable
           columns={columns}
@@ -406,6 +416,98 @@ function EmployeePage() {
           loading={isLoading}
           pagination={true}
         />
+        
+        {/* Age Bracket Summary - Table Footer */}
+        {/* {!isLoading && employees?.length > 0 && (
+          <div className="border-t border-neutral-200 bg-neutral-50">
+            <div className="px-6 py-4">
+              <h3 className="text-sm font-semibold text-neutral-700 mb-4">
+                Summary by Age Bracket
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Males Summary */}
+                {/* <div className="bg-white border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Users className="h-4 w-4 text-green-600" />
+                    <h4 className="text-sm font-semibold text-green-900">
+                      Total Males: <span className="font-bold">{Object.values(summaryStats.maleByBracket).reduce((a, b) => a + b, 0)}</span>
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex justify-between items-center">
+                      <span className="text-green-700">18-25:</span>
+                      <span className="font-semibold text-green-900">{summaryStats.maleByBracket['18-25']}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-green-700">26-50:</span>
+                      <span className="font-semibold text-green-900">{summaryStats.maleByBracket['26-50']}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-green-700">51-60:</span>
+                      <span className="font-semibold text-green-900">{summaryStats.maleByBracket['51-60']}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-green-700">61+:</span>
+                      <span className="font-semibold text-green-900">{summaryStats.maleByBracket['61+']}</span>
+                    </div>
+                    {summaryStats.maleByBracket['Below 18'] > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-700">Below 18:</span>
+                        <span className="font-semibold text-green-900">{summaryStats.maleByBracket['Below 18']}</span>
+                      </div>
+                    )}
+                    {summaryStats.maleByBracket['Unknown'] > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-700">Unknown:</span>
+                        <span className="font-semibold text-green-900">{summaryStats.maleByBracket['Unknown']}</span>
+                      </div>
+                    )}
+                  </div>
+                </div> */} 
+
+                {/* Females Summary */}
+                {/* <div className="bg-white border border-purple-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Users className="h-4 w-4 text-purple-600" />
+                    <h4 className="text-sm font-semibold text-purple-900">
+                      Total Females: <span className="font-bold">{Object.values(summaryStats.femaleByBracket).reduce((a, b) => a + b, 0)}</span>
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex justify-between items-center">
+                      <span className="text-purple-700">18-25:</span>
+                      <span className="font-semibold text-purple-900">{summaryStats.femaleByBracket['18-25']}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-purple-700">26-50:</span>
+                      <span className="font-semibold text-purple-900">{summaryStats.femaleByBracket['26-50']}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-purple-700">51-60:</span>
+                      <span className="font-semibold text-purple-900">{summaryStats.femaleByBracket['51-60']}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-purple-700">61+:</span>
+                      <span className="font-semibold text-purple-900">{summaryStats.femaleByBracket['61+']}</span>
+                    </div>
+                    {summaryStats.femaleByBracket['Below 18'] > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-purple-700">Below 18:</span>
+                        <span className="font-semibold text-purple-900">{summaryStats.femaleByBracket['Below 18']}</span>
+                      </div>
+                    )}
+                    {summaryStats.femaleByBracket['Unknown'] > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-purple-700">Unknown:</span>
+                        <span className="font-semibold text-purple-900">{summaryStats.femaleByBracket['Unknown']}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )} */}
       </div>
 
       {/* Employee Form Modal */}
