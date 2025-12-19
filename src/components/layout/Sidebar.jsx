@@ -79,7 +79,7 @@ const navigation = [
     icon: BudgetIcon,
     submenu: [
       { name: 'Funds',                href: '/budget/funds',          moduleId: 48 },
-      { name: 'Sub-funds',            href: '/budget/sub-funds',      moduleId: 97 },
+      // { name: 'Sub-funds',            href: '/budget/sub-funds',      moduleId: 97 },
       { name: 'Budget Appropriation', href: '/budget/details',        moduleId: 22 },
       { name: 'Budget Allotment',     href: '/budget/allotment',      moduleId: 23 },
       { name: 'Budget Supplemental',  href: '/budget/supplemental',   moduleId: 26 },
@@ -109,7 +109,6 @@ const navigation = [
         submenu: [
           { name: 'User Details',       href: '/settings/users',              moduleId: 82, },
           { name: 'User Access',        href: '/settings/user-access',        moduleId: 83, },
-          { name: 'User Roles',         href: '/settings/user-roles',         moduleId: 84, }, // no mapping
         ],
       },
       {
