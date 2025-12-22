@@ -29,9 +29,8 @@ const BudgetSummaryPage = () => {
   const { subdepartments, isLoading: subdepartmentsLoading } = useSelector(
     (state) => state.subdepartments
   );
-  const accounts = useSelector(
-    (state) => state.chartOfAccounts?.accounts || []
-  );
+
+  const accounts = useSelector((state) => state.chartOfAccounts?.accounts || []);
 
   const [data, setData] = useState([]);
   const [filters, setFilters] = useState({
@@ -45,11 +44,7 @@ const BudgetSummaryPage = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   const handleClearFilters = () => {
-    setFilters({
-      department: '',
-      subDepartment: '',
-      chartOfAccounts: '',
-    });
+    setFilters({ department: '', subDepartment: '', chartOfAccounts: '' });
   };
 
   const hasActiveFilters =
@@ -66,8 +61,6 @@ const BudgetSummaryPage = () => {
     try {
       setLoading(true);
       const response = await axiosInstance(`/budgetSummary`);
-      // const res = await response.json();
-
       setData(response.data || []);
     } catch (error) {
       console.error('Error fetching budget summaries:', error);
@@ -93,7 +86,6 @@ const BudgetSummaryPage = () => {
     });
   }, [data, filters]);
 
-  // Calculate summary statistics
   const summaryStats = useMemo(() => {
     const stats = filteredData.reduce(
       (acc, item) => {
@@ -127,6 +119,7 @@ const BudgetSummaryPage = () => {
     return stats;
   }, [filteredData]);
 
+  // Simplified columns: only show the fields requested by the UI redesign
   const columns = [
     {
       key: 'Name',
@@ -141,9 +134,7 @@ const BudgetSummaryPage = () => {
       header: 'Fiscal Year',
       sortable: true,
       render: (_, row) => (
-        <span className="text-neutral-700">
-          {row?.FiscalYear?.Name || '—'}
-        </span>
+        <span className="text-neutral-700">{row?.FiscalYear?.Name || '—'}</span>
       ),
     },
     {
@@ -151,9 +142,7 @@ const BudgetSummaryPage = () => {
       header: 'Department',
       sortable: true,
       render: (_, row) => (
-        <span className="text-neutral-700">
-          {row?.Department?.Name || '—'}
-        </span>
+        <span className="text-neutral-700">{row?.Department?.Name || '—'}</span>
       ),
     },
     {
@@ -161,9 +150,7 @@ const BudgetSummaryPage = () => {
       header: 'Sub Department',
       sortable: true,
       render: (_, row) => (
-        <span className="text-neutral-600">
-          {row?.SubDepartment?.Name || '—'}
-        </span>
+        <span className="text-neutral-600">{row?.SubDepartment?.Name || '—'}</span>
       ),
     },
     {
@@ -171,9 +158,7 @@ const BudgetSummaryPage = () => {
       header: 'Chart of Accounts',
       sortable: true,
       render: (_, row) => (
-        <span className="text-neutral-700">
-          {row?.ChartofAccounts?.Name || '—'}
-        </span>
+        <span className="text-neutral-700">{row?.ChartofAccounts?.Name || '—'}</span>
       ),
     },
     {
@@ -192,274 +177,287 @@ const BudgetSummaryPage = () => {
         <span className="text-neutral-600">{row?.Project?.Title || '—'}</span>
       ),
     },
-    {
-      key: 'Appropriation',
-      header: 'Appropriation',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right font-semibold text-green-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'AppropriationBalance',
-      header: 'Appropriation Balance',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => {
-        const numValue = Number(value) || 0;
-        return (
-          <span
-            className={`text-right font-medium ${
-              numValue >= 0 ? 'text-green-700' : 'text-red-600'
-            }`}
-          >
-            {formatCurrency(value)}
-          </span>
-        );
-      },
-    },
-    {
-      key: 'TotalAmount',
-      header: 'Total Amount',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right font-semibold text-blue-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'ChargedAllotment',
-      header: 'Allotment',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right font-medium text-orange-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'AllotmentBalance',
-      header: 'Allotment Balance',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => {
-        const numValue = Number(value) || 0;
-        return (
-          <span
-            className={`text-right font-medium ${
-              numValue >= 0 ? 'text-green-700' : 'text-red-600'
-            }`}
-          >
-            {formatCurrency(value)}
-          </span>
-        );
-      },
-    },
-    {
-      key: 'Change',
-      header: 'Change',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'Supplemental',
-      header: 'Supplemental',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'Released',
-      header: 'Released',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'Charges',
-      header: 'Charges',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right font-medium text-orange-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'PreEncumbrance',
-      header: 'Pre Encumbr.',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'Encumbrance',
-      header: 'Encumbrance',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'January',
-      header: 'Jan',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'February',
-      header: 'Feb',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'March',
-      header: 'Mar',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'April',
-      header: 'Apr',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'May',
-      header: 'May',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'June',
-      header: 'Jun',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'July',
-      header: 'Jul',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'August',
-      header: 'Aug',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'September',
-      header: 'Sep',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'October',
-      header: 'Oct',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'November',
-      header: 'Nov',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'December',
-      header: 'Dec',
-      sortable: true,
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
   ];
+
+  /*
+   ORIGINAL FULL COLUMNS (commented out for future use):
+
+   const columns = [
+     {
+       key: 'Name',
+       header: 'Budget Name',
+       sortable: true,
+       render: (value) => (
+         <span className="font-medium text-neutral-900">{value || '—'}</span>
+       ),
+     },
+     {
+       key: 'FiscalYearID',
+       header: 'Fiscal Year',
+       sortable: true,
+       render: (_, row) => (
+         <span className="text-neutral-700">{row?.FiscalYear?.Name || '—'}</span>
+       ),
+     },
+     {
+       key: 'DepartmentID',
+       header: 'Department',
+       sortable: true,
+       render: (_, row) => (
+         <span className="text-neutral-700">{row?.Department?.Name || '—'}</span>
+       ),
+     },
+     {
+       key: 'SubDepartmentID',
+       header: 'Sub Department',
+       sortable: true,
+       render: (_, row) => (
+         <span className="text-neutral-600">{row?.SubDepartment?.Name || '—'}</span>
+       ),
+     },
+     {
+       key: 'ChartofAccountsID',
+       header: 'Chart of Accounts',
+       sortable: true,
+       render: (_, row) => (
+         <span className="text-neutral-700">{row?.ChartofAccounts?.Name || '—'}</span>
+       ),
+     },
+     {
+       key: 'FundsID',
+       header: 'Fund',
+       sortable: true,
+       render: (_, row) => (
+         <span className="text-neutral-700">{row?.Funds?.Name || '—'}</span>
+       ),
+     },
+     {
+       key: 'ProjectID',
+       header: 'Project',
+       sortable: true,
+       render: (_, row) => (
+         <span className="text-neutral-600">{row?.Project?.Title || '—'}</span>
+       ),
+     },
+     {
+       key: 'Appropriation',
+       header: 'Appropriation',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right font-semibold text-green-700">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'AppropriationBalance',
+       header: 'Appropriation Balance',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => {
+         const numValue = Number(value) || 0;
+         return (
+           <span className={`text-right font-medium ${numValue >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+             {formatCurrency(value)}
+           </span>
+         );
+       },
+     },
+     {
+       key: 'TotalAmount',
+       header: 'Total Amount',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right font-semibold text-blue-700">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'ChargedAllotment',
+       header: 'Allotment',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right font-medium text-orange-700">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'AllotmentBalance',
+       header: 'Allotment Balance',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => {
+         const numValue = Number(value) || 0;
+         return (
+           <span className={`text-right font-medium ${numValue >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+             {formatCurrency(value)}
+           </span>
+         );
+       },
+     },
+     {
+       key: 'Change',
+       header: 'Change',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'Supplemental',
+       header: 'Supplemental',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'Released',
+       header: 'Released',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'Charges',
+       header: 'Charges',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right font-medium text-orange-700">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'PreEncumbrance',
+       header: 'Pre Encumbr.',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'Encumbrance',
+       header: 'Encumbrance',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'January',
+       header: 'Jan',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'February',
+       header: 'Feb',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'March',
+       header: 'Mar',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'April',
+       header: 'Apr',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'May',
+       header: 'May',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'June',
+       header: 'Jun',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'July',
+       header: 'Jul',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'August',
+       header: 'Aug',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'September',
+       header: 'Sep',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'October',
+       header: 'Oct',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'November',
+       header: 'Nov',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+     {
+       key: 'December',
+       header: 'Dec',
+       sortable: true,
+       className: 'text-right',
+       render: (value) => (
+         <span className="text-right text-neutral-600">{formatCurrency(value)}</span>
+       ),
+     },
+   ];
+  */
   const handleRowClick = (row) => {
     setSelectedBudget(row);
     setIsModalOpen(true);
