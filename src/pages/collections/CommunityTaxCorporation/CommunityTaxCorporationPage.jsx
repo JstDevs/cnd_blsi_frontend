@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import axiosInstance from '@/utils/axiosInstance';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   PlusIcon,
@@ -227,8 +228,15 @@ function CommunityTaxCorporationPage() {
       //   `/disbursementVoucher/${action}`,
       //   { ID: dv.ID }
       // );
-      console.log(`${action}d:`, response.data);
-      // dispatch(fetchGeneralServiceReceipts());
+      const { data } = await axiosInstance.post(
+        `/communityTaxCorporation/${action}`,
+        { ID: dv.ID }
+      );
+      console.log(`${action}d:`, data);
+      // If/when you enable the API call above, replace the log with
+      // `console.log(`${action}d:`, response.data);` and uncomment the request.
+      // Refresh list after action
+      dispatch(fetchCorporateCommunityTaxes());
       toast.success(`Community Tax Corporation ${action}d successfully`);
     } catch (error) {
       console.error(`Error ${action}ing Community Tax Corporation:`, error);

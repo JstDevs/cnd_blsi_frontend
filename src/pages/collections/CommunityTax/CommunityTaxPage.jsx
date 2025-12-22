@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import axiosInstance from '@/utils/axiosInstance';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   PlusIcon,
@@ -41,6 +42,7 @@ function CommunityTaxPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showListModal, setShowListModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState({});
+  const [isLoadingCTCActions, setIsLoadingCTCActions] = useState(false);
   const printRef = useRef();
   useEffect(() => {
     dispatch(fetchCommunityTaxes());
@@ -208,21 +210,20 @@ function CommunityTaxPage() {
   //   },
   // ];
   const handleCTIAction = async (dv, action) => {
-    // setIsLoadingCTCActions(true);
+    setIsLoadingCTCActions(true);
     try {
-      // TODO : add action
-      // const response = await axiosInstance.post(
-      //   `/disbursementVoucher/${action}`,
-      //   { ID: dv.ID }
-      // );
-      console.log(`${action}d:`, response.data);
-      // dispatch(fetchGeneralServiceReceipts());
+      const { data } = await axiosInstance.post(
+        `/communityTaxIndividual/${action}`,
+        { ID: dv.ID }
+      );
+      console.log(`${action}d:`, data);
+      dispatch(fetchCommunityTaxes());
       toast.success(`Community Tax Individual ${action}d successfully`);
     } catch (error) {
       console.error(`Error ${action}ing Community Tax Individual:`, error);
       toast.error(`Error ${action}ing Community Tax Individual`);
     } finally {
-      // setIsLoadingCTCActions(false);
+      setIsLoadingCTCActions(false);
     }
   };
   const actions = (row) => {
@@ -560,3 +561,4 @@ function CommunityTaxPage() {
 }
 
 export default CommunityTaxPage;
+
