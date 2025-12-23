@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Modal from '@/components/common/Modal';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 import BudgetFundForm from '@/components/forms/BudgetFundForm';
 import DataTable from '@/components/common/DataTable';
 import {
@@ -88,14 +89,31 @@ const BudgetFundsPage = () => {
     },
   ];
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
   const handleEdit = (data) => {
     setActiveRow(data);
     setIsOpen(true);
   };
 
-  const handleDelete = async (row) => {
-    await dispatch(deleteBudgetFund(row.ID)).unwrap();
-    dispatch(fetchFunds());
+  const handleDelete = (row) => {
+    setItemToDelete(row);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      await dispatch(deleteBudgetFund(itemToDelete.ID)).unwrap();
+      dispatch(fetchFunds());
+      toast.success('Fund deleted successfully');
+    } catch (error) {
+      toast.error('Failed to delete fund');
+    } finally {
+      setIsDeleteModalOpen(false);
+      setItemToDelete(null);
+    }
   };
 
   const actions = [
@@ -254,6 +272,16 @@ const BudgetFundsPage = () => {
           }}
         />
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Fund"
+        message={`Are you sure you want to delete the fund "${itemToDelete?.Name}"? This action cannot be undone.`}
+        isDestructive={true}
+        confirmText="Delete"
+      />
     </div>
   );
 };

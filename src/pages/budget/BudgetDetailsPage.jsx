@@ -4,6 +4,7 @@ import { PlusIcon, PencilIcon, TrashIcon, FilterIcon, XIcon, DollarSign, Trendin
 import { toast } from 'react-hot-toast';
 
 import Modal from '@/components/common/Modal';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 import DataTable from '@/components/common/DataTable';
 import BudgetForm from '@/components/forms/BudgetForm';
 
@@ -59,12 +60,9 @@ const BudgetDetailsPage = () => {
   const [data, setData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    department: '',
-    subDepartment: '',
-    chartOfAccounts: '',
-  });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
   // ---------------------USE MODULE PERMISSIONS------------------START (BudgetDetailsPage - MODULE ID =  22 )
   const { Add, Edit, Delete } = useModulePermissions(22);
   useEffect(() => {
@@ -152,9 +150,15 @@ const BudgetDetailsPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = (row) => {
+    setItemToDelete(row);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      const res = await fetch(`${API_URL}/budget/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/budget/${itemToDelete.ID}`, { method: 'DELETE' });
       const json = await res.json();
       if (json) {
         fetchBudgetDetails();
@@ -162,12 +166,15 @@ const BudgetDetailsPage = () => {
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
   const columns = [
-    { 
-      key: 'Name', 
+    {
+      key: 'Name',
       header: 'Budget Name',
       className: 'text-neutral-900 font-medium',
       render: (value) => (
@@ -248,8 +255,8 @@ const BudgetDetailsPage = () => {
         );
       },
     },
-    { 
-      key: 'Appropriation', 
+    {
+      key: 'Appropriation',
       header: 'Appropriation',
       className: 'text-right font-semibold',
       render: (value) => (
@@ -272,8 +279,8 @@ const BudgetDetailsPage = () => {
         );
       },
     },
-    { 
-      key: 'TotalAmount', 
+    {
+      key: 'TotalAmount',
       header: 'Total Amount',
       className: 'text-right font-semibold',
       render: (value) => (
@@ -296,8 +303,8 @@ const BudgetDetailsPage = () => {
         );
       },
     },
-    { 
-      key: 'ChargedAllotment', 
+    {
+      key: 'ChargedAllotment',
       header: 'Charges',
       className: 'text-right',
       render: (value) => (
@@ -316,8 +323,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'Encumbrance', 
+    {
+      key: 'Encumbrance',
       header: 'Encumbrance',
       className: 'text-right',
       render: (value) => (
@@ -326,8 +333,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'January', 
+    {
+      key: 'January',
       header: 'Jan',
       className: 'text-right',
       render: (value) => (
@@ -336,8 +343,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'February', 
+    {
+      key: 'February',
       header: 'Feb',
       className: 'text-right',
       render: (value) => (
@@ -346,8 +353,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'March', 
+    {
+      key: 'March',
       header: 'Mar',
       className: 'text-right',
       render: (value) => (
@@ -356,8 +363,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'April', 
+    {
+      key: 'April',
       header: 'Apr',
       className: 'text-right',
       render: (value) => (
@@ -366,8 +373,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'May', 
+    {
+      key: 'May',
       header: 'May',
       className: 'text-right',
       render: (value) => (
@@ -376,8 +383,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'June', 
+    {
+      key: 'June',
       header: 'Jun',
       className: 'text-right',
       render: (value) => (
@@ -386,8 +393,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'July', 
+    {
+      key: 'July',
       header: 'Jul',
       className: 'text-right',
       render: (value) => (
@@ -396,8 +403,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'August', 
+    {
+      key: 'August',
       header: 'Aug',
       className: 'text-right',
       render: (value) => (
@@ -406,8 +413,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'September', 
+    {
+      key: 'September',
       header: 'Sep',
       className: 'text-right',
       render: (value) => (
@@ -416,8 +423,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'October', 
+    {
+      key: 'October',
       header: 'Oct',
       className: 'text-right',
       render: (value) => (
@@ -426,8 +433,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'November', 
+    {
+      key: 'November',
       header: 'Nov',
       className: 'text-right',
       render: (value) => (
@@ -436,8 +443,8 @@ const BudgetDetailsPage = () => {
         </span>
       ),
     },
-    { 
-      key: 'December', 
+    {
+      key: 'December',
       header: 'Dec',
       className: 'text-right',
       render: (value) => (
@@ -456,12 +463,12 @@ const BudgetDetailsPage = () => {
       title: Edit ? 'Edit Budget' : 'Edit (No Permission)',
       onClick: Edit
         ? (row) => {
-            setActiveRow(row);
-            setIsModalOpen(true);
-          }
+          setActiveRow(row);
+          setIsModalOpen(true);
+        }
         : () => {
-            toast.error('You do not have permission to edit');
-          },
+          toast.error('You do not have permission to edit');
+        },
       className: Edit
         ? 'text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-all duration-200 shadow-sm hover:shadow'
         : 'text-neutral-400 cursor-not-allowed p-2 rounded-lg opacity-50',
@@ -472,13 +479,13 @@ const BudgetDetailsPage = () => {
       title: Delete ? 'Delete Budget' : 'Delete (No Permission)',
       onClick: Delete
         ? (row) => {
-            if (window.confirm('Are you sure you want to delete this budget?')) {
-              handleDelete(row?.ID);
-            }
+          if (window.confirm('Are you sure you want to delete this budget?')) {
+            handleDelete(row?.ID);
           }
+        }
         : () => {
-            toast.error('You do not have permission to delete');
-          },
+          toast.error('You do not have permission to delete');
+        },
       className: Delete
         ? 'text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow'
         : 'text-neutral-400 cursor-not-allowed p-2 rounded-lg opacity-50',
@@ -502,7 +509,7 @@ const BudgetDetailsPage = () => {
     const totalAppropriation = filteredData.reduce((sum, item) => sum + (Number(item.Appropriation) || 0), 0);
     const totalCharges = filteredData.reduce((sum, item) => sum + (Number(item.ChargedAllotment) || 0), 0);
     const totalBalance = filteredData.reduce((sum, item) => sum + (Number(item.AppropriationBalance) || 0), 0);
-    
+
     return {
       total,
       totalAppropriation,
@@ -534,11 +541,10 @@ const BudgetDetailsPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`btn btn-outline flex items-center gap-2 transition-all ${
-                showFilters || hasActiveFilters
-                  ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
-                  : 'hover:bg-neutral-50'
-              }`}
+              className={`btn btn-outline flex items-center gap-2 transition-all ${showFilters || hasActiveFilters
+                ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
+                : 'hover:bg-neutral-50'
+                }`}
             >
               <FilterIcon className="h-4 w-4" />
               Filters
@@ -758,6 +764,16 @@ const BudgetDetailsPage = () => {
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Budget"
+        message={`Are you sure you want to delete the budget "${itemToDelete?.Name}"? This action cannot be undone.`}
+        isDestructive={true}
+        confirmText="Delete"
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CheckLine, PencilIcon, PrinterIcon, TrashIcon, X } from 'lucide-react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import Modal from '@/components/common/Modal';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 import BudgetSupplementalForm from '@/components/forms/BudgetSupplementalForm';
 import { toast } from 'react-hot-toast';
 import DataTable from '@/components/common/DataTable';
@@ -71,21 +72,37 @@ const BudgetSupplementalPage = () => {
     chartOfAccounts: '',
   });
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
   const handleEdit = (row) => {
     setActiveRow(row);
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (row) => {
-    // NOTHING IN OLD SOFTWARE
-    // toast.success(`Deleted ${row.Name}`);
+  const handleDelete = (row) => {
+    setItemToDelete(row);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      // Make API call using your axiosInstance
-      // await axiosInstance.delete(`/budgetSupplemental/${row.ID}`);
-      // toast.success('Budget Supplemental dDeleted Successfully');
-      // fetchBudgetSupplementals();
+      const response = await axiosInstance.post(
+        `/budgetSupplemental/delete`,
+        { ID: itemToDelete.ID }
+      );
+      if (response.data) {
+        toast.success(response.data.message || 'Budget Supplemental Deleted Successfully');
+        fetchBudgetSupplementals();
+      } else {
+        toast.error('Failed to delete Budget Supplemental');
+      }
     } catch (error) {
-      // toast.error(error.message || 'Failed to delete Budget Supplemental');
+      toast.error(error.message || 'Failed to delete Budget Supplemental');
+    } finally {
+      setIsDeleteModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -131,13 +148,12 @@ const BudgetSupplementalPage = () => {
       header: 'Status',
       render: (value) => (
         <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            value === 'Requested'
-              ? 'bg-warning-100 text-warning-800'
-              : value === 'Approved'
+          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${value === 'Requested'
+            ? 'bg-warning-100 text-warning-800'
+            : value === 'Approved'
               ? 'bg-success-100 text-success-800'
               : 'bg-error-100 text-error-800'
-          }`}
+            }`}
         >
           {value}
         </span>
@@ -229,7 +245,7 @@ const BudgetSupplementalPage = () => {
       actionList.push({
         icon: TrashIcon,
         title: 'Delete',
-        onClick: handleDelete,
+        onClick: () => handleDelete(row),
         className:
           'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
       });
@@ -288,7 +304,7 @@ const BudgetSupplementalPage = () => {
           {Print && (
             <button
               // TODO : Add print functionality
-              onClick={() => {}}
+              onClick={() => { }}
               className="btn btn-outline flex items-center"
             >
               <PrinterIcon className="h-5 w-5 mr-2" />
@@ -390,6 +406,16 @@ const BudgetSupplementalPage = () => {
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Supplemental"
+        message={`Are you sure you want to delete this supplemental budget? This action cannot be undone.`}
+        isDestructive={true}
+        confirmText="Delete"
+      />
     </div>
   );
 };

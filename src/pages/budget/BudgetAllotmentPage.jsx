@@ -29,6 +29,7 @@ import axiosInstance from '@/utils/axiosInstance';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { useReactToPrint } from 'react-to-print';
 import { formatCurrency } from '@/utils/currencyFormater';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -302,10 +303,36 @@ const BudgetAllotmentPage = () => {
     return actionList;
   };
 
-  const handleDelete = async (row) => {
-    console.log('Delete row', row);
-    // await dispatch(deleteBudgetAllotment(row.ID)).unwrap();
-    // dispatch(fetchBudgetAllotments());
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const handleDelete = (row) => {
+    setItemToDelete(row);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      const response = await axiosInstance.post(
+        `/budgetAllotment/delete`,
+        { ID: itemToDelete.ID }
+      );
+
+      if (response.data) {
+        toast.success(response.data.message || 'Budget Allotment Deleted Successfully');
+        fetchBudgetAllotments();
+      } else {
+        toast.error('Failed to delete Budget Allotment');
+      }
+    } catch (error) {
+      console.error('Error deleting Budget Allotment:', error);
+      toast.error(error.message || 'Failed to delete Budget Allotment');
+    } finally {
+      setIsDeleteModalOpen(false);
+      setItemToDelete(null);
+    }
   };
 
   const filteredData = data?.filter((item) => {
@@ -606,10 +633,19 @@ const BudgetAllotmentPage = () => {
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
-      {/* Hidden print area */}
       <div style={{ display: 'none' }}>
         <BudgetAllotmentPrint ref={printRef} row={activeRow} />
       </div>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Allotment"
+        message={`Are you sure you want to delete this allotment? This action cannot be undone.`}
+        isDestructive={true}
+        confirmText="Delete"
+      />
     </div>
   );
 };
