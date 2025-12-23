@@ -62,6 +62,12 @@ const BudgetDetailsPage = () => {
   const [activeRow, setActiveRow] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    department: '',
+    subDepartment: '',
+    chartOfAccounts: '',
+  });
 
   // ---------------------USE MODULE PERMISSIONS------------------START (BudgetDetailsPage - MODULE ID =  22 )
   const { Add, Edit, Delete } = useModulePermissions(22);
@@ -478,11 +484,7 @@ const BudgetDetailsPage = () => {
       icon: TrashIcon,
       title: Delete ? 'Delete Budget' : 'Delete (No Permission)',
       onClick: Delete
-        ? (row) => {
-          if (window.confirm('Are you sure you want to delete this budget?')) {
-            handleDelete(row?.ID);
-          }
-        }
+        ? (row) => handleDelete(row)
         : () => {
           toast.error('You do not have permission to delete');
         },
