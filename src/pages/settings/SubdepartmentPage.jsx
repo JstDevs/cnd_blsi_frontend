@@ -103,7 +103,7 @@ function SubdepartmentPage() {
       if (subdepartmentToDelete) {
         // Check if subdepartment is used in budget before deletion
         const API_URL = import.meta.env.VITE_API_URL;
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         
         const budgetResponse = await fetch(`${API_URL}/budget`, {
           method: 'GET',
@@ -402,3 +402,4 @@ function SubdepartmentPage() {
 }
 
 export default SubdepartmentPage;
+

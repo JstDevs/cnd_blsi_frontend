@@ -106,7 +106,7 @@ function BudgetReportPage() {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
         }
       );
@@ -133,7 +133,7 @@ function BudgetReportPage() {
           responseType: 'blob',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
         }
       );
@@ -260,3 +260,4 @@ function BudgetReportPage() {
 }
 
 export default BudgetReportPage;
+

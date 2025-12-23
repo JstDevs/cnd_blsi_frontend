@@ -20,7 +20,7 @@ export const createBudgetFund = createAsyncThunk(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
       },
       body: JSON.stringify({ IsNew: true, ...values }),
     });
@@ -40,7 +40,7 @@ export const updateBudgetFund = createAsyncThunk(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
       },
       body: JSON.stringify({ IsNew: false, ...values }),
     });
@@ -60,7 +60,7 @@ export const deleteBudgetFund = createAsyncThunk(
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
       },
     });
     const res = await response.json();
@@ -142,3 +142,4 @@ const budgetFundsSlice = createSlice({
 });
 
 export default budgetFundsSlice.reducer;
+

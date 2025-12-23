@@ -90,7 +90,7 @@ function TrialBalancePage() {
   // Handle export to Excel
   const handleExport = async (values) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(
         `${API_URL}/trialBalanceReport/exportExcel`,
         {
@@ -175,3 +175,4 @@ function TrialBalancePage() {
 }
 
 export default TrialBalancePage;
+

@@ -14,7 +14,7 @@ export const fetchObligationRequests = createAsyncThunk(
   'obligationRequests/fetchObligationRequests',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/obligationRequest`, {
         method: 'GET',
@@ -67,7 +67,7 @@ export const createObligationRequest = createAsyncThunk(
       const response = await fetch(`${API_URL}/obligationRequest`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: obligationRequest,
       });

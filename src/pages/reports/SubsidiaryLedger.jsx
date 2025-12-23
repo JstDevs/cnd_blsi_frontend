@@ -96,7 +96,7 @@ function SubsidiaryLedger() {
   // Handle export to Excel
   const handleExport = async (values) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/subsidiaryLeadger/exportExcel`, {
         method: 'POST',
         headers: {
@@ -176,3 +176,4 @@ function SubsidiaryLedger() {
 }
 
 export default SubsidiaryLedger;
+

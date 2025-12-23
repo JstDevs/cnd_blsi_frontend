@@ -33,7 +33,7 @@ export const fetchInvoiceChargeAccounts = createAsyncThunk(
   'chartOfAccounts/fetchInvoiceChargeAccounts',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/serviceInvoiceAccounts`, {
         method: 'GET',
@@ -79,7 +79,7 @@ export const updateInvoiceChargeAccount = createAsyncThunk(
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(invoiceChargeAccount),
       });

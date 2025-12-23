@@ -139,8 +139,8 @@ function App() {
   // const [isAuthLayout, setIsAuthLayout] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in via token in localStorage
-    const token = localStorage.getItem('token');
+    // Check if user is already logged in via token in sessionStorage
+    const token = sessionStorage.getItem('token');
     if (token) {
       dispatch(fetchUserProfile(token));
     }

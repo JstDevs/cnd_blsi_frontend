@@ -29,7 +29,7 @@ export const fetchBudgetData = createAsyncThunk(
   'budgetDashboard/fetchBudgetData',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/subFunds`, {
         method: 'GET',

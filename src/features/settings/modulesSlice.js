@@ -7,7 +7,7 @@ export const fetchModules = createAsyncThunk(
   'modules/fetchModules',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/module`, {
         method: 'GET',
@@ -39,7 +39,7 @@ export const addModule = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(module),
       });
@@ -65,7 +65,7 @@ export const updateModule = createAsyncThunk(
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(module),
       });
@@ -91,7 +91,7 @@ export const deleteModule = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 

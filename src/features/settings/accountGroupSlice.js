@@ -16,7 +16,7 @@ export const fetchAccountGroups = createAsyncThunk(
   'accountGroups/fetchAccountGroups',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/accountType`, {
         method: 'GET',
@@ -47,7 +47,7 @@ export const addAccountGroup = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(accountGroup),
       });
@@ -74,7 +74,7 @@ export const updateAccountGroup = createAsyncThunk(
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(accountGroup),
       });
@@ -100,7 +100,7 @@ export const deleteAccountGroup = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 

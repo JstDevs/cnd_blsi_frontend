@@ -8,7 +8,7 @@ export const fetchBurialRecords = createAsyncThunk(
   'burialRecords/fetchBurialRecords',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/burialrecord`, {
         method: 'GET',
@@ -35,7 +35,7 @@ export const fetchBurialRecordById = createAsyncThunk(
   'burialRecords/fetchBurialRecordById',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/burialrecord/${id}`, {
         method: 'GET',
@@ -62,7 +62,7 @@ export const addBurialRecord = createAsyncThunk(
   'burialRecords/addBurialRecord',
   async (burialrecord, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/burialrecord`, {
         method: 'POST',
         headers: {
@@ -88,7 +88,7 @@ export const updateBurialRecord = createAsyncThunk(
   'burialRecords/updateBurialRecord',
   async (burialrecord, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(
         `${API_URL}/burialrecord/${burialrecord.ID}`,
         {
@@ -118,7 +118,7 @@ export const deleteBurialRecord = createAsyncThunk(
   'burialRecords/deleteBurialRecord',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/burialrecord/${id}`, {
         method: 'DELETE',
         headers: {
@@ -252,3 +252,4 @@ const burialRecordsSlice = createSlice({
 
 export const { clearCurrentRecord } = burialRecordsSlice.actions;
 export const burialRecordsReducer = burialRecordsSlice.reducer;
+

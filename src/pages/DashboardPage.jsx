@@ -157,7 +157,7 @@ function DashboardPage() {
 
   useEffect(() => {
     const fetchAll = async () => {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setAuthError('Please sign in to load dashboard data.');
         setLoading(false);

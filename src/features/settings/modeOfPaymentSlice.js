@@ -7,7 +7,7 @@ export const fetchModeOfPayments = createAsyncThunk(
   'modeOfPayments/fetchModeOfPayments',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/paymentMethod`, {
         method: 'GET',
@@ -39,7 +39,7 @@ export const addModeOfPayment = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(modeOfPayment),
       });
@@ -65,7 +65,7 @@ export const updateModeOfPayment = createAsyncThunk(
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(modeOfPayment),
       });
@@ -91,7 +91,7 @@ export const deleteModeOfPayment = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 

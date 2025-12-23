@@ -68,7 +68,7 @@ function FinancialStatementsPage() {
   // Handle export to Excel
   const handleExport = async (values) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(
         `${API_URL}/financialStatementsReports/exportExcel`,
         {
@@ -148,3 +148,4 @@ function FinancialStatementsPage() {
 }
 
 export default FinancialStatementsPage;
+

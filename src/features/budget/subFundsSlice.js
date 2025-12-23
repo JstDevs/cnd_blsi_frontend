@@ -7,7 +7,7 @@ export const fetchSubFunds = createAsyncThunk(
   'subFunds/fetchSubFunds',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/subFunds`, {
         method: 'GET',
@@ -38,7 +38,7 @@ export const addSubFund = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(subFund),
       });
@@ -64,7 +64,7 @@ export const updateSubFund = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(subFund),
       });
@@ -90,7 +90,7 @@ export const deleteSubFund = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 
@@ -187,3 +187,4 @@ const subFundsSlice = createSlice({
 });
 
 export const subFundsReducer = subFundsSlice.reducer;
+

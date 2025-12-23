@@ -7,7 +7,7 @@ export const fetchJournalEntries = createAsyncThunk(
   'journalEntries/fetchJournalEntries',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/journalEntryVoucher`, {
         method: 'GET',
@@ -37,7 +37,7 @@ export const addJournalEntry = createAsyncThunk(
       const response = await fetch(`${API_URL}/journalentryvoucher`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: journalEntry,
       });
@@ -62,7 +62,7 @@ export const updateJournalEntry = createAsyncThunk(
       const response = await fetch(`${API_URL}/journalEntryVoucher/${id}`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(journalEntry),
       });
@@ -90,7 +90,7 @@ export const deleteJournalEntry = createAsyncThunk(
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
         }
       );
@@ -192,3 +192,4 @@ const journalEntriesSlice = createSlice({
 });
 
 export const journalEntriesReducer = journalEntriesSlice.reducer;
+

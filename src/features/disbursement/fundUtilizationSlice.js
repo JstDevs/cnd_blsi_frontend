@@ -58,7 +58,7 @@ export const fetchFundUtilizations = createAsyncThunk(
   'fundUtilizations/fetchFundUtilizations',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/fundUtilizationRequest`, {
         method: 'GET',
@@ -112,7 +112,7 @@ export const createFundUtilization = createAsyncThunk(
       const response = await fetch(`${API_URL}/fundUtilizationRequest/save`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: fundUtilization,
       });
@@ -215,3 +215,4 @@ const fundUtilizationSlice = createSlice({
 
 export const { resetFundUtilizationState } = fundUtilizationSlice.actions;
 export default fundUtilizationSlice.reducer;
+

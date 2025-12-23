@@ -114,7 +114,7 @@ function StatementComparison() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
           body: JSON.stringify({ fiscalYearID: values.fiscalYearID }),
         }
@@ -201,3 +201,4 @@ function StatementComparison() {
 }
 
 export default StatementComparison;
+

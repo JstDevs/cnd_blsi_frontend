@@ -82,7 +82,7 @@ const BudgetDetails = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           FiscalYearID: values?.fiscalYear,
@@ -129,7 +129,7 @@ const BudgetDetails = () => {
       const response = await fetch(`${API_URL}/budget/${values?.id}`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -604,3 +604,4 @@ const BudgetDetails = () => {
 };
 
 export default BudgetDetails;
+

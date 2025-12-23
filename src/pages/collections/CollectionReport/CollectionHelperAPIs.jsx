@@ -2,7 +2,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const fetchCollectionReport = async (type, params) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     let url = `${API_URL}/collectionreport/${type}?`;
     const queryParams = new URLSearchParams();
 
@@ -60,7 +60,7 @@ export const fetchCollectionReport = async (type, params) => {
 // --------------------------EXCEL--------------------
 export const exportCollectionReportToExcel = async (type, params) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     let endpoint = '';
     const queryParams = new URLSearchParams();
 
@@ -162,3 +162,4 @@ export const exportCollectionReportToExcel = async (type, params) => {
     throw error;
   }
 };
+

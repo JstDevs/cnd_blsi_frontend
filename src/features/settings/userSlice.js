@@ -73,7 +73,7 @@ export const fetchUsers = createAsyncThunk(
   'users/fetchUsers',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       
       console.log('🔵 Starting fetchUsers...');
       console.log('🔵 API_URL:', API_URL);
@@ -200,7 +200,7 @@ export const addUser = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(user),
       });
@@ -241,7 +241,7 @@ export const updateUser = createAsyncThunk(
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(user),
       });
@@ -267,7 +267,7 @@ export const deleteUser = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 
@@ -369,3 +369,4 @@ const userSlice = createSlice({
 export const { setUser, resetUserState } = userSlice.actions;
 
 export default userSlice.reducer;
+

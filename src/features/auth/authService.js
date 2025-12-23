@@ -7,16 +7,16 @@ const login = async (userName, password) => {
     if (!API_URL || API_URL.trim() === '') {
       throw new Error('API URL is not configured. Please set VITE_API_URL in your .env file or ensure backend is accessible.');
     }
-    
+
     // Construct full URL - backend routes don't have /api prefix, so just append the route
     // Remove trailing slash if present, then add route
     const baseUrl = API_URL.replace(/\/$/, '');
     const fullUrl = `${baseUrl}/auth/login`;
-    
+
     const requestBody = { userName, password };
     console.log('Login API URL:', fullUrl); // Debug log - remove in production
     console.log('Request body:', requestBody); // Debug log
-    
+
     const response = await fetch(fullUrl, {
       method: 'POST',
       headers: {
@@ -58,10 +58,10 @@ const login = async (userName, password) => {
         res.user.accessList.length >= 2
           ? res.user.accessList[1]
           : res.user.accessList[0];
-      localStorage.setItem('selectedRole', JSON.stringify(defaultRole));
+      sessionStorage.setItem('selectedRole', JSON.stringify(defaultRole));
     }
-    localStorage.setItem('token', res.token);
-    localStorage.setItem('user', JSON.stringify(res.user));
+    sessionStorage.setItem('token', res.token);
+    sessionStorage.setItem('user', JSON.stringify(res.user));
     return res.user;
   } catch (error) {
     throw new Error(error.message);
@@ -69,9 +69,9 @@ const login = async (userName, password) => {
 };
 
 const logout = async () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  localStorage.removeItem('selectedRole');
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('user');
+  sessionStorage.removeItem('selectedRole');
   return null;
 };
 
@@ -80,7 +80,7 @@ const fetchUserProfile = async (token) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (token) {
-        const storedUser = localStorage.getItem('user');
+        const storedUser = sessionStorage.getItem('user');
         if (storedUser) {
           resolve(JSON.parse(storedUser));
         } else {

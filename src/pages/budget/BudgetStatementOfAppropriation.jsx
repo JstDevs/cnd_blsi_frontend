@@ -122,7 +122,7 @@ const BudgetStatementOfAppropriation = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
           body: JSON.stringify(getPayload()),
         }
@@ -368,3 +368,4 @@ const SAOPrint = React.forwardRef(({ data }, ref) => (
     </table>
   </div>
 ));
+

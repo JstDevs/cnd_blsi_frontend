@@ -91,7 +91,7 @@ function GeneralJournalPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           startDate: values.startDate,
@@ -166,3 +166,4 @@ function GeneralJournalPage() {
 }
 
 export default GeneralJournalPage;
+

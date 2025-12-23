@@ -10,7 +10,7 @@ export const fetchGeneralServiceReceipts = createAsyncThunk(
   'generalServiceReceipts/fetchGeneralServiceReceipts',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.get(`${API_URL}/generalservicerecipt`, {
         headers: {
           'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export const fetchGeneralServiceReceiptById = createAsyncThunk(
   'generalServiceReceipts/fetchGeneralServiceReceiptById',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.get(
         `${API_URL}/api/general-service-receipts/${id}`,
         {
@@ -53,7 +53,7 @@ export const createGeneralServiceReceipt = createAsyncThunk(
   'generalServiceReceipts/createGeneralServiceReceipt',
   async (receiptData, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.post(
         `${API_URL}/generalservicerecipt`,
         receiptData, // This should be the FormData object
@@ -76,7 +76,7 @@ export const updateGeneralServiceReceipt = createAsyncThunk(
   'generalServiceReceipts/updateGeneralServiceReceipt',
   async ({ id, ...receiptData }, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.put(
         `${API_URL}/generalservicerecipt/${id}`,
         receiptData,
@@ -100,7 +100,7 @@ export const deleteGeneralServiceReceipt = createAsyncThunk(
   'generalServiceReceipts/deleteGeneralServiceReceipt',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.delete(`${API_URL}/generalservicerecipt/${id}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ export const getGeneralServiceReceiptCurrentNumber = createAsyncThunk(
   'generalServiceReceipts/getGeneralServiceReceiptCurrentNumber',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.get(
         `${API_URL}/generalservicerecipt/getCurrentNumber`,
         {
@@ -295,3 +295,4 @@ const generalServiceReceiptsSlice = createSlice({
 export const { clearError, clearCurrentReceipt } =
   generalServiceReceiptsSlice.actions;
 export default generalServiceReceiptsSlice.reducer;
+

@@ -16,7 +16,7 @@ export const fetchRequestOptions = createAsyncThunk(
   'disbursementVouchers/fetchRequestOptions',
   async ({ requestType, payeeType, payeeId }, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const url =
         `${API_URL}/disbursementVoucher/selectListForDV` +
@@ -48,7 +48,7 @@ export const fetchDisbursementVouchers = createAsyncThunk(
   'disbursementVouchers/fetchDisbursementVouchers',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/disbursementVoucher`, {
         method: 'GET',
@@ -102,7 +102,7 @@ export const createDisbursementVoucher = createAsyncThunk(
       const response = await fetch(`${API_URL}/disbursementVoucher/save`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: disbursementVoucher,
       });
@@ -218,3 +218,4 @@ const disbursementVoucherSlice = createSlice({
 export const { resetDisbursementVoucherState } =
   disbursementVoucherSlice.actions;
 export default disbursementVoucherSlice.reducer;
+

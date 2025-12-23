@@ -18,7 +18,7 @@ export const fetchSubMajorAccountGroups = createAsyncThunk(
   'subMajorAccountGroups/fetchSubMajorAccountGroups',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/accountCategory`, {
         method: 'GET',
@@ -50,7 +50,7 @@ export const addSubMajorAccountGroup = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(subMajorAccountGroup),
       });
@@ -76,7 +76,7 @@ export const updateSubMajorAccountGroup = createAsyncThunk(
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(subMajorAccountGroup),
       });
@@ -102,7 +102,7 @@ export const deleteSubMajorAccountGroup = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 

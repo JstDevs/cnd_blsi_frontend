@@ -8,7 +8,7 @@ export const fetchPublicMarketTickets = createAsyncThunk(
   'publicMarketTicketing/fetchPublicMarketTickets',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/public-market-ticketing`, {
         method: 'GET',
         headers: {
@@ -34,7 +34,7 @@ export const fetchPublicMarketTicketById = createAsyncThunk(
   'publicMarketTicketing/fetchPublicMarketTicketById',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/public-market-ticketing/${id}`, {
         method: 'GET',
         headers: {
@@ -60,7 +60,7 @@ export const addPublicMarketTicket = createAsyncThunk(
   'publicMarketTicketing/addPublicMarketTicket',
   async (ticketData, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/public-market-ticketing/save`, {
         method: 'POST',
         headers: {
@@ -87,7 +87,7 @@ export const updatePublicMarketTicket = createAsyncThunk(
   'publicMarketTicketing/public-market-ticketing',
   async (ticketData, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(
         `${API_URL}/publicMarketTicketing/${ticketData.ID}`,
         {
@@ -117,7 +117,7 @@ export const deletePublicMarketTicket = createAsyncThunk(
   'publicMarketTicketing/deletePublicMarketTicket',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/public-market-ticketing/${id}`, {
         method: 'DELETE',
         headers: {
@@ -250,3 +250,4 @@ const publicMarketTicketingSlice = createSlice({
 
 export const { clearCurrentTicket } = publicMarketTicketingSlice.actions;
 export const publicMarketTicketingReducer = publicMarketTicketingSlice.reducer;
+

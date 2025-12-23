@@ -50,7 +50,7 @@ export const fetchDepartments = createAsyncThunk(
   'departments/fetchDepartments',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/department`, {
         method: 'GET',
@@ -97,7 +97,7 @@ export const addDepartment = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(department),
       });
@@ -122,7 +122,7 @@ export const addDepartment = createAsyncThunk(
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              Authorization: `Bearer ${sessionStorage.getItem('token')}`,
             },
             body: JSON.stringify(subdepartmentData),
           });
@@ -171,7 +171,7 @@ export const updateDepartment = createAsyncThunk(
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(department),
       });
@@ -213,7 +213,7 @@ export const deleteDepartment = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 

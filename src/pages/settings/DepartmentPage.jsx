@@ -81,7 +81,7 @@ function DepartmentPage() {
       if (!departmentToDelete) return;
 
       const API_URL = import.meta.env.VITE_API_URL;
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       // Budget check
       const budgetResponse = await fetch(`${API_URL}/budget`, {
@@ -429,3 +429,4 @@ function DepartmentPage() {
 }
 
 export default DepartmentPage;
+

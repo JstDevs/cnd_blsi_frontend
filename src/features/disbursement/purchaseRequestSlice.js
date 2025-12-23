@@ -15,7 +15,7 @@ export const fetchPurchaseRequests = createAsyncThunk(
   'purchaseRequests/fetchPurchaseRequests',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/purchaseRequest`, {
         method: 'GET',
@@ -47,7 +47,7 @@ export const addPurchaseRequest = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(purchaseRequest),
       });
@@ -73,7 +73,7 @@ export const updatePurchaseRequest = createAsyncThunk(
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(purchaseRequest),
       });
@@ -99,7 +99,7 @@ export const deletePurchaseRequest = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 

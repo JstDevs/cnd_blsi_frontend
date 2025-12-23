@@ -8,7 +8,7 @@ export const fetchCorporateCommunityTaxes = createAsyncThunk(
   'corporateCommunityTax/fetchCorporateCommunityTaxes',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/corporate-ctc/getall`, {
         method: 'GET',
@@ -37,7 +37,7 @@ export const fetchCorporateCommunityTaxById = createAsyncThunk(
   'corporateCommunityTax/fetchCorporateCommunityTaxById',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/corporate-ctc/${id}`, {
         method: 'GET',
@@ -66,7 +66,7 @@ export const addCorporateCommunityTax = createAsyncThunk(
   'corporateCommunityTax/addCorporateCommunityTax',
   async (corporateCommunityTax, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/corporate-ctc/save`, {
         method: 'POST',
         headers: {
@@ -95,7 +95,7 @@ export const updateCorporateCommunityTax = createAsyncThunk(
   'corporateCommunityTax/updateCorporateCommunityTax',
   async (corporateCommunityTax, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(
         `${API_URL}/corporate-ctc/${corporateCommunityTax.id}`,
         {
@@ -127,7 +127,7 @@ export const deleteCorporateCommunityTax = createAsyncThunk(
   'corporateCommunityTax/deleteCorporateCommunityTax',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/corporate-ctc/${id}`, {
         method: 'DELETE',
         headers: {
@@ -278,3 +278,4 @@ const corporateCommunityTaxSlice = createSlice({
 export const { clearCurrentCorporateCommunityTax } =
   corporateCommunityTaxSlice.actions;
 export const corporateCommunityTaxReducer = corporateCommunityTaxSlice.reducer;
+

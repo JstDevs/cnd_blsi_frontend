@@ -8,7 +8,7 @@ export const fetchMarriageRecords = createAsyncThunk(
   'marriageRecords/fetchMarriageRecords',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/marriagerecord`, {
         method: 'GET',
         headers: {
@@ -34,7 +34,7 @@ export const fetchMarriageRecordById = createAsyncThunk(
   'marriageRecords/fetchMarriageRecordById',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/marriagerecord/${id}`, {
         method: 'GET',
         headers: {
@@ -60,7 +60,7 @@ export const addMarriageRecord = createAsyncThunk(
   'marriageRecords/addMarriageRecord',
   async (marriagerecord, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/marriagerecord`, {
         method: 'POST',
         headers: {
@@ -87,7 +87,7 @@ export const updateMarriageRecord = createAsyncThunk(
   'marriageRecords/updateMarriageRecord',
   async (marriagerecord, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(
         `${API_URL}/marriagerecord/${marriagerecord.ID}`,
         {
@@ -117,7 +117,7 @@ export const deleteMarriageRecord = createAsyncThunk(
   'marriageRecords/deleteMarriageRecord',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/marriagerecord/${id}`, {
         method: 'DELETE',
         headers: {
@@ -253,3 +253,4 @@ const marriageRecordsSlice = createSlice({
 
 export const { clearCurrentRecord } = marriageRecordsSlice.actions;
 export const marriageRecordsReducer = marriageRecordsSlice.reducer;
+

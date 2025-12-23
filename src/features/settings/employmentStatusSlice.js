@@ -18,7 +18,7 @@ export const fetchEmploymentStatuses = createAsyncThunk(
   'employmentStatuses/fetchEmploymentStatuses',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/employmentStatus`, {
         method: 'GET',
@@ -54,7 +54,7 @@ export const addEmploymentStatus = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(employmentStatus),
       });
@@ -84,7 +84,7 @@ export const updateEmploymentStatus = createAsyncThunk(
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(employmentStatus),
       });
@@ -115,7 +115,7 @@ export const deleteEmploymentStatus = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 

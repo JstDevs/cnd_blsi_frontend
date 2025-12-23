@@ -61,8 +61,8 @@ export const updateSelectedRole = createAsyncThunk(
   'auth/updateSelectedRole',
   async (role, thunkAPI) => {
     try {
-      // Save to localStorage
-      localStorage.setItem('selectedRole', JSON.stringify(role));
+      // Save to sessionStorage
+      sessionStorage.setItem('selectedRole', JSON.stringify(role));
       return role;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
@@ -94,7 +94,7 @@ const authSlice = createSlice({
               ? action.payload.accessList[1]
               : action.payload.accessList[0];
           state.selectedRole = defaultRole;
-          localStorage.setItem('selectedRole', JSON.stringify(defaultRole));
+          sessionStorage.setItem('selectedRole', JSON.stringify(defaultRole));
         }
         // Reset session-based welcome flag on successful login
         sessionStorage.removeItem('welcome_seen');
@@ -116,8 +116,8 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload;
-        // Try to get selected role from localStorage or set default
-        const storedRole = localStorage.getItem('selectedRole');
+        // Try to get selected role from sessionStorage or set default
+        const storedRole = sessionStorage.getItem('selectedRole');
         if (storedRole) {
           state.selectedRole = JSON.parse(storedRole);
         } else if (action.payload.accessList?.length > 0) {

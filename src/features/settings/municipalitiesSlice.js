@@ -7,7 +7,7 @@ export const fetchMunicipalities = createAsyncThunk(
   'municipalities/fetchMunicipalities',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/municipality`, {
         method: 'GET',
@@ -38,7 +38,7 @@ export const addMunicipality = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(municipality),
       });
@@ -66,7 +66,7 @@ export const updateMunicipality = createAsyncThunk(
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
           body: JSON.stringify(municipality),
         }
@@ -93,7 +93,7 @@ export const deleteMunicipality = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 
@@ -192,3 +192,4 @@ const municipalitiesSlice = createSlice({
 });
 
 export const municipalitiesReducer = municipalitiesSlice.reducer;
+

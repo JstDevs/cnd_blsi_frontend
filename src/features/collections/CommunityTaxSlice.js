@@ -7,7 +7,7 @@ export const communityTaxGetCurrentNumber = createAsyncThunk(
   'communityTax/communityTaxGetCurrentNumber',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(
         `${API_URL}/community-tax/getCurrentNumber`,
@@ -36,7 +36,7 @@ export const fetchCommunityTaxes = createAsyncThunk(
   'communityTax/fetchCommunityTaxes',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/community-tax/getall`, {
         method: 'GET',
@@ -63,7 +63,7 @@ export const fetchCommunityTaxById = createAsyncThunk(
   'communityTax/fetchCommunityTaxById',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/community-tax/${id}`, {
         method: 'GET',
@@ -90,7 +90,7 @@ export const addCommunityTax = createAsyncThunk(
   'communityTax/addCommunityTax',
   async (communityTax, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/community-tax/save`, {
         method: 'POST',
         headers: {
@@ -117,7 +117,7 @@ export const updateCommunityTax = createAsyncThunk(
   'communityTax/updateCommunityTax',
   async (communityTax, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(
         `${API_URL}/community-tax/${communityTax.id}`,
         {
@@ -147,7 +147,7 @@ export const deleteCommunityTax = createAsyncThunk(
   'communityTax/deleteCommunityTax',
   async (id, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/community-tax/${id}`, {
         method: 'DELETE',
         headers: {
@@ -303,3 +303,4 @@ const communityTaxSlice = createSlice({
 
 export const { clearCurrentCommunityTax } = communityTaxSlice.actions;
 export const communityTaxReducer = communityTaxSlice.reducer;
+

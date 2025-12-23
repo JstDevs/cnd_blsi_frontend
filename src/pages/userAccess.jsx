@@ -48,7 +48,7 @@ export default function UserAccessPage() {
         `${API_URL}/moduleAccess/${selectedRole.ID}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
         }
       );
@@ -147,7 +147,7 @@ export default function UserAccessPage() {
         method: 'PUT', // or PUT, depending on your route setup
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           UserAccessID: selectedRole.ID,
@@ -301,3 +301,4 @@ export default function UserAccessPage() {
     </div>
   );
 }
+

@@ -15,7 +15,7 @@ export const fetchGeneralJournals = createAsyncThunk(
   'generalJournal/fetchGeneralJournals',
   async (filters, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/generalJournal/view`, {
         method: 'POST',

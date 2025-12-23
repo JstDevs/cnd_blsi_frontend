@@ -2,7 +2,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const fetchCashbook = async (params) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const url = `${API_URL}/cashbook/view`;
 
     const response = await fetch(url, {
@@ -31,7 +31,7 @@ export const fetchCashbook = async (params) => {
 
 export const exportCashbookToExcel = async (params) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const url = `${API_URL}/cashbook/exportExcel`;
 
     const response = await fetch(url, {
@@ -81,3 +81,4 @@ export const exportCashbookToExcel = async (params) => {
     throw error;
   }
 };
+

@@ -40,7 +40,7 @@ const LGUMaintenance = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const fetchLguData = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/lgu`, {
         headers: {
@@ -120,7 +120,7 @@ const LGUMaintenance = () => {
   };
   // const updateLguData = async (values) => {
   //   try {
-  //     const token = localStorage.getItem("token");
+  //     const token = sessionStorage.getItem("token");
 
   //     const response = await fetch(`${API_URL}/lgu/${values.ID}`, {
   //       method: "PUT", // or "PATCH"
@@ -146,7 +146,7 @@ const LGUMaintenance = () => {
   // };
   const updateLguData = async (values, file) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const formData = new FormData();
       
@@ -910,3 +910,4 @@ const LGUMaintenance = () => {
 };
 
 export default LGUMaintenance;
+

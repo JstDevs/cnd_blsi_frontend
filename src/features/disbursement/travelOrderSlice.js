@@ -7,7 +7,7 @@ export const fetchTravelOrders = createAsyncThunk(
   'travelOrders/fetchTravelOrders',
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/travelOrder`, {
         method: 'GET',
@@ -37,7 +37,7 @@ export const addTravelOrder = createAsyncThunk(
       const response = await fetch(`${API_URL}/travelOrder`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           // DO NOT set 'Content-Type' when sending FormData
         },
         body: travelOrder, // travelOrder is already a FormData object
@@ -65,7 +65,7 @@ export const addTravelOrder = createAsyncThunk(
 //         method: 'PUT',
 //         headers: {
 //           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${localStorage.getItem('token')}`,
+//           Authorization: `Bearer ${sessionStorage.getItem('token')}`,
 //         },
 //         body: JSON.stringify(travelOrder),
 //       });
@@ -91,7 +91,7 @@ export const updateTravelOrder = createAsyncThunk(
       let options = {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: null,
       };
@@ -132,7 +132,7 @@ export const deleteTravelOrder = createAsyncThunk(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       });
 
