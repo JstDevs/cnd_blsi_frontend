@@ -356,12 +356,14 @@ const BudgetAllotmentPage = () => {
     }, 0) || 0;
     const requested = filteredData?.filter(item => item.Status?.toLowerCase().includes('requested')).length || 0;
     const approved = filteredData?.filter(item => item.Status?.toLowerCase().includes('approved')).length || 0;
+    const rejected = filteredData?.filter(item => item.Status?.toLowerCase().includes('rejected')).length || 0;
 
     return {
       total,
       totalAmount,
       requested,
       approved,
+      rejected,
     };
   }, [filteredData]);
   return (
@@ -422,7 +424,7 @@ const BudgetAllotmentPage = () => {
         </div>
 
         {/* Summary Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
@@ -467,6 +469,18 @@ const BudgetAllotmentPage = () => {
               </div>
               <div className="p-3 bg-emerald-200 rounded-lg">
                 <CheckCircle2 className="h-6 w-6 text-emerald-700" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-red-700 mb-1">Rejected</p>
+                <p className="text-2xl font-bold text-red-900">{summaryStats.rejected}</p>
+              </div>
+              <div className="p-3 bg-red-200 rounded-lg">
+                <XIcon className="h-6 w-6 text-red-700" />
               </div>
             </div>
           </div>
