@@ -157,8 +157,10 @@ function BudgetReportPage() {
       <div className="page-header">
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <div>
-            <h1>Budget Reports</h1>
-            <p>View and generate budget utilization reports</p>
+            <h1>Budget Report</h1>
+            <p>
+              View a created report within a date range and selected fiscal year, fund, and department.
+            </p>
           </div>
           <div className="flex space-x-2  max-sm:w-full ">
             <button
@@ -204,6 +206,7 @@ function BudgetReportPage() {
               value={fiscalYearID}
               required
               onChange={(e) => setFiscalYearID(e.target.value)}
+              defaultOption="  - - Select - -   "
               options={fiscalYears.map((y) => ({ label: y.Name, value: y.ID }))}
             />
           </div>
@@ -215,6 +218,7 @@ function BudgetReportPage() {
               value={fundsID}
               required
               onChange={(e) => setFundsID(e.target.value)}
+              defaultOption="  - - Select - -   "
               options={[
                 { label: 'All Funds', value: '%' },
                 ...funds.map((f) => ({ label: f.Name, value: f.ID })),
@@ -229,6 +233,7 @@ function BudgetReportPage() {
               value={departmentID}
               required
               onChange={(e) => setDepartmentID(e.target.value)}
+              defaultOption="  - - Select - -   "
               options={[
                 { label: 'All Departments', value: '%' },
                 ...departments.map((d) => ({ label: d.Name, value: d.ID })),
@@ -236,7 +241,7 @@ function BudgetReportPage() {
             />
           </div>
         </div>
-        <div className="flex justify-end">
+        <div className="pt-4 border-t border-neutral-200 flex justify-end">
           <button
             type="button"
             className="btn btn-primary"

@@ -18,6 +18,7 @@ function FormField({
   error,
   touched,
   helperText,
+  defaultOption,
   ...props
 }) {
   const isInvalid = error && touched;
@@ -39,7 +40,7 @@ function FormField({
             className={clsx(
               'form-textarea border border-gray-300 px-4 py-2',
               isInvalid &&
-                'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
+              'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
               className
             )}
             {...props}
@@ -63,7 +64,7 @@ function FormField({
             className={clsx(
               'form-select border border-gray-300 px-4 py-2 h-auto',
               isInvalid &&
-                'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
+              'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
               className
             )}
             {...props}
@@ -87,12 +88,12 @@ function FormField({
             className={clsx(
               'form-select border border-gray-300 px-4 py-2 pr-10',
               isInvalid &&
-                'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
+              'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
               className
             )}
             {...props}
           >
-            <option value="">{props.defaultOption || 'Select'}</option>
+            <option value="">{defaultOption || 'Select'}</option>
             {options.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -116,7 +117,7 @@ function FormField({
                 className={clsx(
                   'form-checkbox',
                   isInvalid &&
-                    'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
+                  'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
                   className
                 )}
                 {...props}
@@ -148,7 +149,7 @@ function FormField({
                   className={clsx(
                     'form-radio ',
                     isInvalid &&
-                      'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
+                    'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
                     className
                   )}
                   {...props}
@@ -179,7 +180,7 @@ function FormField({
               className={clsx(
                 'form-input border border-gray-300 h-[42px] px-4 py-2 pr-10 w-full',
                 isInvalid &&
-                  'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
+                'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
                 className
               )}
               {...props}
@@ -218,7 +219,7 @@ function FormField({
             className={clsx(
               'form-input border border-gray-300 h-[42px] px-4 py-2',
               isInvalid &&
-                'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
+              'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
               className
             )}
             {...props}
