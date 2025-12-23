@@ -175,11 +175,11 @@ const BudgetStatementOfAppropriation = () => {
   return (
     <div className="page-container">
       <div className="page-header mb-4">
-        <h1 className="text-lg font-semibold">
+        <h1 className="text-2xl font-bold text-neutral-900">
           Statement of Appropriations, Allotment, Obligations and Balances
         </h1>
-        <p className="text-sm text-gray-600">
-          Manage budget allocations and balances
+        <p className="text-sm text-neutral-600 mt-1">
+          Generate reports to observe the values of the budgets within the system and its released amount, charges, and remaining balances
         </p>
       </div>
 
@@ -251,12 +251,12 @@ const BudgetStatementOfAppropriation = () => {
       </div>
 
       {/* Buttons */}
-      <div className="grid grid-cols-2 w-full  sm:grid-cols-3 gap-2 sm:w-max mb-4">
+      <div className="pt-4 border-t border-neutral-200 flex flex-wrap justify-end gap-3 mb-6">
         <button
           onClick={() => handleFetchData('appropriations')}
           className="btn btn-primary"
         >
-          View
+          View SAAOB
         </button>
         <button
           onClick={() => handleFetchData('viewSAO')}

@@ -68,6 +68,7 @@ function StatementComparisonForm({
               onBlur={handleBlur}
               error={errors.fiscalYearID}
               touched={touched.fiscalYearID}
+              defaultOption="  - - Select - -   "
               required
             />
           </div>

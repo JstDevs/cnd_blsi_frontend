@@ -158,7 +158,7 @@ function StatementComparison() {
       {/* Unified Page Header */}
       <div className="page-header">
         <div>
-          <h1>Statement of Comparison</h1>
+          <h1>Statement of Comparison of Budget and Actual Amount</h1>
           <p>
             Compare original, final, and actual budget amounts by fiscal year
           </p>
@@ -171,7 +171,7 @@ function StatementComparison() {
           onGenerateJournal={handleGenerateJournal}
           onExportExcel={handleExport}
           onView={handleView}
-          onClose={() => {}}
+          onClose={() => { }}
         />
       </div>
 
