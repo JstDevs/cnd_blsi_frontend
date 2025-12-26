@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserroles } from '../features/settings/userrolesSlice';
 import { fetchModules } from '../features/settings/modulesSlice';
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, UserCheck, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { Link } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -182,14 +183,24 @@ export default function UserAccessPage() {
             placeholder="Search role..."
             className="border px-3 py-2 rounded-md w-full sm:w-60"
           />
-          {Add && (
-            <button
-              className="btn btn-primary flex items-center"
-              onClick={handleSave}
+          <div className="flex flex-col gap-2 min-w-[140px]">
+            <Link
+              to="/settings/user-roles"
+              className="group relative overflow-hidden px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
             >
-              Save
-            </button>
-          )}
+              <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300" />
+              <Users size={18} className="relative z-10" />
+              <span className="relative z-10">User Roles</span>
+            </Link>
+            {Add && (
+              <button
+                className="w-full px-4 py-2 rounded-lg bg-white border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white shadow-sm hover:shadow-md transition-all duration-300 active:scale-95 flex items-center justify-center"
+                onClick={handleSave}
+              >
+                Save Changes
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -212,8 +223,8 @@ export default function UserAccessPage() {
                   key={role.ID}
                   onClick={() => setSelectedRole(role)}
                   className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${selectedRole?.ID === role.ID
-                      ? 'bg-blue-200 font-semibold'
-                      : ''
+                    ? 'bg-blue-200 font-semibold'
+                    : ''
                     }`}
                 >
                   {role.Description}
