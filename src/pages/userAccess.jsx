@@ -172,35 +172,37 @@ export default function UserAccessPage() {
   return (
     <div className="sm:p-4 space-y-4">
       {/* Header */}
-      <header className="page-header space-y-2">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">User Access</h1>
-          <p className="text-gray-600">Manage user roles and module access.</p>
+      <header className="page-header space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">User Access</h1>
+            <p className="text-gray-600">Manage user roles and module access.</p>
+          </div>
+          <Link
+            to="/settings/user-roles"
+            className="group relative overflow-hidden px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
+          >
+            <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300" />
+            <Users size={20} className="relative z-10" />
+            <span className="relative z-10">Manage User Roles</span>
+          </Link>
         </div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-3 border-y border-gray-100">
           <input
             type="text"
             placeholder="Search role..."
-            className="border px-3 py-2 rounded-md w-full sm:w-60"
+            className="border px-4 py-2 rounded-lg w-full sm:w-72 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-sm"
           />
-          <div className="flex flex-col gap-2 min-w-[140px]">
-            <Link
-              to="/settings/user-roles"
-              className="group relative overflow-hidden px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+          {Add && (
+            <button
+              className="px-8 py-2.5 rounded-xl bg-primary text-white font-bold shadow-md hover:shadow-lg hover:brightness-110 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
+              onClick={handleSave}
             >
-              <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300" />
-              <Users size={18} className="relative z-10" />
-              <span className="relative z-10">User Roles</span>
-            </Link>
-            {Add && (
-              <button
-                className="w-full px-4 py-2 rounded-lg bg-white border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white shadow-sm hover:shadow-md transition-all duration-300 active:scale-95 flex items-center justify-center"
-                onClick={handleSave}
-              >
-                Save Changes
-              </button>
-            )}
-          </div>
+              <PlusIcon size={18} />
+              Save Changes
+            </button>
+          )}
         </div>
       </header>
 
