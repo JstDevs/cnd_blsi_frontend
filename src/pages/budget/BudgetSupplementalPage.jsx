@@ -284,7 +284,11 @@ const BudgetSupplementalPage = () => {
       );
       console.log(`${action}d:`, response.data);
       fetchBudgetSupplementals();
-      toast.success(`Budget Supplemental ${action}d successfully`);
+      if (action === 'reject') {
+        toast.error(`Budget Supplemental ${action}ed successfully`);
+      } else {
+        toast.success(`Budget Supplemental ${action}d successfully`);
+      }
     } catch (error) {
       console.error(`Error ${action}ing Budget Supplemental:`, error);
       toast.error(`Error ${action}ing Budget Supplemental`);

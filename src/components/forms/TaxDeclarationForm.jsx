@@ -205,16 +205,16 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
     initialData?.AssessmentRows?.length
       ? initialData.AssessmentRows.map((row) => ({ ...row })) // clone to prevent mutation issues
       : [
-          {
-            Kind: '',
-            Classification: '',
-            Area: '',
-            MarketValue: '',
-            ActualUse: '',
-            AssessmentLevel: '',
-            AssessmentValue: '',
-          },
-        ]
+        {
+          Kind: '',
+          Classification: '',
+          Area: '',
+          MarketValue: '',
+          ActualUse: '',
+          AssessmentLevel: '',
+          AssessmentValue: '',
+        },
+      ]
   );
 
   const {
@@ -954,10 +954,10 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
         <button
           type="submit"
           className="btn btn-primary"
-          // disabled={isSubmitting}
+        // disabled={isSubmitting}
         >
           {/* {isSubmitting ? 'Saving...' : 'Save'} */}
-          save
+          Save
         </button>
       </div>
     </form>

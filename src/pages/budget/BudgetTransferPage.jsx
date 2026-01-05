@@ -110,7 +110,7 @@ const BudgetTransferPage = () => {
     const requested = filteredData?.filter(item => item.Status?.toLowerCase().includes('requested')).length || 0;
     const approved = filteredData?.filter(item => item.Status?.toLowerCase().includes('approved')).length || 0;
     const rejected = filteredData?.filter(item => item.Status?.toLowerCase().includes('rejected')).length || 0;
-    
+
     return {
       total,
       totalAmount,
@@ -241,16 +241,21 @@ const BudgetTransferPage = () => {
     setIsLoading(true);
     try {
       const response = await axiosInstance.post(`/budgetTransfer/${action}`, {
-        ID: info.ID,
+        ID: info.ID || info.id,
         LinkID: info.LinkID,
         Reason: 'This is the reason',
       });
       console.log(`${action}d:`, response.data);
       dispatch(fetchBudgetTransfers());
-      toast.success(`Budget Transfer ${action}d successfully`);
+      if (action === 'reject') {
+        toast.error(`Budget Transfer ${action}ed successfully`);
+      } else {
+        toast.success(`Budget Transfer ${action}d successfully`);
+      }
     } catch (error) {
       console.error(`Error ${action}ing Budget Transfer:`, error);
-      toast.error(`Error ${action}ing Budget Transfer`);
+      const errorMessage = error.response?.data?.message || error.message || `Error ${action}ing Budget Transfer`;
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -313,11 +318,10 @@ const BudgetTransferPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`btn btn-outline flex items-center gap-2 transition-all ${
-                showFilters || hasActiveFilters
-                  ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
-                  : 'hover:bg-neutral-50'
-              }`}
+              className={`btn btn-outline flex items-center gap-2 transition-all ${showFilters || hasActiveFilters
+                ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
+                : 'hover:bg-neutral-50'
+                }`}
             >
               <FilterIcon className="h-4 w-4" />
               Filters

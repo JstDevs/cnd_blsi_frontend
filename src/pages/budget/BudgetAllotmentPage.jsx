@@ -239,9 +239,13 @@ const BudgetAllotmentPage = () => {
       // Re-fetch to ensure data consistency
       await fetchBudgetAllotments();
 
-      toast.success(
-        response.data.message || `Budget Allotment ${action}d successfully`
-      );
+      if (action === 'reject') {
+        toast.error(`Budget Allotment ${action}ed successfully`);
+      } else {
+        toast.success(
+          response.data.message || `Budget Allotment ${action}d successfully`
+        );
+      }
     } catch (error) {
       console.error(`Error ${action}ing Budget Allotment:`, error);
       toast.error(`Error ${action}ing Budget Allotment`);

@@ -135,7 +135,8 @@ function BudgetForm({
                 onBlur={handleBlur}
                 error={errors.Name}
                 touched={touched.Name}
-                required
+                readOnly
+                className="bg-gray-100"
               />
             </div>
             <FormField
@@ -178,7 +179,16 @@ function BudgetForm({
               label="Chart of Accounts"
               name="ChartofAccountsID"
               type="select"
-              onChange={handleChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                handleChange(e);
+                const selected = chartOfAccountsOptions.find(
+                  (opt) => opt.value.toString() === value.toString()
+                );
+                if (selected) {
+                  setFieldValue('Name', selected.label);
+                }
+              }}
               onBlur={handleBlur}
               value={values.ChartofAccountsID}
               error={errors.ChartofAccountsID}
