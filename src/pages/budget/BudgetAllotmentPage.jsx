@@ -223,7 +223,17 @@ const BudgetAllotmentPage = () => {
     try {
       const response = await axiosInstance.post(
         `/budgetAllotment/${action}`,
-        { ID: dv.ID }
+        {
+          ID: dv.ID,
+          approvalProgress: dv.ApprovalProgress || 1,
+          varApprovalLink: dv.LinkID,
+          varLinkID: dv.LinkID,
+          approvalOrder: 1,
+          numberOfApproverPerSequence: 1,
+          varTransactionApprovalVersion: dv.ApprovalVersion || 1,
+          varBudgetID: dv.Budget?.ID,
+          Reason: action === 'reject' ? 'Rejected by user' : 'Approved by user'
+        }
       );
       console.log(`${action}d:`, response.data);
 
