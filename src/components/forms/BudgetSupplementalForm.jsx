@@ -55,6 +55,7 @@ function BudgetSupplementalForm({
   fundOptions,
   projectOptions,
   fiscalYearOptions,
+  readOnly = false,
 }) {
   const getInitialValues = () => {
     if (initialData?.ID) {
@@ -192,7 +193,7 @@ function BudgetSupplementalForm({
                 label="Select Budget"
                 name="BudgetID"
                 type="select"
-                required
+                required={!readOnly}
                 selectedValue={values.BudgetID}
                 onSelect={(val) => handleBudgetSelect(val, setValues, values)}
                 options={budgetList.map((b) => ({
@@ -201,23 +202,26 @@ function BudgetSupplementalForm({
                 }))}
                 error={errors.BudgetID}
                 touched={touched.BudgetID}
+                disabled={readOnly}
               />
             </div>
             {/* Attachments Section */}
             <div className="mb-4 md:col-span-2 py-4 border-b border-gray-300">
               <div className="space-y-2">
                 <h2 className="font-bold mb-2">Attachments</h2>
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => handleFileUpload(e, setFieldValue, values)}
-                  className="block w-full text-sm text-gray-500
+                {!readOnly && (
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) => handleFileUpload(e, setFieldValue, values)}
+                    className="block w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-md file:border-0
                   file:text-sm file:font-medium
                   file:bg-blue-50 file:text-blue-700
                   hover:file:bg-blue-100"
-                />
+                  />
+                )}
               </div>
               {values?.Attachments?.length > 0 ? (
                 <div className="space-y-2 py-2 mt-2">
@@ -260,15 +264,17 @@ function BudgetSupplementalForm({
                           {file?.type}
                         </span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeAttachment(index, setFieldValue, values)
-                        }
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {!readOnly && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeAttachment(index, setFieldValue, values)
+                          }
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -439,7 +445,10 @@ function BudgetSupplementalForm({
               onBlur={handleBlur}
               error={errors.supplemental}
               touched={touched.supplemental}
-              required
+              required={!readOnly}
+              disabled={readOnly}
+              className={readOnly ? 'bg-gray-100' : ''}
+              readOnly={readOnly}
             />
             <FormField
               label="Remarks"
@@ -450,19 +459,38 @@ function BudgetSupplementalForm({
               onBlur={handleBlur}
               error={errors.remarks}
               touched={touched.remarks}
+              disabled={readOnly}
+              className={readOnly ? 'bg-gray-100' : ''}
+              readOnly={readOnly}
             />
           </div>
           <div className="flex justify-end space-x-3">
-            <button type="button" onClick={onClose} className="btn btn-outline">
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn btn-primary"
-            >
-              {initialData ? 'Update' : 'Save'}
-            </button>
+            {readOnly ? (
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn btn-secondary"
+              >
+                Close
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="btn btn-outline"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn btn-primary"
+                >
+                  {initialData ? 'Update' : 'Save'}
+                </button>
+              </>
+            )}
           </div>
         </Form>
       )}

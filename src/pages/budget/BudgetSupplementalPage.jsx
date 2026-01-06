@@ -84,7 +84,16 @@ const BudgetSupplementalPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
+  const [isViewOnly, setIsViewOnly] = useState(false);
+
   const handleEdit = (row) => {
+    setIsViewOnly(false);
+    setActiveRow(row);
+    setIsModalOpen(true);
+  };
+
+  const handleView = (row) => {
+    setIsViewOnly(true);
     setActiveRow(row);
     setIsModalOpen(true);
   };
@@ -320,7 +329,15 @@ const BudgetSupplementalPage = () => {
   const actions = (row) => {
     const actionList = [];
 
-    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+    if (row.Status.toLowerCase().includes('approved')) {
+      actionList.push({
+        icon: FileText,
+        title: 'View',
+        onClick: handleView,
+        className:
+          'text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-50',
+      });
+    } else if (row.Status.toLowerCase().includes('rejected') && Edit) {
       actionList.push({
         icon: PencilIcon,
         title: 'Edit',
@@ -594,9 +611,10 @@ const BudgetSupplementalPage = () => {
         size="md"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={activeRow ? 'Edit Supplemental' : 'Add New Supplemental'}
+        title={isViewOnly ? 'View Supplemental' : (activeRow ? 'Edit Supplemental' : 'Add New Supplemental')}
       >
         <BudgetSupplementalForm
+          readOnly={isViewOnly}
           budgetList={budgetList}
           departmentOptions={departments.map((dept) => ({
             value: dept.ID,
