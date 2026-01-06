@@ -280,7 +280,18 @@ const BudgetSupplementalPage = () => {
     try {
       const response = await axiosInstance.post(
         `/budgetSupplemental/${action}`,
-        { ID: info.ID, LinkID: info.LinkID, Reason: 'This is the reason' }
+        {
+          ID: info.ID,
+          LinkID: info.LinkID,
+          Reason: action === 'reject' ? 'Rejected by user' : 'Approved by user',
+          approvalProgress: info.ApprovalProgress || 1,
+          varApprovalLink: info.LinkID,
+          varLinkID: info.LinkID,
+          approvalOrder: 1, // Default for single approver workflow
+          numberOfApproverPerSequence: 1, // Default for single approver workflow
+          varTransactionApprovalVersion: info.ApprovalVersion || 1,
+          varBudgetID: info.Budget?.ID
+        }
       );
       console.log(`${action}d:`, response.data);
 
