@@ -147,10 +147,10 @@ function BudgetAllotmentForm({
         fundID: selected.FundID || '',
         projectID: selected.ProjectID || '',
         appropriation: parseFloat(selected.Appropriation) || 0,
-        balance: parseFloat(selected.AppropriationBalance) || 0,
+        balance: parseFloat(selected.AllotmentBalance) || 0, // This is the remaining appropriation
         charges: parseFloat(selected.Charges || 0),
-        releasedAllotments: parseFloat(selected.TotalAmount || 0),
-        releasedBalance: parseFloat(selected.AllotmentBalance || 0),
+        releasedAllotments: parseFloat(selected.Appropriation) - parseFloat(selected.AllotmentBalance),
+        releasedBalance: (parseFloat(selected.Appropriation) - parseFloat(selected.AllotmentBalance)) - parseFloat(selected.ChargedAllotment || 0),
       });
     }
   };

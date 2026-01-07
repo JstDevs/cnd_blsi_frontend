@@ -42,7 +42,7 @@ const BudgetSummary = () => {
       adjustedAppropriation: 999500,
       releasedAllotted: 100000,
       charges: 0,
-      appropriationBalance: 599500,
+      appropriationBalance: 899500, // 999500 - 100000
       status: "active",
       monthlyAllocations: [
         85000, 82000, 88000, 75000, 90000, 85000, 78000, 82000, 88000, 92000,
@@ -107,7 +107,7 @@ const BudgetSummary = () => {
       adjustedAppropriation: 525000,
       releasedAllotted: 150000,
       charges: 75000,
-      appropriationBalance: 300000,
+      appropriationBalance: 375000, // 525000 - 150000
       status: "active",
       monthlyAllocations: [
         45000, 42000, 48000, 40000, 50000, 45000, 38000, 42000, 48000, 52000,
@@ -214,8 +214,7 @@ const BudgetSummary = () => {
   };
 
   const currentBudget = selectedBudget || budgets[0];
-  const spentAndAllotted =
-    currentBudget.releasedAllotted + currentBudget.charges;
+  const spentAndAllotted = currentBudget.releasedAllotted; // Allotted is the primary utilization of Appropriation
 
   const totalSummary = {
     totalBudgets: budgets.length,
@@ -224,7 +223,7 @@ const BudgetSummary = () => {
       0
     ),
     totalUtilized: budgets.reduce(
-      (sum, b) => sum + b.releasedAllotted + b.charges,
+      (sum, b) => sum + b.releasedAllotted,
       0
     ),
     totalBalance: budgets.reduce((sum, b) => sum + b.appropriationBalance, 0),
@@ -250,21 +249,19 @@ const BudgetSummary = () => {
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("grid")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === "grid"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600"
-              }`}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${viewMode === "grid"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600"
+                }`}
             >
               Grid
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === "table"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600"
-              }`}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${viewMode === "table"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600"
+                }`}
             >
               Table
             </button>
@@ -406,11 +403,10 @@ const BudgetSummary = () => {
                     Adjustments
                   </p>
                   <p
-                    className={`text-sm sm:text-lg font-semibold ${
-                      currentBudget.adjustments >= 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
+                    className={`text-sm sm:text-lg font-semibold ${currentBudget.adjustments >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                      }`}
                   >
                     {currentBudget.adjustments >= 0 ? "+" : ""}$
                     {currentBudget.adjustments.toLocaleString()}
@@ -446,13 +442,12 @@ const BudgetSummary = () => {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
-                    className={`h-3 rounded-full transition-all duration-300 ${
-                      currentBudget.utilizationRate >= 80
-                        ? "bg-red-500"
-                        : currentBudget.utilizationRate >= 60
+                    className={`h-3 rounded-full transition-all duration-300 ${currentBudget.utilizationRate >= 80
+                      ? "bg-red-500"
+                      : currentBudget.utilizationRate >= 60
                         ? "bg-yellow-500"
                         : "bg-green-500"
-                    }`}
+                      }`}
                     style={{
                       width: `${Math.min(currentBudget.utilizationRate, 100)}%`,
                     }}
@@ -570,11 +565,10 @@ const BudgetSummary = () => {
             <div
               key={budget.id}
               onClick={() => setSelectedBudget(budget)}
-              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 cursor-pointer hover:shadow-md transition-all ${
-                selectedBudget?.id === budget.id
-                  ? "ring-2 ring-blue-500 border-blue-500"
-                  : ""
-              }`}
+              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 cursor-pointer hover:shadow-md transition-all ${selectedBudget?.id === budget.id
+                ? "ring-2 ring-blue-500 border-blue-500"
+                : ""
+                }`}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1 min-w-0">
@@ -620,13 +614,12 @@ const BudgetSummary = () => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        budget.utilizationRate >= 80
-                          ? "bg-red-500"
-                          : budget.utilizationRate >= 60
+                      className={`h-2 rounded-full transition-all duration-300 ${budget.utilizationRate >= 80
+                        ? "bg-red-500"
+                        : budget.utilizationRate >= 60
                           ? "bg-yellow-500"
                           : "bg-green-500"
-                      }`}
+                        }`}
                       style={{
                         width: `${Math.min(budget.utilizationRate, 100)}%`,
                       }}
@@ -744,11 +737,10 @@ const BudgetSummary = () => {
                 {paginatedBudgets.map((budget) => (
                   <tr
                     key={budget.id}
-                    className={`hover:bg-gray-50 transition-colors cursor-pointer ${
-                      selectedBudget?.id === budget.id
-                        ? "bg-blue-50 border-l-4 border-blue-500"
-                        : ""
-                    }`}
+                    className={`hover:bg-gray-50 transition-colors cursor-pointer ${selectedBudget?.id === budget.id
+                      ? "bg-blue-50 border-l-4 border-blue-500"
+                      : ""
+                      }`}
                     onClick={() => setSelectedBudget(budget)}
                   >
                     <td className="px-4 sm:px-6 py-4">
@@ -789,13 +781,12 @@ const BudgetSummary = () => {
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
-                              className={`h-2 rounded-full transition-all duration-300 ${
-                                budget.utilizationRate >= 80
-                                  ? "bg-red-500"
-                                  : budget.utilizationRate >= 60
+                              className={`h-2 rounded-full transition-all duration-300 ${budget.utilizationRate >= 80
+                                ? "bg-red-500"
+                                : budget.utilizationRate >= 60
                                   ? "bg-yellow-500"
                                   : "bg-green-500"
-                              }`}
+                                }`}
                               style={{
                                 width: `${Math.min(
                                   budget.utilizationRate,
@@ -860,11 +851,10 @@ const BudgetSummary = () => {
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`px-3 py-1 border rounded-lg text-sm ${
-                    currentPage === pageNum
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "border-gray-300 hover:bg-gray-50"
-                  }`}
+                  className={`px-3 py-1 border rounded-lg text-sm ${currentPage === pageNum
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "border-gray-300 hover:bg-gray-50"
+                    }`}
                 >
                   {pageNum}
                 </button>
@@ -876,11 +866,10 @@ const BudgetSummary = () => {
                 <span className="text-gray-500">...</span>
                 <button
                   onClick={() => setCurrentPage(totalPages)}
-                  className={`px-3 py-1 border rounded-lg text-sm ${
-                    currentPage === totalPages
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "border-gray-300 hover:bg-gray-50"
-                  }`}
+                  className={`px-3 py-1 border rounded-lg text-sm ${currentPage === totalPages
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "border-gray-300 hover:bg-gray-50"
+                    }`}
                 >
                   {totalPages}
                 </button>

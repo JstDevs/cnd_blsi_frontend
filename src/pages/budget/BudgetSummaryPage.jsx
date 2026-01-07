@@ -98,7 +98,7 @@ const BudgetSummaryPage = () => {
         return {
           totalAppropriation: acc.totalAppropriation + appropriation,
           totalAppropriationBalance:
-            acc.totalAppropriationBalance + appropriationBalance,
+            acc.totalAppropriationBalance + (Number(item.AllotmentBalance) || 0),
           totalAmount: acc.totalAmount + totalAmount,
           totalAllotmentBalance:
             acc.totalAllotmentBalance + allotmentBalance,
@@ -485,11 +485,10 @@ const BudgetSummaryPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`btn btn-outline flex items-center gap-2 transition-all ${
-                showFilters || hasActiveFilters
-                  ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
-                  : 'hover:bg-neutral-50'
-              }`}
+              className={`btn btn-outline flex items-center gap-2 transition-all ${showFilters || hasActiveFilters
+                ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
+                : 'hover:bg-neutral-50'
+                }`}
             >
               <FilterIcon className="h-4 w-4" />
               Filters
@@ -769,13 +768,12 @@ const BudgetSummaryDetail = ({ data }) => {
               Appropriation Balance
             </p>
             <p
-              className={`text-lg font-bold ${
-                Number(data.AppropriationBalance) >= 0
-                  ? 'text-green-700'
-                  : 'text-red-600'
-              }`}
+              className={`text-lg font-bold ${(Number(data.Appropriation) - Number(data.Released)) >= 0
+                ? 'text-green-700'
+                : 'text-red-600'
+                }`}
             >
-              {formatCurrency(data.AppropriationBalance)}
+              {formatCurrency(Number(data.Appropriation) - Number(data.Released))}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-neutral-200">
@@ -807,13 +805,12 @@ const BudgetSummaryDetail = ({ data }) => {
               Allotment Balance
             </p>
             <p
-              className={`text-lg font-bold ${
-                Number(data.AllotmentBalance) >= 0
-                  ? 'text-green-700'
-                  : 'text-red-600'
-              }`}
+              className={`text-lg font-bold ${(Number(data.Released) - Number(data.Charges)) >= 0
+                ? 'text-green-700'
+                : 'text-red-600'
+                }`}
             >
-              {formatCurrency(data.AllotmentBalance)}
+              {formatCurrency(Number(data.Released) - Number(data.Charges))}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-neutral-200">

@@ -94,7 +94,7 @@ const BudgetDetails = () => {
           ChartofAccountsID: values?.chartOfAccounts,
           Appropriation: values?.appropriation,
           TotalAmount: values?.totalAmount,
-          AppropriationBalance: values?.charges,
+          AppropriationBalance: values?.AppropriationBalance || (Number(values?.appropriation) || 0),
           Charges: values?.charges,
           January: values?.january,
           February: values?.february,
@@ -142,7 +142,7 @@ const BudgetDetails = () => {
           ChartofAccountsID: values?.chartOfAccounts,
           Appropriation: values?.appropriation,
           TotalAmount: values?.totalAmount,
-          AppropriationBalance: values?.charges,
+          AppropriationBalance: values?.AppropriationBalance || (Number(values?.appropriation) || 0),
           Charges: values?.charges,
           January: values?.january,
           February: values?.february,
@@ -254,21 +254,19 @@ const BudgetDetails = () => {
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode('grid')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'grid'
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${viewMode === 'grid'
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-600'
-              }`}
+                }`}
             >
               Grid
             </button>
             <button
               onClick={() => setViewMode('table')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'table'
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${viewMode === 'table'
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-600'
-              }`}
+                }`}
             >
               Table
             </button>
@@ -329,10 +327,10 @@ const BudgetDetails = () => {
               <p className="text-sm text-gray-500 mt-1">
                 {budgetStats?.totalappropriations > 0
                   ? (
-                      (budgetStats?.totalallotement /
-                        budgetStats?.totalappropriations) *
-                      100
-                    ).toFixed(1)
+                    (budgetStats?.totalallotement /
+                      budgetStats?.totalappropriations) *
+                    100
+                  ).toFixed(1)
                   : 0}
                 % allocated
               </p>
@@ -351,10 +349,10 @@ const BudgetDetails = () => {
               <p className="text-sm text-gray-500 mt-1">
                 {budgetStats?.totalallotement > 0
                   ? (
-                      (budgetStats?.totalcharges /
-                        budgetStats?.totalallotement) *
-                      100
-                    ).toFixed(1)
+                    (budgetStats?.totalcharges /
+                      budgetStats?.totalallotement) *
+                    100
+                  ).toFixed(1)
                   : 0}
                 % utilized
               </p>
@@ -454,11 +452,10 @@ const BudgetDetails = () => {
             <div
               key={item.id}
               onClick={() => setSelectedBudget(item)}
-              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-all ${
-                selectedBudget?.id === item.id
+              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-all ${selectedBudget?.id === item.id
                   ? 'ring-2 ring-blue-500 border-blue-500'
                   : ''
-              }`}
+                }`}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
