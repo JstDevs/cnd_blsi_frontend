@@ -27,6 +27,7 @@ const BudgetFundsPage = () => {
   const { funds, loading } = useSelector((state) => state.funds);
   const [isOpen, setIsOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
+  const [isReadOnly, setIsReadOnly] = useState(false);
   // ---------------------USE MODULE PERMISSIONS------------------START (BudgetSubFundsPage - MODULE ID =  48 )
   const { Add, Edit, Delete } = useModulePermissions(48);
 
@@ -94,6 +95,7 @@ const BudgetFundsPage = () => {
 
   const handleEdit = (data) => {
     setActiveRow(data);
+    setIsReadOnly(false);
     setIsOpen(true);
   };
 
@@ -147,7 +149,9 @@ const BudgetFundsPage = () => {
   };
 
   const handleViewReceipt = (row) => {
-    console.log('View row:', row);
+    setActiveRow(row);
+    setIsReadOnly(true);
+    setIsOpen(true);
   };
 
   useEffect(() => {
@@ -180,6 +184,7 @@ const BudgetFundsPage = () => {
                 type="button"
                 onClick={() => {
                   setActiveRow(null);
+                  setIsReadOnly(false);
                   setIsOpen(true);
                 }}
                 className="btn btn-primary flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
@@ -260,15 +265,24 @@ const BudgetFundsPage = () => {
         onClose={() => {
           setIsOpen(false);
           setActiveRow(null);
+          setIsReadOnly(false);
         }}
-        title={activeRow ? 'Edit Budget Fund' : 'Add New Budget Fund'}
+        title={
+          isReadOnly
+            ? 'View Budget Fund'
+            : activeRow
+              ? 'Edit Budget Fund'
+              : 'Add New Budget Fund'
+        }
       >
         <BudgetFundForm
           onSubmit={handleSubmit}
           initialData={activeRow}
+          readOnly={isReadOnly}
           onClose={() => {
             setIsOpen(false);
             setActiveRow(null);
+            setIsReadOnly(false);
           }}
         />
       </Modal>

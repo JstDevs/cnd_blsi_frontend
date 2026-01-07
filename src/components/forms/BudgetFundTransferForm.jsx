@@ -35,6 +35,7 @@ function BudgetFundTransferForm({
   onClose,
   fundOptions,
   fiscalYearOptions,
+  readOnly = false,
 }) {
   const [formData, setFormData] = useState({ ...initialValues });
   // console.log('Initial Data:', initialData, 'Form Data:', formData);
@@ -201,6 +202,7 @@ function BudgetFundTransferForm({
               label="Fiscal Year"
               name="fiscalYearId"
               required
+              disabled={readOnly}
               selectedValue={values.fiscalYearId}
               onSelect={(value) => setFieldValue('fiscalYearId', value)}
               options={fiscalYearOptions}
@@ -216,6 +218,7 @@ function BudgetFundTransferForm({
                 label="Select Fund"
                 name="fromFundId"
                 required
+                disabled={readOnly}
                 selectedValue={values.fromFundId}
                 onSelect={(value) => {
                   const updates = handleFundSelect('fromFund', value);
@@ -269,6 +272,7 @@ function BudgetFundTransferForm({
                 label="Select Fund"
                 name="toFundId"
                 required
+                disabled={readOnly}
                 selectedValue={values.toFundId}
                 onSelect={(value) => {
                   const updates = handleFundSelect('toFund', value);
@@ -327,6 +331,7 @@ function BudgetFundTransferForm({
               error={errors.remarks}
               touched={touched.remarks}
               required
+              readOnly={readOnly}
             />
             <FormField
               label="Transfer Amount"
@@ -361,6 +366,7 @@ function BudgetFundTransferForm({
               error={errors.transferAmount}
               touched={touched.transferAmount}
               required
+              readOnly={readOnly}
             />
           </div>
           {/* Attachments Section */}
@@ -379,13 +385,15 @@ function BudgetFundTransferForm({
               />
 
               {/* Styled upload button */}
-              <label
-                htmlFor="file-upload"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer transition-colors duration-150"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Files
-              </label>
+              {!readOnly && (
+                <label
+                  htmlFor="file-upload"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer transition-colors duration-150"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Files
+                </label>
+              )}
 
               {/* File list */}
               {values?.Attachments?.length > 0 ? (
@@ -415,16 +423,18 @@ function BudgetFundTransferForm({
                           )}
                         </span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeAttachment(index, setFieldValue, values)
-                        }
-                        className="text-red-500 hover:text-red-700 ml-2 p-1 rounded-full hover:bg-red-50 transition-colors duration-150"
-                        aria-label="Remove file"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {!readOnly && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeAttachment(index, setFieldValue, values)
+                          }
+                          className="text-red-500 hover:text-red-700 ml-2 p-1 rounded-full hover:bg-red-50 transition-colors duration-150"
+                          aria-label="Remove file"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -441,15 +451,17 @@ function BudgetFundTransferForm({
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              Cancel
+              {readOnly ? 'Close' : 'Cancel'}
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              {initialData ? 'Update Transfer' : 'Create Transfer'}
-            </button>
+            {!readOnly && (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                {initialData ? 'Update Transfer' : 'Create Transfer'}
+              </button>
+            )}
           </div>
         </Form>
       )}

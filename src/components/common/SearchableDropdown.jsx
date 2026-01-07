@@ -11,6 +11,7 @@ const SearchableDropdown = ({
   required = false,
   onSelect,
   selectedValue,
+  disabled = false,
 }) => {
   const [query, setQuery] = useState('');
 
@@ -18,8 +19,8 @@ const SearchableDropdown = ({
     query === ''
       ? options
       : options.filter((option) => {
-          return option?.label?.toLowerCase().includes(query.toLowerCase());
-        });
+        return option?.label?.toLowerCase().includes(query.toLowerCase());
+      });
 
   const clearSelection = () => {
     onSelect('');
@@ -38,14 +39,15 @@ const SearchableDropdown = ({
 
             <div className="relative">
               <div
-                className={`relative w-full cursor-default overflow-hidden rounded-md bg-white text-left sm:text-sm transition-all duration-200 ${
-                  touched && error
+                className={`relative w-full cursor-default overflow-hidden rounded-md bg-white text-left sm:text-sm transition-all duration-200 ${touched && error
                     ? 'border border-red-500'
                     : 'border border-gray-300'
-                }`}
+                  } ${disabled ? 'bg-gray-100 cursor-not-allowed opacity-75' : ''}`}
               >
                 <Combobox.Input
-                  className="w-full py-2.5 pl-3 pr-12 text-sm leading-5 focus-visible:outline-none text-gray-900"
+                  className={`w-full py-2.5 pl-3 pr-12 text-sm leading-5 focus-visible:outline-none text-gray-900 ${disabled ? 'bg-transparent cursor-not-allowed' : ''
+                    }`}
+                  disabled={disabled}
                   placeholder={placeholder}
                   displayValue={(option) =>
                     options.find((opt) => opt.value === option)?.label || ''
@@ -54,7 +56,7 @@ const SearchableDropdown = ({
                 />
 
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
-                  {selectedValue && (
+                  {selectedValue && !disabled && (
                     <button
                       type="button"
                       onClick={clearSelection}
@@ -63,11 +65,14 @@ const SearchableDropdown = ({
                       <FiX className="h-4 w-4" />
                     </button>
                   )}
-                  <Combobox.Button className="text-gray-400 hover:text-gray-500 transition-colors">
-                    <FiChevronDown
-                      className={`h-5 w-5 transition-transform duration-200 ${
-                        open ? 'rotate-180' : ''
+                  <Combobox.Button
+                    disabled={disabled}
+                    className={`text-gray-400 hover:text-gray-500 transition-colors ${disabled ? 'cursor-not-allowed' : ''
                       }`}
+                  >
+                    <FiChevronDown
+                      className={`h-5 w-5 transition-transform duration-200 ${open ? 'rotate-180' : ''
+                        }`}
                     />
                   </Combobox.Button>
                 </div>
@@ -87,14 +92,12 @@ const SearchableDropdown = ({
                     <Combobox.Option
                       key={option.value}
                       className={({ active, selected }) =>
-                        `relative cursor-default select-none py-2 pl-2 pr-4 transition-colors ${
-                          active ? 'bg-blue-50 text-blue-700' : ''
+                        `relative cursor-default select-none py-2 pl-2 pr-4 transition-colors ${active ? 'bg-blue-50 text-blue-700' : ''
                         }
-                         ${
-                           selected
-                             ? 'font-medium text-blue-900 bg-blue-100'
-                             : 'font-normal text-gray-900'
-                         }
+                         ${selected
+                          ? 'font-medium text-blue-900 bg-blue-100'
+                          : 'font-normal text-gray-900'
+                        }
                          `
                       }
                       value={option.value}

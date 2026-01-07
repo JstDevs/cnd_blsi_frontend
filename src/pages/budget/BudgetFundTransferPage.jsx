@@ -31,6 +31,7 @@ import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 const BudgetFundTransferPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
+  const [isReadOnly, setIsReadOnly] = useState(false);
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -258,6 +259,7 @@ const BudgetFundTransferPage = () => {
 
   const handleEdit = (data) => {
     setActiveRow(data);
+    setIsReadOnly(false);
     setIsOpen(true);
   };
 
@@ -267,7 +269,9 @@ const BudgetFundTransferPage = () => {
   };
 
   const handleViewTransfer = (row) => {
-    console.log('View transfer:', row);
+    setActiveRow(row);
+    setIsReadOnly(true);
+    setIsOpen(true);
   };
 
   return (
@@ -399,15 +403,24 @@ const BudgetFundTransferPage = () => {
         onClose={() => {
           setIsOpen(false);
           setActiveRow(null);
+          setIsReadOnly(false);
         }}
-        title={activeRow ? 'Edit Fund Transfer' : 'Add Fund Transfer'}
+        title={
+          isReadOnly
+            ? 'View Fund Transfer'
+            : activeRow
+              ? 'Edit Fund Transfer'
+              : 'Add Fund Transfer'
+        }
       >
         <BudgetFundTransferForm
           onSubmit={handleSubmit}
           initialData={activeRow}
+          readOnly={isReadOnly}
           onClose={() => {
             setIsOpen(false);
             setActiveRow(null);
+            setIsReadOnly(false);
           }}
           fundOptions={fundOptions}
           fiscalYearOptions={fiscalYears?.map((f) => ({
