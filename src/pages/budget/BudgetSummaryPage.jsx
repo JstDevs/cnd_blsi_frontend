@@ -90,18 +90,21 @@ const BudgetSummaryPage = () => {
     const stats = filteredData.reduce(
       (acc, item) => {
         const appropriation = Number(item.Appropriation) || 0;
-        const appropriationBalance = Number(item.AppropriationBalance) || 0;
         const totalAmount = Number(item.TotalAmount) || 0;
-        const allotmentBalance = Number(item.AllotmentBalance) || 0;
+        const supplemental = Number(item.Supplemental) || 0;
+        const transfer = Number(item.Transfer) || 0;
+        const released = Number(item.Released) || 0;
         const charges = Number(item.Charges) || 0;
+        const preEncumbrance = Number(item.PreEncumbrance) || 0;
+        const encumbrance = Number(item.Encumbrance) || 0;
 
         return {
           totalAppropriation: acc.totalAppropriation + appropriation,
           totalAppropriationBalance:
-            acc.totalAppropriationBalance + (Number(item.AllotmentBalance) || 0),
+            acc.totalAppropriationBalance + (Number(item.AppropriationBalance) || 0),
           totalAmount: acc.totalAmount + totalAmount,
           totalAllotmentBalance:
-            acc.totalAllotmentBalance + allotmentBalance,
+            acc.totalAllotmentBalance + (released - (charges + preEncumbrance + encumbrance)),
           totalCharges: acc.totalCharges + charges,
           count: acc.count + 1,
         };
@@ -768,12 +771,12 @@ const BudgetSummaryDetail = ({ data }) => {
               Appropriation Balance
             </p>
             <p
-              className={`text-lg font-bold ${(Number(data.Appropriation) - Number(data.Released)) >= 0
+              className={`text-lg font-bold ${Number(data.AppropriationBalance) >= 0
                 ? 'text-green-700'
                 : 'text-red-600'
                 }`}
             >
-              {formatCurrency(Number(data.Appropriation) - Number(data.Released))}
+              {formatCurrency(data.AppropriationBalance)}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-neutral-200">
@@ -781,7 +784,7 @@ const BudgetSummaryDetail = ({ data }) => {
               Appropriation (Adjusted)
             </p>
             <p className="text-lg font-bold text-blue-700">
-              {formatCurrency(data.RevisedAmount)}
+              {formatCurrency(Number(data.Appropriation) + Number(data.Supplemental) + Number(data.Transfer))}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-neutral-200">
@@ -789,7 +792,7 @@ const BudgetSummaryDetail = ({ data }) => {
               Adjustments
             </p>
             <p className="text-lg font-semibold text-neutral-700">
-              {formatCurrency(data.Change)}
+              {formatCurrency(Number(data.Supplemental) + Number(data.Transfer))}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-neutral-200">
@@ -805,12 +808,12 @@ const BudgetSummaryDetail = ({ data }) => {
               Allotment Balance
             </p>
             <p
-              className={`text-lg font-bold ${(Number(data.Released) - Number(data.Charges)) >= 0
+              className={`text-lg font-bold ${(Number(data.Released) - (Number(data.Charges) + Number(data.PreEncumbrance) + Number(data.Encumbrance))) >= 0
                 ? 'text-green-700'
                 : 'text-red-600'
                 }`}
             >
-              {formatCurrency(Number(data.Released) - Number(data.Charges))}
+              {formatCurrency(Number(data.Released) - (Number(data.Charges) + Number(data.PreEncumbrance) + Number(data.Encumbrance)))}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-neutral-200">

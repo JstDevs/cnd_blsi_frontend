@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   AlertCircle,
   PhilippinePeso,
+  Eye,
 } from 'lucide-react';
 import Modal from '@/components/common/Modal';
 import BudgetTransferForm from '@/components/forms/BudgetTransferForm';
@@ -32,6 +33,7 @@ import { formatCurrency } from '@/utils/currencyFormater';
 const BudgetTransferPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
+  const [isViewOnly, setIsViewOnly] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -62,6 +64,13 @@ const BudgetTransferPage = () => {
   }, []);
   const handleEdit = (row) => {
     setActiveRow(row);
+    setIsViewOnly(false);
+    setIsModalOpen(true);
+  };
+
+  const handleView = (row) => {
+    setActiveRow(row);
+    setIsViewOnly(true);
     setIsModalOpen(true);
   };
 
@@ -268,6 +277,15 @@ const BudgetTransferPage = () => {
   const actions = (row) => {
     const actionList = [];
     const status = row?.Status?.toLowerCase() || '';
+
+    actionList.push({
+      icon: Eye,
+      title: 'View Details',
+      onClick: () => handleView(row),
+      className:
+        'text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-sm hover:shadow',
+      disabled: false,
+    });
 
     if (status.includes('rejected') && Edit) {
       actionList.push({
@@ -513,13 +531,14 @@ const BudgetTransferPage = () => {
           setIsModalOpen(false);
           setActiveRow(null);
         }}
-        title={activeRow ? 'Edit Transfer' : 'Add New Transfer'}
+        title={isViewOnly ? 'View Transfer Details' : activeRow ? 'Edit Transfer' : 'Add New Transfer'}
       >
         <BudgetTransferForm
           onSubmit={handleSubmit}
           initialData={activeRow}
           onClose={() => setIsModalOpen(false)}
           budgetOptions={budgetOptions}
+          isViewOnly={isViewOnly}
         />
       </Modal>
     </div>
