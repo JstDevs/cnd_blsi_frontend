@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import FormField from '../common/FormField';
 import SearchableDropdown from '../common/SearchableDropdown';
 import { Paperclip, Trash2 } from 'lucide-react';
+import { formatCurrency, formatForInput } from '@/utils/currencyFormater';
 const API_URL = import.meta.env.VITE_API_URL;
 const validationSchema = Yup.object().shape({
   BudgetID: Yup.string().required('Budget is required'),
@@ -385,8 +386,8 @@ function BudgetSupplementalForm({
             <FormField
               label="Appropriation"
               name="appropriation"
-              type="number"
-              value={values.appropriation}
+              type="text"
+              value={formatCurrency(values.appropriation)}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.appropriation}
@@ -398,8 +399,8 @@ function BudgetSupplementalForm({
             <FormField
               label="Balance"
               name="balance"
-              type="number"
-              value={values.balance}
+              type="text"
+              value={formatCurrency(values.balance)}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.balance}
@@ -411,8 +412,8 @@ function BudgetSupplementalForm({
             <FormField
               label="Released Allotments"
               name="releasedAllotments"
-              type="number"
-              value={values.releasedAllotments}
+              type="text"
+              value={formatCurrency(values.releasedAllotments)}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.releasedAllotments}
@@ -424,8 +425,8 @@ function BudgetSupplementalForm({
             <FormField
               label="Released Balance"
               name="releasedBalance"
-              type="number"
-              value={values.releasedBalance}
+              type="text"
+              value={formatCurrency(values.releasedBalance)}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.releasedBalance}
@@ -439,9 +440,12 @@ function BudgetSupplementalForm({
             <FormField
               label="Supplemental"
               name="supplemental"
-              type="number"
-              value={values.supplemental}
-              onChange={handleChange}
+              type="text"
+              value={formatForInput(values.supplemental)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('supplemental', rawValue);
+              }}
               onBlur={handleBlur}
               error={errors.supplemental}
               touched={touched.supplemental}

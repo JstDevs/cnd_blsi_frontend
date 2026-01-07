@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
+import { formatCurrency, formatForInput } from '@/utils/currencyFormater';
 
 const validationSchema = Yup.object().shape({
   Name: Yup.string().required('Budget name is required'),
@@ -223,54 +224,32 @@ function BudgetForm({
             <FormField
               label="Appropriation"
               name="Appropriation"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={
-                values.Appropriation !== '' && !isNaN(values.Appropriation)
-                  ? Number(values.Appropriation).toLocaleString()
-                  : ''
-              }
-              error={errors.Appropriation}
-              touched={touched.Appropriation}
-              type="text" // 👈 change to text so commas display properly
-              required
+              type="text"
+              value={formatCurrency(values.Appropriation)}
               readOnly
               className="bg-gray-100"
             />
             <FormField
               label="Charges"
               name="Charges"
-              type="number"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.Charges}
-              error={errors.Charges}
-              touched={touched.Charges}
-              required
+              type="text"
+              value={formatCurrency(values.Charges)}
               readOnly
               className="bg-gray-100"
             />
             <FormField
               label="Total Amount"
               name="TotalAmount"
-              type="number"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.TotalAmount}
-              error={errors.TotalAmount}
-              touched={touched.TotalAmount}
+              type="text"
+              value={formatCurrency(values.TotalAmount)}
               readOnly
               className="bg-gray-100"
             />
             <FormField
               label="Balance"
               name="AppropriationBalance"
-              type="number"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.AppropriationBalance}
-              error={errors.AppropriationBalance}
-              touched={touched.AppropriationBalance}
+              type="text"
+              value={formatCurrency(values.AppropriationBalance)}
               readOnly
               className="bg-gray-100"
             />
@@ -297,9 +276,9 @@ function BudgetForm({
                 name={month}
                 type="text" // keep as text to allow formatting with commas
                 onChange={(e) => {
-                  // Remove commas and parse as number
-                  const rawValue = e.target.value.replace(/,/g, '');
-                  const numericValue = rawValue === '' ? '' : Number(rawValue);
+                  // Remove commas and other non-numeric chars except dot
+                  const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                  const numericValue = rawValue === '' ? '' : rawValue;
 
                   // Save clean numeric value in Formik
                   handleChange({
@@ -333,11 +312,7 @@ function BudgetForm({
                   setFieldValue('Appropriation', sum);
                 }}
                 onBlur={handleBlur}
-                value={
-                  values[month] !== '' && !isNaN(values[month])
-                    ? Number(values[month]).toLocaleString() // 👈 no decimals
-                    : ''
-                }
+                value={formatForInput(values[month])}
                 error={errors[month]}
                 touched={touched[month]}
               />

@@ -5,6 +5,7 @@ import SearchableDropdown from '../common/SearchableDropdown';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Paperclip, Trash2, Upload } from 'lucide-react';
+import { formatCurrency, formatForInput } from '@/utils/currencyFormater';
 const API_URL = import.meta.env.VITE_API_URL;
 const validationSchema = Yup.object({
   fromBudgetId: Yup.string().required('Source budget is required'),
@@ -203,7 +204,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Appropriation Balance"
                     name="fromBalance"
                     type="text"
-                    value={values.fromBudget.AppropriationBalance || '0.00'}
+                    value={formatCurrency(values.fromBudget.AppropriationBalance)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -246,7 +247,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Appropriation"
                     name="fromAppropriation"
                     type="text"
-                    value={values.fromBudget.Appropriation || '0.00'}
+                    value={formatCurrency(values.fromBudget.Appropriation)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -254,7 +255,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Released Allotments"
                     name="fromReleasedAllotments"
                     type="text"
-                    value={values.fromBudget.TotalAmount || '0.00'}
+                    value={formatCurrency(values.fromBudget.TotalAmount)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -262,7 +263,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Allotment Balance"
                     name="fromAllotmentBalance"
                     type="text"
-                    value={values.fromBudget.AllotmentBalance || '0.00'}
+                    value={formatCurrency(values.fromBudget.AllotmentBalance)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />{' '}
@@ -270,7 +271,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Balance"
                     name="fromBalance"
                     type="text"
-                    value={values.fromBudget.AppropriationBalance || '0.00'}
+                    value={formatCurrency(values.fromBudget.AppropriationBalance)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -331,7 +332,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Appropriation Balance"
                     name="toBalance"
                     type="text"
-                    value={values.toBudget.AppropriationBalance || '0.00'}
+                    value={formatCurrency(values.toBudget.AppropriationBalance)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -373,7 +374,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Appropriation"
                     name="toAppropriation"
                     type="text"
-                    value={values.toBudget.Appropriation || '0.00'}
+                    value={formatCurrency(values.toBudget.Appropriation)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -382,7 +383,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Released Allotments"
                     name="toReleasedAllotments"
                     type="text"
-                    value={values.toBudget.TotalAmount || '0.00'}
+                    value={formatCurrency(values.toBudget.TotalAmount)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -390,7 +391,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Allotment Balance"
                     name="toAllotmentBalance"
                     type="text"
-                    value={values.toBudget.AllotmentBalance || '0.00'}
+                    value={formatCurrency(values.toBudget.AllotmentBalance)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -398,7 +399,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Balance"
                     name="toBalance"
                     type="text"
-                    value={values.toBudget.AppropriationBalance || '0.00'}
+                    value={formatCurrency(values.toBudget.AppropriationBalance)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -423,10 +424,13 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
             <FormField
               label="Transfer Amount"
               name="transferAmount"
-              type="number"
-              onChange={handleChange}
+              type="text"
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('transferAmount', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.transferAmount}
+              value={formatForInput(values.transferAmount)}
               error={errors.transferAmount}
               touched={touched.transferAmount}
               required

@@ -4,6 +4,7 @@ import FormField from '../common/FormField';
 import Button from '../common/Button';
 import { Trash2 } from 'lucide-react';
 import Select from 'react-select';
+import { formatCurrency, formatForInput } from '@/utils/currencyFormater';
 import { useState } from 'react'; // already imported
 const API_URL = import.meta.env.VITE_API_URL;
 function JournalEntryForm({
@@ -226,7 +227,7 @@ function JournalEntryForm({
               onBlur={handleBlur}
               error={errors.CheckNumber}
               touched={touched.CheckNumber}
-              // required={selectedType !== 'Cash Disbursement'}
+            // required={selectedType !== 'Cash Disbursement'}
             />
             <FormField
               type="date"
@@ -237,7 +238,7 @@ function JournalEntryForm({
               onBlur={handleBlur}
               error={errors.CheckDate}
               touched={touched.CheckDate}
-              // required={selectedType !== 'Cash Disbursement'}
+            // required={selectedType !== 'Cash Disbursement'}
             />
           </div>
         )}
@@ -325,10 +326,10 @@ function JournalEntryForm({
                         />
                         {errors.AccountingEntries?.[index]
                           ?.AccountExplanation && (
-                          <div className="text-sm text-red-600 mt-1">
-                            {errors.AccountingEntries[index].AccountExplanation}
-                          </div>
-                        )}
+                            <div className="text-sm text-red-600 mt-1">
+                              {errors.AccountingEntries[index].AccountExplanation}
+                            </div>
+                          )}
                       </div>
                       {/* <FormField
                       className="flex-1 max-w-[150px]"
@@ -344,22 +345,23 @@ function JournalEntryForm({
                     /> */}
                       <FormField
                         className="flex-1 sm:max-w-[150px] disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        type="number"
+                        type="text"
                         label="Debit"
                         name={`AccountingEntries[${index}].Debit`}
-                        value={entry.Debit}
+                        value={formatForInput(entry.Debit)}
                         onChange={(e) => {
+                          const rawValue = e.target.value.replace(/[^0-9.]/g, '');
                           // When Debit changes, clear Credit if it exists
-                          if (
-                            e.target.value &&
-                            parseFloat(e.target.value) > 0
-                          ) {
+                          if (rawValue && parseFloat(rawValue) > 0) {
                             formik.setFieldValue(
                               `AccountingEntries[${index}].Credit`,
                               0
                             );
                           }
-                          handleChange(e);
+                          formik.setFieldValue(
+                            `AccountingEntries[${index}].Debit`,
+                            rawValue
+                          );
                         }}
                         onBlur={handleBlur}
                         error={errors.AccountingEntries?.[index]?.Debit}
@@ -370,22 +372,23 @@ function JournalEntryForm({
 
                       <FormField
                         className="flex-1 sm:max-w-[150px] disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        type="number"
+                        type="text"
                         label="Credit"
                         name={`AccountingEntries[${index}].Credit`}
-                        value={entry.Credit}
+                        value={formatForInput(entry.Credit)}
                         onChange={(e) => {
+                          const rawValue = e.target.value.replace(/[^0-9.]/g, '');
                           // When Credit changes, clear Debit if it exists
-                          if (
-                            e.target.value &&
-                            parseFloat(e.target.value) > 0
-                          ) {
+                          if (rawValue && parseFloat(rawValue) > 0) {
                             formik.setFieldValue(
                               `AccountingEntries[${index}].Debit`,
                               0
                             );
                           }
-                          handleChange(e);
+                          formik.setFieldValue(
+                            `AccountingEntries[${index}].Credit`,
+                            rawValue
+                          );
                         }}
                         onBlur={handleBlur}
                         error={errors.AccountingEntries?.[index]?.Credit}
@@ -415,10 +418,12 @@ function JournalEntryForm({
 
                 <div className="col-span-2 text-right">
                   <div className="text-green-600 font-bold">
-                    {values.AccountingEntries.reduce(
-                      (sum, e) => sum + (parseFloat(e.Debit) || 0),
-                      0
-                    ).toFixed(2)}{' '}
+                    {formatCurrency(
+                      values.AccountingEntries.reduce(
+                        (sum, e) => sum + (parseFloat(e.Debit) || 0),
+                        0
+                      )
+                    )}{' '}
                     <span className="text-sm font-normal text-gray-500">
                       (debit)
                     </span>
@@ -427,10 +432,12 @@ function JournalEntryForm({
 
                 <div className="col-span-2 text-right">
                   <div className="text-red-600 font-bold">
-                    {values.AccountingEntries.reduce(
-                      (sum, e) => sum + (parseFloat(e.Credit) || 0),
-                      0
-                    ).toFixed(2)}{' '}
+                    {formatCurrency(
+                      values.AccountingEntries.reduce(
+                        (sum, e) => sum + (parseFloat(e.Credit) || 0),
+                        0
+                      )
+                    )}{' '}
                     <span className="text-sm font-normal text-gray-500">
                       (credit)
                     </span>
@@ -478,9 +485,8 @@ function JournalEntryForm({
                     </div>
                   ) : (
                     <div className="flex-1 min-w-[300px]">
-                      <label className="block text-sm font-medium mb-1">{`File ${
-                        index + 1
-                      }`}</label>
+                      <label className="block text-sm font-medium mb-1">{`File ${index + 1
+                        }`}</label>
                       <input
                         type="file"
                         name={`Attachments[${index}].File`}

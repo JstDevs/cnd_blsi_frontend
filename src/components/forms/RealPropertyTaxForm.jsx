@@ -2,6 +2,7 @@ import React from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
+import { formatCurrency, formatForInput } from '@/utils/currencyFormater';
 
 // Validation schema
 const realPropertyTaxSchema = Yup.object().shape({
@@ -323,6 +324,12 @@ function RealPropertyTaxForm({ initialData, onSubmit, onClose }) {
                 label="Previous Assessed Value"
                 name="previousAssessedValue"
                 type="text"
+                value={formatForInput(values.previousAssessedValue)}
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                  formik.setFieldValue('previousAssessedValue', rawValue);
+                }}
+                onBlur={handleBlur}
                 required
               />
             </div>
@@ -415,6 +422,12 @@ function RealPropertyTaxForm({ initialData, onSubmit, onClose }) {
                 label="Market Value"
                 name="assessmentDetails.marketValue"
                 type="text"
+                value={formatForInput(values.assessmentDetails.marketValue)}
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                  formik.setFieldValue('assessmentDetails.marketValue', rawValue);
+                }}
+                onBlur={handleBlur}
                 required
               />
             </div>

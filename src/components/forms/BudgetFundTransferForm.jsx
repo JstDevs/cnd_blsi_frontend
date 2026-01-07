@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import SearchableDropdown from '../common/SearchableDropdown';
 import toast from 'react-hot-toast';
 import { Paperclip, Trash2, Upload } from 'lucide-react';
+import { formatCurrency } from '@/utils/currencyFormater';
 const API_URL = import.meta.env.VITE_API_URL;
 const validationSchema = Yup.object({
   fromFundId: Yup.string().required('Source fund is required'),
@@ -252,7 +253,7 @@ function BudgetFundTransferForm({
                     label="Available Balance"
                     name="fromBalance"
                     type="text"
-                    value={values.fromFund.Balance || '0'}
+                    value={formatCurrency(values.fromFund.Balance)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -305,7 +306,7 @@ function BudgetFundTransferForm({
                     label="Available Balance"
                     name="toBalance"
                     type="text"
-                    value={values.toFund.Balance || '0'}
+                    value={formatCurrency(values.toFund.Balance)}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />

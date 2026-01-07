@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Formik, Form } from 'formik'
 import * as Yup from 'yup'
 import FormField from '../common/FormField'
+import { formatCurrency, formatForInput } from '@/utils/currencyFormater'
 
 const validationSchema = Yup.object().shape({
   budgetName: Yup.string().required('Budget name is required'),
@@ -241,101 +242,80 @@ function BudgetSummaryForm({ initialData, onSubmit, onClose }) {
             <FormField
               label='Appropriation (Original)'
               name='originalAppropriation'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.originalAppropriation)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('originalAppropriation', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.originalAppropriation}
               error={errors.originalAppropriation}
               touched={touched.originalAppropriation}
-              type='number'
               required
             />
             <FormField
               label='Appropriation Balance'
               name='appropriationBalance'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.appropriationBalance}
-              error={errors.appropriationBalance}
-              touched={touched.appropriationBalance}
-              type='number'
-              required
+              type='text'
+              value={formatCurrency(values.appropriationBalance)}
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
               label='Appropriation (Adjusted)'
               name='adjustedAppropriation'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.adjustedAppropriation}
-              error={errors.adjustedAppropriation}
-              touched={touched.adjustedAppropriation}
-              type='number'
-              required
+              type='text'
+              value={formatCurrency(values.adjustedAppropriation)}
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
               label='adjustments'
               name='adjustments'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.adjustments}
-              error={errors.adjustments}
-              touched={touched.adjustments}
-              type='number'
-              required
+              type='text'
+              value={formatCurrency(values.adjustments)}
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
               label='Total Allotment'
               name='totalAllotment'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.totalAllotment}
-              error={errors.totalAllotment}
-              touched={touched.totalAllotment}
-              type='number'
-              required
+              type='text'
+              value={formatCurrency(values.totalAllotment)}
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
               label='Allotment Balance'
               name='allotmentBalance'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.allotmentBalance}
-              error={errors.allotmentBalance}
-              touched={touched.allotmentBalance}
-              type='number'
-              required
+              type='text'
+              value={formatCurrency(values.allotmentBalance)}
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
               label='Pre Encumbrance'
               name='preEncumbrance'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.preEncumbrance}
-              error={errors.preEncumbrance}
-              touched={touched.preEncumbrance}
-              required
+              type='text'
+              value={formatCurrency(values.preEncumbrance)}
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
               label='Encumbrance'
               name='encumbrance'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.encumbrance}
-              error={errors.encumbrance}
-              touched={touched.encumbrance}
-              required
+              type='text'
+              value={formatCurrency(values.encumbrance)}
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
               label='Charges'
               name='charges'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.charges}
-              error={errors.charges}
-              touched={touched.charges}
-              required
+              type='text'
+              value={formatCurrency(values.charges)}
+              readOnly
+              className="bg-gray-100"
             />
           </div>
 
@@ -343,120 +323,156 @@ function BudgetSummaryForm({ initialData, onSubmit, onClose }) {
             <FormField
               label='January'
               name='january'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.january)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('january', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.january}
               error={errors.january}
               touched={touched.january}
             />
             <FormField
               label='February'
               name='february'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.february)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('february', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.february}
               error={errors.february}
               touched={touched.february}
             />
             <FormField
               label='March'
               name='march'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.march)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('march', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.march}
               error={errors.march}
               touched={touched.march}
             />
             <FormField
               label='April'
               name='april'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.april)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('april', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.april}
               error={errors.april}
               touched={touched.april}
             />
             <FormField
               label='May'
               name='may'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.may)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('may', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.may}
               error={errors.may}
               touched={touched.may}
             />
             <FormField
               label='June'
               name='june'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.june)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('june', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.june}
               error={errors.june}
               touched={touched.june}
             />
             <FormField
               label='July'
               name='july'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.july)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('july', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.july}
               error={errors.july}
               touched={touched.july}
             />
             <FormField
               label='August'
               name='august'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.august)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('august', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.august}
               error={errors.august}
               touched={touched.august}
             />
             <FormField
               label='September'
               name='september'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.september)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('september', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.september}
               error={errors.september}
               touched={touched.september}
             />
             <FormField
               label='October'
               name='october'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.october)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('october', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.october}
               error={errors.october}
               touched={touched.october}
             />
             <FormField
               label='November'
               name='november'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.november)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('november', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.november}
               error={errors.november}
               touched={touched.november}
             />
             <FormField
               label='December'
               name='december'
-              type='number'
-              onChange={handleChange}
+              type='text'
+              value={formatForInput(values.december)}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                setFieldValue('december', rawValue);
+              }}
               onBlur={handleBlur}
-              value={values.december}
               error={errors.december}
               touched={touched.december}
             />

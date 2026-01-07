@@ -6,6 +6,7 @@ import FormField from '../common/FormField';
 import Button from '../common/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCustomers } from '@/features/settings/customersSlice';
+import { formatCurrency, formatForInput } from '@/utils/currencyFormater';
 
 function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
   const dispatch = useDispatch();
@@ -627,16 +628,19 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
         </div>
         <div>
           <FormField
-            type="number"
+            type="text"
             name="PreviousAssessedValue"
             placeholder=" Previous Assessed Value:"
             label={'Previous Assessed Value:'}
-            value={values.PreviousAssessedValue}
+            value={formatForInput(values.PreviousAssessedValue)}
             error={
               touched.PreviousAssessedValue && errors.PreviousAssessedValue
             }
             touched={touched.PreviousAssessedValue}
-            onChange={handleChange}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+              formik.setFieldValue('PreviousAssessedValue', rawValue);
+            }}
             required
             onBlur={handleBlur}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -815,15 +819,18 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
         <div>
           <FormField
             placeholder="Enter Market Value"
-            type="number"
+            type="text"
             name="MarketValue"
             label={'Market Value'}
-            value={values.MarketValue}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+              formik.setFieldValue('MarketValue', rawValue);
+            }}
+            value={formatForInput(values.MarketValue)}
             onBlur={handleBlur}
             error={touched.MarketValue && errors.MarketValue}
             touched={touched.MarketValue}
             required
-            onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>

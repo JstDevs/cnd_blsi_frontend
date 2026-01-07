@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { convertAmountToWords } from '@/utils/amountToWords';
 import { calculateInterestRate } from '@/utils/calculateInterest';
+import { formatCurrency, formatForInput } from '@/utils/currencyFormater';
 // Validation schema
 const validationSchema = Yup.object({
   // Certificate Information
@@ -631,6 +632,11 @@ const CommunityTaxForm = ({
                     <FormField
                       label="Taxable Amount:"
                       {...getFieldProps('BasicTax')}
+                      value={formatForInput(formik.values.BasicTax)}
+                      onChange={(e) => {
+                        const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                        formik.setFieldValue('BasicTax', rawValue);
+                      }}
                       type="text"
                       className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
                       error={formik.touched.BasicTax && formik.errors.BasicTax}
@@ -674,6 +680,12 @@ const CommunityTaxForm = ({
                         <FormField
                           label="Taxable Amount:"
                           {...getFieldProps('BusinessEarnings')}
+                          value={formatForInput(formik.values.BusinessEarnings)}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                            formik.setFieldValue('BusinessEarnings', rawValue);
+                            handleEarningsChange('BusinessEarnings', rawValue);
+                          }}
                           type="text"
                           min="0"
                           step="0.01"
@@ -690,6 +702,7 @@ const CommunityTaxForm = ({
                         <FormField
                           label="Community Due Amount:"
                           {...getFieldProps('BusinessTaxDue')}
+                          value={formatCurrency(formik.values.BusinessTaxDue)}
                           type="text"
                           className="w-24 text-right font-mono border-blue-200 bg-gray-100 cursor-not-allowed"
                           placeholder="Tax"
@@ -717,6 +730,12 @@ const CommunityTaxForm = ({
                         <FormField
                           label="Taxable Amount:"
                           {...getFieldProps('OccupationEarnings')}
+                          value={formatForInput(formik.values.OccupationEarnings)}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                            formik.setFieldValue('OccupationEarnings', rawValue);
+                            handleEarningsChange('OccupationEarnings', rawValue);
+                          }}
                           type="text"
                           min="0"
                           step="0.01"
@@ -733,6 +752,7 @@ const CommunityTaxForm = ({
                         <FormField
                           label="Community Due Amount:"
                           {...getFieldProps('OccupationTaxDue')}
+                          value={formatCurrency(formik.values.OccupationTaxDue)}
                           type="text"
                           className="w-24 text-right font-mono border-blue-200 bg-gray-100 cursor-not-allowed"
                           placeholder="Tax"
@@ -758,6 +778,19 @@ const CommunityTaxForm = ({
                         <FormField
                           label="Taxable Amount:"
                           {...getFieldProps('IncomeProperty')}
+                          value={
+                            formik.values.IncomeProperty !== '' && !isNaN(formik.values.IncomeProperty)
+                              ? Number(formik.values.IncomeProperty).toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })
+                              : formik.values.IncomeProperty
+                          }
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                            formik.setFieldValue('IncomeProperty', rawValue);
+                            handleEarningsChange('IncomeProperty', rawValue);
+                          }}
                           type="text"
                           min="0"
                           step="0.01"
@@ -774,6 +807,7 @@ const CommunityTaxForm = ({
                         <FormField
                           label="Community Due Amount:"
                           {...getFieldProps('PropertyTaxDue')}
+                          value={formatCurrency(formik.values.PropertyTaxDue)}
                           type="text"
                           className="w-24 text-right font-mono border-blue-200 bg-gray-100 cursor-not-allowed"
                           placeholder="Tax"
@@ -799,12 +833,14 @@ const CommunityTaxForm = ({
                       <label className="font-medium block">Total</label>
                       <FormField
                         {...getFieldProps('Total')}
+                        value={formatCurrency(formik.values.Total)}
                         type="text"
                         min="0"
                         step="0.01"
                         className="w-full text-right font-mono bg-white/20 border-white/30 text-white placeholder-white/70 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-white/50"
                         error={formik.touched.Total && formik.errors.Total}
                         touched={formik.touched.Total}
+                        readOnly
                       />
                     </div>
                     <div className="space-y-2">
@@ -834,6 +870,7 @@ const CommunityTaxForm = ({
                       </label>
                       <FormField
                         {...getFieldProps('AmountReceived')}
+                        value={formatCurrency(formik.values.AmountReceived)}
                         type="text"
                         min="0"
                         step="0.01"
@@ -843,6 +880,7 @@ const CommunityTaxForm = ({
                           formik.errors.AmountReceived
                         }
                         touched={formik.touched.AmountReceived}
+                        readOnly
                       />
                     </div>
                     <div className="space-y-2">
