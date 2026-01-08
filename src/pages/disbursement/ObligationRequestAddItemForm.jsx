@@ -135,11 +135,9 @@ function ObligationRequestAddItemForm({
     if (formBudgets && formBudgets.length > 0) {
       return formBudgets
         .filter((b) => {
-          // Must be active
-          const isActive = Number(b.Active) === 1;
           // Must match Responsibility Center (Department)
           const matchesDept = String(b.DepartmentID) === String(formik.values.ResponsibilityCenter);
-          return isActive && matchesDept;
+          return matchesDept;
         })
         .map((b) => ({ value: b.ID, label: b.Name }));
     }

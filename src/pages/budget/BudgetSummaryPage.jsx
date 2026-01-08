@@ -104,7 +104,7 @@ const BudgetSummaryPage = () => {
             acc.totalAppropriationBalance + (Number(item.AppropriationBalance) || 0),
           totalAmount: acc.totalAmount + totalAmount,
           totalAllotmentBalance:
-            acc.totalAllotmentBalance + (released - (charges + preEncumbrance + encumbrance)),
+            acc.totalAllotmentBalance + (released - charges),
           totalCharges: acc.totalCharges + charges,
           count: acc.count + 1,
         };
@@ -808,12 +808,12 @@ const BudgetSummaryDetail = ({ data }) => {
               Allotment Balance
             </p>
             <p
-              className={`text-lg font-bold ${(Number(data.Released) - (Number(data.Charges) + Number(data.PreEncumbrance) + Number(data.Encumbrance))) >= 0
+              className={`text-lg font-bold ${(Number(data.Released) - Number(data.Charges)) >= 0
                 ? 'text-green-700'
                 : 'text-red-600'
                 }`}
             >
-              {formatCurrency(Number(data.Released) - (Number(data.Charges) + Number(data.PreEncumbrance) + Number(data.Encumbrance)))}
+              {formatCurrency(Number(data.Released) - Number(data.Charges))}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-neutral-200">

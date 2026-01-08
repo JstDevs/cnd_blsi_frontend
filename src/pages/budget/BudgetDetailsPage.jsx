@@ -512,7 +512,7 @@ const BudgetDetailsPage = () => {
     const total = filteredData.length;
     const totalAppropriation = filteredData.reduce((sum, item) => sum + (Number(item.Appropriation) || 0), 0);
     const totalCharges = filteredData.reduce((sum, item) => sum + (Number(item.ChargedAllotment) || 0), 0);
-    const totalBalance = filteredData.reduce((sum, item) => sum + (Number(item.AllotmentBalance) || 0), 0);
+    const totalBalance = filteredData.reduce((sum, item) => sum + ((Number(item.Released) || 0) - (Number(item.Charges) || 0)), 0);
 
     return {
       total,
@@ -847,9 +847,9 @@ const BudgetDetailsPage = () => {
                   <label className={`block text-sm font-medium mb-1 ${Number(activeRow.AppropriationBalance) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Appropriation Balance</label>
                   <p className={`text-2xl font-bold ${Number(activeRow.AppropriationBalance) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(activeRow.AppropriationBalance)}</p>
                 </div>
-                <div className={`border rounded-lg p-4 ${(Number(activeRow.Released) - (Number(activeRow.Charges) + Number(activeRow.PreEncumbrance) + Number(activeRow.Encumbrance))) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
-                  <label className={`block text-sm font-medium mb-1 ${(Number(activeRow.Released) - (Number(activeRow.Charges) + Number(activeRow.PreEncumbrance) + Number(activeRow.Encumbrance))) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Allotment Balance</label>
-                  <p className={`text-2xl font-bold ${(Number(activeRow.Released) - (Number(activeRow.Charges) + Number(activeRow.PreEncumbrance) + Number(activeRow.Encumbrance))) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(Number(activeRow.Released) - (Number(activeRow.Charges) + Number(activeRow.PreEncumbrance) + Number(activeRow.Encumbrance)))}</p>
+                <div className={`border rounded-lg p-4 ${(Number(activeRow.Released) - Number(activeRow.Charges)) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                  <label className={`block text-sm font-medium mb-1 ${(Number(activeRow.Released) - Number(activeRow.Charges)) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Allotment Balance</label>
+                  <p className={`text-2xl font-bold ${(Number(activeRow.Released) - Number(activeRow.Charges)) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(Number(activeRow.Released) - Number(activeRow.Charges))}</p>
                 </div>
                 <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-4">
                   <label className="block text-sm font-medium text-neutral-700 mb-1">Pre Encumbrance</label>

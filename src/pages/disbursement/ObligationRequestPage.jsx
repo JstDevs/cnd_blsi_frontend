@@ -395,7 +395,6 @@ function ObligationRequestPage() {
                 label: code.Name,
               }))}
               budgetOptions={budgets
-                .filter((fund) => Number(fund.Active) === 1)
                 .map((code) => ({
                   value: code.ID,
                   label: code.Name,
