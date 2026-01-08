@@ -1,63 +1,56 @@
-// accountingMath.js
 export function obligationRequestItemsCalculator({
   price = '',
   quantity = '',
-  taxRate = '',
-  discountPercent = '',
+  taxRate = 0,
+  discountPercent = 0,
   vatable = false,
-  ewtRate = 0, // percent (e.g. 1 for 1 %)
-  vatRate = 12, // percent
+  ewtRate = 0,
+  vatRate = 12,
 }) {
-  // Parse → numbers or 0
   const p = parseFloat(price) || 0;
   const q = parseFloat(quantity) || 0;
-  const tax = parseFloat(taxRate) || 0;
+  const taxPercent = parseFloat(taxRate) || 0;
   const discPct = (parseFloat(discountPercent) || 0) / 100;
-  const ewtrate = parseFloat(ewtRate) || 0;
+  const ewtPercent = parseFloat(ewtRate) || 0;
 
-  let subtotalBeforeDiscount = 0;
-  let discount = 0;
+  const grossAmount = p * q;
+  const discount = +(grossAmount * discPct).toFixed(2);
+  const netBeforeTax = grossAmount - discount;
+
   let vat = 0;
-  let subtotalTaxIncluded = 0;
-  let subtotalTaxExcluded = 0;
-  let withheld = 0;
-  let ewt = 0;
-  let totalDeduction = 0;
-  let subtotal = 0;
+  let taxBase = netBeforeTax;
 
   if (vatable) {
-    subtotalBeforeDiscount = p * q; // price already VAT‑inclusive
-    discount = +(subtotalBeforeDiscount * discPct).toFixed(2);
-    subtotalTaxIncluded = +(subtotalBeforeDiscount - discount).toFixed(2);
-    vat = +((subtotalTaxIncluded * vatRate) / (100 + vatRate)).toFixed(2);
-    subtotalTaxExcluded = +(subtotalTaxIncluded - vat).toFixed(2);
+    // If vatable, we assume price is VAT inclusive (standard Philippine practice for OBR)
+    // Extract VAT from the inclusive price
+    vat = +((netBeforeTax * vatRate) / (100 + vatRate)).toFixed(2);
+    taxBase = +(netBeforeTax - vat).toFixed(2);
   } else {
-    subtotalBeforeDiscount = p * q;
-    discount = +(subtotalBeforeDiscount * discPct).toFixed(2);
-    vat = +((subtotalBeforeDiscount * vatRate) / 100).toFixed(2);
-    subtotalTaxExcluded = +(subtotalBeforeDiscount - discount).toFixed(2);
-    subtotalTaxIncluded = +(subtotalTaxExcluded + vat).toFixed(2);
+    // If not vatable, VAT is 0. Tax base is simply the net amount.
+    vat = 0;
+    taxBase = netBeforeTax;
   }
 
-  // taxes
-  withheld = +(((subtotalTaxExcluded * tax) / 100) * -1).toFixed(2);
-  ewt = +(((subtotalTaxExcluded * ewtrate) / 100) * -1).toFixed(2);
-  totalDeduction = +(withheld + ewt).toFixed(2);
+  // Calculate Withholding Taxes (based on taxBase)
+  // These are deductions, so they should be negative
+  const withheld = +((taxBase * taxPercent) / 100 * -1).toFixed(2);
+  const ewt = +((taxBase * ewtPercent) / 100 * -1).toFixed(2);
+  const totalDeduction = +(withheld + ewt).toFixed(2);
 
-  // final subtotal depends on vatable branch (mirrors VB code)
-  subtotal = vatable
-    ? +(subtotalTaxIncluded + totalDeduction).toFixed(2)
-    : +(subtotalTaxExcluded + totalDeduction).toFixed(2);
+  // Final subtotal: What is actually being obligated
+  // Usually this is Gross - Discount + Deductions(Negative)
+  // VAT is included in the base if vatable=true, omitted if vatable=false
+  const subtotal = +(netBeforeTax + totalDeduction).toFixed(2);
 
   return {
-    subtotalBeforeDiscount,
+    subtotalBeforeDiscount: grossAmount,
     discount,
     vat,
-    subtotalTaxIncluded,
-    subtotalTaxExcluded,
+    subtotalTaxIncluded: vatable ? netBeforeTax : +(netBeforeTax + vat).toFixed(2),
+    subtotalTaxExcluded: taxBase,
     withheld,
     ewt,
-    ewtrate,
+    ewtrate: ewtPercent,
     totalDeduction,
     subtotal,
   };

@@ -365,10 +365,12 @@ function ObligationRequestPage() {
                 value: dept.ID,
                 label: dept.Name,
               }))}
-              fundOptions={funds.map((fund) => ({
-                value: fund.ID,
-                label: fund.Name,
-              }))}
+              fundOptions={funds
+                .filter((fund) => Number(fund.Active) === 1)
+                .map((fund) => ({
+                  value: fund.ID,
+                  label: fund.Name,
+                }))}
               projectOptions={projectDetails.map((project) => ({
                 value: project.ID,
                 label: project.Title,

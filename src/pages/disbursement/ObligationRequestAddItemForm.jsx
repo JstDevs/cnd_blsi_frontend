@@ -104,7 +104,7 @@ function ObligationRequestAddItemForm({
       taxRate: selectedTax?.Rate || 0,
       discountPercent: formik.values.DiscountRate,
       vatable: formik.values.Vatable,
-      ewtRate: formik.values.withheldEWT,
+      ewtRate: 0, // Should not pass the calculated amount back as a rate
     });
 
     if (computed.subtotal !== formik.values.subtotal) {
@@ -203,7 +203,7 @@ function ObligationRequestAddItemForm({
             label="FPP"
             name="FPP"
             {...formik.getFieldProps('FPP')}
-            // required
+          // required
           />
           {formik.touched.FPP && formik.errors.FPP && (
             <p className="text-red-500 text-sm">{formik.errors.FPP}</p>
