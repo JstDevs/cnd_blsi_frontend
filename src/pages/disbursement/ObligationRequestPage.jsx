@@ -158,18 +158,23 @@ function ObligationRequestPage() {
   //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
   //   },
   // ];
-  const handleView = (values) => {
-    console.log(values);
+  const handleView = (or) => {
+    handleViewOR(or);
   };
-  const handleEditRequest = (dv) => {
-    // setCurrentObligationRequest(dv);
-    // setCurrentView('form');
-    console.log(values);
+  const handleEditRequest = (or) => {
+    handleEditOR(or);
   };
-  const handleDelete = (dv) => {
-    // setCurrentObligationRequest(dv);
-    // setCurrentView('form');
-    console.log(values);
+  const handleDelete = async (or) => {
+    if (window.confirm('Are you sure you want to delete this obligation request?')) {
+      try {
+        await axiosInstance.delete(`/obligationRequest/delete/${or.ID}`);
+        toast.success('Obligation Request deleted successfully');
+        dispatch(fetchObligationRequests());
+      } catch (error) {
+        console.error('Error deleting obligation request:', error);
+        toast.error(error.response?.data?.message || 'Error deleting obligation request');
+      }
+    }
   };
   const handleORPAction = async (dv, action) => {
     // Config for each action
@@ -300,7 +305,7 @@ function ObligationRequestPage() {
               data={obligationRequests}
               actions={actions}
               loading={isLoading || isLoadingORPAction}
-              // onRowClick={handleViewOR}
+            // onRowClick={handleViewOR}
             />
           </div>
         </div>
@@ -428,6 +433,7 @@ function ObligationRequestPage() {
             <ObligationRequestDetails
               or={currentObligationRequest}
               onBack={handleBackToList}
+              onEdit={handleEditOR}
             />
           </div>
         </div>

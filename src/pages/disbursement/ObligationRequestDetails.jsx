@@ -6,7 +6,8 @@ import {
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 
-function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
+function ObligationRequestDetails({ or, onBack, onEdit }) {
+  if (!or) return null;
   // Format amount as Philippine Peso
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {
@@ -28,23 +29,16 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
   const getStatusBadge = (status) => {
     let bgColor = 'bg-neutral-100 text-neutral-800';
 
-    switch (status) {
-      case 'Pending Certification':
-        bgColor = 'bg-warning-100 text-warning-800';
-        break;
-      case 'Pending Approval':
-        bgColor = 'bg-primary-100 text-primary-800';
-        break;
-      case 'Approved for Payment':
-      case 'Paid':
-        bgColor = 'bg-success-100 text-success-800';
-        break;
-      case 'Cancelled':
-      case 'Rejected':
-        bgColor = 'bg-error-100 text-error-800';
-        break;
-      default:
-        break;
+    if (!status) return bgColor;
+
+    const lowerStatus = status.toLowerCase();
+
+    if (lowerStatus.includes('requested') || lowerStatus.includes('pending')) {
+      bgColor = 'bg-warning-100 text-warning-800';
+    } else if (lowerStatus.includes('posted') || lowerStatus.includes('approved')) {
+      bgColor = 'bg-success-100 text-success-800';
+    } else if (lowerStatus.includes('rejected') || lowerStatus.includes('cancelled')) {
+      bgColor = 'bg-error-100 text-error-800';
     }
 
     return bgColor;
@@ -56,17 +50,17 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <span
           className={`px-3 py-1 inline-flex text-sm font-semibold rounded-full ${getStatusBadge(
-            dv.status
+            or.Status
           )}`}
         >
-          {dv.status}
+          {or.Status}
         </span>
 
         <div className="flex space-x-2">
           <button
             type="button"
             className="btn btn-outline flex items-center"
-            onClick={onEdit}
+            onClick={() => onEdit && onEdit(or)}
           >
             <PencilIcon className="h-4 w-4 mr-2" />
             Edit
@@ -82,54 +76,54 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg bg-neutral-50 border border-neutral-200">
         <div>
           <h3 className="text-lg font-medium text-neutral-900 mb-4">
-            DV Details
+            OBR Details
           </h3>
 
           <dl className="space-y-2">
             <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">
-                DV Number
+                OBR Number
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.dvNumber}
+                {or.InvoiceNumber || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">Date</dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {formatDate(dv.dvDate)}
+                {or.InvoiceDate ? formatDate(or.InvoiceDate) : 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">
-                ORS Number
+                Responsibility Center
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.orsNumber || 'N/A'}
+                {or.ResponsibilityCenterName || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">
-                Mode of Payment
+                Fund
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.modeOfPayment}
+                {or.FundName || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">
-                Created By
+                Project
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.preparedBy}
+                {or.ProjectName || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">
-                Date Created
+                Fiscal Year
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {formatDate(dv.dateCreated)}
+                {or.FiscalYearName || 'N/A'}
               </dd>
             </div>
           </dl>
@@ -146,7 +140,15 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
                 Payee Name
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.payeeName}
+                {or.Payee || 'N/A'}
+              </dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="text-sm font-medium text-neutral-500">
+                Payee Type
+              </dt>
+              <dd className="text-sm text-neutral-900 col-span-2">
+                {or.PayeeType || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -154,55 +156,70 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
                 Payee Address
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.payeeAddress || 'N/A'}
-              </dd>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <dt className="text-sm font-medium text-neutral-500">
-                Department
-              </dt>
-              <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.department}
+                {or.Address || 'N/A'}
               </dd>
             </div>
           </dl>
         </div>
       </div>
 
-      {/* Particulars */}
+      {/* Items */}
       <div>
         <h3 className="text-lg font-medium text-neutral-900 mb-2">
-          Particulars
+          Items
         </h3>
-        <div className="p-4 rounded-lg bg-white border border-neutral-200">
-          <p className="text-sm text-neutral-700 whitespace-pre-line">
-            {dv.particulars}
-          </p>
+        <div className="overflow-x-auto border border-neutral-200 rounded-lg">
+          <table className="min-w-full divide-y divide-neutral-200">
+            <thead className="bg-neutral-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">RC</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Particulars</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Account Code</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-neutral-200">
+              {or.TransactionItemsAll && or.TransactionItemsAll.length > 0 ? (
+                or.TransactionItemsAll.map((item, index) => (
+                  <tr key={index}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.responsibilityCenterName}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.itemName}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.chargeAccountName}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900">{formatCurrency(item.subtotal)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="px-6 py-4 text-center text-sm text-neutral-500">No items found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* Amounts */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 rounded-lg bg-white border border-neutral-200">
-          <dt className="text-sm font-medium text-neutral-500">Gross Amount</dt>
+          <dt className="text-sm font-medium text-neutral-500">Total Amount</dt>
           <dd className="mt-1 text-2xl font-semibold text-neutral-900">
-            {formatCurrency(dv.grossAmount)}
+            {formatCurrency(or.Total)}
           </dd>
         </div>
 
         <div className="p-4 rounded-lg bg-white border border-neutral-200">
           <dt className="text-sm font-medium text-neutral-500">
-            Total Deductions
+            Vat Total
           </dt>
-          <dd className="mt-1 text-2xl font-semibold text-error-600">
-            {formatCurrency(dv.totalDeductions)}
+          <dd className="mt-1 text-2xl font-semibold text-neutral-900">
+            {formatCurrency(or.Vat_Total)}
           </dd>
         </div>
 
         <div className="p-4 rounded-lg bg-success-50 border border-success-200">
           <dt className="text-sm font-medium text-success-700">Net Amount</dt>
           <dd className="mt-1 text-2xl font-semibold text-success-700">
-            {formatCurrency(dv.netAmount)}
+            {formatCurrency(or.Total - (or.WithheldAmount || 0))}
           </dd>
         </div>
       </div>
@@ -224,10 +241,10 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
                     <h3 className="text-lg font-semibold text-neutral-900">
                       Prepared
                     </h3>
-                    <p className="text-sm text-neutral-500">{dv.preparedBy}</p>
+                    <p className="text-sm text-neutral-500">{or.PreparedBy || 'N/A'}</p>
                   </div>
                   <time className="text-sm text-neutral-500">
-                    {formatDate(dv.dateCreated)}
+                    {or.DateCreated ? formatDate(or.DateCreated) : formatDate(or.InvoiceDate)}
                   </time>
                 </div>
               </li>
@@ -265,7 +282,7 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
       </div>
 
       <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-        <button type="button" onClick={onClose} className="btn btn-outline">
+        <button type="button" onClick={onBack} className="btn btn-outline">
           Close
         </button>
       </div>
@@ -273,4 +290,4 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
   );
 }
 
-export default DisbursementVoucherDetails;
+export default ObligationRequestDetails;
