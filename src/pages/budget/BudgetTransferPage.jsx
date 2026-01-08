@@ -146,11 +146,21 @@ const BudgetTransferPage = () => {
     },
     {
       key: 'BudgetID',
-      header: 'Budget',
+      header: 'Budget Source',
       sortable: true,
       render: (value, row) => (
         <span className="text-neutral-700">
-          {row?.Budget?.Name || value || '—'}
+          {budgetOptions?.find((b) => b.ID == value)?.Name || row?.Budget?.Name || value || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'TargetID',
+      header: 'Budget Target',
+      sortable: true,
+      render: (value, row) => (
+        <span className="text-neutral-700">
+          {budgetOptions?.find((b) => b.ID == value)?.Name || row?.targetBudget?.Name || row?.Target?.Name || value || '—'}
         </span>
       ),
     },

@@ -88,7 +88,7 @@ const BudgetFundTransferPage = () => {
       sortable: true,
       render: (value, record) => (
         <span className="text-neutral-700">
-          {record?.Funds?.Name || value || '—'}
+          {fundOptions?.find((f) => f.ID == value)?.Name || record?.Funds?.Name || value || '—'}
         </span>
       ),
     },
@@ -98,7 +98,7 @@ const BudgetFundTransferPage = () => {
       sortable: true,
       render: (value, record) => (
         <span className="text-neutral-700">
-          {record?.targetFunds?.Name || value || '—'}
+          {fundOptions?.find((f) => f.ID == value)?.Name || record?.targetFunds?.Name || value || '—'}
         </span>
       ),
     },
