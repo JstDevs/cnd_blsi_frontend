@@ -10,6 +10,8 @@ import {
   addJournalEntry,
   updateJournalEntry,
   deleteJournalEntry,
+  approveJournalEntry,
+  rejectJournalEntry,
 } from '../../features/disbursement/journalEntrySlice';
 import { fetchDepartments } from '../../features/settings/departmentSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
@@ -223,17 +225,16 @@ function JournalEntryPage() {
   const handleJEPAction = async (dv, action) => {
     setIsLoadingJEPAction(true);
     try {
-      // TODO : add action
-      // const response = await axiosInstance.post(
-      //   `/disbursementVoucher/${action}`,
-      //   { ID: dv.ID }
-      // );
-      console.log(`${action}d:`, response.data);
-      // dispatch(fetchGeneralServiceReceipts());
-      toast.success(`Purchase Request ${action}d successfully`);
+      if (action === 'approve') {
+        await dispatch(approveJournalEntry(dv.ID)).unwrap();
+      } else if (action === 'reject') {
+        await dispatch(rejectJournalEntry(dv.ID)).unwrap();
+      }
+      dispatch(fetchJournalEntries());
+      toast.success(`Journal Entry ${action}d successfully`);
     } catch (error) {
-      console.error(`Error ${action}ing Purchase Request:`, error);
-      toast.error(`Error ${action}ing Purchase Request`);
+      console.error(`Error ${action}ing Journal Entry:`, error);
+      toast.error(error || `Error ${action}ing Journal Entry`);
     } finally {
       setIsLoadingJEPAction(false);
     }
@@ -341,24 +342,24 @@ function JournalEntryPage() {
           initialData={
             currentJournalEntry
               ? {
-                  ...currentJournalEntry,
-                  AccountingEntries:
-                    currentJournalEntry.JournalEntries?.map((entry) => {
-                      const matchedAccount = accounts.find(
-                        (acc) =>
-                          acc.AccountCode === entry.AccountCode &&
-                          acc.Name === entry.AccountName
-                      );
+                ...currentJournalEntry,
+                AccountingEntries:
+                  currentJournalEntry.JournalEntries?.map((entry) => {
+                    const matchedAccount = accounts.find(
+                      (acc) =>
+                        acc.AccountCode === entry.AccountCode &&
+                        acc.Name === entry.AccountName
+                    );
 
-                      return {
-                        ResponsibilityCenter: entry.ResponsibilityCenter || '',
-                        AccountExplanation: matchedAccount?.ID || '', // ✅ set to actual account ID
-                        PR: entry.PR || '',
-                        Debit: entry.Debit || 0,
-                        Credit: entry.Credit || 0,
-                      };
-                    }) || [],
-                }
+                    return {
+                      ResponsibilityCenter: entry.ResponsibilityCenter || '',
+                      AccountExplanation: matchedAccount?.ID || '', // ✅ set to actual account ID
+                      PR: entry.PR || '',
+                      Debit: entry.Debit || 0,
+                      Credit: entry.Credit || 0,
+                    };
+                  }) || [],
+              }
               : null
           }
           onClose={() => setIsModalOpen(false)}

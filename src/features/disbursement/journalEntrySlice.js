@@ -109,6 +109,58 @@ export const deleteJournalEntry = createAsyncThunk(
   }
 );
 
+export const approveJournalEntry = createAsyncThunk(
+  'journalEntries/approveJournalEntry',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/journalEntryVoucher/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ ID }),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.error || res.message || 'Failed to approve');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const rejectJournalEntry = createAsyncThunk(
+  'journalEntries/rejectJournalEntry',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/journalEntryVoucher/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ ID }),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.error || res.message || 'Failed to reject');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 const journalEntriesSlice = createSlice({
   name: 'journalEntries',
   initialState: {
@@ -187,6 +239,40 @@ const journalEntriesSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message || 'Failed to delete journal entry';
         console.error('Failed to delete journal entry:', state.error);
+      })
+      .addCase(approveJournalEntry.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(approveJournalEntry.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.journalEntries.findIndex(
+          (item) => item.ID === action.payload.ID
+        );
+        if (index !== -1) {
+          state.journalEntries[index] = action.payload;
+        }
+      })
+      .addCase(approveJournalEntry.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to approve journal entry';
+      })
+      .addCase(rejectJournalEntry.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(rejectJournalEntry.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.journalEntries.findIndex(
+          (item) => item.ID === action.payload.ID
+        );
+        if (index !== -1) {
+          state.journalEntries[index] = action.payload;
+        }
+      })
+      .addCase(rejectJournalEntry.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to reject journal entry';
       });
   },
 });
