@@ -111,7 +111,7 @@ export const deleteJournalEntry = createAsyncThunk(
 
 export const approveJournalEntry = createAsyncThunk(
   'journalEntries/approveJournalEntry',
-  async (ID, thunkAPI) => {
+  async (payload, thunkAPI) => {
     try {
       const response = await fetch(`${API_URL}/journalEntryVoucher/approve`, {
         method: 'POST',
@@ -119,7 +119,7 @@ export const approveJournalEntry = createAsyncThunk(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
-        body: JSON.stringify({ ID }),
+        body: JSON.stringify(payload),
       });
 
       const res = await response.json();
@@ -137,7 +137,7 @@ export const approveJournalEntry = createAsyncThunk(
 
 export const rejectJournalEntry = createAsyncThunk(
   'journalEntries/rejectJournalEntry',
-  async (ID, thunkAPI) => {
+  async (payload, thunkAPI) => {
     try {
       const response = await fetch(`${API_URL}/journalEntryVoucher/reject`, {
         method: 'POST',
@@ -145,7 +145,7 @@ export const rejectJournalEntry = createAsyncThunk(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
-        body: JSON.stringify({ ID }),
+        body: JSON.stringify(payload),
       });
 
       const res = await response.json();

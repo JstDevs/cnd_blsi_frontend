@@ -222,13 +222,24 @@ function JournalEntryPage() {
   const handleView = (values) => {
     console.log(values);
   };
-  const handleJEPAction = async (dv, action) => {
+  const handleJEPAction = async (item, action) => {
     setIsLoadingJEPAction(true);
     try {
+      const payload = {
+        ID: item.ID,
+        LinkID: item.LinkID,
+        FundsID: item.FundsID,
+        ApprovalProgress: (item.ApprovalProgress || 0) + 1,
+        ApprovalOrder: item.SequenceOrder || item.ApprovalOrder || 1,
+        NumberOfApproverPerSequence: item.ApprovalOrder || item.NumberOfApproverPerSequence || 1,
+        ApprovalVersion: item.ApprovalVersion || 1,
+        ApprovalLinkID: item.ApprovalLinkID || item.LinkID,
+      };
+
       if (action === 'approve') {
-        await dispatch(approveJournalEntry(dv.ID)).unwrap();
+        await dispatch(approveJournalEntry(payload)).unwrap();
       } else if (action === 'reject') {
-        await dispatch(rejectJournalEntry(dv.ID)).unwrap();
+        await dispatch(rejectJournalEntry({ ID: item.ID })).unwrap();
       }
       dispatch(fetchJournalEntries());
       toast.success(`Journal Entry ${action}d successfully`);
