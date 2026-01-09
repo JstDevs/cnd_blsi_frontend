@@ -39,16 +39,23 @@ function ObligationRequestAddItemForm({
       Price: '',
       Quantity: 1,
       ItemUnitID: '',
-      TAXCodeID: '',
-      Vatable: false,
-      withheldEWT: 0,
-      DiscountRate: 0,
-      subtotal: 0,
+      TAXCodeID: initialData?.TAXCodeID || '',
+      Vatable: initialData?.Vatable || false,
+      withheldEWT: initialData?.EWTRate || 0,
+      DiscountRate: initialData?.DiscountRate || 0,
+      subtotal: initialData?.subtotal || 0,
     },
     validationSchema,
     onSubmit: (vals) => {
+      // Find a default tax if none is selected (since field is hidden)
+      let finalTaxID = vals.TAXCodeID;
+      if (!finalTaxID && taxCodeFull.length > 0) {
+        const zeroTax = taxCodeFull.find(t => parseFloat(t.Rate) === 0);
+        finalTaxID = zeroTax ? zeroTax.ID : taxCodeFull[0].ID;
+      }
+
       const selectedTax = taxCodeFull.find(
-        (t) => String(t.ID) === String(vals.TAXCodeID)
+        (t) => String(t.ID) === String(finalTaxID)
       );
       console.log('selectedTax', vals);
       // const computed = obligationRequestItemsCalculator({
@@ -72,6 +79,7 @@ function ObligationRequestAddItemForm({
 
       onSubmit({
         ...vals,
+        TAXCodeID: finalTaxID,
         // ...computed,
         responsibilityCenterName: rcSelected ? rcSelected.label : '',
         chargeAccountName: cSelected ? cSelected.label : '',

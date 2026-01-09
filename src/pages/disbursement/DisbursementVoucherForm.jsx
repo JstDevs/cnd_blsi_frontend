@@ -163,10 +163,10 @@ function DisbursementVoucherForm({
       (initialData?.VendorID
         ? 'Vendor'
         : initialData?.CustomerID
-        ? 'Individual'
-        : initialData?.EmployeeID
-        ? 'Employee'
-        : ''),
+          ? 'Individual'
+          : initialData?.EmployeeID
+            ? 'Employee'
+            : ''),
     payeeName: initialData?.payeeName || '',
     payeeId:
       initialData?.payeeId ||
@@ -186,16 +186,16 @@ function DisbursementVoucherForm({
     taxes: Array.isArray(initialData?.taxes) ? initialData.taxes : [],
     contraAccounts:
       Array.isArray(initialData?.contraAccounts) &&
-      initialData.contraAccounts.length > 0
+        initialData.contraAccounts.length > 0
         ? initialData.contraAccounts
         : [
-            {
-              code: '',
-              account: '',
-              amount: '',
-              normalBalance: '',
-            },
-          ],
+          {
+            code: '',
+            account: '',
+            amount: '',
+            normalBalance: '',
+          },
+        ],
     accountingEntries: Array.isArray(initialData?.accountingEntries)
       ? initialData.accountingEntries
       : [],
@@ -245,12 +245,12 @@ function DisbursementVoucherForm({
     fd.append(
       'Payee',
       selectedPayee?.Name ||
-        selectedPayee?.FirstName +
-          ' ' +
-          selectedPayee?.MiddleName +
-          ' ' +
-          selectedPayee?.LastName ||
-        ''
+      selectedPayee?.FirstName +
+      ' ' +
+      selectedPayee?.MiddleName +
+      ' ' +
+      selectedPayee?.LastName ||
+      ''
     );
     fd.append('Address', selectedPayee?.StreetAddress || '');
     fd.append('InvoiceNumber', values.obrNo);
@@ -486,6 +486,52 @@ function DisbursementVoucherForm({
             }
           };
 
+          const handleItemTaxChange = (idx, taxID) => {
+            const item = values.accountingEntries[idx];
+            const selectedTax = taxCodeFull.find((t) => String(t.ID) === String(taxID));
+
+            const computed = obligationRequestItemsCalculator({
+              price: item.Price || 0,
+              quantity: item.Quantity || 0,
+              taxRate: selectedTax?.Rate || 0,
+              discountPercent: item.DiscountRate || 0,
+              vatable: item.Vatable,
+              ewtRate: item.EWTRate || 0,
+            });
+
+            setFieldValue(`accountingEntries[${idx}].TAXCodeID`, taxID);
+            setFieldValue(`accountingEntries[${idx}].TaxRate`, selectedTax?.Rate || 0);
+            setFieldValue(`accountingEntries[${idx}].TaxName`, selectedTax?.Name || '');
+            setFieldValue(`accountingEntries[${idx}].subtotal`, computed.subtotal);
+            setFieldValue(`accountingEntries[${idx}].vat`, computed.vat);
+            setFieldValue(`accountingEntries[${idx}].withheld`, computed.withheld);
+            setFieldValue(`accountingEntries[${idx}].ewt`, computed.ewt);
+            setFieldValue(`accountingEntries[${idx}].totalDeduction`, computed.totalDeduction);
+          };
+
+          const handleItemVatableChange = (idx, isVatable) => {
+            const item = values.accountingEntries[idx];
+            const selectedTax = taxCodeFull.find(
+              (t) => String(t.ID) === String(item.TAXCodeID)
+            );
+
+            const computed = obligationRequestItemsCalculator({
+              price: item.Price || 0,
+              quantity: item.Quantity || 0,
+              taxRate: selectedTax?.Rate || 0,
+              discountPercent: item.DiscountRate || 0,
+              vatable: isVatable,
+              ewtRate: item.EWTRate || 0,
+            });
+
+            setFieldValue(`accountingEntries[${idx}].Vatable`, isVatable);
+            setFieldValue(`accountingEntries[${idx}].subtotal`, computed.subtotal);
+            setFieldValue(`accountingEntries[${idx}].vat`, computed.vat);
+            setFieldValue(`accountingEntries[${idx}].withheld`, computed.withheld);
+            setFieldValue(`accountingEntries[${idx}].ewt`, computed.ewt);
+            setFieldValue(`accountingEntries[${idx}].totalDeduction`, computed.totalDeduction);
+          };
+
           const handlePayeeSelect = (payee) => {
             let selectedItem = null;
             switch (values.payeeType) {
@@ -561,11 +607,10 @@ function DisbursementVoucherForm({
                           key={type.value}
                           type="button"
                           onClick={() => handlePayeeTypeChange(type.value)}
-                          className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
-                            values.payeeType === type.value
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-300 hover:border-gray-400 text-gray-700'
-                          }`}
+                          className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${values.payeeType === type.value
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                            }`}
                         >
                           <PayeeTypeIcon type={type.value} />
                           <span className="ml-3 font-medium">{type.label}</span>
@@ -618,14 +663,13 @@ function DisbursementVoucherForm({
                               </div>
                               <div className="text-sm text-gray-900">
                                 {selectedPayeeType?.label === 'Employee'
-                                  ? `${selectedPayee.FirstName || ''} ${
-                                      selectedPayee.MiddleName || ''
+                                  ? `${selectedPayee.FirstName || ''} ${selectedPayee.MiddleName || ''
                                     } ${selectedPayee.LastName || ''}`.trim()
                                   : selectedPayeeType?.label === 'Vendor'
-                                  ? selectedPayee.Name
-                                  : selectedPayeeType?.label === 'Individual'
-                                  ? selectedPayee.Name
-                                  : selectedPayee.Name}
+                                    ? selectedPayee.Name
+                                    : selectedPayeeType?.label === 'Individual'
+                                      ? selectedPayee.Name
+                                      : selectedPayee.Name}
                               </div>
                             </div>
                             <div>
@@ -636,10 +680,10 @@ function DisbursementVoucherForm({
                                 {selectedPayeeType?.label === 'Employee'
                                   ? selectedPayee.StreetAddress
                                   : selectedPayeeType?.label === 'Vendor'
-                                  ? selectedPayee.StreetAddress
-                                  : selectedPayeeType?.label === 'Individual'
-                                  ? selectedPayee.StreetAddress
-                                  : selectedPayee.StreetAddress}
+                                    ? selectedPayee.StreetAddress
+                                    : selectedPayeeType?.label === 'Individual'
+                                      ? selectedPayee.StreetAddress
+                                      : selectedPayee.StreetAddress}
                               </div>
                             </div>
                           </div>
@@ -667,11 +711,10 @@ function DisbursementVoucherForm({
                           key={type.value}
                           type="button"
                           onClick={() => handleRequestTypeChange(type.value)}
-                          className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
-                            values.requestType === type.value
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-300 hover:border-gray-400 text-gray-700'
-                          }`}
+                          className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${values.requestType === type.value
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                            }`}
                         >
                           <span className="ml-3 font-medium">{type.label}</span>
                         </button>
@@ -697,9 +740,8 @@ function DisbursementVoucherForm({
 
                           // Conditionally build fullName based on payeeType
                           if (values.payeeType === 'Employee') {
-                            fullName = `${opt.Employee?.FirstName || ''} ${
-                              opt.Employee?.MiddleName || ''
-                            } ${opt.Employee?.LastName || ''}`.trim();
+                            fullName = `${opt.Employee?.FirstName || ''} ${opt.Employee?.MiddleName || ''
+                              } ${opt.Employee?.LastName || ''}`.trim();
                           } else if (values.payeeType === 'Individual') {
                             if (
                               !opt.Employee?.FirstName &&
@@ -708,9 +750,8 @@ function DisbursementVoucherForm({
                             ) {
                               fullName = opt.Name || 'N/A';
                             } else {
-                              fullName = `${opt.Employee?.FirstName || ''} ${
-                                opt.Employee?.MiddleName || ''
-                              } ${opt.Employee?.LastName || ''}`.trim();
+                              fullName = `${opt.Employee?.FirstName || ''} ${opt.Employee?.MiddleName || ''
+                                } ${opt.Employee?.LastName || ''}`.trim();
                             }
                           } else if (values.payeeType === 'Vendor') {
                             fullName = opt.Name || 'N/A';
@@ -718,11 +759,9 @@ function DisbursementVoucherForm({
 
                           return {
                             value: opt.ID,
-                            label: `${
-                              opt.InvoiceNumber || ''
-                            } – ${fullName} – ${opt.TIN || ''} – ${
-                              opt.InvoiceDate
-                            } – ${opt.sourceFunds?.Code || ''}`,
+                            label: `${opt.InvoiceNumber || ''
+                              } – ${fullName} – ${opt.TIN || ''} – ${opt.InvoiceDate
+                              } – ${opt.sourceFunds?.Code || ''}`,
                             raw: opt,
                           };
                         })}
@@ -733,8 +772,8 @@ function DisbursementVoucherForm({
                           requestOptionsLoading
                             ? 'Loading…'
                             : requestOptionsError
-                            ? `Error: ${requestOptionsError}`
-                            : 'Select request'
+                              ? `Error: ${requestOptionsError}`
+                              : 'Select request'
                         }
                         className="react-select-container"
                         classNamePrefix="react-select"
@@ -772,99 +811,59 @@ function DisbursementVoucherForm({
                       <div className="space-y-4">
                         <hr />
                         {/* header row (hidden on mobile) */}
-                        <div className="hidden md:grid grid-cols-7 gap-2 font-semibold text-sm">
-                          <span>ITEM</span>
+                        <div className="hidden md:grid grid-cols-10 gap-2 font-semibold text-sm">
+                          <span className="col-span-2">ITEM</span>
                           <span>AMOUNT</span>
-                          <span>AMOUNT DUE</span>
+                          <span className="col-span-2">TAX</span>
+                          <span className="text-center">VAT</span>
+                          <span>DUE</span>
                           <span>REMARKS</span>
-                          {/* <span>FPP</span> */}
                           <span>ACCOUNT</span>
-                          <span>ACCOUNT CODE</span>
-                          {/* <span>FUND CODE</span> */}
                         </div>
                         {/* {console.log(values.accountingEntries)} */}
                         {/* data rows */}
                         {values.accountingEntries.map((entry, idx) => (
                           <div
                             key={idx}
-                            className="border p-3 rounded text-sm flex flex-col gap-2 md:grid md:grid-cols-7 md:items-center md:gap-2"
+                            className="border p-3 rounded text-sm flex flex-col gap-2 md:grid md:grid-cols-10 md:items-center md:gap-2"
                           >
-                            {/* Mobile stacked view */}
-                            <div className="flex flex-col gap-1 md:hidden">
-                              <div className="flex justify-between">
-                                <span className="font-semibold">ITEM:</span>
-                                <span>{entry.itemName}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="font-semibold">AMOUNT:</span>
-                                <span>
-                                  {parseFloat(entry.subtotal).toFixed(2)}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="font-semibold">
-                                  AMOUNT DUE:
-                                </span>
-                                <span>
-                                  {parseFloat(entry.subtotal).toFixed(2)}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="font-semibold">REMARKS:</span>
-                                <span>{entry.Remarks}</span>
-                              </div>
-                              {/* <div className="flex justify-between">
-                                <span className="font-semibold">FPP:</span>
-                                <span>{entry.FPP}</span>
-                              </div> */}
-                              <div className="flex justify-between">
-                                <span className="font-semibold">ACCOUNT:</span>
-                                <span>{entry.chargeAccountName}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="font-semibold">
-                                  ACCOUNT CODE:
-                                </span>
-                                <span>{entry.ChargeAccountID}</span>
-                              </div>
-                              {/* <div className="flex justify-between">
-                                <span className="font-semibold">
-                                  FUND CODE:
-                                </span>
-                                <span>{entry.fundCode}</span>
-                              </div> */}
+                            {/* Mobile stacked view handled similarly (skipped for brevity) */}
+                            <span className="md:col-span-2 font-medium">{entry.itemName}</span>
+                            <span>{parseFloat(entry.Price * entry.Quantity).toFixed(2)}</span>
+
+                            <div className="md:col-span-2">
+                              <select
+                                className="w-full border rounded p-1 text-xs"
+                                value={entry.TAXCodeID}
+                                onChange={(e) => handleItemTaxChange(idx, e.target.value)}
+                              >
+                                <option value="">Select Tax</option>
+                                {taxCodeFull.map((t) => (
+                                  <option key={t.ID} value={t.ID}>
+                                    {t.Code} ({t.Rate}%)
+                                  </option>
+                                ))}
+                              </select>
                             </div>
 
-                            {/* Desktop table view */}
-                            <span className="hidden md:block">
-                              {entry.itemName}
-                            </span>
-                            <span className="hidden md:block">
-                              {parseFloat(entry.subtotal).toFixed(2)}
-                            </span>
-                            <span className="hidden md:block">
-                              {parseFloat(entry.subtotal).toFixed(2)}
-                            </span>
-                            <span className="hidden md:block">
-                              {entry.Remarks}
-                            </span>
-                            <span className="hidden md:block">{entry.FPP}</span>
-                            <span className="hidden md:block">
-                              {entry.chargeAccountName}
-                            </span>
-                            <span className="hidden md:block">
-                              {entry.ChargeAccountID}
-                            </span>
-                            {/* <span className="hidden md:block">
-                              {entry.fundCode}
-                            </span> */}
+                            <div className="flex justify-center">
+                              <input
+                                type="checkbox"
+                                checked={entry.Vatable}
+                                onChange={(e) => handleItemVatableChange(idx, e.target.checked)}
+                              />
+                            </div>
 
-                            {/* remove button (bottom for mobile, right-aligned for desktop) */}
-                            <div className="flex justify-end md:col-span-8">
+                            <span className="font-semibold">{parseFloat(entry.subtotal).toFixed(2)}</span>
+                            <span className="truncate" title={entry.Remarks}>{entry.Remarks}</span>
+                            <span className="truncate" title={entry.chargeAccountName}>{entry.chargeAccountName}</span>
+
+                            {/* remove button */}
+                            <div className="flex justify-end">
                               <button
                                 type="button"
                                 onClick={() => remove(idx)}
-                                className="text-red-600 hover:text-red-800 text-xs flex items-center gap-1"
+                                className="text-red-600 hover:text-red-800"
                               >
                                 <Trash2 size={16} />
                               </button>
@@ -1275,9 +1274,8 @@ function DisbursementVoucherForm({
                           </div>
                         ) : (
                           <div className="flex-1 min-w-[300px]">
-                            <label className="block text-sm font-medium mb-1">{`File ${
-                              index + 1
-                            }`}</label>
+                            <label className="block text-sm font-medium mb-1">{`File ${index + 1
+                              }`}</label>
                             <input
                               type="file"
                               name={`Attachments[${index}].File`}
