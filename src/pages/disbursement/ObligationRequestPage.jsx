@@ -100,8 +100,12 @@ function ObligationRequestPage() {
       key: 'Status',
       header: 'Status',
       sortable: true,
-
       render: (value) => statusLabel(value),
+    },
+    {
+      key: 'ResponsibilityCenterName',
+      header: 'Responsibility Center',
+      sortable: true,
     },
     {
       key: 'InvoiceDate',
@@ -110,13 +114,17 @@ function ObligationRequestPage() {
       render: (value) => new Date(value).toLocaleDateString(),
     },
     {
-      key: 'InvoiceNumber',
-      header: 'Invoice Number',
+      key: 'Remarks',
+      header: 'Particular',
       sortable: true,
+      render: (_, row) => {
+        const items = row.TransactionItemsAll || row.Items || [];
+        return items.map((i) => i.Remarks || i.itemName).join(', ');
+      },
     },
     {
-      key: 'ResponsibilityCenterName',
-      header: 'Responsibility Center',
+      key: 'InvoiceNumber',
+      header: 'Invoice Number',
       sortable: true,
     },
     {
@@ -124,7 +132,7 @@ function ObligationRequestPage() {
       header: 'Total',
       sortable: true,
     },
-    {
+    /* {
       key: 'FiscalYearName',
       header: 'Fiscal Year',
       sortable: true,
@@ -138,7 +146,7 @@ function ObligationRequestPage() {
       key: 'CustomerID',
       header: 'CustomerID',
       sortable: true,
-    },
+    }, */
   ];
 
   // Actions for table rows
