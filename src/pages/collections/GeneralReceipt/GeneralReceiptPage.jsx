@@ -110,10 +110,12 @@ function GeneralReceiptPage() {
       render: (value) => (
         <span
           className={`px-2 py-1 rounded ${
-            value === 'Posted'
-              ? 'bg-green-100 text-green-800'
-              : value === 'Rejected'
-              ? 'bg-red-100 text-red-800'
+            value === 'Requested'     ? 'bg-warning-300 text-error-700'
+              : value === 'Approved'  ? 'bg-success-300 text-neutral-800'
+              : value === 'Posted'    ? 'bg-success-800 text-success-100'
+              : value === 'Rejected'  ? 'bg-error-500 text-neutral-100'
+              : value === 'Void'      ? 'bg-primary-900 text-neutral-300'
+              : value === 'Cancelled' ? 'bg-neutral-300 text-neutral-700'
               : 'bg-gray-100 text-gray-800'
           }`}
         >
@@ -379,10 +381,12 @@ function GeneralReceiptPage() {
                       <dd className="text-sm text-neutral-900 col-span-2">
                         <span
                           className={`px-2 py-1 rounded text-xs ${
-                            currentReceipt.Status === 'Posted'
-                              ? 'bg-green-100 text-green-800'
-                              : currentReceipt.Status === 'Rejected'
-                              ? 'bg-red-100 text-red-800'
+                            currentReceipt.Status === 'Requested'     ? 'bg-warning-300 text-error-700'
+                              : currentReceipt.Status === 'Approved'  ? 'bg-success-300 text-neutral-800'
+                              : currentReceipt.Status === 'Posted'    ? 'bg-success-800 text-success-100'
+                              : currentReceipt.Status === 'Rejected'  ? 'bg-error-500 text-neutral-100'
+                              : currentReceipt.Status === 'Void'      ? 'bg-primary-900 text-neutral-300'
+                              : currentReceipt.Status === 'Cancelled' ? 'bg-neutral-300 text-neutral-700'
                               : 'bg-gray-100 text-gray-800'
                           }`}
                         >

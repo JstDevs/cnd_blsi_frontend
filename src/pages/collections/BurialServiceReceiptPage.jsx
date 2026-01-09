@@ -56,6 +56,26 @@ function BurialServiceReceiptPage() {
       ),
     },
     {
+      key: 'Status',
+      header: 'Status',
+      sortable: true,
+      render: (value) => (
+        <span
+          className={`px-2 py-1 rounded ${
+            value === 'Requested'     ? 'bg-warning-300 text-error-700'
+              : value === 'Approved'  ? 'bg-success-300 text-neutral-800'
+              : value === 'Posted'    ? 'bg-success-800 text-success-100'
+              : value === 'Rejected'  ? 'bg-error-500 text-neutral-100'
+              : value === 'Void'      ? 'bg-primary-900 text-neutral-300'
+              : value === 'Cancelled' ? 'bg-neutral-300 text-neutral-700'
+              : 'bg-gray-100 text-gray-800'
+          }`}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
       key: 'CustomerName',
       header: 'Name',
       sortable: true,
@@ -214,7 +234,7 @@ function BurialServiceReceiptPage() {
           <h1 className="text-2xl font-semibold text-gray-900">
             Burial Service Receipts
           </h1>
-          <p className="text-gray-600">Manage Burial Service Receipts</p>
+          <p className="text-gray-600">Manage receipts for burial services.</p>
         </div>
         <div className="flex gap-2">
           {Add && (
@@ -223,7 +243,7 @@ function BurialServiceReceiptPage() {
               className="btn btn-primary max-sm:w-full "
             >
               <PlusIcon className="h-5 w-5 mr-2" />
-              Add New Receipt
+              New Burial Receipt
             </button>
           )}
           {Print && (

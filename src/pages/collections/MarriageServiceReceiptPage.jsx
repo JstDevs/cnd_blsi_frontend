@@ -115,10 +115,12 @@ function MarriageServiceReceiptPage() {
       render: (value) => (
         <span
           className={`px-2 py-1 rounded ${
-            value === 'Posted'
-              ? 'bg-green-100 text-green-800'
-              : value === 'Rejected'
-              ? 'bg-red-100 text-red-800'
+            value === 'Requested'     ? 'bg-warning-300 text-error-700'
+              : value === 'Approved'  ? 'bg-success-300 text-neutral-800'
+              : value === 'Posted'    ? 'bg-success-800 text-success-100'
+              : value === 'Rejected'  ? 'bg-error-500 text-neutral-100'
+              : value === 'Void'      ? 'bg-primary-900 text-neutral-300'
+              : value === 'Cancelled' ? 'bg-neutral-300 text-neutral-700'
               : 'bg-gray-100 text-gray-800'
           }`}
         >
@@ -241,7 +243,7 @@ function MarriageServiceReceiptPage() {
           <h1 className="text-2xl font-semibold text-gray-900">
             Marriage Service Receipts
           </h1>
-          <p className="text-gray-600">Manage Marriage Service Receipts</p>
+          <p className="text-gray-600">Manage receipts for marriage services.</p>
         </div>
 
         <div className="flex gap-2">
@@ -251,7 +253,7 @@ function MarriageServiceReceiptPage() {
               className="btn btn-primary max-sm:w-full "
             >
               <PlusIcon className="h-5 w-5 mr-2" />
-              Add New Receipt
+              New Marriage Receipt
             </button>
           )}
           {/* {Print && (

@@ -58,6 +58,26 @@ const PublicMarketTicketPage = () => {
       accessorKey: 'items',
     },
     {
+      key: 'Status',
+      header: 'Status',
+      sortable: true,
+      render: (value) => (
+        <span
+          className={`px-2 py-1 rounded ${
+            value === 'Requested'     ? 'bg-warning-300 text-error-700'
+              : value === 'Approved'  ? 'bg-success-300 text-neutral-800'
+              : value === 'Posted'    ? 'bg-success-800 text-success-100'
+              : value === 'Rejected'  ? 'bg-error-500 text-neutral-100'
+              : value === 'Void'      ? 'bg-primary-900 text-neutral-300'
+              : value === 'Cancelled' ? 'bg-neutral-300 text-neutral-700'
+              : 'bg-gray-100 text-gray-800'
+          }`}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
       key: 'StartTime',
       header: 'Start Time',
       accessorKey: 'startTime',

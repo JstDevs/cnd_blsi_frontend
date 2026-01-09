@@ -96,10 +96,14 @@ function BusinessPermitPage() {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            value === 'Active'
-              ? 'bg-success-100 text-success-800'
-              : 'bg-warning-100 text-warning-800'
+          className={`px-2 py-1 rounded ${
+            value === 'Pending'       ? 'bg-warning-300 text-error-700'
+              : value === 'Approved'  ? 'bg-success-300 text-neutral-800'
+              : value === 'Active'    ? 'bg-success-800 text-success-100'
+              : value === 'Rejected'  ? 'bg-error-500 text-neutral-100'
+              : value === 'Void'      ? 'bg-primary-900 text-neutral-300'
+              : value === 'Cancelled' ? 'bg-neutral-300 text-neutral-700'
+              : 'bg-gray-100 text-gray-800'
           }`}
         >
           {value}
