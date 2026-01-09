@@ -215,7 +215,7 @@ function ObligationRequestAddItemForm({
       </div>
 
       {/* Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div>
           <FormField
             type="textarea"
@@ -230,7 +230,7 @@ function ObligationRequestAddItemForm({
           )}
         </div>
 
-        <div>
+        {/* <div>
           <FormField
             type="text"
             label="FPP"
@@ -241,7 +241,7 @@ function ObligationRequestAddItemForm({
           {formik.touched.FPP && formik.errors.FPP && (
             <p className="text-red-500 text-sm">{formik.errors.FPP}</p>
           )}
-        </div>
+        </div> */}
       </div>
 
       {/* Row 3 */}
