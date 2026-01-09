@@ -3,6 +3,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../../components/common/FormField';
 import { obligationRequestItemsCalculator } from '../../utils/obligationRequestItemsCalculator';
+import { formatCurrency, formatForInput } from '../../utils/currencyFormater';
 
 function ObligationRequestAddItemForm({
   onSubmit,
@@ -256,10 +257,15 @@ function ObligationRequestAddItemForm({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div>
           <FormField
-            type="number"
+            type="text"
             label="Item Price"
             name="Price"
-            {...formik.getFieldProps('Price')}
+            value={formatForInput(formik.values.Price)}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+              formik.setFieldValue('Price', rawValue);
+            }}
+            onBlur={formik.handleBlur}
             required
           />
           {formik.touched.Price && formik.errors.Price && (
@@ -313,13 +319,12 @@ function ObligationRequestAddItemForm({
 
         <div>
           <FormField
-            type="number"
+            type="text"
             label="Withheld / EWT"
             name="withheldEWT"
-            value={formik.values.withheldEWT}
+            value={formatCurrency(formik.values.withheldEWT)}
             readOnly
             className="bg-gray-200 cursor-not-allowed"
-            disabled
           />
         </div>
 
@@ -362,7 +367,7 @@ function ObligationRequestAddItemForm({
 
       {/* Subtotal */}
       <div className="font-semibold text-right">
-        Sub‑Total:&nbsp;{Number(formik.values.subtotal || 0).toFixed(2)}
+        Sub‑Total:&nbsp;{formatCurrency(formik.values.subtotal)}
       </div>
 
       {/* Actions */}

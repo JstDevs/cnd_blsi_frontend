@@ -25,6 +25,7 @@ import { statusLabel } from '../userProfile';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { CheckLine, TrashIcon, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { formatCurrency } from '../../utils/currencyFormater';
 import axiosInstance from '@/utils/axiosInstance';
 
 function ObligationRequestPage() {
@@ -132,6 +133,7 @@ function ObligationRequestPage() {
       key: 'Total',
       header: 'Total',
       sortable: true,
+      render: (value) => formatCurrency(value),
     },
     /* {
       key: 'FiscalYearName',

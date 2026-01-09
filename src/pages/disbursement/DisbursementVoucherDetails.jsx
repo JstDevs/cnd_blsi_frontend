@@ -5,15 +5,9 @@ import {
   CheckCircleIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
+import { formatCurrency } from '../../utils/currencyFormater';
 
 function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
-  // Format amount as Philippine Peso
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
-    }).format(amount);
-  };
 
   // Format date
   const formatDate = (dateString) => {

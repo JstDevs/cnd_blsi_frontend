@@ -33,6 +33,7 @@ import {
 import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
 
 import { obligationRequestItemsCalculator } from '../../utils/obligationRequestItemsCalculator';
+import { formatCurrency } from '../../utils/currencyFormater';
 const API_URL = import.meta.env.VITE_API_URL;
 const payeeTypes = [
   { value: 'Employee', label: 'Employee' },
@@ -829,7 +830,7 @@ function DisbursementVoucherForm({
                           >
                             {/* Mobile stacked view handled similarly (skipped for brevity) */}
                             <span className="md:col-span-2 font-medium">{entry.itemName}</span>
-                            <span>{parseFloat(entry.Price * entry.Quantity).toFixed(2)}</span>
+                            <span>{formatCurrency(entry.Price * entry.Quantity)}</span>
 
                             <div className="md:col-span-2">
                               <select
@@ -854,7 +855,7 @@ function DisbursementVoucherForm({
                               />
                             </div>
 
-                            <span className="font-semibold">{parseFloat(entry.subtotal).toFixed(2)}</span>
+                            <span className="font-semibold">{formatCurrency(entry.subtotal)}</span>
                             <span className="truncate" title={entry.Remarks}>{entry.Remarks}</span>
                             <span className="truncate" title={entry.chargeAccountName}>{entry.chargeAccountName}</span>
 
@@ -875,12 +876,12 @@ function DisbursementVoucherForm({
                         <div className="md:grid md:grid-cols-8 md:gap-2 font-semibold pt-2 border-t text-sm">
                           <div className="md:col-span-7 text-right">Total:</div>
                           <div className="text-right">
-                            {values.accountingEntries
-                              .reduce(
+                            {formatCurrency(
+                              values.accountingEntries.reduce(
                                 (sum, e) => sum + Number(e.subtotal || 0),
                                 0
                               )
-                              .toFixed(2)}
+                            )}
                           </div>
                         </div>
 
@@ -1132,13 +1133,13 @@ function DisbursementVoucherForm({
                             <div className="flex justify-between items-center font-semibold">
                               <span>Total Contra Accounts:</span>
                               <span>
-                                {values.contraAccounts
-                                  .reduce(
+                                {formatCurrency(
+                                  values.contraAccounts.reduce(
                                     (sum, account) =>
                                       sum + Number(account.amount || 0),
                                     0
                                   )
-                                  .toFixed(2)}
+                                )}
                               </span>
                             </div>
                           </div>

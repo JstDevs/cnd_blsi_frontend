@@ -9,6 +9,7 @@ import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import { Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../../utils/currencyFormater';
 import {
   BuildingOfficeIcon,
   DocumentCheckIcon,
@@ -678,7 +679,7 @@ function ObligationRequestForm({
                                 <span className="md:hidden font-semibold">
                                   Sub-total:{' '}
                                 </span>
-                                {parseFloat(entry.subtotal).toFixed(2)}
+                                {formatCurrency(entry.subtotal)}
                               </span>
                               <div className="text-right">
                                 <button
@@ -698,9 +699,12 @@ function ObligationRequestForm({
                               Total:
                             </div>
                             <div className="text-right">
-                              {values.accountingEntries
-                                .reduce((sum, e) => sum + Number(e.subtotal), 0)
-                                .toFixed(2)}
+                              {formatCurrency(
+                                values.accountingEntries.reduce(
+                                  (sum, e) => sum + Number(e.subtotal),
+                                  0
+                                )
+                              )}
                             </div>
                           </div>
                         </div>
