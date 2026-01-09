@@ -33,7 +33,7 @@ import {
 import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
 
 import { obligationRequestItemsCalculator } from '../../utils/obligationRequestItemsCalculator';
-import { formatCurrency } from '../../utils/currencyFormater';
+import { formatCurrency, formatForInput } from '../../utils/currencyFormater';
 const API_URL = import.meta.env.VITE_API_URL;
 const payeeTypes = [
   { value: 'Employee', label: 'Employee' },
@@ -970,13 +970,10 @@ function DisbursementVoucherForm({
                       >
                         <span>{taxName}</span>
                         <span className="text-right">
-                          {parseFloat(taxRate).toFixed(2)}
+                          {formatCurrency(taxRate)}
                         </span>
                         <span className="text-right">
-                          {withheld.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatCurrency(withheld)}
                         </span>
                       </div>
                     ))}
@@ -1097,14 +1094,21 @@ function DisbursementVoucherForm({
                                   Amount
                                 </label>
                                 <input
-                                  type="number"
+                                  type="text"
                                   name={`contraAccounts[${index}].amount`}
-                                  value={contraAccount.amount}
-                                  onChange={handleChange}
+                                  value={formatForInput(contraAccount.amount)}
+                                  onChange={(e) => {
+                                    const rawValue = e.target.value.replace(
+                                      /[^0-9.]/g,
+                                      ''
+                                    );
+                                    setFieldValue(
+                                      `contraAccounts[${index}].amount`,
+                                      rawValue
+                                    );
+                                  }}
                                   onBlur={handleBlur}
                                   placeholder="0.00"
-                                  step="0.01"
-                                  min="0"
                                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                                 <ErrorMessage

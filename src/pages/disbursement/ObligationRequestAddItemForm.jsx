@@ -275,10 +275,15 @@ function ObligationRequestAddItemForm({
 
         <div>
           <FormField
-            type="number"
+            type="text"
             label="Quantity"
             name="Quantity"
-            {...formik.getFieldProps('Quantity')}
+            value={formatForInput(formik.values.Quantity)}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+              formik.setFieldValue('Quantity', rawValue);
+            }}
+            onBlur={formik.handleBlur}
             required
           />
           {formik.touched.Quantity && formik.errors.Quantity && (
@@ -330,10 +335,15 @@ function ObligationRequestAddItemForm({
 
         <div>
           <FormField
-            type="number"
+            type="text"
             label="Discount %"
             name="DiscountRate"
-            {...formik.getFieldProps('DiscountRate')}
+            value={formatForInput(formik.values.DiscountRate)}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+              formik.setFieldValue('DiscountRate', rawValue);
+            }}
+            onBlur={formik.handleBlur}
             required
           />
           {formik.touched.DiscountRate && formik.errors.DiscountRate && (
