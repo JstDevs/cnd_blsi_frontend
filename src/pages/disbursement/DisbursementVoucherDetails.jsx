@@ -85,21 +85,29 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
                 DV Number
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.dvNumber}
+                {dv.InvoiceNumber}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">Date</dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {formatDate(dv.dvDate)}
+                {dv.InvoiceDate ? formatDate(dv.InvoiceDate) : 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">
-                ORS Number
+                CAFOA Number
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.orsNumber || 'N/A'}
+                {dv.ObligationRequestNumber || 'N/A'}
+              </dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="text-sm font-medium text-neutral-500">
+                Billing Due Date
+              </dt>
+              <dd className="text-sm text-neutral-900 col-span-2">
+                {dv.BillingDueDate ? formatDate(dv.BillingDueDate) : 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -111,11 +119,29 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
+              <dt className="text-sm font-medium text-neutral-500">Fund</dt>
+              <dd className="text-sm text-neutral-900 col-span-2">
+                {dv.FundName || dv.FundsID || 'N/A'}
+              </dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="text-sm font-medium text-neutral-500">Project</dt>
+              <dd className="text-sm text-neutral-900 col-span-2">
+                {dv.ProjectTitle || dv.ProjectID || 'N/A'}
+              </dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="text-sm font-medium text-neutral-500">Fiscal Year</dt>
+              <dd className="text-sm text-neutral-900 col-span-2">
+                {dv.FiscalYearName || dv.FiscalYearID || 'N/A'}
+              </dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">
                 Created By
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.preparedBy}
+                {dv.PreparedBy || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -123,7 +149,7 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
                 Date Created
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {formatDate(dv.dateCreated)}
+                {dv.DatePrepared ? formatDate(dv.DatePrepared) : 'N/A'}
               </dd>
             </div>
           </dl>
@@ -140,7 +166,7 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
                 Payee Name
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.payeeName}
+                {dv.Payee}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -148,30 +174,45 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
                 Payee Address
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.payeeAddress || 'N/A'}
-              </dd>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <dt className="text-sm font-medium text-neutral-500">
-                Department
-              </dt>
-              <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.department}
+                {dv.Address || 'N/A'}
               </dd>
             </div>
           </dl>
         </div>
       </div>
 
-      {/* Particulars */}
+      {/* Items / Accounting Entries */}
       <div>
         <h3 className="text-lg font-medium text-neutral-900 mb-2">
-          Particulars
+          Transactions / Accounting Entries
         </h3>
-        <div className="p-4 rounded-lg bg-white border border-neutral-200">
-          <p className="text-sm text-neutral-700 whitespace-pre-line">
-            {dv.particulars}
-          </p>
+        <div className="overflow-x-auto border border-neutral-200 rounded-lg">
+          <table className="min-w-full divide-y divide-neutral-200">
+            <thead className="bg-neutral-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">RC</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Particulars</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Account</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-neutral-200">
+              {(dv.Items || dv.TransactionItemsAll) && (dv.Items || dv.TransactionItemsAll).length > 0 ? (
+                (dv.Items || dv.TransactionItemsAll).map((item, index) => (
+                  <tr key={index}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.responsibilityCenterName || item.RC}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.itemName || item.Remarks || item.Particulars}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.chargeAccountName || item.Account}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900">{formatCurrency(item.subtotal || item.Amount || 0)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="px-6 py-4 text-center text-sm text-neutral-500">No transactions found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -180,7 +221,7 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
         <div className="p-4 rounded-lg bg-white border border-neutral-200">
           <dt className="text-sm font-medium text-neutral-500">Gross Amount</dt>
           <dd className="mt-1 text-2xl font-semibold text-neutral-900">
-            {formatCurrency(dv.grossAmount)}
+            {formatCurrency(dv.Total || 0)}
           </dd>
         </div>
 
@@ -189,14 +230,14 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
             Total Deductions
           </dt>
           <dd className="mt-1 text-2xl font-semibold text-error-600">
-            {formatCurrency(dv.totalDeductions)}
+            {formatCurrency(dv.WithheldAmount || 0)}
           </dd>
         </div>
 
         <div className="p-4 rounded-lg bg-success-50 border border-success-200">
           <dt className="text-sm font-medium text-success-700">Net Amount</dt>
           <dd className="mt-1 text-2xl font-semibold text-success-700">
-            {formatCurrency(dv.netAmount)}
+            {formatCurrency((dv.Total || 0) - (dv.WithheldAmount || 0))}
           </dd>
         </div>
       </div>

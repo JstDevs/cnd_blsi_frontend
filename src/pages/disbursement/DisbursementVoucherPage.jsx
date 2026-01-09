@@ -8,7 +8,9 @@ import {
 } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import DisbursementVoucherForm from './DisbursementVoucherForm';
+import DisbursementVoucherDetails from './DisbursementVoucherDetails';
 import { fetchDisbursementVouchers } from '@/features/disbursement/disbursementVoucherSlice';
+import { fetchObligationRequests } from '@/features/disbursement/obligationRequestSlice';
 import { fetchEmployees } from '../../features/settings/employeeSlice';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import { fetchVendorDetails } from '@/features/settings/vendorDetailsSlice';
@@ -31,6 +33,9 @@ function DisbursementVoucherPage() {
   const dispatch = useDispatch();
   const { disbursementVouchers, isLoading } = useSelector(
     (state) => state.disbursementVouchers
+  );
+  const { obligationRequests } = useSelector(
+    (state) => state.obligationRequests
   );
   // ---------------------USE MODULE PERMISSIONS------------------START (DisbursementVoucherPage - MODULE ID = 40 )
   const { Add, Edit, Delete } = useModulePermissions(40);
@@ -56,6 +61,7 @@ function DisbursementVoucherPage() {
   const [approvalLoading, setApprovalLoading] = useState(false);
   useEffect(() => {
     dispatch(fetchDisbursementVouchers());
+    dispatch(fetchObligationRequests());
     dispatch(fetchEmployees());
     dispatch(fetchCustomers());
     dispatch(fetchVendorDetails());
@@ -107,6 +113,82 @@ function DisbursementVoucherPage() {
       render: (value) => statusLabel(value),
     },
     {
+      key: 'ResponsibilityCenterName',
+      header: 'Responsibility Center',
+      sortable: true,
+      render: (value, row) => {
+        // 1. Try direct value or common field names
+        const rcName =
+          value ||
+          row.ResponsibilityCenter ||
+          row.ResponsibilityCenterName ||
+          row.DepartmentName;
+        if (rcName && typeof rcName === 'string') return rcName;
+
+        // 2. Try Department lookup
+        const dept = departments.find(
+          (d) => d.ID === row.DepartmentID || d.ID === row.ResponsibilityCenterID
+        );
+        if (dept) return dept.Name;
+
+        // 3. Try OBR join
+        const linkedOBR = obligationRequests.find(
+          (obr) =>
+            (row.OBR_LinkID && obr.LinkID === row.OBR_LinkID) ||
+            (row.LinkID && obr.LinkID === row.LinkID) ||
+            (row.ObligationRequestNumber &&
+              obr.InvoiceNumber === row.ObligationRequestNumber)
+        );
+        if (linkedOBR) return linkedOBR.ResponsibilityCenterName;
+
+        return 'N/A';
+      },
+    },
+    {
+      key: 'Particulars',
+      header: 'Particulars',
+      sortable: true,
+      render: (value, row) => {
+        const linkedOBR = obligationRequests.find(
+          (obr) =>
+            (row.OBR_LinkID && obr.LinkID === row.OBR_LinkID) ||
+            (row.LinkID && obr.LinkID === row.LinkID) ||
+            (row.ObligationRequestNumber &&
+              obr.InvoiceNumber === row.ObligationRequestNumber)
+        );
+
+        const items =
+          row.TransactionItemsAll ||
+          row.Items ||
+          row.AccountingEntries ||
+          linkedOBR?.TransactionItemsAll ||
+          linkedOBR?.Items ||
+          [];
+
+        if (items.length > 0) {
+          const combinedText = items
+            .map(
+              (i) => i.Remarks || i.itemName || i.AccountName || i.Particulars
+            )
+            .filter(Boolean)
+            .join(', ');
+          if (combinedText) {
+            return (
+              <div className="whitespace-pre-wrap text-xs">{combinedText}</div>
+            );
+          }
+        }
+        return (
+          value ||
+          row.Particulars ||
+          row.Particular ||
+          row.Remarks ||
+          linkedOBR?.Remarks ||
+          'N/A'
+        );
+      },
+    },
+    {
       key: 'InvoiceDate',
       header: 'Invoice Date',
       sortable: true,
@@ -121,6 +203,14 @@ function DisbursementVoucherPage() {
       key: 'BillingDueDate',
       header: 'Billing Due Date ',
       sortable: true,
+      render: (value) => {
+        if (!value || value === '0000-00-00' || value === '0000-00-00 00:00:00') return 'N/A';
+        try {
+          return new Date(value).toLocaleDateString();
+        } catch (e) {
+          return value;
+        }
+      },
     },
     {
       key: 'ObligationRequestNumber',
@@ -236,6 +326,14 @@ function DisbursementVoucherPage() {
                     }
                   );
                 }
+
+                actionList.push({
+                  icon: EyeIcon,
+                  title: 'View',
+                  onClick: () => handleViewDV(row),
+                  className:
+                    'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+                });
 
                 return actionList;
               }}
@@ -366,6 +464,14 @@ function DisbursementVoucherPage() {
                 Edit DV
               </button>
             </div>
+          </div>
+
+          <div className="mt-4">
+            <DisbursementVoucherDetails
+              dv={currentDisbursementVoucher}
+              onClose={handleBackToList}
+              onEdit={() => handleEditDV(currentDisbursementVoucher)}
+            />
           </div>
         </div>
       )}

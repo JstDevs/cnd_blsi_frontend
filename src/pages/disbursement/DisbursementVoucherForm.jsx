@@ -516,6 +516,10 @@ function DisbursementVoucherForm({
                 'project',
                 option?.raw?.ProjectID || ''
               );
+              formikRef.current.setFieldValue(
+                'responsibilityCenter',
+                option?.raw?.ResponsibilityCenterID || ''
+              );
             }
           };
 
@@ -858,6 +862,7 @@ function DisbursementVoucherForm({
                 <Field type="hidden" name="fund" />
                 <Field type="hidden" name="fiscalYear" />
                 <Field type="hidden" name="project" />
+                <Field type="hidden" name="responsibilityCenter" />
               </div>
               {/* ── Accounting Entries ─────────────────────────────────────── */}
               <FieldArray name="accountingEntries">
