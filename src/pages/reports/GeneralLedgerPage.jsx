@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import GeneralLedgerForm from '../../components/forms/GeneralLedgerForm';
 import DataTable from '../../components/common/DataTable';
 import {
@@ -14,33 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 function GeneralLedgerPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
-
-  // Get initial filters from location state if available (e.g. redirected from OBR)
-  const [initialFilters, setInitialFilters] = useState(null);
-
-  useEffect(() => {
-    if (location.state?.from === 'ObligationRequest') {
-      const { FundID, LinkID } = location.state;
-      const filters = {
-        FundID: FundID || '',
-        LinkID: LinkID || '',
-        // Default cut off date to today if not provided
-        CutOffDate: location.state.CutOffDate || new Date().toISOString().split('T')[0],
-        // Chart of accounts might not be known, so we might need to make it optional in the form or handle it
-        ChartofAccountsID: location.state.ChartofAccountsID || '',
-      };
-      setInitialFilters(filters);
-
-      // If we have enough info, auto-fetch. 
-      // Note: GeneralLedgerForm validation requires ChartofAccountsID, so we might only pre-fill if available.
-      // Or if the form is strict, we just pre-fill.
-      if (filters.ChartofAccountsID || filters.LinkID) {
-        dispatch(fetchGeneralLedgers(filters));
-      }
-    }
-  }, [location.state, dispatch]);
 
   const { generalLedgers, isLoading, error } = useSelector(
     (state) => state.generalLedger
@@ -203,7 +177,6 @@ function GeneralLedgerPage() {
           onExportExcel={handleExport}
           onView={handleView}
           onClose={() => { }}
-          initialValues={initialFilters}
         />
       </div>
 

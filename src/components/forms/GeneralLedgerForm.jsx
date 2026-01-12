@@ -12,7 +12,6 @@ function GeneralLedgerForm({
   onView,
   onGenerateJournal,
   onExportExcel,
-  initialValues: externalInitialValues,
 }) {
   const submitAction = useRef(null);
 
@@ -22,13 +21,11 @@ function GeneralLedgerForm({
     FundID: Yup.string().required('Fund is required'),
   });
 
-  const defaultValues = {
+  const initialValues = {
     ChartofAccountsID: '',
     CutOffDate: '',
     FundID: '',
   };
-
-  const initialValues = externalInitialValues || defaultValues;
 
   const handleSubmit = (values, { setSubmitting }) => {
     const action = submitAction.current;

@@ -8,9 +8,30 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency } from '../../utils/currencyFormater';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
+import Modal from '../../components/common/Modal';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchGeneralLedgers } from '../../features/reports/generalLedgerSlice';
+import { useState } from 'react';
 
 function ObligationRequestDetails({ or, onBack, onEdit }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [showGLModal, setShowGLModal] = useState(false);
+  const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
+
+  const handleViewGeneralLedger = () => {
+    setShowGLModal(true);
+    dispatch(fetchGeneralLedgers({
+      LinkID: or.ID,
+      FundID: or.FundID,
+      CutOffDate: or.InvoiceDate || new Date().toISOString().split('T')[0]
+    }));
+  };
+
+  const handleCloseGLModal = () => {
+    setShowGLModal(false);
+  };
+
   if (!or) return null;
 
   // Format date
@@ -71,16 +92,7 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
             type="button"
             className="btn btn-outline flex items-center"
             title="View General Ledger"
-            onClick={() => {
-              navigate('/reports/general-ledger', {
-                state: {
-                  from: 'ObligationRequest',
-                  LinkID: or.ID,
-                  FundID: or.FundID,
-                  CutOffDate: or.InvoiceDate || new Date().toISOString().split('T')[0]
-                }
-              });
-            }}
+            onClick={handleViewGeneralLedger}
           >
             <BookOpenIcon className="h-4 w-4 mr-2" />
             General Ledger
@@ -303,6 +315,77 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
           Close
         </button>
       </div>
+
+      {/* Modal for General Ledger View */}
+      <Modal
+        isOpen={showGLModal}
+        onClose={handleCloseGLModal}
+        title="General Ledger View"
+        size="lg"
+      >
+        <div className="overflow-x-auto">
+          {isGLLoading ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : (
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fund Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ledger Item
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Account Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Account Code
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Debit
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Credit
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {generalLedgers && generalLedgers.length > 0 ? (
+                  generalLedgers.map((item, index) => (
+                    <tr key={index}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.fund}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.ledger_item}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.account_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.account_code}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
+                        {formatCurrency(item.debit)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
+                        {formatCurrency(item.credit)}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                      No records found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </Modal>
     </div >
   );
 }
