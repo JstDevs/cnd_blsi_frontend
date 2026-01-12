@@ -298,7 +298,7 @@ function JournalEntryPage() {
         <div className="flex justify-between sm:items-center gap-4 max-sm:flex-col">
           <div>
             <h1>Journal Entries Voucher </h1>
-            <p>Manage your Journal Entry Vouchers</p>
+            <p>Create and edit the journal entries and vouchers.</p>
           </div>
           {Add && (
             <button

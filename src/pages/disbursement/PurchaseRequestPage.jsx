@@ -308,7 +308,7 @@ function PurchaseRequestPage() {
         <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Purchase Requests</h1>
-            <p>Manage purchase requests and authorizations</p>
+            <p>Handle purchase requests created within the system.</p>
           </div>
           {Add && (
             <button

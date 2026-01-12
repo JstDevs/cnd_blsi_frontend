@@ -291,7 +291,7 @@ function DisbursementVoucherPage() {
             <div className="flex justify-between sm:items-center gap-4 max-sm:flex-col">
               <div>
                 <h1>Disbursement Vouchers</h1>
-                <p>Manage disbursement vouchers</p>
+                <p>Prepare disbursement vouchers for transactions.</p>
               </div>
               {Add && (
                 <button

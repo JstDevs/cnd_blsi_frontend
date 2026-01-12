@@ -298,7 +298,7 @@ function ObligationRequestPage() {
             <div className="flex justify-between sm:items-center gap-4 max-sm:flex-col">
               <div>
                 <h1>Obligation Requests</h1>
-                <p>Manage obligation requests</p>
+                <p>Make obligation request transactions.</p>
               </div>
               {Add && (
                 <button
