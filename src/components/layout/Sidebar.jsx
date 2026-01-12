@@ -34,7 +34,7 @@ const navigation = [
     submenu: [
       { name: 'Obligation Request',       href: '/disbursement/obligation-requests',    moduleId: 62, },
       { name: 'Disbursement Voucher',     href: '/disbursement/vouchers',               moduleId: 40, },
-      { name: 'Cheque Generator',         href: '/applications/cheque-generator',       moduleId: 40, },
+      { name: 'Cheque Generator',         href: '/disbursement/cheque-generator',       moduleId: 40, },
       { name: 'Journal Entry Voucher',    href: '/disbursement/journal-entry-vouchers', moduleId: 57, },
       { name: 'Purchase Request',         href: '/disbursement/purchase-requests',      moduleId: 69, },
       { name: 'Fund Utilization Request', href: '/disbursement/fund-utilization-requests',  moduleId: 47, },
@@ -66,7 +66,7 @@ const navigation = [
       { name: 'Marriage Service Receipt',   href: '/collections/marriage-service-receipts', moduleId: 59, },
       { name: 'Real Property Tax Receipt',  href: '/collections/real-property-tax',         moduleId: 70, },
       { name: 'Public Market Ticket',       href: '/collections/public-market-tickets',     moduleId: 68, },
-      { name: 'Business Permits',           href: '/applications/business-permits',         moduleId: 29, },
+      { name: 'Business Permits',           href: '/collections/business-permits',         moduleId: 29, },
       {
         name: 'Reports',
         submenu: [

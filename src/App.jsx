@@ -336,125 +336,44 @@ function App() {
           />
 
           {/*------------------------ Disbursement module----------------------- */}
-          <Route
-            path="/disbursement/obligation-requests"
-            element={<ObligationRequestPage />}
-          />
-          <Route
-            path="/disbursement/vouchers"
-            element={<DisbursementVoucherPage />}
-          />
-          <Route
-            path="/disbursement/travel-orders"
-            element={<TravelOrderPage />}
-          />
-          <Route
-            path="/disbursement/journal-entry-vouchers"
-            element={<JournalEntryPage />}
-          />
-          <Route
-            path="/disbursement/disbursement-journals"
-            element={<DisbursementJournalPage />}
-          />
-          <Route
-            path="/disbursement/general-journals"
-            element={<GeneralJournalPage />}
-          />
-          <Route
-            path="/disbursement/beginning-balance"
-            element={<BeginningBalancePage />}
-          />
-          <Route
-            path="/disbursement/purchase-requests"
-            element={<PurchaseRequestPage />}
-          />
-          <Route
-            path="/disbursement/fund-utilization-requests"
-            element={<FundUtilizationPage />}
-          />
+          <Route  path="/disbursement/obligation-requests"        element={<ObligationRequestPage   />} />
+          <Route  path="/disbursement/vouchers"                   element={<DisbursementVoucherPage />} />
+          <Route  path="/disbursement/cheque-generator"           element={<ChequeGeneratorPage     />} />
+          <Route  path="/disbursement/journal-entry-vouchers"     element={<JournalEntryPage        />} />
+          <Route  path="/disbursement/travel-orders"              element={<TravelOrderPage         />} />
+          <Route  path="/disbursement/disbursement-journals"      element={<DisbursementJournalPage />} />
+          <Route  path="/disbursement/general-journals"           element={<GeneralJournalPage      />} />
+          <Route  path="/disbursement/beginning-balance"          element={<BeginningBalancePage    />} />
+          <Route  path="/disbursement/purchase-requests"          element={<PurchaseRequestPage     />} />
+          <Route  path="/disbursement/fund-utilization-requests"  element={<FundUtilizationPage     />} />
+          
+          {/*------------------------ Collection module----------------------- */}
+          <Route  path="/collections/community-tax"               element={<CommunityTaxPage            />} />
+          <Route  path="/collections/community-tax-corporation"   element={<CommunityTaxCorporationPage />} />
+          <Route  path="/collections/real-property-tax"           element={<RealPropertyTaxPage         />} />
+          <Route  path="/collections/market"                      element={<MarketCollectionsPage       />} />
+          <Route  path="/collections/general-service-receipts"    element={<GeneralReceiptPage          />} />
+          <Route  path="/collections/burial-service-receipts"     element={<BurialServiceReceiptPage    />} />
+          <Route  path="/collections/marriage-service-receipts"   element={<MarriageServiceReceiptPage  />} />
+          <Route  path="/collections/cashbook"                    element={<CashbookPage                />} />
+          <Route  path="/collections/reports"                     element={<CollectionReportPage        />} />
+          <Route  path="/collections/public-market-tickets"       element={<PublicMarketTicketPage      />} />
+          <Route  path="/collections/business-permits"            element={<BusinessPermitPage          />} />
 
-          {/* Collections module */}
-          {/* <Route
-            path="/collections/receipts"
-            element={<GeneralReceiptPage />}
-          /> */}
-          <Route
-            path="/collections/community-tax"
-            element={<CommunityTaxPage />}
-          />
-          <Route
-            path="/collections/community-tax-corporation"
-            element={<CommunityTaxCorporationPage />}
-          />
-          <Route
-            path="/collections/real-property-tax"
-            element={<RealPropertyTaxPage />}
-          />
-          <Route
-            path="/collections/market"
-            element={<MarketCollectionsPage />}
-          />
-          <Route
-            path="/collections/general-service-receipts"
-            // element={<GeneralServiceReceiptPage />}
-            element={<GeneralReceiptPage />}
-          />
-          <Route
-            path="/collections/burial-service-receipts"
-            element={<BurialServiceReceiptPage />}
-          />
-          <Route
-            path="/collections/marriage-service-receipts"
-            element={<MarriageServiceReceiptPage />}
-          />
-          <Route path="/collections/cashbook" element={<CashbookPage />} />
-          <Route
-            path="/collections/reports"
-            element={<CollectionReportPage />}
-          />
-          <Route
-            path="/collections/public-market-tickets"
-            element={<PublicMarketTicketPage />}
-          />
-
-          {/* Budget module */}
-          <Route path="/budget" element={<BudgetPage />} />
-
-          <Route path="/budget/allotment" element={<BudgetAllotmentPage />} />
-          <Route path="/budget/details" element={<BudgetDetailsPage />} />
-          <Route path="/budget/new" element={<NewBudgetPage />} />
-          <Route path="/budget/summary" element={<BudgetSummaryPage />} />
-          <Route
-            path="/budget/supplemental"
-            element={<BudgetSupplementalPage />}
-          />
-          <Route path="/budget/transfer" element={<BudgetTransferPage />} />
-          <Route path="/budget/report" element={<BudgetReportPage />} />
-          <Route path="/budget/funds" element={<BudgetFundsPage />} />
-          <Route path="/budget/sub-funds" element={<BudgetSubFundsPage />} />
-
-          <Route
-            path="/budget/fund-transfer"
-            element={<BudgetFundTransferPage />}
-          />
-          <Route
-            path="/budget/statement-comparison"
-            element={<StatementComparison />}
-          />
-          <Route
-            path="/budget/statement-appropriation"
-            element={<BudgetStatementOfAppropriation />}
-          />
-
-          {/*----------------------- Applications module ----------------------------*/}
-          <Route
-            path="/applications/business-permits"
-            element={<BusinessPermitPage />}
-          />
-          <Route
-            path="/applications/cheque-generator"
-            element={<ChequeGeneratorPage />}
-          />
+          {/*------------------------ Budget module----------------------- */}
+          <Route  path="/budget"                          element={<BudgetPage                      />} />
+          <Route  path="/budget/allotment"                element={<BudgetAllotmentPage             />} />
+          <Route  path="/budget/details"                  element={<BudgetDetailsPage               />} />
+          <Route  path="/budget/new"                      element={<NewBudgetPage                   />} />
+          <Route  path="/budget/summary"                  element={<BudgetSummaryPage               />} />
+          <Route  path="/budget/supplemental"             element={<BudgetSupplementalPage          />} />
+          <Route  path="/budget/transfer"                 element={<BudgetTransferPage              />} />
+          <Route  path="/budget/report"                   element={<BudgetReportPage                />} />
+          <Route  path="/budget/funds"                    element={<BudgetFundsPage                 />} />
+          <Route  path="/budget/sub-funds"                element={<BudgetSubFundsPage              />} />
+          <Route  path="/budget/fund-transfer"            element={<BudgetFundTransferPage          />} />
+          <Route  path="/budget/statement-comparison"     element={<StatementComparison             />} />
+          <Route  path="/budget/statement-appropriation"  element={<BudgetStatementOfAppropriation  />} />
 
           {/*-------------------------- Reports module --------------------------*/}
           <Route
