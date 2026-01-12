@@ -66,7 +66,7 @@ const navigation = [
       { name: 'Marriage Service Receipt',   href: '/collections/marriage-service-receipts', moduleId: 59, },
       { name: 'Real Property Tax Receipt',  href: '/collections/real-property-tax',         moduleId: 70, },
       { name: 'Public Market Ticket',       href: '/collections/public-market-tickets',     moduleId: 68, },
-      { name: 'Business Permits',           href: '/collections/business-permits',         moduleId: 29, },
+      { name: 'Business Permits',           href: '/collections/business-permits',          moduleId: 29, },
       {
         name: 'Reports',
         submenu: [
@@ -396,8 +396,8 @@ function Sidebar() {
 
   return (
     <div className="h-full flex flex-col border-r border-neutral-200 bg-white">
-      <div className="flex items-center justify-center h-16 border-b border-neutral-200 bg-primary-800">
-        <h1 className="text-white text-xl font-bold px-4">LGU System</h1>
+      <div className="flex items-center justify-center h-20 border-b border-neutral-200 bg-primary-800">
+        <h1 className="text-white text-xl font-bold px-4">CND System</h1>
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">

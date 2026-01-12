@@ -163,21 +163,36 @@ function CommunityTaxPage() {
   const renderStatusBadge = (value) => {
     let bgColor = 'bg-neutral-100 text-neutral-800';
 
+    // switch (value) {
+    //   case 'Requested': bgColor = 'bg-warning-300 text-error-700';    break;
+    //   case 'Approved':  bgColor = 'bg-success-300 text-neutral-800';  break;
+    //   case 'Posted':    bgColor = 'bg-success-800 text-success-100';  break;
+    //   case 'Rejected':  bgColor = 'bg-error-500 text-neutral-100';    break;
+    //   case 'Void':      bgColor = 'bg-primary-900 text-neutral-300';  break;
+    //   case 'Cancelled': bgColor = 'bg-neutral-300 text-neutral-700';  break;
+    //   default: break;
+    // }
+
     switch (value) {
-      case 'Requested': bgColor = 'bg-warning-300 text-error-700'; break;
-      case 'Approved': bgColor = 'bg-success-300 text-neutral-800'; break;
-      case 'Posted': bgColor = 'bg-success-800 text-success-100'; break;
-      case 'Rejected': bgColor = 'bg-error-500 text-neutral-100'; break;
-      case 'Void': bgColor = 'bg-primary-900 text-neutral-300'; break;
-      case 'Cancelled': bgColor = 'bg-neutral-300 text-neutral-700'; break;
+      case 'Requested': bgColor = 'bg-warning-300 text-error-700';    break;
+      case 'Approved':  bgColor = 'bg-success-300 text-neutral-800';  break;
+      case 'Posted':    bgColor = 'bg-success-800 text-success-100';  break;
+      case 'Rejected':  bgColor = 'bg-error-500 text-neutral-100';    break;
+      case 'Void':      bgColor = 'bg-primary-900 text-neutral-300';  break;
+      case 'Cancelled': bgColor = 'bg-neutral-300 text-neutral-700';  break;
       default: break;
     }
+
+    // bg: 'bg-gradient-to-r from-amber-100 to-yellow-100',
+    //   text: 'text-amber-800',
+    //   border: 'border-amber-300',
+    //   icon: '⏳',bg-gradient-to-r from-success-800 to-error-500
 
     return (
       <span
         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
       >
-        {value}g
+        {value}
       </span>
     );
   };

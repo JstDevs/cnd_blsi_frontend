@@ -11,6 +11,7 @@ import {
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import { logout, updateSelectedRole } from '../../features/auth/authSlice';
+import genericLogo from '../../../resources/Generic Logo.ico';
 
 function Header({ toggleSidebar, isSidebarOpen }) {
   const dispatch = useDispatch();
@@ -50,7 +51,15 @@ function Header({ toggleSidebar, isSidebarOpen }) {
   return (
     <header className="bg-white shadow-sm z-10 relative">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-20">
+          <div className="flex-1 flex items-center">
+            <div className="hidden md:flex flex-col items-start">
+              <img src={genericLogo} alt="Generic logo" className='h-16 mr-6'/>
+            </div>          
+            <div className="hidden md:flex flex-col items-start">
+              <h1 className="text-xl font-bold text-black text-left items-start">Municipality of LGU</h1>
+            </div>
+          </div>
           <div className="flex">
             <div className="flex-shrink-0 flex items-center lg:hidden">
               <button
