@@ -34,6 +34,7 @@ const navigation = [
     submenu: [
       { name: 'Obligation Request',       href: '/disbursement/obligation-requests',    moduleId: 62, },
       { name: 'Disbursement Voucher',     href: '/disbursement/vouchers',               moduleId: 40, },
+      { name: 'Cheque Generator',         href: '/disbursement/cheque-generator',       moduleId: 40, },
       { name: 'Journal Entry Voucher',    href: '/disbursement/journal-entry-vouchers', moduleId: 57, },
       { name: 'Purchase Request',         href: '/disbursement/purchase-requests',      moduleId: 69, },
       { name: 'Fund Utilization Request', href: '/disbursement/fund-utilization-requests',  moduleId: 47, },

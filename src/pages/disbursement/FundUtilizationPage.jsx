@@ -174,7 +174,7 @@ function FundUtilizationPage() {
           <div className="page-header">
             <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
               <div>
-                <h1>Fund Utilization Request & Status</h1>
+                <h1>Fund Utilization Request and Status</h1>
                 <p>Manage and track your fund utilization requests.</p>
               </div>
               {Add && (
