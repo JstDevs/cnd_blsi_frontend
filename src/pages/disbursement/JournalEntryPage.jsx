@@ -131,17 +131,13 @@ function JournalEntryPage() {
         let bgColor = 'bg-neutral-100 text-neutral-800';
 
         switch (value) {
-          case 'Requested':
-            bgColor = 'bg-warning-100 text-warning-800';
-            break;
-          case 'Posted':
-            bgColor = 'bg-primary-100 text-primary-800';
-            break;
-          case 'Rejected':
-            bgColor = 'bg-error-100 text-error-800';
-            break;
-          default:
-            break;
+          case 'Requested':   bgColor = 'bg-warning-300 text-error-700';      break;
+          case 'Approved':    bgColor = 'bg-success-300 text-neutral-800';    break;
+          case 'Posted':      bgColor = 'bg-success-800 text-success-100';    break;
+          case 'Rejected':    bgColor = 'bg-error-500 text-neutral-100';      break;
+          case 'Void':        bgColor = 'bg-primary-900 text-neutral-300';    break;
+          case 'Cancelled':   bgColor = 'bg-neutral-300 text-neutral-700';    break;
+          default:            break;
         }
 
         return (
