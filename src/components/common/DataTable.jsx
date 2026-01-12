@@ -107,7 +107,7 @@ function DataTable({
   // Loading state
   if (loading) {
     return (
-      <div className="bg-white shadow-sm rounded-lg border border-neutral-200">
+      <div className="bg-white shadow-md rounded-xl border border-neutral-200">
         <div className="px-4 py-5 sm:p-6 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
           <h3 className="mt-2 text-lg font-medium text-neutral-900">
@@ -124,7 +124,7 @@ function DataTable({
   // Empty state
   if (safeData.length === 0) {
     return (
-      <div className="bg-white shadow-sm rounded-lg border border-neutral-200">
+      <div className="bg-white shadow-md rounded-xl border border-neutral-200">
         <div className="px-4 py-5 sm:p-6 text-center">
           <svg
             className="mx-auto h-12 w-12 text-neutral-400"
@@ -150,7 +150,7 @@ function DataTable({
   }
 
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-neutral-200">
+    <div className="bg-white shadow-md rounded-xl border border-neutral-200 overflow-hidden">
       {search && (
         <div className="px-4 py-3 border-b border-neutral-200 bg-neutral-50">
           <div className="relative rounded-md shadow-sm">
@@ -174,12 +174,12 @@ function DataTable({
       <div className="overflow-x-auto w-full" style={{ WebkitOverflowScrolling: 'touch', overflowY: 'visible' }}>
         <table className="min-w-full divide-y divide-neutral-200" style={{ width: '100%', minWidth: 'max-content' }}>
           <thead>
-            <tr className="bg-gradient-to-r from-neutral-50 to-neutral-100 border-b-2 border-neutral-200">
+            <tr className="bg-neutral-50 border-b border-neutral-200">
               {columns.map((column) => (
                 <th
                   key={column.key}
                   scope="col"
-                  className="px-6 py-4 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider cursor-pointer whitespace-nowrap transition-colors hover:bg-neutral-100"
+                  className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap transition-colors hover:bg-neutral-100"
                   onClick={() =>
                     column.sortable !== false && requestSort(column.key)
                   }
@@ -190,16 +190,16 @@ function DataTable({
                       <span className="flex flex-col shrink-0">
                         <ChevronUpIcon
                           className={`h-3 w-3 transition-colors ${sortConfig.key === column.key &&
-                              sortConfig.direction === 'asc'
-                              ? 'text-primary-600'
-                              : 'text-neutral-300'
+                            sortConfig.direction === 'asc'
+                            ? 'text-primary-600'
+                            : 'text-neutral-300'
                             }`}
                         />
                         <ChevronDownIcon
                           className={`h-3 w-3 -mt-1 transition-colors ${sortConfig.key === column.key &&
-                              sortConfig.direction === 'desc'
-                              ? 'text-primary-600'
-                              : 'text-neutral-300'
+                            sortConfig.direction === 'desc'
+                            ? 'text-primary-600'
+                            : 'text-neutral-300'
                             }`}
                         />
                       </span>
@@ -217,15 +217,14 @@ function DataTable({
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-neutral-100">
+          <tbody className="bg-white divide-y divide-neutral-200">
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={row.id || rowIndex}
-                className={`transition-all duration-150 ${onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : 'hover:bg-neutral-50/50'
+                className={`transition-colors duration-200 ${onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : 'hover:bg-neutral-50'
                   } ${selectedRow && selectedRow?.ID === row.ID
                     ? 'bg-blue-50 border-l-4 border-blue-500'
                     : ''
-                  } ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
                   }`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
@@ -247,8 +246,8 @@ function DataTable({
                     return rowActions?.length > 0 ? (
                       <td
                         className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${(rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
-                            ? 'bg-white'
-                            : 'bg-neutral-50/30'
+                          ? 'bg-white'
+                          : 'bg-neutral-50/30'
                           } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
                           }`}
                       >
@@ -282,8 +281,8 @@ function DataTable({
                   : (Array.isArray(safeActions) ? safeActions.length > 0 : typeof safeActions === 'function') && (
                     <td
                       className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${(rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
-                          ? 'bg-white'
-                          : 'bg-neutral-50/30'
+                        ? 'bg-white'
+                        : 'bg-neutral-50/30'
                         } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
                         }`}
                     >
