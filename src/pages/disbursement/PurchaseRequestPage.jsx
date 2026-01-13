@@ -19,6 +19,7 @@ import { useModulePermissions } from '@/utils/useModulePremission';
 import { CheckLine, EyeIcon, X } from 'lucide-react';
 import { use } from 'react';
 import { set } from 'date-fns';
+import axiosInstance from '../../utils/axiosInstance';
 
 function PurchaseRequestPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -246,16 +247,15 @@ function PurchaseRequestPage() {
   //   className: 'text-danger-600 hover:text-danger-900 p-1 rounded-full hover:bg-danger-50'
   // },
   // ];
-  const handleTOPAction = async (dv, action) => {
+  const handleTOPAction = async (row, action) => {
     setIsLoadingPRPAction(true);
     try {
-      // TODO : add action
-      // const response = await axiosInstance.post(
-      //   `/disbursementVoucher/${action}`,
-      //   { ID: dv.ID }
-      // );
+      const response = await axiosInstance.post(
+        `/purchaseRequest/${action}`,
+        { ID: row.ID }
+      );
       console.log(`${action}d:`, response.data);
-      // dispatch(fetchGeneralServiceReceipts());
+      dispatch(fetchPurchaseRequests());
       toast.success(`Purchase Request ${action}d successfully`);
     } catch (error) {
       console.error(`Error ${action}ing Purchase Request:`, error);
