@@ -150,22 +150,22 @@ const BudgetAllotmentPage = () => {
       render: (value) => {
         const status = value?.toLowerCase() || '';
         const statusColors = {
-          requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-          approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
-          posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-          rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
-          void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
-          cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
+          requested: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
+          approved: 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
+          posted: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
+          rejected: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
+          void: 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
+          cancelled: 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
         };
 
 
-      // case 'Requested': bgColor = 'bg-warning-300 text-error-700';    break;
-      // case 'Approved':  bgColor = 'bg-success-300 text-neutral-800';  break;
-      // case 'Posted':    bgColor = 'bg-success-800 text-success-100';  break;
-      // case 'Rejected':  bgColor = 'bg-error-500 text-neutral-100';    break;
-      // case 'Void':      bgColor = 'bg-primary-900 text-neutral-300';  break;
-      // case 'Cancelled': bgColor = 'bg-neutral-300 text-neutral-700';  break;
-      // default: break;
+        // case 'Requested': bgColor = 'bg-warning-300 text-error-700';    break;
+        // case 'Approved':  bgColor = 'bg-success-300 text-neutral-800';  break;
+        // case 'Posted':    bgColor = 'bg-success-800 text-success-100';  break;
+        // case 'Rejected':  bgColor = 'bg-error-500 text-neutral-100';    break;
+        // case 'Void':      bgColor = 'bg-primary-900 text-neutral-300';  break;
+        // case 'Cancelled': bgColor = 'bg-neutral-300 text-neutral-700';  break;
+        // default: break;
 
         const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
         return (
@@ -292,7 +292,7 @@ const BudgetAllotmentPage = () => {
       });
       actionList.push({
         icon: TrashIcon,
-        title: 'Delete',
+        title: 'Void',
         onClick: () => handleDelete(row),
         className:
           'text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow',
@@ -343,19 +343,19 @@ const BudgetAllotmentPage = () => {
 
     try {
       const response = await axiosInstance.post(
-        `/budgetAllotment/delete`,
+        `/budgetAllotment/void`,
         { ID: itemToDelete.ID }
       );
 
       if (response.data) {
-        toast.success(response.data.message || 'Budget Allotment Deleted Successfully');
+        toast.success(response.data.message || 'Budget Allotment Voided Successfully');
         fetchBudgetAllotments();
       } else {
         toast.error('Failed to delete Budget Allotment');
       }
     } catch (error) {
-      console.error('Error deleting Budget Allotment:', error);
-      toast.error(error.message || 'Failed to delete Budget Allotment');
+      console.error('Error voiding Budget Allotment:', error);
+      toast.error(error.message || 'Failed to void Budget Allotment');
     } finally {
       setIsDeleteModalOpen(false);
       setItemToDelete(null);
@@ -684,10 +684,10 @@ const BudgetAllotmentPage = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Allotment"
-        message={`Are you sure you want to delete this allotment? This action cannot be undone.`}
+        title="Void Allotment"
+        message={`Are you sure you want to void this allotment? This action cannot be undone.`}
         isDestructive={true}
-        confirmText="Delete"
+        confirmText="Void"
       />
     </div>
   );

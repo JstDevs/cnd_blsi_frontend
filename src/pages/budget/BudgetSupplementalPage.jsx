@@ -107,17 +107,17 @@ const BudgetSupplementalPage = () => {
     if (!itemToDelete) return;
     try {
       const response = await axiosInstance.post(
-        `/budgetSupplemental/delete`,
+        `/budgetSupplemental/void`,
         { ID: itemToDelete.ID }
       );
       if (response.data) {
-        toast.success(response.data.message || 'Budget Supplemental Deleted Successfully');
+        toast.success(response.data.message || 'Budget Supplemental Voided Successfully');
         fetchBudgetSupplementals();
       } else {
-        toast.error('Failed to delete Budget Supplemental');
+        toast.error('Failed to void Budget Supplemental');
       }
     } catch (error) {
-      toast.error(error.message || 'Failed to delete Budget Supplemental');
+      toast.error(error.message || 'Failed to void Budget Supplemental');
     } finally {
       setIsDeleteModalOpen(false);
       setItemToDelete(null);
@@ -211,12 +211,12 @@ const BudgetSupplementalPage = () => {
       render: (value) => {
         const status = value?.toLowerCase() || '';
         const statusColors = {
-          requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-          approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
-          posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-          rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
-          void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
-          cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
+          requested: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
+          approved: 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
+          posted: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
+          rejected: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
+          void: 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
+          cancelled: 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
         };
         const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
         return (
@@ -352,7 +352,7 @@ const BudgetSupplementalPage = () => {
       });
       actionList.push({
         icon: TrashIcon,
-        title: 'Delete',
+        title: 'Void',
         onClick: () => handleDelete(row),
         className:
           'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
@@ -655,10 +655,10 @@ const BudgetSupplementalPage = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Supplemental"
-        message={`Are you sure you want to delete this supplemental budget? This action cannot be undone.`}
+        title="Void Supplemental"
+        message={`Are you sure you want to void this supplemental budget? This action cannot be undone.`}
         isDestructive={true}
-        confirmText="Delete"
+        confirmText="Void"
       />
 
       {/* Hidden print area */}

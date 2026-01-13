@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import BudgetFundTransferForm from '../../components/forms/BudgetFundTransferForm';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 import DataTable from '../../components/common/DataTable';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -32,6 +33,8 @@ const BudgetFundTransferPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -110,12 +113,12 @@ const BudgetFundTransferPage = () => {
       render: (value) => {
         const status = value?.toLowerCase() || '';
         const statusColors = {
-          requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-          approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
-          posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-          rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
-          void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
-          cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
+          requested: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
+          approved: 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
+          posted: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
+          rejected: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
+          void: 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
+          cancelled: 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
         };
         const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
         return (
@@ -201,6 +204,14 @@ const BudgetFundTransferPage = () => {
           'text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-all duration-200 shadow-sm hover:shadow',
         disabled: false,
       });
+      actionList.push({
+        icon: TrashIcon,
+        title: 'Void',
+        onClick: () => handleDelete(row),
+        className:
+          'text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow',
+        disabled: false,
+      });
     } else if (status.includes('requested')) {
       actionList.push(
         {
@@ -249,9 +260,32 @@ const BudgetFundTransferPage = () => {
     setIsOpen(true);
   };
 
-  const handleDelete = (id) => {
-    console.log('Deleted transfer with id:', id);
-    toast.success('Transfer deleted successfully');
+  const handleDelete = (row) => {
+    setItemToDelete(row);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post(`/fundTransfer/void`, {
+        ID: itemToDelete.ID,
+      });
+      if (response.data) {
+        toast.success(response.data.message || 'Budget Fund Transfer Voided Successfully');
+        dispatch(fetchFundTransfers());
+      } else {
+        toast.error('Failed to void Budget Fund Transfer');
+      }
+    } catch (error) {
+      console.error('Error voiding Budget Fund Transfer:', error);
+      toast.error(error.response?.data?.message || error.message || 'Failed to void Budget Fund Transfer');
+    } finally {
+      setIsLoading(false);
+      setIsDeleteModalOpen(false);
+      setItemToDelete(null);
+    }
   };
 
   const handleViewTransfer = (row) => {
@@ -415,6 +449,16 @@ const BudgetFundTransferPage = () => {
           }))}
         />
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Void Budget Fund Transfer"
+        message="Are you sure you want to void this budget fund transfer? This action cannot be undone."
+        confirmText="Void"
+        isDestructive={true}
+      />
     </div>
   );
 };
