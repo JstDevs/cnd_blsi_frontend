@@ -41,27 +41,28 @@ function PurchaseRequestForm({
   chartOfAccountsOptions = [],
   itemsOptions = [],
   itemsUnitsOptions = [],
+  isReadOnly = false,
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues = initialData
     ? {
-        ...initialData,
-        Items: initialData.PurchaseItems || [], // 👈 remap here
-      }
+      ...initialData,
+      Items: initialData.PurchaseItems || [], // 👈 remap here
+    }
     : {
-        ResponsibilityCenter: '',
-        OfficeUnitProject: '',
-        InvoiceNumber: '',
-        ContraAccountID: '',
-        SAI_No: '',
-        ObligationRequestNumber: '',
-        InvoiceDate: '',
-        SAIDate: '',
-        ALOBSDate: '',
-        Remarks: '',
-        Items: [{ ItemID: '', Quantity: 0, Unit: '', Cost: 0 }],
-      };
+      ResponsibilityCenter: '',
+      OfficeUnitProject: '',
+      InvoiceNumber: '',
+      ContraAccountID: '',
+      SAI_No: '',
+      ObligationRequestNumber: '',
+      InvoiceDate: '',
+      SAIDate: '',
+      ALOBSDate: '',
+      Remarks: '',
+      Items: [{ ItemID: '', Quantity: 0, Unit: '', Cost: 0 }],
+    };
 
   return (
     <Formik
@@ -92,6 +93,7 @@ function PurchaseRequestForm({
               error={errors.ResponsibilityCenter}
               touched={touched.ResponsibilityCenter}
               options={departmentsOptions}
+              disabled={isReadOnly}
             />
 
             <FormField
@@ -105,6 +107,7 @@ function PurchaseRequestForm({
               onBlur={handleBlur}
               error={errors.OfficeUnitProject}
               touched={touched.OfficeUnitProject}
+              disabled={isReadOnly}
             />
             <FormField
               className="p-3 focus:outline-none"
@@ -118,6 +121,7 @@ function PurchaseRequestForm({
               error={errors.ContraAccountID}
               touched={touched.ContraAccountID}
               options={chartOfAccountsOptions}
+              disabled={isReadOnly}
             />
           </div>
 
@@ -133,6 +137,7 @@ function PurchaseRequestForm({
               onBlur={handleBlur}
               error={errors.InvoiceNumber}
               touched={touched.InvoiceNumber}
+              disabled={isReadOnly}
             />
             <FormField
               className="p-3 focus:outline-none"
@@ -144,6 +149,7 @@ function PurchaseRequestForm({
               onBlur={handleBlur}
               error={errors.SAI_No}
               touched={touched.SAI_No}
+              disabled={isReadOnly}
             />
 
             <FormField
@@ -156,6 +162,7 @@ function PurchaseRequestForm({
               onBlur={handleBlur}
               error={errors.ObligationRequestNumber}
               touched={touched.ObligationRequestNumber}
+              disabled={isReadOnly}
             />
           </div>
 
@@ -171,6 +178,7 @@ function PurchaseRequestForm({
               onBlur={handleBlur}
               error={errors.InvoiceDate}
               touched={touched.InvoiceDate}
+              disabled={isReadOnly}
             />
 
             <FormField
@@ -183,6 +191,7 @@ function PurchaseRequestForm({
               onBlur={handleBlur}
               error={errors.SAIDate}
               touched={touched.SAIDate}
+              disabled={isReadOnly}
             />
 
             <FormField
@@ -195,6 +204,7 @@ function PurchaseRequestForm({
               onBlur={handleBlur}
               error={errors.ALOBSDate}
               touched={touched.ALOBSDate}
+              disabled={isReadOnly}
             />
           </div>
 
@@ -209,6 +219,7 @@ function PurchaseRequestForm({
             onBlur={handleBlur}
             error={errors.Remarks}
             touched={touched.Remarks}
+            disabled={isReadOnly}
           />
 
           {/* New Items field */}
@@ -222,15 +233,17 @@ function PurchaseRequestForm({
               <div className="space-y-4">
                 <div className="flex justify-between items-center mb-2">
                   <label className="font-medium">Items</label>
-                  <Button
-                    type="button"
-                    onClick={() =>
-                      push({ ItemID: '', Quantity: 0, Unit: '', Cost: 0 })
-                    }
-                    className="btn btn-sm btn-primary"
-                  >
-                    + Add
-                  </Button>
+                  {!isReadOnly && (
+                    <Button
+                      type="button"
+                      onClick={() =>
+                        push({ ItemID: '', Quantity: 0, Unit: '', Cost: 0 })
+                      }
+                      className="btn btn-sm btn-primary"
+                    >
+                      + Add
+                    </Button>
+                  )}
                 </div>
 
                 {values.Items.map((entry, index) => (
@@ -264,6 +277,7 @@ function PurchaseRequestForm({
                           }
                           onBlur={handleBlur}
                           required
+                          isDisabled={isReadOnly}
                         />
                         {errors.Items?.[index]?.ItemID && (
                           <div className="text-sm text-red-600 mt-1">
@@ -282,6 +296,7 @@ function PurchaseRequestForm({
                         error={errors.Items?.[index]?.Quantity}
                         touched={touched.Items?.[index]?.Quantity}
                         required
+                        disabled={isReadOnly}
                       />
                       <FormField
                         className="flex-1 w-full sm:max-w-[150px]"
@@ -295,6 +310,7 @@ function PurchaseRequestForm({
                         error={errors.Items?.[index]?.Unit}
                         touched={touched.Items?.[index]?.Unit}
                         required
+                        disabled={isReadOnly}
                       />
                       <FormField
                         className="flex-1 w-full sm:max-w-[200px]"
@@ -304,9 +320,9 @@ function PurchaseRequestForm({
                         value={
                           entry.Cost !== '' && !isNaN(entry.Cost)
                             ? Number(entry.Cost).toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })
                             : ''
                         }
                         onChange={(e) => {
@@ -329,19 +345,22 @@ function PurchaseRequestForm({
                         error={errors.Items?.[index]?.Cost}
                         touched={touched.Items?.[index]?.Cost}
                         required
+                        disabled={isReadOnly}
                       />
                     </div>
 
-                    <div className="flex justify-end pt-0">
-                      <Button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="bg-red-600 hover:bg-red-700 text-white p-1"
-                        disabled={values.Items.length === 1}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    {!isReadOnly && (
+                      <div className="flex justify-end pt-0">
+                        <Button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="bg-red-600 hover:bg-red-700 text-white p-1"
+                          disabled={values.Items.length === 1}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
 
@@ -369,7 +388,7 @@ function PurchaseRequestForm({
                         (sum, e) =>
                           sum +
                           (parseFloat(e.Cost) || 0) *
-                            (parseFloat(e.Quantity) || 0),
+                          (parseFloat(e.Quantity) || 0),
                         0
                       ).toFixed(2)}{' '}
                       <span className="text-sm max-sm:block font-normal text-gray-500">
@@ -386,13 +405,15 @@ function PurchaseRequestForm({
             <button type="button" className="btn btn-outline" onClick={onClose}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isSubmitting}
-            >
-              Save
-            </button>
+            {!isReadOnly && (
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={isSubmitting}
+              >
+                Save
+              </button>
+            )}
           </div>
         </Form>
       )}

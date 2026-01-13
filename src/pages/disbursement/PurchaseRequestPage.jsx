@@ -60,6 +60,12 @@ function PurchaseRequestPage() {
     setIsModalOpen(true);
   };
 
+  const handleView = (request) => {
+    setCurrentRequest(request);
+    setIsViewOnly(true);
+    setIsModalOpen(true);
+  };
+
   const handleDelete = (request) => {
     setRequestToDelete(request);
     setIsDeleteModalOpen(true);
@@ -131,13 +137,13 @@ function PurchaseRequestPage() {
         let bgColor = 'bg-neutral-100 text-neutral-800';
 
         switch (value) {
-          case 'Requested':   bgColor = 'bg-warning-300 text-error-700';      break;
-          case 'Approved':    bgColor = 'bg-success-300 text-neutral-800';    break;
-          case 'Posted':      bgColor = 'bg-success-800 text-success-100';    break;
-          case 'Rejected':    bgColor = 'bg-error-500 text-neutral-100';      break;
-          case 'Void':        bgColor = 'bg-primary-900 text-neutral-300';    break;
-          case 'Cancelled':   bgColor = 'bg-neutral-300 text-neutral-700';    break;
-          default:            break;
+          case 'Requested': bgColor = 'bg-warning-300 text-error-700'; break;
+          case 'Approved': bgColor = 'bg-success-300 text-neutral-800'; break;
+          case 'Posted': bgColor = 'bg-success-800 text-success-100'; break;
+          case 'Rejected': bgColor = 'bg-error-500 text-neutral-100'; break;
+          case 'Void': bgColor = 'bg-primary-900 text-neutral-300'; break;
+          case 'Cancelled': bgColor = 'bg-neutral-300 text-neutral-700'; break;
+          default: break;
         }
 
         return (
@@ -206,9 +212,9 @@ function PurchaseRequestPage() {
       render: (value) =>
         value
           ? Number(value).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
           : '—',
     },
     {
@@ -218,9 +224,9 @@ function PurchaseRequestPage() {
       render: (value) =>
         value
           ? Number(value).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
           : '—',
     },
   ];
@@ -240,11 +246,6 @@ function PurchaseRequestPage() {
   //   className: 'text-danger-600 hover:text-danger-900 p-1 rounded-full hover:bg-danger-50'
   // },
   // ];
-  const handleView = (values) => {
-    setCurrentRequest(values);
-    setIsModalOpen(true);
-    setIsViewOnly(true);
-  };
   const handleTOPAction = async (dv, action) => {
     setIsLoadingPRPAction(true);
     try {
@@ -344,7 +345,11 @@ function PurchaseRequestPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={
-          isViewOnly ? 'View Purchase Request' : currentRequest ? 'Edit Purchase Request' : 'Add Purchase Request'
+          isViewOnly
+            ? 'View Purchase Request'
+            : currentRequest
+              ? 'Edit Purchase Request'
+              : 'Add Purchase Request'
         }
         size="xxxl"
       >
