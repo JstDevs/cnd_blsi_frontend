@@ -11,74 +11,69 @@ import { Link } from 'react-router-dom';
 import DataTable from '../../components/common/DataTable';
 // import { fetchUserDocumentsList } from '../../api/profileApi'; // adjust path as needed
 import { toast } from 'react-hot-toast';
-import { fetchUserDocumentsList, fetchUserProfile } from './profileUtil';
+import { fetchUserDocumentsList, fetchUserProfile } from './profileUtil';    // }
 
 export const statusLabel = (statusString) => {
   const statusConfig = {
     Requested: {
-      bg: 'bg-gradient-to-r from-amber-100 to-yellow-100',
-      text: 'text-amber-800',
-      border: 'border-amber-300',
+      bg: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500',
+      text: 'text-error-700',
       icon: '⏳',
     },
     Approved: {
-      bg: 'bg-gradient-to-r from-emerald-100 to-green-100',
-      text: 'text-emerald-800',
-      border: 'border-emerald-300',
+      bg: 'bg-gradient-to-r from-success-300 via-success-500 to-success-600',
+      text: 'text-neutral-800',
       icon: '✓',
     },
     Posted: {
-      bg: 'bg-gradient-to-r from-green-600 to-emerald-600',
-      text: 'text-white',
-      border: 'border-green-700',
+      bg: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999',
+      text: 'text-success-100',
       icon: '✓',
-      shadow: 'shadow-sm',
     },
     Rejected: {
-      bg: 'bg-gradient-to-r from-red-500 to-rose-500',
-      text: 'text-white',
-      border: 'border-red-600',
+      bg: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999',
+      text: 'text-neutral-100',
       icon: '✕',
-      shadow: 'shadow-sm',
     },
     Void: {
-      bg: 'bg-gradient-to-r from-gray-600 to-slate-600',
-      text: 'text-white',
-      border: 'border-gray-700',
+      bg: 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999',
+      text: 'text-neutral-300',
       icon: '⊘',
-      shadow: 'shadow-sm',
     },
     Cancelled: {
-      bg: 'bg-gradient-to-r from-gray-200 to-slate-200',
-      text: 'text-gray-700',
-      border: 'border-gray-400',
+      bg: 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400',
+      text: 'text-neutral-800',
       icon: '✕',
     },
     'Disbursement Pending': {
-      bg: 'bg-gradient-to-r from-amber-100 to-yellow-100',
-      text: 'text-amber-800',
-      border: 'border-amber-300',
+      bg: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500',
+      text: 'text-error-700',
       icon: '⏳',
     },
     'Disbursement Posted': {
-      bg: 'bg-gradient-to-r from-green-600 to-emerald-600',
-      text: 'text-white',
-      border: 'border-green-700',
+      bg: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999',
+      text: 'text-success-100',
       icon: '✓',
-      shadow: 'shadow-sm',
+    },
+    'Disbursement Rejected': {
+      bg: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999',
+      text: 'text-neutral-100',
+      icon: '✕',
     },
     'Cheque Pending': {
-      bg: 'bg-gradient-to-r from-amber-100 to-yellow-100',
-      text: 'text-amber-800',
-      border: 'border-amber-300',
+      bg: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500',
+      text: 'text-error-700',
       icon: '⏳',
     },
     'Cheque Posted': {
-      bg: 'bg-gradient-to-r from-green-600 to-emerald-600',
-      text: 'text-white',
-      border: 'border-green-700',
+      bg: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999',
+      text: 'text-success-100',
       icon: '✓',
-      shadow: 'shadow-sm',
+    },
+    'Cheque Rejected': {
+      bg: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999',
+      text: 'text-neutral-100',
+      icon: '✕',
     },
   };
 
@@ -136,6 +131,7 @@ const UserProfilePage = () => {
   const summary = {
     total: statusCounts?.Total,
     approved: statusCounts?.Approved,
+    posted: statusCounts?.Posted,
     requested: statusCounts?.Requested,
     rejected: statusCounts?.Rejected,
   };
@@ -223,8 +219,8 @@ const UserProfilePage = () => {
           icon={DocumentIcon}
         />
         <SummaryCard
-          title="Approved"
-          value={summary.approved}
+          title="Posted"
+          value={summary.posted}
           icon={CheckCircleIcon}
         />
         <SummaryCard

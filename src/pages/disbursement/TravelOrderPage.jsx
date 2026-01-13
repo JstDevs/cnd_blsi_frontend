@@ -559,7 +559,7 @@ function TravelOrderPage() {
         <div className="flex justify-between sm:items-center gap-4 max-sm:flex-col">
           <div>
             <h1>Travel Orders</h1>
-            <p>Manage travel orders and authorizations</p>
+            <p>Authorize travel orders of employees.</p>
           </div>
           {Add && (
             <button
