@@ -13,10 +13,13 @@ import {
   approveJournalEntry,
   rejectJournalEntry,
 } from '../../features/disbursement/journalEntrySlice';
+import { fetchGeneralLedgers } from '../../features/reports/generalLedgerSlice';
 import { fetchDepartments } from '../../features/settings/departmentSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { CheckLine, EyeIcon, X } from 'lucide-react';
+import { BookOpenIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { formatCurrency } from '../../utils/currencyFormater';
 
 function JournalEntryPage() {
   const { departments } = useSelector((state) => state.departments);
@@ -48,6 +51,8 @@ function JournalEntryPage() {
   const [isLoadingJEPAction, setIsLoadingJEPAction] = useState(false);
   const [journalEntryToDelete, setJournalEntryToDelete] = useState(null);
   const [isViewOnly, setIsViewOnly] = useState(false);
+  const [showGLModal, setShowGLModal] = useState(false);
+  const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
 
   useEffect(() => {
     dispatch(fetchJournalEntries());
@@ -78,13 +83,26 @@ function JournalEntryPage() {
     setIsDeleteModalOpen(true);
   };
 
+  const handleViewGL = (row) => {
+    setShowGLModal(true);
+    dispatch(fetchGeneralLedgers({
+      LinkID: row.ID,
+      FundID: row.FundsID,
+      CutOffDate: row.InvoiceDate || new Date().toISOString().split('T')[0]
+    }));
+  };
+
+  const handleCloseGLModal = () => {
+    setShowGLModal(false);
+  };
+
   const confirmDelete = async () => {
     if (journalEntryToDelete) {
       try {
         await dispatch(
           deleteJournalEntry(journalEntryToDelete.LinkID)
         ).unwrap();
-        toast.success('Deleted');
+        toast.success('Journal Entry voided successfully');
         dispatch(fetchJournalEntries());
       } catch (error) {
         console.error('Failed to delete journal entry:', error);
@@ -264,7 +282,7 @@ function JournalEntryPage() {
       });
       actionList.push({
         icon: TrashIcon,
-        title: 'Delete',
+        title: 'Void',
         onClick: () => handleDelete(row),
         className:
           'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
@@ -287,6 +305,17 @@ function JournalEntryPage() {
         }
       );
     }
+
+    if (row?.Status?.toLowerCase().includes('posted')) {
+      actionList.push({
+        icon: BookOpenIcon,
+        title: 'View GL',
+        onClick: () => handleViewGL(row),
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+    }
+
     actionList.push({
       icon: EyeIcon,
       title: 'View',
@@ -385,15 +414,15 @@ function JournalEntryPage() {
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        title="Confirm Delete"
+        title="Confirm Void"
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the journal entry "
-            {journalEntryToDelete?.Name}"?
+            Are you sure you want to void the journal entry "
+            {journalEntryToDelete?.InvoiceNumber || journalEntryToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
-            This action cannot be undone.
+            This action will mark the request as void but keep it visible in the list.
           </p>
         </div>
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
@@ -409,7 +438,106 @@ function JournalEntryPage() {
             onClick={confirmDelete}
             className="btn btn-danger"
           >
-            Delete
+            Void JEV
+          </button>
+        </div>
+      </Modal>
+
+      {/* Modal for General Ledger View */}
+      <Modal
+        isOpen={showGLModal}
+        onClose={handleCloseGLModal}
+        title="General Ledger Entries"
+        size="4xl"
+      >
+        <div className="overflow-hidden border border-neutral-200 rounded-xl shadow-sm my-2">
+          {isGLLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <ArrowPathIcon className="h-8 w-8 animate-spin text-neutral-400" />
+              <span className="ml-2 text-neutral-500">Loading ledger data...</span>
+            </div>
+          ) : (
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                    Fund
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                    Ledger Item
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                    Account Name
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                    Code
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                    Debit
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                    Credit
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-neutral-200">
+                {generalLedgers && generalLedgers.length > 0 ? (
+                  generalLedgers.map((item, index) => (
+                    <tr key={index} className="hover:bg-neutral-50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 font-medium">
+                        {item.fund || item.FundsName || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {item.ledger_item}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                        {item.account_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 font-mono">
+                        {item.account_code}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900 font-medium tabular-nums">
+                        {item.debit > 0 ? formatCurrency(item.debit) : '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900 font-medium tabular-nums">
+                        {item.credit > 0 ? formatCurrency(item.credit) : '-'}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-12 text-center text-sm text-neutral-500">
+                      <div className="flex flex-col items-center justify-center">
+                        <BookOpenIcon className="h-10 w-10 text-neutral-300 mb-2" />
+                        <p>No ledger records found for this transaction.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+              {generalLedgers && generalLedgers.length > 0 && (
+                <tfoot className="bg-neutral-50 font-semibold text-neutral-900">
+                  <tr>
+                    <td colSpan="4" className="px-6 py-3 text-right text-xs uppercase tracking-wider text-neutral-500">Total</td>
+                    <td className="px-6 py-3 text-right text-sm tabular-nums">
+                      {formatCurrency(generalLedgers.reduce((acc, curr) => acc + (curr.debit || 0), 0))}
+                    </td>
+                    <td className="px-6 py-3 text-right text-sm tabular-nums">
+                      {formatCurrency(generalLedgers.reduce((acc, curr) => acc + (curr.credit || 0), 0))}
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          )}
+        </div>
+        <div className="flex justify-end pt-4 border-t border-neutral-200 mt-4">
+          <button
+            type="button"
+            onClick={handleCloseGLModal}
+            className="btn btn-primary px-6"
+          >
+            Close
           </button>
         </div>
       </Modal>

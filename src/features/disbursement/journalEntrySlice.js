@@ -231,9 +231,10 @@ const journalEntriesSlice = createSlice({
         if (!Array.isArray(state.journalEntries)) {
           state.journalEntries = [];
         }
-        state.journalEntries = state.journalEntries.filter(
-          (item) => item.ID !== action.payload
-        );
+        // Do not filter out, as we want to keep the record with "Void" status
+        // state.journalEntries = state.journalEntries.filter(
+        //   (item) => item.ID !== action.payload
+        // );
       })
       .addCase(deleteJournalEntry.rejected, (state, action) => {
         state.isLoading = false;

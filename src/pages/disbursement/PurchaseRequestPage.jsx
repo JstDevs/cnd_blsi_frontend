@@ -83,7 +83,8 @@ function PurchaseRequestPage() {
         await dispatch(deletePurchaseRequest(requestToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setRequestToDelete(null);
-        toast.success('Deleted');
+        toast.success('Purchase Request voided successfully');
+        dispatch(fetchPurchaseRequests());
       } catch (error) {
         toast.error(error || 'Failed');
       }
@@ -136,12 +137,12 @@ function PurchaseRequestPage() {
       render: (value) => {
         const status = value?.toLowerCase() || '';
         const statusColors = {
-          requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-          approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
-          posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-          rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
-          void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
-          cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
+          requested: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
+          approved: 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
+          posted: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
+          rejected: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
+          void: 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
+          cancelled: 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
         };
         const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
         return (
@@ -262,6 +263,18 @@ function PurchaseRequestPage() {
 
   const actions = (row) => {
     const actionList = [];
+    const isVoided = row?.Status?.toLowerCase().includes('void');
+
+    if (isVoided) {
+      actionList.push({
+        icon: EyeIcon,
+        title: 'View',
+        onClick: handleView,
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+      return actionList;
+    }
 
     if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
       actionList.push({
@@ -273,7 +286,7 @@ function PurchaseRequestPage() {
       });
       actionList.push({
         icon: TrashIcon,
-        title: 'Delete',
+        title: 'Void',
         onClick: () => handleDelete(row),
         className:
           'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
@@ -376,15 +389,14 @@ function PurchaseRequestPage() {
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        title="Confirm Delete"
+        title="Confirm Void"
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the purchase request "
-            {requestToDelete?.Name}"?
+            Are you sure you want to void the purchase request "{requestToDelete?.InvoiceNumber}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
-            This action cannot be undone.
+            This action will mark the request as void but keep it visible in the list.
           </p>
         </div>
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
@@ -400,7 +412,7 @@ function PurchaseRequestPage() {
             onClick={confirmDelete}
             className="btn btn-danger"
           >
-            Delete
+            Void Request
           </button>
         </div>
       </Modal>

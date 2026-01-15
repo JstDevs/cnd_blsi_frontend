@@ -165,7 +165,8 @@ const purchaseRequestSlice = createSlice({
       })
       .addCase(deletePurchaseRequest.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.purchaseRequests = state.purchaseRequests.filter((pr) => pr.ID !== action.payload);
+        // Do not filter out, as we want to keep the record with "Void" status
+        // state.purchaseRequests = state.purchaseRequests.filter((pr) => pr.ID !== action.payload);
         state.error = null;
       })
       .addCase(deletePurchaseRequest.rejected, (state, action) => {
