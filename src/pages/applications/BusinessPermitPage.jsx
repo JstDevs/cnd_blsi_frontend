@@ -6,12 +6,12 @@ import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import BusinessPermitFormFields from './BusinessPermitFormFields';
 import { useModulePermissions } from '@/utils/useModulePremission';
-// import {
-//   fetchBusinessPermits,
-//   addBusinessPermit,
-//   updateBusinessPermit,
-//   deleteBusinessPermit,
-// } from '../../features/applications/businessPermitSlice';
+import {
+  fetchBusinessPermits,
+  addBusinessPermit,
+  updateBusinessPermit,
+  deleteBusinessPermit,
+} from '../../features/applications/businessPermitSlice';
 import { toast } from 'react-hot-toast';
 
 function BusinessPermitPage() {
@@ -20,40 +20,14 @@ function BusinessPermitPage() {
   const [searchTerm, setSearchTerm] = useState('');
   // ---------------------USE MODULE PERMISSIONS------------------START (BusinessPermitPage - MODULE ID = 29 )
   const { Add, Edit, Delete } = useModulePermissions(29);
-  // const dispatch = useDispatch();
-  // const { records: permits, isLoading } = useSelector(
-  //   (state) => state.businessPermits
-  // );
+  const dispatch = useDispatch();
+  const { records: permits, isLoading } = useSelector(
+    (state) => state.businessPermits // Note: Slice name is 'businessPermit' singular in store usually? Let me verify slice name.
+  );
 
-  // useEffect(() => {
-  //   dispatch(fetchBusinessPermits());
-  // }, [dispatch]);
-
-  // Initial Mock Data
-  const INITIAL_PERMITS = [
-    {
-      id: 1,
-      applicantType: 'Renewal',
-      modeOfPayment: 'Annually',
-      applicationDate: '1/13/2025',
-      dtiSecCdaRegistration: '21447756',
-      dtiRegistrationDate: '1/13/2025',
-      businessName: 'ABC Store',
-      ownerName: 'John Smith',
-      status: 'Posted',
-    },
-    {
-      id: 2,
-      applicantType: 'New',
-      modeOfPayment: 'Semi-Annually',
-      applicationDate: '1/14/2025',
-      dtiSecCdaRegistration: '21447757',
-      dtiRegistrationDate: '1/14/2025',
-      businessName: 'XYZ Restaurant',
-      ownerName: 'Jane Doe',
-      status: 'Requested',
-    },
-  ];
+  useEffect(() => {
+    dispatch(fetchBusinessPermits());
+  }, [dispatch]);
 
   const INITIAL_FORM_DATA = {
     applicantType: 'new',
@@ -108,16 +82,7 @@ function BusinessPermitPage() {
     ownerMobileNo: '',
   };
 
-  const [permits, setPermits] = useState(() => {
-    const saved = localStorage.getItem('mock_business_permits');
-    return saved ? JSON.parse(saved) : INITIAL_PERMITS;
-  });
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
-
-  // Persist permits to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('mock_business_permits', JSON.stringify(permits));
-  }, [permits]);
 
   const columns = [
     {
@@ -131,12 +96,12 @@ function BusinessPermitPage() {
       sortable: true,
     },
     {
-      key: 'applicationDate',
+      key: 'dateOfApplication', // Fixed key
       header: 'Application Date',
       sortable: true,
     },
     {
-      key: 'dtiSecCdaRegistration',
+      key: 'dtiSecCdaRegistrationNo', // Fixed key
       header: 'DTI/SEC/CDA Registration',
       sortable: true,
     },
@@ -155,7 +120,7 @@ function BusinessPermitPage() {
                       : 'bg-gray-100 text-gray-800'
             }`}
         >
-          {value}
+          {value || 'Pending'}
         </span>
       ),
     },
@@ -214,8 +179,14 @@ function BusinessPermitPage() {
 
   const handleDeletePermit = (permit) => {
     if (window.confirm('Are you sure you want to delete this permit?')) {
-      setPermits(prev => prev.filter(p => p.id !== permit.id));
-      toast.success("Permit deleted (Mock)");
+      dispatch(deleteBusinessPermit(permit.id))
+        .unwrap()
+        .then(() => {
+          toast.success("Business permit deleted");
+        })
+        .catch((err) => {
+          toast.error(`Failed to delete: ${err}`);
+        })
     }
   };
 
@@ -239,26 +210,32 @@ function BusinessPermitPage() {
 
     if (currentPermit) {
       // Update existing
-      setPermits(prev => prev.map(p =>
-        p.id === currentPermit.id
-          ? { ...formData, id: currentPermit.id } // Preserve ID
-          : p
-      ));
-      toast.success('Business permit updated (Mock)');
+      dispatch(updateBusinessPermit({ id: currentPermit.id, data: formData }))
+        .unwrap()
+        .then(() => {
+          toast.success('Business permit updated');
+          setIsModalOpen(false);
+        })
+        .catch(err => {
+          toast.error(`Failed to update: ${err}`);
+        });
     } else {
       // Create new
-      const newId = permits.length > 0 ? Math.max(...permits.map(p => p.id)) + 1 : 1;
-      const newPermit = {
+      const dataToSave = {
         ...formData,
-        id: newId,
-        applicationDate: new Date().toLocaleDateString(), // Mock date
-        dtiSecCdaRegistration: formData.dtiSecCdaRegistrationNo, // Map fields for table view
-        ownerName: `${formData.firstName} ${formData.lastName}`.trim(), // Map owner name
+        status: 'Pending' // Explicitly set initial status
       };
-      setPermits(prev => [...prev, newPermit]);
-      toast.success('Business permit created (Mock)');
+
+      dispatch(addBusinessPermit(dataToSave))
+        .unwrap()
+        .then(() => {
+          toast.success('Business permit created');
+          setIsModalOpen(false);
+        })
+        .catch(err => {
+          toast.error(`Failed to create: ${err}`);
+        });
     }
-    setIsModalOpen(false);
   };
 
   const filteredPermits = Array.isArray(permits) ? permits.filter(
