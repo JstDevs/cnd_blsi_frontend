@@ -56,7 +56,7 @@ export default function UserAccessPage() {
 
       const res = await response.json();
       if (!response.ok)
-        throw new Error(res.message || 'Failed to fetch access');
+        throw new Error(res.message || 'Failed to fetch role');
 
       const accessMap = {};
       res.forEach((entry) => {
@@ -175,17 +175,17 @@ export default function UserAccessPage() {
       <header className="page-header space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">User Access</h1>
-            <p className="text-gray-600">Manage user roles and module access.</p>
+            <h1 className="text-2xl font-bold text-gray-800">Role Access</h1>
+            <p className="text-gray-600">Manage a user role's accesses on all modules.</p>
           </div>
-          <Link
+          {/* <Link
             to="/settings/user-roles"
             className="group relative overflow-hidden px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
           >
             <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300" />
             <Users size={20} className="relative z-10" />
             <span className="relative z-10">Manage User Roles</span>
-          </Link>
+          </Link> */}
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 py-4 px-5 bg-gray-50/50 rounded-xl border border-gray-100 shadow-sm">

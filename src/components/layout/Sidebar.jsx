@@ -111,8 +111,9 @@ const navigation = [
       {
         name: 'User Settings',
         submenu: [
-          { name: 'User Details',   href: '/settings/users',        moduleId: 82, },
-          { name: 'User Access',    href: '/settings/user-access',  moduleId: 83, },
+          { name: 'User Details', href: '/settings/users',       moduleId: 82, },
+          { name: 'User Roles',   href: '/settings/user-roles',  moduleId: 83, },
+          { name: 'Role Access',  href: '/settings/role-access', moduleId: 84, },
         ],
       },
       {
@@ -121,7 +122,6 @@ const navigation = [
           { name: 'Employee Details',   href: '/settings/employees',        moduleId: 43, },
           { name: 'Employment Status',  href: '/settings/employmentStatus', moduleId: 93, },
           { name: 'Positions',          href: '/settings/positions',        moduleId: 36, },
-          { name: 'Roles',              href: '/settings/user-roles',       moduleId: 84, }, // no mapping
           { name: 'Nationalities',      href: '/settings/nationalities',    moduleId: 94, },
           { name: 'Approval Matrix',    href: '/settings/approval-matrix',  moduleId: 17, },
         ],

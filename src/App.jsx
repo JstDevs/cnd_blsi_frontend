@@ -171,169 +171,105 @@ function App() {
       <Routes>
         {/* Auth Layout Routes */}
         <Route element={<AuthLayout />}>
-          <Route
-            path="/login"
-            element={
-              isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/" replace />
-              ) : (
-                <RegistrationPage />
-              )
-            }
-          />
-          <Route
-            path="/forgot-password"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/" replace />
-              ) : (
-                <ForgotPasswordPage />
-              )
-            }
-          />
-          <Route
-            path="/reset-password"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/" replace />
-              ) : (
-                <ResetPasswordPage />
-              )
-            }
-          />
+          <Route  path="/login"           element={ isAuthenticated ?   <Navigate to="/" replace />   :   <LoginPage          />    } />
+          <Route  path="/register"        element={ isAuthenticated ? ( <Navigate to="/" replace /> ) : ( <RegistrationPage   /> )  } />
+          <Route  path="/forgot-password" element={ isAuthenticated ? ( <Navigate to="/" replace /> ) : ( <ForgotPasswordPage /> )  } />
+          <Route  path="/reset-password"  element={ isAuthenticated ? ( <Navigate to="/" replace /> ) : ( <ResetPasswordPage  /> )  } />
         </Route>
+
 
         {/* Dashboard Layout Routes (Protected) */}
         <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route  path="/dashboard" element={<DashboardPage />} />
 
-          {/* user profile */}
-          <Route path="/profile" element={<UserProfilePage />} />
-          <Route path="/budget-dashboard" element={<BudgetDashboardPage />} />
-          <Route
-            path="/disbursement-dashboard"
-            element={<DisbursementDashboardPage />}
-          />
-          <Route
-            path="/collection-dashboard"
-            element={<CollectionDashboardPage />}
-          />
+
+          {/*-------------------------- Users Profile module-------------------- */}
+          <Route  path="/profile"                 element={<UserProfilePage           />} />
+          <Route  path="/budget-dashboard"        element={<BudgetDashboardPage       />} />
+          <Route  path="/disbursement-dashboard"  element={<DisbursementDashboardPage />} />
+          <Route  path="/collection-dashboard"    element={<CollectionDashboardPage   />} />
+          <Route  path="/change-password"         element={<ChangePassword            />} />
+
 
           {/*-------------------------- Settings module-------------------- */}
-          <Route path="/settings/departments" element={<DepartmentPage />} />
-          <Route path="/settings/customer" element={<Customer />} />
-          <Route
-            path="/settings/lgu-maintenance"
-            element={<LGUMaintenance />}
-          />
-          <Route
-            path="/settings/subdepartments"
-            element={<SubdepartmentPage />}
-          />
-          {/* // TODO REMOVE THIS ......  */}
-          <Route path="/settings/modules" element={<ModulesPage />} />
-          <Route path="/settings/users" element={<UserPage />} />
-          <Route path="/settings/user-roles" element={<UserrolesPage />} />
-          <Route path="/settings/user-access" element={<UserAccessPage />} />
-          <Route
-            path="/settings/chart-of-accounts"
-            element={<ChartOfAccountsPage />}
-          />
-          <Route
-            path="/settings/account-group"
-            element={<AccountGroupPage />}
-          />
-          <Route
-            path="/settings/major-account-group"
-            element={<MajorAccountGroupPage />}
-          />
-          <Route
-            path="/settings/sub-major-account-group"
-            element={<SubMajorAccountGroupPage />}
-          />
-          <Route path="/settings/vendors" element={<VendorDetailsPage />} />
-          <Route
-            path="/settings/vendor-customer-type"
-            element={<VendorCustomerTypePage />}
-          />
-          <Route path="/settings/vendor-type" element={<VendorTypePage />} />
-          <Route path="/settings/employees" element={<EmployeePage />} />
-          <Route
-            path="/settings/employmentStatus"
-            element={<EmploymentStatus />}
-          />
-          <Route path="/settings/positions" element={<PositionPage />} />
-          <Route
-            path="/settings/nationalities"
-            element={<NationalitiesPage />}
-          />
-          <Route path="/settings/locations" element={<LocationPage />} />
-          <Route path="/settings/ppe" element={<PPEPage />} />
-          <Route
-            path="/settings/ppe-categories"
-            element={<PpeCategoriesPage />}
-          />
-          <Route
-            path="/settings/ppe-suppliers"
-            element={<PpeSuppliersPage />}
-          />
+          <Route  path="/settings/departments"      element={<DepartmentPage    />} />
+          <Route  path="/settings/subdepartments"   element={<SubdepartmentPage />} />
+          <Route  path="/settings/lgu-maintenance"  element={<LGUMaintenance    />} />
+          <Route path="/settings/locations"         element={<LocationPage      />} />
 
-          <Route
-            path="/settings/approval-matrix"
-            element={<ApprovalMatrixPage />}
-          />
-          <Route path="/settings/bank" element={<BankPage />} />
-          <Route path="/settings/currency" element={<CurrencyPage />} />
-          <Route
-            path="/settings/document-details"
-            element={<DocumentDetailsPage />}
-          />
-          <Route
-            path="/settings/document-type-categories"
-            element={<DocumentTypeCategoriesPage />}
-          />
-          <Route path="/settings/items" element={<ItemPage />} />
-          {/* <Route
-            path="/settings/items/invoice-charge-accounts"
-            element={<InvoiceChargeAccountsPage />}
-          /> */}
-          <Route path="/settings/items/units" element={<ItemUnitPage />} />
-          <Route path="/settings/project-type" element={<ProjectTypePage />} />
-          <Route
-            path="/settings/financial-statement"
-            element={<FinancialStatementPage />}
-          />
-          <Route path="/settings/fiscal-year" element={<FiscalYearPage />} />
-          <Route path="/settings/tax-code" element={<TaxCodePage />} />
-          <Route
-            path="/settings/mode-of-payment"
-            element={<ModeOfPaymentPage />}
-          />
-          <Route
-            path="/settings/payment-terms"
-            element={<PaymentTermsPage />}
-          />
-          <Route path="/settings/industry" element={<IndustryPage />} />
-          <Route
-            path="/settings/project-details"
-            element={<ProjectDetailsPage />}
-          />
-          {/* ---SETTING--REAL--PROJECT------> */}
-          <Route
-            path="/settings/tax-declaration"
-            element={<TaxDeclarationPage />}
-          />
-          <Route path="/settings/base-unit-value" element={<BaseUnitValue />} />
-          <Route
-            path="/settings/general-revision"
-            element={<GeneralRevision />}
-          />
+
+          {/*---------------- User Settings --------------- */}
+          <Route  path="/settings/users"        element={<UserPage        />} />
+          <Route  path="/settings/user-roles"   element={<UserrolesPage   />} />
+          <Route  path="/settings/role-access"  element={<UserAccessPage  />} />
+
+
+          {/*---------------- Employee Settings --------------- */}
+          <Route  path="/settings/employees"        element={<EmployeePage        />} />
+          <Route  path="/settings/employmentStatus" element={<EmploymentStatus    />} />
+          <Route  path="/settings/positions"        element={<PositionPage        />} />
+          <Route  path="/settings/nationalities"    element={<NationalitiesPage   />} />
+          <Route  path="/settings/approval-matrix"  element={<ApprovalMatrixPage  />} />
+
+
+          {/*---------------- Partner Settings --------------- */}
+          <Route  path="/settings/vendors"  element={<VendorDetailsPage />} />
+          <Route  path="/settings/customer" element={<Customer          />} />   
+
+
+          {/*---------------- Accounting Settings --------------- */}
+          {/*---------------- Bank Details --------------- */}
+          <Route path="/settings/bank"      element={<BankPage      />} />
+          <Route path="/settings/currency"  element={<CurrencyPage  />} />
+          {/*---------------- Document Details --------------- */}
+          <Route  path="/settings/document-details"         element={<DocumentDetailsPage         />} />
+          <Route  path="/settings/document-type-categories" element={<DocumentTypeCategoriesPage  />} />
+          {/*---------------- Items Settings --------------- */}
+          <Route path="/settings/items"       element={<ItemPage      />} />
+          <Route path="/settings/items/units" element={<ItemUnitPage  />} />
+          {/*---------------- Project Settings --------------- */}
+          <Route path="/settings/project-type"      element={<ProjectTypePage     />} />
+          <Route  path="/settings/project-details"  element={<ProjectDetailsPage  />} />
+          {/*---------------- Accounting Main Settings --------------- */}
+          <Route  path="/settings/financial-statement"  element={<FinancialStatementPage  />} />
+          <Route  path="/settings/fiscal-year"          element={<FiscalYearPage          />} />
+          <Route  path="/settings/tax-code"             element={<TaxCodePage             />} />
+          <Route  path="/settings/mode-of-payment"      element={<ModeOfPaymentPage       />} />
+          <Route  path="/settings/payment-terms"        element={<PaymentTermsPage        />} />
+          <Route  path="/settings/industry"             element={<IndustryPage            />} />
+
+
+          {/*---------------- Chart of Accounts Settings --------------- */}
+          <Route  path="/settings/chart-of-accounts"        element={<ChartOfAccountsPage       />} />
+          <Route  path="/settings/account-group"            element={<AccountGroupPage          />} />
+          <Route  path="/settings/major-account-group"      element={<MajorAccountGroupPage     />} />
+          <Route  path="/settings/sub-major-account-group"  element={<SubMajorAccountGroupPage  />} />
+
+
+          {/*---------------- Report Settings --------------- */}
+          {/* <Route  path="/settings/signatories"      element={<SignatoriesPage     />} /> */}
+          {/* <Route  path="/settings/logos-and-images" element={<LogosAndImagesPage  />} /> */}
+          {/* <Route  path="/settings/watermarks"       element={<WatermarksPage      />} /> */}
+          {/* <Route  path="/settings/data-sources"     element={<DataSourcesPage     />} /> */}
+
+
+          {/*---------------- Real Property Settings --------------- */}
+          <Route  path="/settings/tax-declaration"  element={<TaxDeclarationPage  />} />
+          <Route  path="/settings/base-unit-value"  element={<BaseUnitValue       />} />
+          <Route  path="/settings/general-revision" element={<GeneralRevision     />} />
+
+
+          {/*---------------- PPE Settings --------------- */}
+          <Route  path="/settings/ppe"            element={<PPEPage           />} />
+          <Route  path="/settings/ppe-categories" element={<PpeCategoriesPage />} />
+          <Route  path="/settings/ppe-suppliers"  element={<PpeSuppliersPage  />} />
+
+
+          {/*---------------- Unused Settings --------------- */}
+          <Route  path="/settings/modules"              element={<ModulesPage             />} />
+          <Route  path="/settings/vendor-customer-type" element={<VendorCustomerTypePage  />} />
+          <Route  path="/settings/vendor-type"          element={<VendorTypePage          />} />
+
 
           {/*------------------------ Disbursement module----------------------- */}
           <Route  path="/disbursement/obligation-requests"        element={<ObligationRequestPage   />} />
@@ -346,6 +282,13 @@ function App() {
           <Route  path="/disbursement/beginning-balance"          element={<BeginningBalancePage    />} />
           <Route  path="/disbursement/purchase-requests"          element={<PurchaseRequestPage     />} />
           <Route  path="/disbursement/fund-utilization-requests"  element={<FundUtilizationPage     />} />
+          {/*---------------- Reports Settings --------------- */}
+          <Route  path="/reports/general-ledger"        element={<GeneralLedgerPage       />} />
+          <Route  path="/reports/subsidiary-ledger"     element={<SubsidiaryLedger        />} />
+          <Route  path="/reports/financial-statements"  element={<FinancialStatementsPage />} />
+          <Route path="/reports/bir"                    element={<BirReportPage           />} />
+          <Route path="/reports/trial-balance"          element={<TrialBalancePage        />} />
+
           
           {/*------------------------ Collection module----------------------- */}
           <Route  path="/collections/community-tax"               element={<CommunityTaxPage            />} />
@@ -355,10 +298,12 @@ function App() {
           <Route  path="/collections/general-service-receipts"    element={<GeneralReceiptPage          />} />
           <Route  path="/collections/burial-service-receipts"     element={<BurialServiceReceiptPage    />} />
           <Route  path="/collections/marriage-service-receipts"   element={<MarriageServiceReceiptPage  />} />
-          <Route  path="/collections/cashbook"                    element={<CashbookPage                />} />
-          <Route  path="/collections/reports"                     element={<CollectionReportPage        />} />
           <Route  path="/collections/public-market-tickets"       element={<PublicMarketTicketPage      />} />
           <Route  path="/collections/business-permits"            element={<BusinessPermitPage          />} />
+          {/*---------------- Reports Settings --------------- */}
+          <Route  path="/collections/cashbook"  element={<CashbookPage          />} />
+          <Route  path="/collections/reports"   element={<CollectionReportPage  />} />
+
 
           {/*------------------------ Budget module----------------------- */}
           <Route  path="/budget"                          element={<BudgetPage                      />} />
@@ -368,34 +313,17 @@ function App() {
           <Route  path="/budget/summary"                  element={<BudgetSummaryPage               />} />
           <Route  path="/budget/supplemental"             element={<BudgetSupplementalPage          />} />
           <Route  path="/budget/transfer"                 element={<BudgetTransferPage              />} />
-          <Route  path="/budget/report"                   element={<BudgetReportPage                />} />
           <Route  path="/budget/funds"                    element={<BudgetFundsPage                 />} />
           <Route  path="/budget/sub-funds"                element={<BudgetSubFundsPage              />} />
           <Route  path="/budget/fund-transfer"            element={<BudgetFundTransferPage          />} />
+          {/*---------------- Reports Settings --------------- */}
+          <Route  path="/budget/report"                   element={<BudgetReportPage                />} />
           <Route  path="/budget/statement-comparison"     element={<StatementComparison             />} />
           <Route  path="/budget/statement-appropriation"  element={<BudgetStatementOfAppropriation  />} />
-
-          {/*-------------------------- Reports module --------------------------*/}
-          <Route
-            path="/reports/general-ledger"
-            element={<GeneralLedgerPage />}
-          />
-          <Route
-            path="/reports/subsidiary-ledger"
-            element={<SubsidiaryLedger />}
-          />
-          <Route
-            path="/reports/financial-statements"
-            element={<FinancialStatementsPage />}
-          />
-          <Route path="/reports/budget" element={<BudgetReportPage />} />
-          <Route path="/reports/bir" element={<BirReportPage />} />
-          {/* <Route path="/reports/trial-balance" element={<TrialBalance />} /> */}
-          <Route path="/reports/trial-balance" element={<TrialBalancePage />} />
-
-          {/* ---------------------------CHANGE PASSWORD------------------- */}
-          <Route path="/change-password" element={<ChangePassword />} />
+        
+        
         </Route>
+
 
         {/* Root redirect */}
         <Route path="/" element={<Navigate to="/dashboard\" replace />} />
