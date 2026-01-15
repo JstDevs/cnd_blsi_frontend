@@ -233,6 +233,9 @@ const BudgetAllotmentPage = () => {
   // ];
   const handleBAPAction = async (dv, action) => {
     setIsLoadingBAPAction(true);
+    // Properly format action strings for messages
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const response = await axiosInstance.post(
         `/budgetAllotment/${action}`,
@@ -263,15 +266,15 @@ const BudgetAllotmentPage = () => {
       await fetchBudgetAllotments();
 
       if (action === 'reject') {
-        toast.error(`Budget Allotment ${action}ed successfully`);
+        toast.error(`Budget Allotment ${actionPast} successfully`);
       } else {
         toast.success(
-          response.data.message || `Budget Allotment ${action}d successfully`
+          response.data.message || `Budget Allotment ${actionPast} successfully`
         );
       }
     } catch (error) {
-      console.error(`Error ${action}ing Budget Allotment:`, error);
-      toast.error(`Error ${action}ing Budget Allotment`);
+      console.error(`Error ${actionPresent} Budget Allotment:`, error);
+      toast.error(`Error ${actionPresent} Budget Allotment`);
     } finally {
       setIsLoadingBAPAction(false);
     }

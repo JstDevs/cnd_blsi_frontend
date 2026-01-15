@@ -290,7 +290,10 @@ const BudgetSupplementalPage = () => {
   //   },
   // ];
   const handleBSPAction = async (info, action) => {
-    setIsLoading(true);
+    setIsLoading(true);    
+    // Properly format action strings for messages
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const response = await axiosInstance.post(
         `/budgetSupplemental/${action}`,
@@ -320,13 +323,13 @@ const BudgetSupplementalPage = () => {
 
       await fetchBudgetSupplementals();
       if (action === 'reject') {
-        toast.error(`Budget Supplemental ${action}ed successfully`);
+        toast.error(`Budget Supplemental ${actionPast} successfully`);
       } else {
-        toast.success(`Budget Supplemental ${action}d successfully`);
+        toast.success(`Budget Supplemental ${actionPast} successfully`);
       }
     } catch (error) {
-      console.error(`Error ${action}ing Budget Supplemental:`, error);
-      toast.error(`Error ${action}ing Budget Supplemental`);
+      console.error(`Error ${actionPresent} Budget Supplemental:`, error);
+      toast.error(`Error ${actionPresent} Budget Supplemental`);
     } finally {
       setIsLoading(false);
     }

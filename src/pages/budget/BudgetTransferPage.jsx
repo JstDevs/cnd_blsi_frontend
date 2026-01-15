@@ -270,6 +270,9 @@ const BudgetTransferPage = () => {
   // };
   const handleBTPAction = async (info, action) => {
     setIsLoading(true);
+    // Properly format action strings for messages
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const response = await axiosInstance.post(`/budgetTransfer/${action}`, {
         ID: info.ID || info.id,
@@ -284,13 +287,13 @@ const BudgetTransferPage = () => {
 
       await dispatch(fetchBudgetTransfers()).unwrap();
       if (action === 'reject') {
-        toast.error(`Budget Transfer ${action}ed successfully`);
+        toast.error(`Budget Transfer ${actionPast} successfully`);
       } else {
-        toast.success(`Budget Transfer ${action}d successfully`);
+        toast.success(`Budget Transfer ${actionPast} successfully`);
       }
     } catch (error) {
-      console.error(`Error ${action}ing Budget Transfer:`, error);
-      const errorMessage = error.response?.data?.message || error.message || `Error ${action}ing Budget Transfer`;
+      console.error(`Error ${actionPresent} Budget Transfer:`, error);
+      const errorMessage = error.response?.data?.message || error.message || `Error ${actionPresent} Budget Transfer`;
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
