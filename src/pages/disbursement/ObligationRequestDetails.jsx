@@ -19,6 +19,13 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
   const [showGLModal, setShowGLModal] = useState(false);
   const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
 
+  // Lookups
+  const { employees } = useSelector((state) => state.employees);
+  const { customers } = useSelector((state) => state.customers);
+  const { vendorDetails } = useSelector((state) => state.vendorDetails);
+  const { funds } = useSelector((state) => state.funds);
+  const { accounts: chartOfAccounts } = useSelector((state) => state.chartOfAccounts);
+
   const handleViewGeneralLedger = () => {
     setShowGLModal(true);
     dispatch(fetchGeneralLedgers({
@@ -35,7 +42,6 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
   if (!or) return null;
 
   // Format date
-  console.log('OBR Detail Data:', or);
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-PH', {
       year: 'numeric',
@@ -151,7 +157,10 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
                 Fund
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {or.FundName || or.fund || or.FundsName || or.FundsID || 'N/A'}
+                {(() => {
+                  const fund = funds.find(f => String(f.ID) === String(or.FundsID || or.FundID));
+                  return or.FundName || fund?.Name || or.fund || or.FundsName || or.FundsID || 'N/A';
+                })()}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -179,30 +188,65 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
           </h3>
 
           <dl className="space-y-2">
-            <div className="grid grid-cols-3 gap-4">
-              <dt className="text-sm font-medium text-neutral-500">
-                Payee Name
-              </dt>
-              <dd className="text-sm text-neutral-900 col-span-2">
-                {or.Payee || or.payeeName || or.PayeeName || or.payee_name || or.Name || or.RecipientName || 'N/A'}
-              </dd>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <dt className="text-sm font-medium text-neutral-500">
-                Payee Type
-              </dt>
-              <dd className="text-sm text-neutral-900 col-span-2">
-                {or.PayeeType || or.payeeType || or.payee_type || 'N/A'}
-              </dd>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <dt className="text-sm font-medium text-neutral-500">
-                Payee Address
-              </dt>
-              <dd className="text-sm text-neutral-900 col-span-2">
-                {or.Address || or.payeeAddress || or.payee_address || or.StreetAddress || 'N/A'}
-              </dd>
-            </div>
+            {(() => {
+              let payeeName = or.Payee || or.payeeName || or.PayeeName || or.payee_name || or.Name || or.RecipientName;
+              let payeeType = or.PayeeType || or.payeeType || or.payee_type;
+              let payeeAddress = or.Address || or.payeeAddress || or.payee_address || or.StreetAddress;
+
+              if (!payeeName || payeeName === 'N/A') {
+                if (or.EmployeeID) {
+                  const emp = employees.find(e => String(e.ID) === String(or.EmployeeID));
+                  if (emp) {
+                    payeeName = `${emp.FirstName} ${emp.MiddleName ? emp.MiddleName + ' ' : ''}${emp.LastName}`;
+                    payeeType = 'Employee';
+                    payeeAddress = emp.StreetAddress || emp.Address;
+                  }
+                } else if (or.VendorID) {
+                  const vendor = vendorDetails.find(v => String(v.ID) === String(or.VendorID));
+                  if (vendor) {
+                    payeeName = vendor.Name;
+                    payeeType = 'Vendor';
+                    payeeAddress = vendor.StreetAddress || vendor.Address || vendor.OfficeAddress;
+                  }
+                } else if (or.CustomerID) {
+                  const customer = customers.find(c => String(c.ID) === String(or.CustomerID));
+                  if (customer) {
+                    payeeName = customer.Name || `${customer.FirstName} ${customer.LastName}`;
+                    payeeType = 'Customer/Individual';
+                    payeeAddress = customer.StreetAddress || customer.Address;
+                  }
+                }
+              }
+
+              return (
+                <>
+                  <div className="grid grid-cols-3 gap-4">
+                    <dt className="text-sm font-medium text-neutral-500">
+                      Payee Name
+                    </dt>
+                    <dd className="text-sm text-neutral-900 col-span-2">
+                      {payeeName || 'N/A'}
+                    </dd>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <dt className="text-sm font-medium text-neutral-500">
+                      Payee Type
+                    </dt>
+                    <dd className="text-sm text-neutral-900 col-span-2">
+                      {payeeType || 'N/A'}
+                    </dd>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <dt className="text-sm font-medium text-neutral-500">
+                      Payee Address
+                    </dt>
+                    <dd className="text-sm text-neutral-900 col-span-2">
+                      {payeeAddress || 'N/A'}
+                    </dd>
+                  </div>
+                </>
+              );
+            })()}
           </dl>
         </div>
       </div>
@@ -225,7 +269,6 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
             <tbody className="bg-white divide-y divide-neutral-200">
               {(() => {
                 const items = or.TransactionItemsAll || or.Items || or.items || [];
-                console.log('OBR Item Data:', items);
                 if (items.length > 0) {
                   return items.map((item, index) => (
                     <tr key={index} className="hover:bg-neutral-50 transition-colors duration-200">
@@ -236,7 +279,13 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
                         {item.itemName || item.Remarks || item.Particulars || item.item_name}
                       </td>
                       <td className="px-6 py-4 text-sm text-neutral-600 font-mono tracking-tight">
-                        {item.chargeAccountName || item.Account || item.AccountCode || item.AccountName || item.AccountTitle || item.Account_Name}
+                        {(() => {
+                          const account = chartOfAccounts?.find(a => String(a.ID) === String(item.ChartofAccountsID || item.AccountID || item.Account_ID));
+                          const accountCode = item.chargeAccountName || item.Account || item.AccountCode || account?.AccountCode;
+                          const accountName = item.AccountName || account?.Name;
+                          if (accountCode && accountName) return `${accountCode} - ${accountName}`;
+                          return accountCode || accountName || 'N/A';
+                        })()}
                       </td>
                       <td className="px-6 py-4 text-sm text-right text-neutral-900 font-medium tabular-nums">
                         {formatCurrency(item.subtotal || item.Subtotal || item.SubTotal || item.sub_total || item.amount || item.Amount || item.Debit || item.Credit || 0)}
