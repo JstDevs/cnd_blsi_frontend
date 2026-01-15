@@ -362,8 +362,8 @@ function CommunityTaxCorporationPage() {
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">
                   {currentCertificate
-                    ? 'Edit Community Tax Certificate (CORPORATE)'
-                    : 'Community Tax Certificate (CORPORATE)'}
+                    ? 'Edit Community Tax Certificate - Corporate'
+                    : 'Community Tax Certificate - Corporate'}
                 </h1>
                 <p className="text-gray-600">
                   {currentCertificate

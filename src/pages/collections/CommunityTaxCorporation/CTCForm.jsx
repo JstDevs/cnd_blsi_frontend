@@ -1,9 +1,9 @@
 import { useFormik } from 'formik';
-import { Calendar, Building, MapPin, CreditCard } from 'lucide-react';
+import { Calendar, Building, MapPin, CreditCard, CheckCircle } from 'lucide-react';
 import FormField from '@/components/common/FormField';
 import Button from '@/components/common/Button';
 import * as Yup from 'yup';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 // import numToWords from '@/components/helper/numToWords';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { convertAmountToWords } from '@/utils/amountToWords';
@@ -117,6 +117,8 @@ const CTCForm = ({
   onSubmitSuccess,
   readOnly,
 }) => {
+  const [activeTab, setActiveTab] = useState('certificate');
+
   const organizationOptions = [
     { value: 'Corporation', label: 'Corporation' },
     { value: 'Partnership', label: 'Partnership' },
@@ -221,7 +223,70 @@ const CTCForm = ({
         onSubmit={formik.handleSubmit}
         className="max-w-6xl mx-auto space-y-6"
       >
-        {/* Certificate Header Info */}
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 bg-white rounded-t-lg">
+          <div className="flex gap-0">
+            <button
+              type="button"
+              onClick={() => setActiveTab('certificate')}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
+                activeTab === 'certificate'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Certificate Info
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('company')}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
+                activeTab === 'company'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Building className="h-5 w-5" />
+                Company Info
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('tax')}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
+                activeTab === 'tax'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Tax Assessment
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('review')}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
+                activeTab === 'review'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5" />
+                Review & Finalize
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Certificate Header Info Tab */}
+        {activeTab === 'certificate' && (
         <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
           <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
             <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
@@ -296,8 +361,10 @@ const CTCForm = ({
             </div>
           </div>
         </div>
+        )}
 
-        {/* Company Information */}
+        {/* Company Information Tab */}
+        {activeTab === 'company' && (
         <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
           <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
             <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
@@ -461,8 +528,10 @@ const CTCForm = ({
             </div>
           </div>
         </div>
+        )}
 
-        {/* Tax Information */}
+        {/* Tax Information Tab */}
+        {activeTab === 'tax' && (
         <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
           <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
             <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
@@ -604,7 +673,22 @@ const CTCForm = ({
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+        )}
 
+        {/* Tax Information Tab */}
+        {activeTab === 'review' && (
+        <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
+          <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+            <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
+              <CheckCircle className="h-5 w-5" />
+              Review & Finalize
+            </h3>
+          </div>
+          <div className="p-2 sm:p-6">
+            <div className="space-y-6">
               {/* Summary */}
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg shadow-lg">
                 <div className="flex flex-col md:flex-row md:items-end gap-6">
@@ -693,21 +777,24 @@ const CTCForm = ({
                 />
               </div>
             </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pb-8">
+              <Button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-md transition-colors"
+                disabled={formik.isSubmitting}
+              >
+                {formik.isSubmitting ? 'Generating...' : 'Generate Certificate'}
+              </Button>
+            </div>
           </div>
         </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center pb-8">
           <button type="button" onClick={onBack} className="btn btn-outline">
             Close
           </button>
-          <Button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-md transition-colors"
-            disabled={formik.isSubmitting}
-          >
-            {formik.isSubmitting ? 'Generating...' : 'Generate Certificate'}
-          </Button>
         </div>
       </form>
 
