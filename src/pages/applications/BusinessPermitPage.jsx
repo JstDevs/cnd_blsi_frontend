@@ -29,7 +29,8 @@ function BusinessPermitPage() {
   //   dispatch(fetchBusinessPermits());
   // }, [dispatch]);
 
-  const permits = [
+  // Initial Mock Data
+  const INITIAL_PERMITS = [
     {
       id: 1,
       applicantType: 'Renewal',
@@ -54,7 +55,7 @@ function BusinessPermitPage() {
     },
   ];
 
-  const [formData, setFormData] = useState({
+  const INITIAL_FORM_DATA = {
     applicantType: 'new',
     modeOfPayment: 'annually',
     dateOfApplication: '',
@@ -85,7 +86,38 @@ function BusinessPermitPage() {
     ownerRegion: '',
     status: 'Pending',
     attachments: [],
+    // Default values for fields to prevent uncontrolled input errors
+    businessArea: '',
+    totalEmployees: '',
+    employeesResidingWithLgli: '',
+    lessorFullName: '',
+    lessorAddress: '',
+    lessorContactNumber: '',
+    lessorEmail: '',
+    monthlyRental: '',
+    lineOfBusiness: '',
+    numberOfUnits: '',
+    capitalization: '',
+    grossSales: '',
+    emergencyContactPerson: '',
+    emergencyContactNumber: '',
+    emergencyContactEmail: '',
+    ownerPostalCode: '',
+    ownerEmailAddress: '',
+    ownerTelephoneNo: '',
+    ownerMobileNo: '',
+  };
+
+  const [permits, setPermits] = useState(() => {
+    const saved = localStorage.getItem('mock_business_permits');
+    return saved ? JSON.parse(saved) : INITIAL_PERMITS;
   });
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+
+  // Persist permits to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('mock_business_permits', JSON.stringify(permits));
+  }, [permits]);
 
   const columns = [
     {
@@ -156,50 +188,25 @@ function BusinessPermitPage() {
 
   const handleCreatePermit = () => {
     setCurrentPermit(null);
-    setFormData({
-      applicantType: 'new',
-      modeOfPayment: 'annually',
-      dateOfApplication: '',
-      dtiSecCdaRegistrationNo: '',
-      dtiSecCdaRegistrationDate: '',
-      tinNo: '',
-      typeOfBusiness: 'single',
-      amendmentFrom: 'single',
-      amendmentTo: 'single',
-      taxIncentiveFromGovEntity: 'no',
-      lastName: '',
-      firstName: '',
-      middleName: '',
-      businessName: '',
-      tradeNameFranchise: '',
-      businessRegion: '',
-      businessProvince: '',
-      businessMunicipality: '',
-      businessBarangay: '',
-      businessStreetAddress: '',
-      postalCode: '',
-      emailAddress: '',
-      telephoneNo: '',
-      mobileNo: '',
-      ownerStreetAddress: '',
-      ownerBarangay: '',
-      ownerMunicipality: '',
-      ownerRegion: '',
-      status: 'Pending',
-      attachments: [],
-    });
+    setFormData(INITIAL_FORM_DATA);
     setIsModalOpen(true);
   };
 
   const handleViewPermit = (permit) => {
     setCurrentPermit(permit);
+    setFormData({
+      ...INITIAL_FORM_DATA,
+      ...permit,
+      attachments: permit.attachments || [],
+    });
     setIsModalOpen(true);
   };
+
   const handleEditPermit = (permit) => {
     setCurrentPermit(permit);
     setFormData({
+      ...INITIAL_FORM_DATA,
       ...permit,
-      // Ensure attachments is an array if it comes back as null/undefined
       attachments: permit.attachments || [],
     });
     setIsModalOpen(true);
@@ -207,17 +214,7 @@ function BusinessPermitPage() {
 
   const handleDeletePermit = (permit) => {
     if (window.confirm('Are you sure you want to delete this permit?')) {
-      /*
-      dispatch(deleteBusinessPermit(permit.id))
-        .unwrap()
-        .then(() => {
-          toast.success('Business permit deleted successfully');
-        })
-        .catch((error) => {
-          toast.error(`Failed to delete permit: ${error}`);
-        });
-        */
-      console.log("Deleting permit", permit);
+      setPermits(prev => prev.filter(p => p.id !== permit.id));
       toast.success("Permit deleted (Mock)");
     }
   };
@@ -238,54 +235,38 @@ function BusinessPermitPage() {
   };
 
   const handleSave = () => {
-    // Basic validation
-    // if (!formData.businessName) {
-    //   toast.error('Business Name is required');
-    //   return;
-    // }
-
-    // Prepare payload
-    // If we have attachments, we might need a FormData object.
-    // If the slice handles FormData checking, we can just pass the object if no files, or FormData if files.
-    // However, usually for mixed content (fields + files), we use FormData.
-    // Let's assume we use FormData if there are new attachments or just JSON if simpler.
-    // But slice implementation handles JSON vs FormData. For safety with files, let's build FormData.
-
-    // For this example, let's assume the API handles JSON correctly if we don't need real file upload yet, 
-    // OR we just dispatch the object and let the slice/thunk handle serialization if needed.
-    // But since we added file upload logic, let's assume we want to send it proper.
-    // Since the user just wants it to "save" and we saw Object Object, let's just make it work with the object first unless files are added.
-
-    /*
-      const action = currentPermit
-        ? updateBusinessPermit({ id: currentPermit.id, data: formData })
-        : addBusinessPermit(formData);
-  
-      dispatch(action)
-        .unwrap()
-        .then(() => {
-          toast.success(
-            currentPermit
-              ? 'Business permit updated successfully'
-              : 'Business permit created successfully'
-          );
-          setIsModalOpen(false);
-        })
-        .catch((error) => {
-          toast.error(`Failed to save permit: ${error}`);
-        });
-        */
     console.log('Saving form data:', formData);
-    toast.success('Form saved (Mock)');
+
+    if (currentPermit) {
+      // Update existing
+      setPermits(prev => prev.map(p =>
+        p.id === currentPermit.id
+          ? { ...formData, id: currentPermit.id } // Preserve ID
+          : p
+      ));
+      toast.success('Business permit updated (Mock)');
+    } else {
+      // Create new
+      const newId = permits.length > 0 ? Math.max(...permits.map(p => p.id)) + 1 : 1;
+      const newPermit = {
+        ...formData,
+        id: newId,
+        applicationDate: new Date().toLocaleDateString(), // Mock date
+        dtiSecCdaRegistration: formData.dtiSecCdaRegistrationNo, // Map fields for table view
+        ownerName: `${formData.firstName} ${formData.lastName}`.trim(), // Map owner name
+      };
+      setPermits(prev => [...prev, newPermit]);
+      toast.success('Business permit created (Mock)');
+    }
     setIsModalOpen(false);
   };
 
-  const filteredPermits = permits.filter(
+  const filteredPermits = Array.isArray(permits) ? permits.filter(
     (permit) =>
       permit.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       permit.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       permit.dtiSecCdaRegistration.includes(searchTerm)
-  );
+  ) : [];
 
   return (
     <div>
