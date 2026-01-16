@@ -208,16 +208,22 @@ const burialRecordsSlice = createSlice({
       })
       .addCase(approveBurialRecord.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.records.findIndex((r) => r.ID === action.payload.id);
+        const index = state.records.findIndex((r) => String(r.ID) === String(action.payload.id));
         if (index !== -1) {
           state.records[index].Status = action.payload.status;
+        }
+        if (state.currentRecord && String(state.currentRecord.ID) === String(action.payload.id)) {
+          state.currentRecord = { ...state.currentRecord, Status: action.payload.status };
         }
       })
       .addCase(rejectBurialRecord.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.records.findIndex((r) => r.ID === action.payload.id);
+        const index = state.records.findIndex((r) => String(r.ID) === String(action.payload.id));
         if (index !== -1) {
           state.records[index].Status = action.payload.status;
+        }
+        if (state.currentRecord && String(state.currentRecord.ID) === String(action.payload.id)) {
+          state.currentRecord = { ...state.currentRecord, Status: action.payload.status };
         }
       })
       .addCase(fetchBurialRecords.rejected, (state, action) => {

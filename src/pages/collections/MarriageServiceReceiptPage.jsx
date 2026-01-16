@@ -89,13 +89,14 @@ function MarriageServiceReceiptPage() {
     }
   };
 
-  const handleDeleteReceipt = async (ticket) => {
-    console.log('Deleting ticket:', ticket);
-    try {
-      await dispatch(deleteMarriageRecord(ticket.ID)).unwrap();
-      toast.success('Marriage Receipt deleted successfully');
-    } catch (error) {
-      toast.error(error.message || 'Failed to delete Marriage Receipt');
+  const handleDeleteReceipt = async (record) => {
+    if (window.confirm('Are you sure you want to void this marriage record? This action cannot be undone.')) {
+      try {
+        await dispatch(deleteMarriageRecord(record.ID)).unwrap();
+        toast.success('Marriage record voided successfully');
+      } catch (error) {
+        toast.error(error.message || 'Failed to void');
+      }
     }
   };
 
@@ -146,12 +147,12 @@ function MarriageServiceReceiptPage() {
       render: (value) => (
         <span
           className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-                : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-                  : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-                    : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-                      : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-                        : 'bg-gray-100 text-gray-800'
+            : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                  : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                    : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                      : 'bg-gray-100 text-gray-800'
             }`}
         >
           {value}
@@ -244,7 +245,17 @@ function MarriageServiceReceiptPage() {
   // Actions for table rows
   const actions = (row) => {
     const list = [];
-    const status = row.Status;
+    const status = (row.Status || '').toString().trim();
+
+    if (status === 'Void') {
+      return [{
+        icon: PencilIcon, // Using PencilIcon for view in this context if EyeIcon is not available, or just use as Read-only
+        title: 'View',
+        onClick: () => handleEdit(row),
+        className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      }];
+    }
+
     // Show Approve/Reject ONLY if status is "Requested"
     if (status === 'Requested') {
       list.push(
@@ -274,7 +285,7 @@ function MarriageServiceReceiptPage() {
     if (Delete) {
       list.push({
         icon: TrashIcon,
-        title: 'Delete',
+        title: 'Void',
         onClick: () => handleDeleteReceipt(row),
         className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
       });

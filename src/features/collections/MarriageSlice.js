@@ -129,11 +129,11 @@ export const deleteMarriageRecord = createAsyncThunk(
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || 'Failed to delete marriage record'
+          errorData.message || 'Failed to void marriage record'
         );
       }
 
-      return id;
+      return await response.json();
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -209,16 +209,22 @@ const marriageRecordsSlice = createSlice({
       })
       .addCase(approveMarriageRecord.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.records.findIndex(r => r.ID === action.payload.id);
+        const index = state.records.findIndex(r => String(r.ID) === String(action.payload.id));
         if (index !== -1) {
           state.records[index].Status = 'Posted';
+        }
+        if (state.currentRecord && String(state.currentRecord.ID) === String(action.payload.id)) {
+          state.currentRecord = { ...state.currentRecord, Status: 'Posted' };
         }
       })
       .addCase(rejectMarriageRecord.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.records.findIndex(r => r.ID === action.payload.id);
+        const index = state.records.findIndex(r => String(r.ID) === String(action.payload.id));
         if (index !== -1) {
           state.records[index].Status = 'Rejected';
+        }
+        if (state.currentRecord && String(state.currentRecord.ID) === String(action.payload.id)) {
+          state.currentRecord = { ...state.currentRecord, Status: 'Rejected' };
         }
       })
       .addCase(fetchMarriageRecords.fulfilled, (state, action) => {
@@ -269,7 +275,7 @@ const marriageRecordsSlice = createSlice({
       .addCase(updateMarriageRecord.fulfilled, (state, action) => {
         state.isLoading = false;
         const index = state.records.findIndex(
-          (item) => item.ID === action.payload.ID
+          (item) => String(item.ID) === String(action.payload.ID)
         );
         if (index !== -1) {
           if (!Array.isArray(state.records)) {
@@ -279,7 +285,7 @@ const marriageRecordsSlice = createSlice({
         }
         if (
           state.currentRecord &&
-          state.currentRecord.ID === action.payload.ID
+          String(state.currentRecord.ID) === String(action.payload.ID)
         ) {
           state.currentRecord = action.payload;
         }
@@ -298,11 +304,12 @@ const marriageRecordsSlice = createSlice({
         if (!Array.isArray(state.records)) {
           state.records = [];
         }
-        state.records = state.records.filter(
-          (item) => item.ID !== action.payload
-        );
-        if (state.currentRecord && state.currentRecord.ID === action.payload) {
-          state.currentRecord = null;
+        const index = state.records.findIndex((item) => String(item.ID) === String(action.payload.ID));
+        if (index !== -1) {
+          state.records[index].Status = action.payload.Status || 'Void';
+        }
+        if (state.currentRecord && String(state.currentRecord.ID) === String(action.payload.ID)) {
+          state.currentRecord = { ...state.currentRecord, Status: action.payload.Status || 'Void' };
         }
       })
       .addCase(deleteMarriageRecord.rejected, (state, action) => {

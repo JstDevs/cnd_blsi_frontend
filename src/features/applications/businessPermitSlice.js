@@ -287,12 +287,12 @@ const businessPermitSlice = createSlice({
             .addCase(updateBusinessPermit.fulfilled, (state, action) => {
                 state.isLoading = false;
                 const index = state.records.findIndex(
-                    (item) => item.id === action.payload.id
+                    (item) => String(item.id) === String(action.payload.id)
                 );
                 if (index !== -1) {
                     state.records[index] = action.payload;
                 }
-                if (state.currentRecord && state.currentRecord.id === action.payload.id) {
+                if (state.currentRecord && String(state.currentRecord.id) === String(action.payload.id)) {
                     state.currentRecord = action.payload;
                 }
             })
@@ -310,11 +310,11 @@ const businessPermitSlice = createSlice({
             .addCase(deleteBusinessPermit.fulfilled, (state, action) => {
                 state.isLoading = false;
                 // Update status to Void instead of removing from state
-                const index = state.records.findIndex((item) => item.id === action.payload.id);
+                const index = state.records.findIndex((item) => String(item.id) === String(action.payload.id));
                 if (index !== -1) {
                     state.records[index].status = action.payload.status || 'Void';
                 }
-                if (state.currentRecord && state.currentRecord.id === action.payload.id) {
+                if (state.currentRecord && String(state.currentRecord.id) === String(action.payload.id)) {
                     state.currentRecord = { ...state.currentRecord, status: action.payload.status || 'Void' };
                 }
             })
@@ -331,9 +331,12 @@ const businessPermitSlice = createSlice({
             })
             .addCase(approveBusinessPermit.fulfilled, (state, action) => {
                 state.isLoading = false;
-                const index = state.records.findIndex((r) => r.id === action.payload.id);
+                const index = state.records.findIndex((r) => String(r.id) === String(action.payload.id));
                 if (index !== -1) {
                     state.records[index].status = action.payload.status;
+                }
+                if (state.currentRecord && String(state.currentRecord.id) === String(action.payload.id)) {
+                    state.currentRecord = { ...state.currentRecord, status: action.payload.status };
                 }
             })
             .addCase(approveBusinessPermit.rejected, (state, action) => {
@@ -349,9 +352,12 @@ const businessPermitSlice = createSlice({
             })
             .addCase(rejectBusinessPermit.fulfilled, (state, action) => {
                 state.isLoading = false;
-                const index = state.records.findIndex((r) => r.id === action.payload.id);
+                const index = state.records.findIndex((r) => String(r.id) === String(action.payload.id));
                 if (index !== -1) {
                     state.records[index].status = action.payload.status;
+                }
+                if (state.currentRecord && String(state.currentRecord.id) === String(action.payload.id)) {
+                    state.currentRecord = { ...state.currentRecord, status: action.payload.status };
                 }
             })
             .addCase(rejectBusinessPermit.rejected, (state, action) => {
