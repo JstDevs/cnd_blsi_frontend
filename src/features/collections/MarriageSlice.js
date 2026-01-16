@@ -140,6 +140,54 @@ export const deleteMarriageRecord = createAsyncThunk(
   }
 );
 
+export const approveMarriageRecord = createAsyncThunk(
+  'marriageRecords/approveMarriageRecord',
+  async (id, thunkAPI ) => {
+    try {
+      const token = sessionStorage.getItem( 'token' );
+      const response = await fetch( `${ API_URL }/marriagerecord/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${ token }`,
+        },
+        body: JSON.stringify( { ID: id } ),
+      } );
+
+      const res = await response.json();
+      if ( !response.ok ) throw new Error( res.message || 'Failed to approve marriage record' );
+
+      return { id };
+     } catch ( error ) {
+        return thunkAPI.rejectWithValue( error.message ); 
+      }
+    }
+);
+
+export const rejectMarriageRecord = createAsyncThunk(
+  'marriageRecords/rejectMarriageRecord',
+  async ( { id, reason }, thunkAPI ) => {
+    try {
+      const token = sessionStorage.getItem( 'token' );
+      const response = await fetch( `${ API_URL }/marriagerecord/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${ token }`, 
+        },
+        body: JSON.stringify( { ID: id, reason } ),
+      });
+
+      const res = await response.json();
+      if (!response.ok) throw new Error( res.message || 'Failed to reject marriage record' );
+      return { id };
+    } catch ( error ) {
+      return thunkAPI.rejectWithValue( error.message );
+  }
+}
+);
+
+
 const marriageRecordsSlice = createSlice({
   name: 'marriageRecords',
   initialState: {
@@ -158,6 +206,20 @@ const marriageRecordsSlice = createSlice({
       .addCase(fetchMarriageRecords.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+      })
+      .addCase(approveMarriageRecord.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.records.findIndex(r => r.ID === action.payload.id);
+        if (index !== -1) {
+          state.records[index].Status = 'Approved';
+        }
+      })
+      .addCase(rejectMarriageRecord.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.records.findIndex(r => r.ID === action.payload.id);
+        if (index !== -1) {
+          state.records[index].Status = 'Rejected';
+        }
       })
       .addCase(fetchMarriageRecords.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -250,6 +312,7 @@ const marriageRecordsSlice = createSlice({
       });
   },
 });
+
 
 export const { clearCurrentRecord } = marriageRecordsSlice.actions;
 export const marriageRecordsReducer = marriageRecordsSlice.reducer;

@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useRef, useState } from 'react';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import MarriageServiceReceiptForm from '../../components/forms/MarriageServiceReceiptForm';
@@ -7,6 +7,8 @@ import {
   fetchMarriageRecords,
   deleteMarriageRecord,
   addMarriageRecord,
+  approveMarriageRecord,
+  rejectMarriageRecord,
 } from '@/features/collections/MarriageSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -101,6 +103,29 @@ function MarriageServiceReceiptPage() {
     setSelectedReceipt(receipt);
     setIsModalOpen(true);
   };
+
+  const handleApprove = async (record) => {
+    if (!window.confirm('Are you sure you want to approve this record?')) return;
+    try {
+      await dispatch(approveMarriageRecord(record.ID)).unwrap();
+      toast.success('Marriage Receipt Approved');
+    } catch (error) {
+      toast.error(error.message || 'Failed to approve');
+    }
+  };
+
+
+  const handleReject = async (record) => {
+    const reason = window.prompt('Enter rejection reason:');
+    if (reason === null) return; // User cancelled
+    try {
+      await dispatch(rejectMarriageRecord({ id: record.ID, reason })).unwrap();
+      toast.success('Marriage Receipt Rejected');
+    } catch (error) {
+      toast.error(error.message || 'Failed to reject');
+    }
+  };
+
 
   const handleCloseModal = () => {
     setSelectedReceipt(null);
@@ -212,29 +237,67 @@ function MarriageServiceReceiptPage() {
     }).format(value || 0);
   };
   // Actions for table rows
-  const actions = [
-    // {
-    //   icon: EyeIcon,
-    //   title: 'View',
-    //   onClick: handleViewReceipt,
-    //   className:
-    //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    // },
-    Edit && {
+  const actions = (row) => {
+    const list = [];
+  const status = row.Status;
+  // Show Approve/Reject ONLY if status is "Requested"
+  if (status === 'Requested') {
+    list.push(
+      {
+        icon: CheckIcon,
+        title: 'Approve',
+        onClick: () => handleApprove(row),
+        className: 'text-success-600 hover:text-success-900 p-1 rounded-full hover:bg-success-50',
+      },
+      {
+        icon: XMarkIcon,
+        title: 'Reject',
+        onClick: () => handleReject(row),
+        className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      }
+    );
+  }
+  // Always show Edit and Delete (or you can add logic here too)
+  if (Edit) {
+    list.push({
       icon: PencilIcon,
       title: 'Edit',
-      onClick: handleEdit,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    Delete && {
+      onClick: () => handleEdit(row),
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    });
+  }
+  if (Delete) {
+    list.push({
       icon: TrashIcon,
       title: 'Delete',
-      onClick: handleDeleteReceipt,
-      className:
-        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-    },
-  ];
+      onClick: () => handleDeleteReceipt(row),
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    });
+  }
+  return list;
+  // [
+  //   // {
+  //   //   icon: EyeIcon,
+  //   //   title: 'View',
+  //   //   onClick: handleViewReceipt,
+  //   //   className:
+  //   //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   // },
+  //   Edit && {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEdit,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   Delete && {
+  //     icon: TrashIcon,
+  //     title: 'Delete',
+  //     onClick: handleDeleteReceipt,
+  //     className:
+  //       'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+  //   },
+  };
 
   return (
     <>
