@@ -155,11 +155,11 @@ export const deleteBusinessPermit = createAsyncThunk(
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(
-                    errorData.message || 'Failed to delete business permit record'
+                    errorData.message || 'Failed to void business permit record'
                 );
             }
 
-            return id; // Return ID so you can remove it from Redux state
+            return await response.json();
         } catch (error) {
             return thunkAPI.rejectWithValue(error.message);
         }
@@ -309,11 +309,13 @@ const businessPermitSlice = createSlice({
             })
             .addCase(deleteBusinessPermit.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.records = state.records.filter(
-                    (item) => item.id !== action.payload
-                );
-                if (state.currentRecord && state.currentRecord.id === action.payload) {
-                    state.currentRecord = null;
+                // Update status to Void instead of removing from state
+                const index = state.records.findIndex((item) => item.id === action.payload.id);
+                if (index !== -1) {
+                    state.records[index].status = action.payload.status || 'Void';
+                }
+                if (state.currentRecord && state.currentRecord.id === action.payload.id) {
+                    state.currentRecord = { ...state.currentRecord, status: action.payload.status || 'Void' };
                 }
             })
             .addCase(deleteBusinessPermit.rejected, (state, action) => {

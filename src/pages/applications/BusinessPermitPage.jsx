@@ -139,6 +139,10 @@ function BusinessPermitPage() {
     ];
 
     const normalizedStatus = (row.status || row.Status || '').toString().trim();
+    if (normalizedStatus === 'Void') {
+      return list; // Only View for voided records
+    }
+
     if (normalizedStatus === 'Requested') {
       list.push(
         {
@@ -167,8 +171,9 @@ function BusinessPermitPage() {
     if (Delete) {
       list.push({
         icon: TrashIcon,
-        title: 'Delete',
+        title: 'Void',
         onClick: (permit) => handleDeletePermit(permit),
+        className: 'text-error-600 hover:text-error-900',
       });
     }
 
@@ -208,16 +213,14 @@ function BusinessPermitPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeletePermit = (permit) => {
-    if (window.confirm('Are you sure you want to delete this permit?')) {
-      dispatch(deleteBusinessPermit(permit.id))
-        .unwrap()
-        .then(() => {
-          toast.success("Business permit deleted");
-        })
-        .catch((err) => {
-          toast.error(`Failed to delete: ${err}`);
-        })
+  const handleDeletePermit = async (permit) => {
+    if (window.confirm('Are you sure you want to void this business permit? This action cannot be undone.')) {
+      try {
+        await dispatch(deleteBusinessPermit(permit.id)).unwrap();
+        toast.success('Business permit voided successfully');
+      } catch (error) {
+        toast.error(error.message || 'Failed to void');
+      }
     }
   };
 
