@@ -48,12 +48,9 @@ function BurialServiceReceiptPage() {
   const columns = [
     {
       key: 'InvoiceNumber',
-      header: 'Receipt No',
+      header: 'Certificate No.',
       sortable: true,
       className: 'font-medium text-neutral-900',
-      render: (value) => (
-        <div className="flex items-center gap-1">{value || '—'}</div>
-      ),
     },
     {
       key: 'Status',
@@ -81,25 +78,25 @@ function BurialServiceReceiptPage() {
       sortable: true,
       render: (value) => value?.trim() || 'N/A',
     },
-    {
-      key: 'Municipality',
-      header: 'Municipality',
-      sortable: true,
-      render: (value) => value || '—',
-    },
+    // {
+    //   key: 'Municipality',
+    //   header: 'Municipality',
+    //   sortable: true,
+    //   render: (value) => value || '—',
+    // },
     {
       key: 'InvoiceDate',
       header: 'Date',
       sortable: true,
       // render: (value) => (value ? formatDate(value) : '—'),
     },
-    {
-      key: 'DocumentType.Name',
-      header: 'Service Type',
-      sortable: true,
-      render: (value, row) => row.DocumentType?.Name || '—',
-      className: 'text-gray-500',
-    },
+    // {
+    //   key: 'DocumentType.Name',
+    //   header: 'Service Type',
+    //   sortable: true,
+    //   render: (value, row) => row.DocumentType?.Name || '—',
+    //   className: 'text-gray-500',
+    // },
     {
       key: 'Total',
       header: 'Amount',
@@ -128,6 +125,26 @@ function BurialServiceReceiptPage() {
       },
     },
   ];
+  const handleBRPAction = async (dv, action) => {
+    setIsLoadingReceipt(true);
+    // Properly format action strings for messages
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
+    try {
+      const response = await axiosInstance.post(
+        `/disbursementVoucher/${action}`,
+        { ID: dv.ID }
+      );
+      console.log(`${actionPast}:`, response.data);
+      dispatch(fetchGeneralServiceReceipts());
+      toast.success(`General Receipt ${actionPast} successfully`);
+    } catch (error) {
+      console.error(`Error ${actionPresent} General Receipt:`, error);
+      toast.error(`Error ${actionPresent} General Receipt`);
+    } finally {
+      setIsLoadingReceipt(false);
+    }
+  };
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
@@ -226,6 +243,53 @@ function BurialServiceReceiptPage() {
         'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
+  // const actionsSub = (row) => {
+  //   const actionList = [];
+
+  //   if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
+  //     actionList.push({
+  //       icon: PencilIcon,
+  //       title: 'Edit',
+  //       onClick: () => handleEditReceipt(row),
+  //       className:
+  //         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //     });
+  //     actionList.push({
+  //       icon: TrashIcon,
+  //       title: 'Delete',
+  //       onClick: () => handleDeleteReceipt(row),
+  //       className:
+  //         'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+  //     });
+  //   } else if (row?.Status?.toLowerCase().includes('requested')) {
+  //     actionList.push(
+  //       {
+  //         icon: CheckLine,
+  //         title: 'Approve',
+  //         onClick: () => handleGRPAction(row, 'approve'),
+  //         className:
+  //           'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+  //       },
+  //       {
+  //         icon: X,
+  //         title: 'Reject',
+  //         onClick: () => handleGRPAction(row, 'reject'),
+  //         className:
+  //           'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+  //       }
+  //     );
+  //   }
+  //   actionList.push({
+  //     icon: EyeIcon,
+  //     title: 'View',
+  //     onClick: () => handleViewReceipt(row),
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   });
+  //   return actionList;
+  // };
+
+
   // console.log({ burialRecord });
   return (
     <>

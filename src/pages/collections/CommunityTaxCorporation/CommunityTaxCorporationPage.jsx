@@ -81,10 +81,30 @@ function CommunityTaxCorporationPage() {
   // Updated columns definition to match the image
   const columns = [
     {
-      key: 'CustomerID',
-      header: 'Customer ID',
+      key: 'InvoiceNumber',
+      header: 'Certificate No.',
       sortable: true,
       className: 'font-medium text-neutral-900',
+    },
+    {
+      key: 'Status',
+      header: 'Status',
+      sortable: true,
+      render: (value) => (
+        <span
+          className={`px-2 py-1 rounded ${
+            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+              : 'bg-gray-100 text-gray-800'
+          }`}
+        >
+          {value}
+        </span>
+      ),
     },
     {
       key: 'CustomerName',
@@ -106,34 +126,15 @@ function CommunityTaxCorporationPage() {
       className: 'text-right',
     },
     {
-      key: 'Earnings',
-      header: 'Earnings',
+      key: 'InvoiceDate',
+      header: 'Date',
       sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'TaxDue',
-      header: 'Tax Due',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
+      render: (value) => new Date(value).toLocaleDateString(),
     },
     {
       key: 'Year',
       header: 'Year',
       sortable: true,
-    },
-    {
-      key: 'IssuedBy',
-      header: 'Issued By',
-      sortable: true,
-    },
-    {
-      key: 'Status',
-      header: 'Status',
-      // sortable: true,
-      render: (value) => renderStatusBadge(value),
     },
   ];
 
@@ -160,12 +161,12 @@ function CommunityTaxCorporationPage() {
     let bgColor = 'bg-neutral-100 text-neutral-800';
 
     switch (value) {
-      case 'Requested': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
-      case 'Approved': bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'; break;
-      case 'Posted': bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
-      case 'Rejected': bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'; break;
-      case 'Void': bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
-      case 'Cancelled': bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'; break;
+      case 'Requested': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700';    break;
+      case 'Approved':  bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800';  break;
+      case 'Posted':    bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100';  break;
+      case 'Rejected':  bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';        break;
+      case 'Void':      bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
+      case 'Cancelled': bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800';  break;
       default: break;
     }
 

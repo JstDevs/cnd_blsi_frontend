@@ -134,6 +134,12 @@ function MarriageServiceReceiptPage() {
 
   const columns = [
     {
+      key: 'InvoiceNumber',
+      header: 'Certificate No.',
+      sortable: true,
+      className: 'font-medium text-neutral-900',
+    },
+    {
       key: 'Status',
       header: 'Status',
       sortable: true,
@@ -153,12 +159,12 @@ function MarriageServiceReceiptPage() {
         </span>
       ),
     },
-    {
-      key: 'APAR',
-      header: 'AP/AR',
-      sortable: true,
-      render: (value) => value || '—',
-    },
+    // {
+    //   key: 'APAR',
+    //   header: 'AP/AR',
+    //   sortable: true,
+    //   render: (value) => value || '—',
+    // },
     {
       key: 'CustomerName',
       header: 'Customer',
@@ -167,67 +173,67 @@ function MarriageServiceReceiptPage() {
     },
     {
       key: 'Total',
-      header: 'Total Amount',
+      header: 'Amount',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right font-medium',
     },
-    {
-      key: 'AmountReceived',
-      header: 'Amount Received',
-      sortable: true,
-      render: (value) => formatCurrency(value || '0.00'),
-      className: 'text-right',
-    },
-    {
-      key: 'Credit',
-      header: 'Credit',
-      sortable: true,
-      render: (value) => formatCurrency(value || '0.00'),
-      className: 'text-right',
-    },
-    {
-      key: 'Debit',
-      header: 'Debit',
-      sortable: true,
-      render: (value) => formatCurrency(value || '0.00'),
-      className: 'text-right',
-    },
-    {
-      key: 'EWT',
-      header: 'EWT',
-      sortable: true,
-      render: (value) => formatCurrency(value || '0.00'),
-      className: 'text-right',
-    },
-    {
-      key: 'WithheldAmount',
-      header: 'Withheld Amount',
-      sortable: true,
-      render: (value) => formatCurrency(value || '0.00'),
-      className: 'text-right',
-    },
-    {
-      key: 'Vat_Total',
-      header: 'Total',
-      sortable: true,
-      render: (value) => formatCurrency(value || '0.00'),
-      className: 'text-right font-medium',
-    },
-    {
-      key: 'Discounts',
-      header: 'Discount (%)',
-      sortable: true,
-      render: (value) => (value ? `${value}%` : '0%'),
-      className: 'text-right',
-    },
-    {
-      key: 'AmountDue',
-      header: 'Amount Due',
-      sortable: true,
-      render: (value) => formatCurrency(value || '0.00'),
-      className: 'text-right font-medium',
-    },
+    // {
+    //   key: 'AmountReceived',
+    //   header: 'Amount Received',
+    //   sortable: true,
+    //   render: (value) => formatCurrency(value || '0.00'),
+    //   className: 'text-right',
+    // },
+    // {
+    //   key: 'Credit',
+    //   header: 'Credit',
+    //   sortable: true,
+    //   render: (value) => formatCurrency(value || '0.00'),
+    //   className: 'text-right',
+    // },
+    // {
+    //   key: 'Debit',
+    //   header: 'Debit',
+    //   sortable: true,
+    //   render: (value) => formatCurrency(value || '0.00'),
+    //   className: 'text-right',
+    // },
+    // {
+    //   key: 'EWT',
+    //   header: 'EWT',
+    //   sortable: true,
+    //   render: (value) => formatCurrency(value || '0.00'),
+    //   className: 'text-right',
+    // },
+    // {
+    //   key: 'WithheldAmount',
+    //   header: 'Withheld Amount',
+    //   sortable: true,
+    //   render: (value) => formatCurrency(value || '0.00'),
+    //   className: 'text-right',
+    // },
+    // {
+    //   key: 'Vat_Total',
+    //   header: 'Total',
+    //   sortable: true,
+    //   render: (value) => formatCurrency(value || '0.00'),
+    //   className: 'text-right font-medium',
+    // },
+    // {
+    //   key: 'Discounts',
+    //   header: 'Discount (%)',
+    //   sortable: true,
+    //   render: (value) => (value ? `${value}%` : '0%'),
+    //   className: 'text-right',
+    // },
+    // {
+    //   key: 'AmountDue',
+    //   header: 'Amount Due',
+    //   sortable: true,
+    //   render: (value) => formatCurrency(value || '0.00'),
+    //   className: 'text-right font-medium',
+    // },
   ];
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-PH', {

@@ -167,24 +167,24 @@ function GeneralReceiptPage() {
         return fundMap[value] || '—';
       },
     },
-    {
-      key: 'CheckNumber',
-      header: 'Check',
-      sortable: true,
-      render: (value) => value || '—',
-    },
-    {
-      key: 'MoneyOrder',
-      header: 'Money Order',
-      sortable: true,
-      render: (value) => value || '—',
-    },
-    {
-      key: 'MoneyOrderDate',
-      header: 'Money Order Date',
-      sortable: true,
-      render: (value) => value || '—',
-    },
+    // {
+    //   key: 'CheckNumber',
+    //   header: 'Check',
+    //   sortable: true,
+    //   render: (value) => value || '—',
+    // },
+    // {
+    //   key: 'MoneyOrder',
+    //   header: 'Money Order',
+    //   sortable: true,
+    //   render: (value) => value || '—',
+    // },
+    // {
+    //   key: 'MoneyOrderDate',
+    //   header: 'Money Order Date',
+    //   sortable: true,
+    //   render: (value) => value || '—',
+    // },
   ];
   const handleEditOR = (receipt) => {
     setCurrentReceipt(receipt);
