@@ -1,7 +1,7 @@
 // BusinessPermitForm.js
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from 'lucide-react';
+import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import BusinessPermitFormFields from './BusinessPermitFormFields';
@@ -11,6 +11,8 @@ import {
   addBusinessPermit,
   updateBusinessPermit,
   deleteBusinessPermit,
+  approveBusinessPermit,
+  rejectBusinessPermit,
 } from '../../features/applications/businessPermitSlice';
 import { toast } from 'react-hot-toast';
 
@@ -96,15 +98,14 @@ function BusinessPermitPage() {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+            : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                  : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                    : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                      : 'bg-gray-100 text-gray-800'
+            }`}
         >
           {value}
         </span>
@@ -127,23 +128,50 @@ function BusinessPermitPage() {
     },
   ];
 
-  const actions = [
-    {
-      icon: EyeIcon,
-      title: 'View',
-      onClick: (permit) => handleViewPermit(permit),
-    },
-    Edit && {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: (permit) => handleEditPermit(permit),
-    },
-    Delete && {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: (permit) => handleDeletePermit(permit),
-    },
-  ];
+  const actions = (row) => {
+    const list = [
+      {
+        icon: EyeIcon,
+        title: 'View',
+        onClick: (permit) => handleViewPermit(permit),
+      }
+    ];
+
+    if (row.status === 'Requested') {
+      list.push(
+        {
+          icon: CheckIcon,
+          title: 'Approve',
+          onClick: (permit) => handleApprove(permit),
+          className: 'text-success-600 hover:text-success-900',
+        },
+        {
+          icon: XMarkIcon,
+          title: 'Reject',
+          onClick: (permit) => handleReject(permit),
+          className: 'text-error-600 hover:text-error-900',
+        }
+      );
+    }
+
+    if (Edit) {
+      list.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: (permit) => handleEditPermit(permit),
+      });
+    }
+
+    if (Delete) {
+      list.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: (permit) => handleDeletePermit(permit),
+      });
+    }
+
+    return list;
+  };
 
   const handleInputChange = (field, value) => {
     // Check if the value is an event object (has target.value)
@@ -188,6 +216,29 @@ function BusinessPermitPage() {
         .catch((err) => {
           toast.error(`Failed to delete: ${err}`);
         })
+    }
+  };
+
+  const handleApprove = async (permit) => {
+    if (window.confirm('Are you sure you want to approve this business permit?')) {
+      try {
+        await dispatch(approveBusinessPermit(permit.id)).unwrap();
+        toast.success('Business permit approved and posted successfully');
+      } catch (error) {
+        toast.error(error.message || 'Failed to approve');
+      }
+    }
+  };
+
+  const handleReject = async (permit) => {
+    const reason = window.prompt('Please enter the reason for rejection:');
+    if (reason !== null) {
+      try {
+        await dispatch(rejectBusinessPermit({ id: permit.id, reason })).unwrap();
+        toast.success('Business permit rejected successfully');
+      } catch (error) {
+        toast.error(error.message || 'Failed to reject');
+      }
     }
   };
 

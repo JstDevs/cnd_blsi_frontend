@@ -166,6 +166,52 @@ export const deleteBusinessPermit = createAsyncThunk(
     }
 );
 
+export const approveBusinessPermit = createAsyncThunk(
+    'businessPermit/approveBusinessPermit',
+    async (id, thunkAPI) => {
+        try {
+            const token = sessionStorage.getItem('token');
+            const response = await fetch(`${API_URL}/business-permit/approve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ id }),
+            });
+
+            const res = await response.json();
+            if (!response.ok) throw new Error(res.error || 'Failed to approve');
+            return { id, status: 'Posted' };
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const rejectBusinessPermit = createAsyncThunk(
+    'businessPermit/rejectBusinessPermit',
+    async ({ id, reason }, thunkAPI) => {
+        try {
+            const token = sessionStorage.getItem('token');
+            const response = await fetch(`${API_URL}/business-permit/reject`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ id, reason }),
+            });
+
+            const res = await response.json();
+            if (!response.ok) throw new Error(res.error || 'Failed to reject');
+            return { id, status: 'Rejected' };
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
 const businessPermitSlice = createSlice({
     name: 'businessPermit',
     initialState: {
@@ -273,6 +319,42 @@ const businessPermitSlice = createSlice({
             .addCase(deleteBusinessPermit.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload || 'Failed to delete business permit record';
+            })
+            // =======================
+            // Approve
+            // =======================
+            .addCase(approveBusinessPermit.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(approveBusinessPermit.fulfilled, (state, action) => {
+                state.isLoading = false;
+                const index = state.records.findIndex((r) => r.id === action.payload.id);
+                if (index !== -1) {
+                    state.records[index].status = action.payload.status;
+                }
+            })
+            .addCase(approveBusinessPermit.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload || 'Failed to approve';
+            })
+            // =======================
+            // Reject
+            // =======================
+            .addCase(rejectBusinessPermit.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(rejectBusinessPermit.fulfilled, (state, action) => {
+                state.isLoading = false;
+                const index = state.records.findIndex((r) => r.id === action.payload.id);
+                if (index !== -1) {
+                    state.records[index].status = action.payload.status;
+                }
+            })
+            .addCase(rejectBusinessPermit.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload || 'Failed to reject';
             });
     },
 });
