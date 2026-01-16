@@ -242,6 +242,8 @@ function JournalEntryPage() {
   // };
   const handleJEPAction = async (item, action) => {
     setIsLoadingJEPAction(true);
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const payload = {
         ID: item.ID,

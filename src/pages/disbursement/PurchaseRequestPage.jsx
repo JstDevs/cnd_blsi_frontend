@@ -245,17 +245,19 @@ function PurchaseRequestPage() {
   // ];
   const handleTOPAction = async (row, action) => {
     setIsLoadingPRPAction(true);
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const response = await axiosInstance.post(
         `/purchaseRequest/${action}`,
         { ID: row.ID }
       );
-      console.log(`${action}d:`, response.data);
+      console.log(`${actionPast}:`, response.data);
       dispatch(fetchPurchaseRequests());
-      toast.success(`Purchase Request ${action}d successfully`);
+      toast.success(`Purchase Request ${actionPast} successfully`);
     } catch (error) {
-      console.error(`Error ${action}ing Purchase Request:`, error);
-      toast.error(`Error ${action}ing Purchase Request`);
+      console.error(`Error ${actionPresent} Purchase Request:`, error);
+      toast.error(`Error ${actionPresent} Purchase Request`);
     } finally {
       setIsLoadingPRPAction(false);
     }

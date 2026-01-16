@@ -217,17 +217,20 @@ function CommunityTaxPage() {
   // ];
   const handleCTIAction = async (dv, action) => {
     setIsLoadingCTCActions(true);
+    // Properly format action strings for messages
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const { data } = await axiosInstance.post(
         `/communityTaxIndividual/${action}`,
         { ID: dv.ID }
       );
-      console.log(`${action}d:`, data);
+      console.log(`${actionPast}:`, data);
       dispatch(fetchCommunityTaxes());
-      toast.success(`Community Tax Individual ${action}d successfully`);
+      toast.success(`Community Tax Individual ${actionPast} successfully`);
     } catch (error) {
-      console.error(`Error ${action}ing Community Tax Individual:`, error);
-      toast.error(`Error ${action}ing Community Tax Individual`);
+      console.error(`Error ${actionPresent} Community Tax Individual:`, error);
+      toast.error(`Error ${actionPresent} Community Tax Individual`);
     } finally {
       setIsLoadingCTCActions(false);
     }

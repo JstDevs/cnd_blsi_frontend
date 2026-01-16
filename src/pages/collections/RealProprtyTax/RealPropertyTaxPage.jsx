@@ -157,6 +157,9 @@ function RealPropertyTaxPage() {
     }
 
     setIsLoadingReceipt(true);
+    // Properly format action strings for messages
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const { data } = await axiosInstance.post(
         `/real-property-tax/${config.endpoint}`,

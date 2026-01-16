@@ -254,6 +254,8 @@ function ObligationRequestPage() {
     }
 
     setIsLoadingORPAction(true);
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const { data } = await axiosInstance.post(
         `/obligationRequest/${config.endpoint}`,

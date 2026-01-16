@@ -218,6 +218,9 @@ function CommunityTaxCorporationPage() {
   // ];
   const handleCTCAction = async (dv, action) => {
     setIsLoadingCTCActions(true);
+    // Properly format action strings for messages
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       // TODO : add action
       // const response = await axiosInstance.post(
@@ -228,15 +231,15 @@ function CommunityTaxCorporationPage() {
         `/corporate-ctc/${action}`,
         { ID: dv.ID }
       );
-      console.log(`${action}d:`, data);
+      console.log(`${actionPast}:`, data);
       // If/when you enable the API call above, replace the log with
-      // `console.log(`${action}d:`, response.data);` and uncomment the request.
+      // `console.log(`${actionPast}:`, response.data);` and uncomment the request.
       // Refresh list after action
       dispatch(fetchCorporateCommunityTaxes());
-      toast.success(`Community Tax Corporation ${action}d successfully`);
+      toast.success(`Community Tax Corporation ${actionPast} successfully`);
     } catch (error) {
-      console.error(`Error ${action}ing Community Tax Corporation:`, error);
-      toast.error(`Error ${action}ing Community Tax Corporation`);
+      console.error(`Error ${actionPresent} Community Tax Corporation:`, error);
+      toast.error(`Error ${actionPresent} Community Tax Corporation`);
     } finally {
       setIsLoadingCTCActions(false);
     }

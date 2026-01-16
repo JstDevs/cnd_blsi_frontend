@@ -192,17 +192,20 @@ function GeneralReceiptPage() {
   };
   const handleGRPAction = async (dv, action) => {
     setIsLoadingReceipt(true);
+    // Properly format action strings for messages
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const response = await axiosInstance.post(
         `/disbursementVoucher/${action}`,
         { ID: dv.ID }
       );
-      console.log(`${action}d:`, response.data);
+      console.log(`${actionPast}:`, response.data);
       dispatch(fetchGeneralServiceReceipts());
-      toast.success(`General Receipt ${action}d successfully`);
+      toast.success(`General Receipt ${actionPast} successfully`);
     } catch (error) {
-      console.error(`Error ${action}ing General Receipt:`, error);
-      toast.error(`Error ${action}ing General Receipt`);
+      console.error(`Error ${actionPresent} General Receipt:`, error);
+      toast.error(`Error ${actionPresent} General Receipt`);
     } finally {
       setIsLoadingReceipt(false);
     }

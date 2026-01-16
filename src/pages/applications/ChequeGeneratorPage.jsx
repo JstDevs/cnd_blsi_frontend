@@ -350,17 +350,19 @@ function ChequeGeneratorPage() {
 
   const handleCGPAction = async (dv, action) => {
     setIsLoadingBAPAction(true);
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
     try {
       const response = await axiosInstance.post(
         `/chequeGenerator/${action}`,
         { ID: dv.ID }
       );
-      console.log(`${action}d:`, response.data);
+      console.log(`${actionPast}:`, response.data);
       fetchChequeList();
-      toast.success(`Cheque ${action}d successfully`);
+      toast.success(`Cheque ${actionPast} successfully`);
     } catch (error) {
-      console.error(`Error ${action}ing Cheque:`, error);
-      toast.error(`Error ${action}ing Cheque`);
+      console.error(`Error ${actionPresent} Cheque:`, error);
+      toast.error(`Error ${actionPresent} Cheque`);
     } finally {
       setIsLoadingBAPAction(false);
     }
