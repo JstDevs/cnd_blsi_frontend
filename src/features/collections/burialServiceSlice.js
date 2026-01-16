@@ -139,6 +139,50 @@ export const deleteBurialRecord = createAsyncThunk(
   }
 );
 
+export const approveBurialRecord = createAsyncThunk(
+  'burialRecords/approveBurialRecord',
+  async (id, thunkAPI) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await fetch(`${API_URL}/burialrecord/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ID: id }),
+      });
+      const res = await response.json();
+      if (!response.ok) throw new Error(res.error || 'Failed to approve');
+      return { id, status: 'Approved' };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const rejectBurialRecord = createAsyncThunk(
+  'burialRecords/rejectBurialRecord',
+  async ({ id, reason }, thunkAPI) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await fetch(`${API_URL}/burialrecord/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ID: id, reason }),
+      });
+      const res = await response.json();
+      if (!response.ok) throw new Error(res.error || 'Failed to reject');
+      return { id, status: 'Rejected' };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 const burialRecordsSlice = createSlice({
   name: 'burialRecords',
   initialState: {
@@ -161,6 +205,20 @@ const burialRecordsSlice = createSlice({
       .addCase(fetchBurialRecords.fulfilled, (state, action) => {
         state.isLoading = false;
         state.records = Array.isArray(action.payload) ? action.payload : [];
+      })
+      .addCase(approveBurialRecord.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.records.findIndex((r) => r.ID === action.payload.id);
+        if (index !== -1) {
+          state.records[index].Status = action.payload.status;
+        }
+      })
+      .addCase(rejectBurialRecord.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.records.findIndex((r) => r.ID === action.payload.id);
+        if (index !== -1) {
+          state.records[index].Status = action.payload.status;
+        }
       })
       .addCase(fetchBurialRecords.rejected, (state, action) => {
         state.isLoading = false;
