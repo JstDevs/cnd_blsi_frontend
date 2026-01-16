@@ -5,7 +5,12 @@ import {
   EyeIcon,
   PencilIcon,
   ArrowLeftIcon,
+  CheckIcon,
+  XMarkIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
+import axiosInstance from '@/utils/axiosInstance';
 import DataTable from '../../components/common/DataTable';
 import FundUtilizationForm from './FundUtilizationForm';
 import { fetchFundUtilizations } from '@/features/disbursement/fundUtilizationSlice';
@@ -29,7 +34,7 @@ function FundUtilizationPage() {
     (state) => state.fundUtilizations
   );
   // ---------------------USE MODULE PERMISSIONS------------------START (FundUtilizationPage - MODULE ID =  47 )
-  const { Add, Edit } = useModulePermissions(47);
+  const { Add, Edit, Delete, Approve, Reject } = useModulePermissions(47);
   const { employees } = useSelector((state) => state.employees);
   const { customers } = useSelector((state) => state.customers);
   const { vendorDetails } = useSelector((state) => state.vendorDetails);
@@ -81,6 +86,54 @@ function FundUtilizationPage() {
     setCurrentObligationRequest(null);
   };
 
+  const handleFURSAction = async (row, action) => {
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
+
+    try {
+      // For approval, we might need more details if the backend expects them
+      // Based on typical pattern, passing the whole row or specific IDs
+      const payload = {
+        ID: row.ID,
+        LinkID: row.LinkID,
+        ApprovalLinkID: row.Transaction?.ApprovalLinkID || '', // Adjust based on your backend logic
+        ApprovalProgress: (row.Transaction?.ApprovalProgress || 0) + 1,
+        ApprovalOrder: row.Transaction?.ApprovalOrder || 1,
+        NumberOfApproverPerSequence: row.Transaction?.NumberOfApproverPerSequence || 1,
+        FundsID: row.FundsID,
+        ApprovalVersion: row.Transaction?.ApprovalVersion,
+      };
+
+      if (action === 'reject') {
+        const reason = window.prompt('Please enter reason for rejection:');
+        if (reason === null) return;
+        payload.Reason = reason;
+      }
+
+      const response = await axiosInstance.post(`/fundUtilizationRequest/${action}`, payload);
+      toast.success(`Fund Utilization Request ${actionPast} successfully`);
+      dispatch(fetchFundUtilizations());
+    } catch (error) {
+      console.error(`Error ${actionPresent} FURS:`, error);
+      toast.error(error.response?.data?.error || `Error ${actionPresent} FURS`);
+    }
+  };
+
+  const handleDelete = async (row) => {
+    if (!window.confirm('Are you sure you want to void this Request?')) return;
+    try {
+      await axiosInstance.post('/fundUtilizationRequest/void', {
+        ID: row.ID,
+        ApprovalLinkID: row.Transaction?.ApprovalLinkID || '',
+      });
+      toast.success('Fund Utilization Request voided successfully');
+      dispatch(fetchFundUtilizations());
+    } catch (error) {
+      console.error('Error voiding FURS:', error);
+      toast.error(error.response?.data?.error || 'Error voiding FURS');
+    }
+  };
+
   // Format amount as Philippine Peso
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {
@@ -95,7 +148,7 @@ function FundUtilizationPage() {
       key: 'Status',
       header: 'Status',
       sortable: true,
-  
+
       render: (value) => statusLabel(value),
     },
     {
@@ -178,21 +231,57 @@ function FundUtilizationPage() {
               data={fundUtilizations}
               actions={(row) => {
                 const actionList = [];
+                const status = (row.Status || row.Transaction?.Status || '').toLowerCase();
 
-                if (row.Transaction?.Status === 'Rejected' && Edit) {
+                // Always allow View
+                actionList.push({
+                  icon: EyeIcon,
+                  title: 'View',
+                  onClick: () => handleViewOR(row),
+                  className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+                });
+
+                if (status === 'void') return actionList;
+
+                if (status.includes('rejected') && Edit) {
                   actionList.push({
                     icon: PencilIcon,
                     title: 'Edit',
                     onClick: () => handleEditOR(row),
-                    className:
-                      'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+                    className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+                  });
+                }
+
+                if (status.includes('requested')) {
+                  actionList.push(
+                    {
+                      icon: CheckIcon,
+                      title: 'Approve',
+                      onClick: () => handleFURSAction(row, 'approve'),
+                      className: 'text-success-600 hover:text-success-900 p-1 rounded-full hover:bg-success-50',
+                    },
+                    {
+                      icon: XMarkIcon,
+                      title: 'Reject',
+                      onClick: () => handleFURSAction(row, 'reject'),
+                      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+                    }
+                  );
+                }
+
+                if (status !== 'posted' && Delete) {
+                  actionList.push({
+                    icon: TrashIcon,
+                    title: 'Void',
+                    onClick: () => handleDelete(row),
+                    className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
                   });
                 }
 
                 return actionList;
               }}
               loading={isLoading}
-              // onRowClick={handleViewOR}
+            // onRowClick={handleViewOR}
             />
           </div>
         </div>
