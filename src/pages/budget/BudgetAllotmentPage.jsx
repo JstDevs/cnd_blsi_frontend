@@ -146,7 +146,7 @@ const BudgetAllotmentPage = () => {
   const columns = [
       {
         key: 'InvoiceNumber',
-        header: 'Invoice #',
+        header: 'Invoice Number',
         sortable: true,
         className: 'text-neutral-900 font-medium',
         render: (value) => (
