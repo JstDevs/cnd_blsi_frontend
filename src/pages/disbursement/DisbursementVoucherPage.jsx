@@ -193,6 +193,24 @@ function DisbursementVoucherPage() {
       header: 'Responsibility Center',
       sortable: true,
       render: (value, row) => {
+        // 0. Try grabbing from the first Item (prioritize Item's Department)
+        const items =
+          row.TransactionItemsAll ||
+          row.Items ||
+          row.AccountingEntries ||
+          [];
+
+        if (items.length > 0) {
+          const firstItem = items[0];
+          // Check localized item name first, then fallback to nested object
+          const itemDeptName =
+            firstItem.responsibilityCenterName ||
+            firstItem.ResponsibilityCenterName || // Some backends might return this
+            firstItem.ChargeAccount?.Department?.Name;
+
+          if (itemDeptName) return itemDeptName;
+        }
+
         // 1. Try OBR join FIRST (Strictly by LinkID or OBR Number)
         const linkedOBR = obligationRequests.find(
           (obr) =>

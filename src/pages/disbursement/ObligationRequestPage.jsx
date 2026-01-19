@@ -139,6 +139,51 @@ function ObligationRequestPage() {
       key: 'ResponsibilityCenterName',
       header: 'Responsibility Center',
       sortable: true,
+      render: (value, row) => {
+        // 0. Try grabbing from the first Item (prioritize Item's Department)
+        const items = row.TransactionItemsAll || row.Items || [];
+        if (items.length > 0) {
+          const firstItem = items[0];
+          const itemDeptName = firstItem.ChargeAccount?.Department?.Name || firstItem.responsibilityCenterName;
+          if (itemDeptName) return itemDeptName;
+        }
+
+        // 1. Try OBR join FIRST (Strictly by LinkID or OBR Number)
+        const linkedOBR = obligationRequests.find(
+          (obr) =>
+            (row.OBR_LinkID && obr.LinkID === row.OBR_LinkID) ||
+            (row.SourceLinkID && obr.LinkID === row.SourceLinkID) ||
+            (row.ObligationRequestNumber &&
+              obr.InvoiceNumber === row.ObligationRequestNumber) ||
+            (row.OBR_NO && obr.InvoiceNumber === row.OBR_NO) ||
+            (row.OBR_Number && obr.InvoiceNumber === row.OBR_Number)
+        );
+
+        if (linkedOBR && linkedOBR.ResponsibilityCenterName) {
+          return linkedOBR.ResponsibilityCenterName;
+        }
+
+        // 2. Fallback to direct value if it's a name
+        const rcName =
+          value ||
+          row.ResponsibilityCenter ||
+          row.ResponsibilityCenterName ||
+          row.DepartmentName;
+
+        if (rcName && typeof rcName === 'string' && isNaN(rcName)) return rcName;
+
+        // 3. Try Department lookup by ID
+        const deptID =
+          row.DepartmentID ||
+          row.ResponsibilityCenterID ||
+          (!isNaN(rcName) ? Number(rcName) : null);
+        const dept = departments.find(
+          (d) => String(d.ID) === String(deptID)
+        );
+        if (dept) return dept.Name;
+
+        return 'N/A';
+      },
     },
     /* {
       key: 'FiscalYearName',

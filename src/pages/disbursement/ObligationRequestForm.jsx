@@ -197,7 +197,18 @@ function ObligationRequestForm({
     fd.append('Address', selectedPayee?.StreetAddress || '');
     fd.append('InvoiceNumber', values.obrNo);
     fd.append('InvoiceDate', values.obrDate);
-    fd.append('ResponsibilityCenter', values.responsibilityCenter);
+    // Enforce Header RC to match the first Item's RC if available
+    let finalRC = values.responsibilityCenter;
+    if (values.accountingEntries && values.accountingEntries.length > 0) {
+      const firstItem = values.accountingEntries[0];
+      if (firstItem.ResponsibilityCenter) {
+        finalRC = firstItem.ResponsibilityCenter;
+      }
+    }
+
+    fd.append('ResponsibilityCenter', finalRC);
+    fd.append('DepartmentID', finalRC);
+    fd.append('ResponsibilityCenterID', finalRC);
 
     const total = values.accountingEntries.reduce(
       (sum, e) => sum + Number(e.subtotal || 0),
@@ -731,6 +742,10 @@ function ObligationRequestForm({
                             console.log('Adding entry:', entry);
                             push(entry);
                             setShowEntryModal(false);
+                            // Auto-set Header RC to match the Item's RC
+                            if (entry.ResponsibilityCenter) {
+                              setFieldValue('responsibilityCenter', entry.ResponsibilityCenter);
+                            }
                           }}
                         />
                       </Modal>
