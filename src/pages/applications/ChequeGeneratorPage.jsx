@@ -16,6 +16,8 @@ import {
   PrinterIcon,
   CheckLine,
   X,
+  FileText,
+  List,
 } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import { useDispatch, useSelector } from 'react-redux';
@@ -57,6 +59,7 @@ function ChequeGeneratorPage() {
   const [chequeList, setChequeList] = useState([]);
   const [isLoadingBAPAction, setIsLoadingBAPAction] = useState(false);
   const [isViewOnly, setIsViewOnly] = useState(false);
+  const [activeTab, setActiveTab] = useState('input'); // 'input' or 'list'
 
   const dispatch = useDispatch();
   const { banks, isLoading } = useSelector((state) => state.banks);
@@ -184,6 +187,7 @@ function ChequeGeneratorPage() {
       toast.success('Cheque saved successfully');
       fetchChequeList();
       resetForm();
+      setActiveTab('list'); // Switch to list tab after save
     } catch (error) {
       console.error('Error saving cheque:', error);
       toast.error('Failed to save cheque');
@@ -194,6 +198,7 @@ function ChequeGeneratorPage() {
   const handleEditCheque = (cheque) => {
     setCurrentCheck(cheque);
     setIsViewOnly(false);
+    setActiveTab('input'); // Switch to input tab for editing
 
     // Populate the form fields using Formik's setValues
     formik.setValues({
@@ -222,6 +227,7 @@ function ChequeGeneratorPage() {
     setIsViewOnly(false);
     formik.resetForm();
     setAttachments([]);
+    setActiveTab('input'); // Switch to input tab when creating new
   };
 
   const columns = [
@@ -236,15 +242,14 @@ function ChequeGeneratorPage() {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+            : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                  : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                    : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                      : 'bg-gray-100 text-gray-800'
+            }`}
         >
           {value}
         </span>
@@ -440,514 +445,680 @@ function ChequeGeneratorPage() {
             <p>Generate and print cheques</p>
           </div>
           <div className="flex gap-2 max-sm:w-full">
-            {/* // SAVE BUTTON  */}
-            {!currentCheck && !isViewOnly && Add && (
+            {/* Tab Navigation */}
+            <div className="flex gap-2 border-r pr-4 max-sm:border-r-0 max-sm:pr-0 max-sm:w-full">
               <button
-                type="submit"
-                onClick={formik.handleSubmit}
-                className="btn btn-primary max-sm:w-full"
-                disabled={formik.isSubmitting}
+                type="button"
+                onClick={() => setActiveTab('input')}
+                className={`btn ${activeTab === 'input'
+                  ? 'btn-primary'
+                  : 'btn-outline'
+                  } max-sm:flex-1`}
               >
-                <SaveIcon className="h-5 w-5 mr-2" />
-                Save
+                <FileText className="h-5 w-5 mr-2" />
+                Cheque Input
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('list')}
+                className={`btn ${activeTab === 'list'
+                  ? 'btn-primary'
+                  : 'btn-outline'
+                  } max-sm:flex-1`}
+              >
+                <List className="h-5 w-5 mr-2" />
+                Cheque List
+              </button>
+            </div>
+
+            {/* Action Buttons */}
+            {activeTab === 'input' && (
+              <>
+                {/* // SAVE BUTTON  */}
+                {!currentCheck && !isViewOnly && Add && (
+                  <button
+                    type="submit"
+                    onClick={formik.handleSubmit}
+                    className="btn btn-primary max-sm:w-full"
+                    disabled={formik.isSubmitting}
+                  >
+                    <SaveIcon className="h-5 w-5 mr-2" />
+                    Save
+                  </button>
+                )}
+                {/* ?? EDIT BUTTON  */}
+                {currentCheck &&
+                  !currentCheck?.Status?.toLowerCase().includes('requested') &&
+                  !isViewOnly &&
+                  Edit && (
+                    <button
+                      type="submit"
+                      onClick={formik.handleSubmit}
+                      className="btn btn-primary max-sm:w-full"
+                      disabled={formik.isSubmitting}
+                    >
+                      <EditIcon className="h-5 w-5 mr-2" />
+                      Edit
+                    </button>
+                  )}
+                {currentCheck &&
+                  !currentCheck?.Status?.toLowerCase().includes('requested') &&
+                  Print && (
+                    <button
+                      type="button"
+                      onClick={handlePrint}
+                      className="btn btn-primary max-sm:w-full"
+                      disabled={formik.isSubmitting}
+                    >
+                      <PrinterIcon className="h-5 w-5 mr-2" />
+                      Print
+                    </button>
+                  )}
+                {currentCheck &&
+                  !currentCheck?.Status?.toLowerCase().includes('requested') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        console.log('Attachment');
+                      }}
+                      className="btn btn-primary max-sm:w-full"
+                      disabled={formik.isSubmitting}
+                    >
+                      Attachment
+                    </button>
+                  )}
+                {currentCheck && (
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="btn btn-outline mr-2"
+                  >
+                    {isViewOnly ? 'Close View' : 'Cancel Edit'}
+                  </button>
+                )}
+              </>
             )}
-            {/* ?? EDIT BUTTON  */}
-            {currentCheck &&
-              !currentCheck?.Status?.toLowerCase().includes('requested') &&
-              !isViewOnly &&
-              Edit && (
-                <button
-                  type="submit"
-                  onClick={formik.handleSubmit}
-                  className="btn btn-primary max-sm:w-full"
-                  disabled={formik.isSubmitting}
-                >
-                  <EditIcon className="h-5 w-5 mr-2" />
-                  Edit
-                </button>
-              )}
-            {currentCheck &&
-              !currentCheck?.Status?.toLowerCase().includes('requested') &&
-              Print && (
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="btn btn-primary max-sm:w-full"
-                  disabled={formik.isSubmitting}
-                >
-                  <PrinterIcon className="h-5 w-5 mr-2" />
-                  Print
-                </button>
-              )}
-            {currentCheck &&
-              !currentCheck?.Status?.toLowerCase().includes('requested') && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    console.log('Attachment');
-                  }}
-                  // onClick={formik.handleSubmit}
-                  className="btn btn-primary max-sm:w-full"
-                  disabled={formik.isSubmitting}
-                >
-                  Attachment
-                </button>
-              )}
-            {currentCheck && (
+
+            {/* New Cheque Button on List Tab */}
+            {activeTab === 'list' && Add && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="btn btn-outline mr-2"
+                className="btn btn-primary max-sm:w-full"
               >
-                {isViewOnly ? 'Close View' : 'Cancel Edit'}
+                <Plus className="h-5 w-5 mr-2" />
+                New Cheque
               </button>
             )}
           </div>
         </div>
       </div>
 
-      <form onSubmit={formik.handleSubmit}>
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Cheque Template Section */}
-          <div className="bg-white p-4 rounded-lg shadow border">
-            <h2 className="text-lg font-semibold mb-4 text-yellow-700">
-              Cheque Template
-            </h2>
+      {/* TAB 1: CHEQUE INPUT */}
+      {activeTab === 'input' && (
+        <form onSubmit={formik.handleSubmit}>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            {/* Cheque Template Section */}
+            <div className="bg-white p-4 rounded-lg shadow border">
+              <h2 className="text-lg font-semibold mb-4 text-yellow-700">
+                Cheque Template
+              </h2>
 
-            <div className="space-y-4">
-              <div>
-                <SearchableDropdown
-                  options={banks.map((bank) => ({
-                    value: bank.ID.toString(),
-                    label: bank.Name,
-                  }))}
-                  label={'Bank'}
-                  placeholder="Select Bank"
-                  name="bank"
-                  selectedValue={formik.values.bank}
-                  onSelect={(value) => formik.setFieldValue('bank', value)}
-                  error={formik.touched.bank && formik.errors.bank}
-                  touched={formik.touched.bank}
-                  required
-                  isDisabled={isViewOnly}
+              <div className="space-y-4">
+                <div>
+                  <SearchableDropdown
+                    options={banks.map((bank) => ({
+                      value: bank.ID.toString(),
+                      label: bank.Name,
+                    }))}
+                    label={'Bank'}
+                    placeholder="Select Bank"
+                    name="bank"
+                    selectedValue={formik.values.bank}
+                    onSelect={(value) => formik.setFieldValue('bank', value)}
+                    error={formik.touched.bank && formik.errors.bank}
+                    touched={formik.touched.bank}
+                    required
+                    isDisabled={isViewOnly}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="chequeType"
+                        value="Single"
+                        checked={formik.values.chequeType === 'Single'}
+                        onChange={formik.handleChange}
+                        className="mr-2"
+                        disabled={isViewOnly}
+                      />
+                      Single
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="chequeType"
+                        value="Double"
+                        checked={formik.values.chequeType === 'Double'}
+                        onChange={formik.handleChange}
+                        className="mr-2"
+                        disabled={isViewOnly}
+                      />
+                      Double
+                    </label>
+                  </div>
+                  {formik.touched.chequeType && formik.errors.chequeType && (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.chequeType}
+                    </div>
+                  )}
+                </div>
+
+                <FormField
+                  type="text"
+                  label={'DV'}
+                  value={formik.values.dv}
+                  onChange={formik.handleChange}
+                  name="dv"
+                  error={formik.touched.dv && formik.errors.dv}
+                  touched={formik.touched.dv}
+                  disabled={isViewOnly}
                 />
               </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center space-x-4">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="chequeType"
-                      value="Single"
-                      checked={formik.values.chequeType === 'Single'}
-                      onChange={formik.handleChange}
-                      className="mr-2"
-                      disabled={isViewOnly}
-                    />
-                    Single
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="chequeType"
-                      value="Double"
-                      checked={formik.values.chequeType === 'Double'}
-                      onChange={formik.handleChange}
-                      className="mr-2"
-                      disabled={isViewOnly}
-                    />
-                    Double
-                  </label>
+              {/* Attachments Section */}
+              <div className="my-4">
+                <div className="space-y-2">
+                  <h2 className="font-bold mb-2">Attachments</h2>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) =>
+                      handleFileUpload(e, formik.setFieldValue, formik.values)
+                    }
+                    key={formik.values.Attachments.length}
+                    className="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-medium
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100"
+                    disabled={isViewOnly}
+                  />
                 </div>
-                {formik.touched.chequeType && formik.errors.chequeType && (
-                  <div className="text-red-500 text-sm">
-                    {formik.errors.chequeType}
+                {formik?.values?.Attachments?.length > 0 ? (
+                  <div className="space-y-2 py-2 mt-2">
+                    {formik.values.Attachments.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-2 border rounded"
+                      >
+                        <div className="flex items-center">
+                          <Paperclip className="h-4 w-4 text-gray-500 mr-2" />
+                          <span className="text-sm">
+                            {file.ID ? (
+                              <a
+                                href={`${API_URL}/uploads/${file.DataImage}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                {file.name || file.DataName}
+                              </a>
+                            ) : (
+                              file.name || file.DataName
+                            )}
+                          </span>
+                        </div>
+                        {!isViewOnly && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeAttachment(
+                                index,
+                                formik.setFieldValue,
+                                formik.values
+                              )
+                            }
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
                   </div>
+                ) : (
+                  <p className="text-sm text-gray-500 mt-2">
+                    No attachments added
+                  </p>
                 )}
               </div>
-
-              <FormField
-                type="text"
-                label={'DV'}
-                value={formik.values.dv}
-                onChange={formik.handleChange}
-                name="dv"
-                error={formik.touched.dv && formik.errors.dv}
-                touched={formik.touched.dv}
-                disabled={isViewOnly}
-              />
             </div>
-            {/* Attachments Section */}
-            <div className="my-4">
-              <div className="space-y-2">
-                <h2 className="font-bold mb-2">Attachments</h2>
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) =>
-                    handleFileUpload(e, formik.setFieldValue, formik.values)
-                  }
-                  key={formik.values.Attachments.length}
-                  className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-md file:border-0
-                  file:text-sm file:font-medium
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100"
-                  disabled={isViewOnly}
-                />
+
+            {/* Cheque Details Section */}
+            <div className="bg-white p-4 rounded-lg shadow border">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-yellow-700">
+                  Cheque Details
+                </h2>
+                <span className="bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700 px-2 py-1 rounded text-sm font-medium">
+                  Status: {formik.values.status}
+                </span>
               </div>
-              {formik?.values?.Attachments?.length > 0 ? (
-                <div className="space-y-2 py-2 mt-2">
-                  {formik.values.Attachments.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-2 border rounded"
-                    >
-                      <div className="flex items-center">
-                        <Paperclip className="h-4 w-4 text-gray-500 mr-2" />
-                        <span className="text-sm">
-                          {file.ID ? (
-                            <a
-                              href={`${API_URL}/uploads/${file.DataImage}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline"
-                            >
-                              {file.name || file.DataName}
-                            </a>
-                          ) : (
-                            file.name || file.DataName
-                          )}
-                        </span>
-                      </div>
-                      {!isViewOnly && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeAttachment(
-                              index,
-                              formik.setFieldValue,
-                              formik.values
-                            )
-                          }
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500 mt-2">
-                  No attachments added
-                </p>
-              )}
-            </div>
-          </div>
 
-          {/* Cheque Details Section */}
-          <div className="bg-white p-4 rounded-lg shadow border">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-yellow-700">
-                Cheque Details
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <FormField
+                      type="text"
+                      label={'Account Number'}
+                      name="accountNumber"
+                      value={formik.values.accountNumber}
+                      onChange={formik.handleChange}
+                      error={
+                        formik.touched.accountNumber &&
+                        formik.errors.accountNumber
+                      }
+                      touched={formik.touched.accountNumber}
+                      disabled={isViewOnly}
+                    />
+                  </div>
+                  <div>
+                    <FormField
+                      type="text"
+                      label={'Account Name'}
+                      name="accountName"
+                      value={formik.values.accountName}
+                      onChange={formik.handleChange}
+                      error={
+                        formik.touched.accountName && formik.errors.accountName
+                      }
+                      touched={formik.touched.accountName}
+                      disabled={isViewOnly}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <FormField
+                      type="text"
+                      label={'Check Number'}
+                      name="checkNumber"
+                      value={formik.values.checkNumber}
+                      onChange={formik.handleChange}
+                      error={
+                        formik.touched.checkNumber && formik.errors.checkNumber
+                      }
+                      touched={formik.touched.checkNumber}
+                      disabled={isViewOnly}
+                    />
+                  </div>
+                  <div>
+                    <FormField
+                      type="text"
+                      label={'BRSTN'}
+                      name="brstn"
+                      value={formik.values.brstn}
+                      onChange={formik.handleChange}
+                      error={formik.touched.brstn && formik.errors.brstn}
+                      touched={formik.touched.brstn}
+                      disabled={isViewOnly}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <FormField
+                    type="date"
+                    label={'Date'}
+                    name="date"
+                    value={formik.values.date}
+                    onChange={formik.handleChange}
+                    error={formik.touched.date && formik.errors.date}
+                    touched={formik.touched.date}
+                    disabled={isViewOnly}
+                  />
+                </div>
+
+                <div>
+                  <FormField
+                    type="text"
+                    label={'Pay to the order of:'}
+                    name="payee"
+                    value={formik.values.payee}
+                    onChange={formik.handleChange}
+                    error={formik.touched.payee && formik.errors.payee}
+                    touched={formik.touched.payee}
+                    disabled={isViewOnly}
+                  />
+                </div>
+
+                <div>
+                  <FormField
+                    type="text" // so we can control formatting
+                    label="Amount"
+                    name="amount"
+                    value={
+                      formik.values.amount !== '' && !isNaN(formik.values.amount)
+                        ? Number(formik.values.amount).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                        : ''
+                    }
+                    onChange={(e) => {
+                      // Remove all non-digit characters
+                      const rawValue = e.target.value.replace(/\D/g, '');
+
+                      // Format as cents (two decimal places)
+                      const formattedValue = rawValue
+                        ? (parseInt(rawValue, 10) / 100).toFixed(2)
+                        : '';
+
+                      formik.setFieldValue('amount', formattedValue);
+                    }}
+                    step="0.01"
+                    error={formik.touched.amount && formik.errors.amount}
+                    touched={formik.touched.amount}
+                    disabled={isViewOnly}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Amount in Words:
+                  </label>
+                  <FormField
+                    type="text"
+                    value={convertAmountToWords(formik.values.amount)}
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    readOnly
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Signatories Section */}
+            <div className="bg-white p-4 rounded-lg shadow border">
+              <h2 className="text-lg font-semibold mb-4 text-yellow-700">
+                Signatories
               </h2>
-              <span className="bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700 px-2 py-1 rounded text-sm font-medium">
-                Status: {formik.values.status}
-              </span>
-            </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <FormField
-                    type="text"
-                    label={'Account Number'}
-                    name="accountNumber"
-                    value={formik.values.accountNumber}
+                  <SearchableDropdown
+                    options={employees?.map((employee) => ({
+                      value: employee.ID.toString(),
+                      label: `${employee.FirstName} ${employee.LastName}`,
+                    }))}
+                    label="Signatory 1"
+                    placeholder="Select signatory"
+                    name="signatory1"
+                    selectedValue={formik.values.signatory1}
+                    onSelect={(value) => {
+                      if (value === formik.values.signatory2) {
+                        toast.error(
+                          'Signatory 1 cannot be the same as Signatory 2'
+                        );
+                        return;
+                      }
+                      formik.setFieldValue('signatory1', value);
+                    }}
+                    error={formik.touched.signatory1 && formik.errors.signatory1}
+                    touched={formik.touched.signatory1}
+                    required
+                    isDisabled={isViewOnly}
+                  />
+                </div>
+
+                <div>
+                  <SearchableDropdown
+                    options={employees?.map((employee) => ({
+                      value: employee.ID.toString(),
+                      label: `${employee.FirstName} ${employee.LastName}`,
+                    }))}
+                    label="Signatory 2"
+                    placeholder="Select signatory"
+                    name="signatory2"
+                    selectedValue={formik.values.signatory2}
+                    onSelect={(value) => {
+                      if (value === formik.values.signatory1) {
+                        toast.error(
+                          'Signatory 2 cannot be the same as Signatory 1'
+                        );
+                        return;
+                      }
+                      formik.setFieldValue('signatory2', value);
+                    }}
+                    error={formik.touched.signatory2 && formik.errors.signatory2}
+                    touched={formik.touched.signatory2}
+                    required
+                    isDisabled={isViewOnly}
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold mb-2 text-yellow-700">
+                    Additional Info
+                  </h3>
+                  <textarea
+                    value={formik.values.additionalInformation}
+                    name="additionalInformation"
                     onChange={formik.handleChange}
-                    error={
-                      formik.touched.accountNumber &&
-                      formik.errors.accountNumber
-                    }
-                    touched={formik.touched.accountNumber}
+                    placeholder="Additional information..."
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows="3"
                     disabled={isViewOnly}
                   />
                 </div>
-                <div>
-                  <FormField
-                    type="text"
-                    label={'Account Name'}
-                    name="accountName"
-                    value={formik.values.accountName}
-                    onChange={formik.handleChange}
-                    error={
-                      formik.touched.accountName && formik.errors.accountName
-                    }
-                    touched={formik.touched.accountName}
-                    disabled={isViewOnly}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <FormField
-                    type="text"
-                    label={'Check Number'}
-                    name="checkNumber"
-                    value={formik.values.checkNumber}
-                    onChange={formik.handleChange}
-                    error={
-                      formik.touched.checkNumber && formik.errors.checkNumber
-                    }
-                    touched={formik.touched.checkNumber}
-                    disabled={isViewOnly}
-                  />
-                </div>
-                <div>
-                  <FormField
-                    type="text"
-                    label={'BRSTN'}
-                    name="brstn"
-                    value={formik.values.brstn}
-                    onChange={formik.handleChange}
-                    error={formik.touched.brstn && formik.errors.brstn}
-                    touched={formik.touched.brstn}
-                    disabled={isViewOnly}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <FormField
-                  type="date"
-                  label={'Date'}
-                  name="date"
-                  value={formik.values.date}
-                  onChange={formik.handleChange}
-                  error={formik.touched.date && formik.errors.date}
-                  touched={formik.touched.date}
-                  disabled={isViewOnly}
-                />
-              </div>
-
-              <div>
-                <FormField
-                  type="text"
-                  label={'Pay to the order of:'}
-                  name="payee"
-                  value={formik.values.payee}
-                  onChange={formik.handleChange}
-                  error={formik.touched.payee && formik.errors.payee}
-                  touched={formik.touched.payee}
-                  disabled={isViewOnly}
-                />
-              </div>
-
-              <div>
-                <FormField
-                  type="text" // so we can control formatting
-                  label="Amount"
-                  name="amount"
-                  value={
-                    formik.values.amount !== '' && !isNaN(formik.values.amount)
-                      ? Number(formik.values.amount).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })
-                      : ''
-                  }
-                  onChange={(e) => {
-                    // Remove all non-digit characters
-                    const rawValue = e.target.value.replace(/\D/g, '');
-
-                    // Format as cents (two decimal places)
-                    const formattedValue = rawValue
-                      ? (parseInt(rawValue, 10) / 100).toFixed(2)
-                      : '';
-
-                    formik.setFieldValue('amount', formattedValue);
-                  }}
-                  step="0.01"
-                  error={formik.touched.amount && formik.errors.amount}
-                  touched={formik.touched.amount}
-                  disabled={isViewOnly}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Amount in Words:
-                </label>
-                <FormField
-                  type="text"
-                  value={convertAmountToWords(formik.values.amount)}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  readOnly
-                />
               </div>
             </div>
           </div>
 
-          {/* Signatories Section */}
+          {/* Cheque Preview on Input Tab */}
+          <div className="mt-6 bg-white p-3 sm:p-6 rounded-lg shadow border">
+            <h2 className="text-lg font-medium mb-4">Cheque Preview</h2>
+            <div className="border border-gray-300 p-6 rounded-lg bg-white shadow">
+              <div className="space-y-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm text-gray-500">Bank</p>
+                    <p className="font-medium">
+                      {banks.find((b) => b.ID.toString() === formik.values.bank)
+                        ?.Name || 'Select a bank'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">Date</p>
+                    <p className="font-medium">
+                      {formik.values.date
+                        ? new Date(formik.values.date).toLocaleDateString()
+                        : new Date().toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Pay to the Order of</p>
+                  <p className="font-medium text-lg border-b border-gray-300 pb-1">
+                    {formik.values.payee || 'Enter payee name'}
+                  </p>
+                </div>
+
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm text-gray-500">Amount in Words</p>
+                    <p className="font-medium">
+                      {formik.values.amount
+                        ? convertAmountToWords(formik.values.amount)
+                        : 'Enter amount'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">Amount</p>
+                    <p className="font-medium text-lg">
+                      {formik.values.amount
+                        ? new Intl.NumberFormat('en-PH', {
+                          style: 'currency',
+                          currency: 'PHP',
+                        }).format(formik.values.amount)
+                        : '₱0.00'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-12 pt-4 border-t border-gray-300">
+                  <div className="text-center">
+                    <p className="text-sm text-gray-500">Authorized Signature</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      )}
+
+      {/* TAB 2: CHEQUE LIST AND PREVIEW */}
+      {activeTab === 'list' && (
+        <>
+          {/* Check List Section */}
           <div className="bg-white p-4 rounded-lg shadow border">
-            <h2 className="text-lg font-semibold mb-4 text-yellow-700">
-              Signatories
-            </h2>
-
-            <div className="space-y-4">
-              <div>
-                <SearchableDropdown
-                  options={employees?.map((employee) => ({
-                    value: employee.ID.toString(),
-                    label: `${employee.FirstName} ${employee.LastName}`,
-                  }))}
-                  label="Signatory 1"
-                  placeholder="Select signatory"
-                  name="signatory1"
-                  selectedValue={formik.values.signatory1}
-                  onSelect={(value) => {
-                    if (value === formik.values.signatory2) {
-                      toast.error(
-                        'Signatory 1 cannot be the same as Signatory 2'
-                      );
-                      return;
-                    }
-                    formik.setFieldValue('signatory1', value);
-                  }}
-                  error={formik.touched.signatory1 && formik.errors.signatory1}
-                  touched={formik.touched.signatory1}
-                  required
-                  isDisabled={isViewOnly}
-                />
-              </div>
-
-              <div>
-                <SearchableDropdown
-                  options={employees?.map((employee) => ({
-                    value: employee.ID.toString(),
-                    label: `${employee.FirstName} ${employee.LastName}`,
-                  }))}
-                  label="Signatory 2"
-                  placeholder="Select signatory"
-                  name="signatory2"
-                  selectedValue={formik.values.signatory2}
-                  onSelect={(value) => {
-                    if (value === formik.values.signatory1) {
-                      toast.error(
-                        'Signatory 2 cannot be the same as Signatory 1'
-                      );
-                      return;
-                    }
-                    formik.setFieldValue('signatory2', value);
-                  }}
-                  error={formik.touched.signatory2 && formik.errors.signatory2}
-                  touched={formik.touched.signatory2}
-                  required
-                  isDisabled={isViewOnly}
-                />
-              </div>
-
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-2 text-yellow-700">
-                  Additional Info
-                </h3>
-                <textarea
-                  value={formik.values.additionalInformation}
-                  name="additionalInformation"
-                  onChange={formik.handleChange}
-                  placeholder="Additional information..."
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows="3"
-                  disabled={isViewOnly}
-                />
-              </div>
+            <div className="flex justify-between items-center mb-4 gap-4 flex-wrap">
+              <h2 className="text-lg font-semibold">Check List</h2>
             </div>
+
+            <DataTable
+              columns={columns}
+              data={chequeList}
+              actions={actions}
+              onRowClick={(row) => setCurrentCheck(row)}
+              selectedRow={currentCheck}
+              loading={isLoading || employeeLoading || isLoadingBAPAction}
+              pagination
+            />
           </div>
-        </div>
-      </form>
 
-      {/* Check List Section */}
-      <div className="bg-white p-4 rounded-lg shadow border mt-4">
-        <div className="flex justify-between items-center mb-4 gap-4 flex-wrap">
-          <h2 className="text-lg font-semibold">Check List</h2>
-        </div>
-
-        <DataTable
-          columns={columns}
-          data={chequeList}
-          actions={actions}
-          onRowClick={(row) => setCurrentCheck(row)}
-          selectedRow={currentCheck}
-          loading={isLoading || employeeLoading || isLoadingBAPAction}
-          pagination
-        />
-      </div>
-
-      {/* Original Cheque Preview */}
-      <div className="mt-6 bg-white p-3 sm:p-6 rounded-lg shadow border">
-        <h2 className="text-lg font-medium mb-4">Cheque Preview</h2>
-        <div className="border border-gray-300 p-6 rounded-lg bg-white shadow">
-          <div className="space-y-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm text-gray-500">Bank</p>
-                <p className="font-medium">
-                  {banks.find((b) => b.ID.toString() === formik.values.bank)
-                    ?.Name || 'Select a bank'}
-                </p>
+          {/* Cheque Preview Section - Shows when a cheque is selected */}
+          {currentCheck && (
+            <div className="mt-6 bg-white p-3 sm:p-6 rounded-lg shadow border">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-medium">Cheque Preview</h2>
+                <span className={`px-3 py-1 rounded text-sm font-medium ${currentCheck.Status === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+                    : currentCheck.Status === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+                      : currentCheck.Status === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                        : currentCheck.Status === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                          : currentCheck.Status === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                            : 'bg-gray-100 text-gray-800'
+                  }`}>
+                  {currentCheck.Status}
+                </span>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-500">Date</p>
-                <p className="font-medium">
-                  {formik.values.date
-                    ? new Date(formik.values.date).toLocaleDateString()
-                    : new Date().toLocaleDateString()}
-                </p>
+              <div className="border border-gray-300 p-6 rounded-lg bg-white shadow">
+                <div className="space-y-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm text-gray-500">Bank</p>
+                      <p className="font-medium">
+                        {banks.find((b) => b.ID === currentCheck.BankID)?.Name || 'N/A'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Date</p>
+                      <p className="font-medium">
+                        {currentCheck.CheckDate
+                          ? new Date(currentCheck.CheckDate).toLocaleDateString()
+                          : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Check Number</p>
+                      <p className="font-medium">{currentCheck.CheckNumber || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">BRSTN</p>
+                      <p className="font-medium">{currentCheck.BRSTN || 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Account Number</p>
+                      <p className="font-medium">{currentCheck.AccountNumber || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Account Name</p>
+                      <p className="font-medium">{currentCheck.AccountName || 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500">Pay to the Order of</p>
+                    <p className="font-medium text-lg border-b border-gray-300 pb-1">
+                      {currentCheck.Payee || 'N/A'}
+                    </p>
+                  </div>
+
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm text-gray-500">Amount in Words</p>
+                      <p className="font-medium">
+                        {currentCheck.Words || convertAmountToWords(currentCheck.Amount)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Amount</p>
+                      <p className="font-medium text-lg">
+                        {currentCheck.Amount
+                          ? new Intl.NumberFormat('en-PH', {
+                            style: 'currency',
+                            currency: 'PHP',
+                          }).format(currentCheck.Amount)
+                          : '₱0.00'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {currentCheck.Remarks && (
+                    <div>
+                      <p className="text-sm text-gray-500">Remarks</p>
+                      <p className="font-medium">{currentCheck.Remarks}</p>
+                    </div>
+                  )}
+
+                  <div className="mt-12 pt-4 border-t border-gray-300">
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="text-sm text-gray-500">Signatory 1</p>
+                        <p className="font-medium">
+                          {employees.find((e) => e.ID === currentCheck.SignatoryOneID)
+                            ? `${employees.find((e) => e.ID === currentCheck.SignatoryOneID).FirstName} ${employees.find((e) => e.ID === currentCheck.SignatoryOneID).LastName}`
+                            : 'N/A'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">Signatory 2</p>
+                        <p className="font-medium">
+                          {employees.find((e) => e.ID === currentCheck.SignatoryTwoID)
+                            ? `${employees.find((e) => e.ID === currentCheck.SignatoryTwoID).FirstName} ${employees.find((e) => e.ID === currentCheck.SignatoryTwoID).LastName}`
+                            : 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+          )}
+        </>
+      )}
 
-            <div>
-              <p className="text-sm text-gray-500">Pay to the Order of</p>
-              <p className="font-medium text-lg border-b border-gray-300 pb-1">
-                {formik.values.payee || 'Enter payee name'}
-              </p>
-            </div>
-
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm text-gray-500">Amount in Words</p>
-                <p className="font-medium">
-                  {formik.values.amount
-                    ? convertAmountToWords(formik.values.amount)
-                    : 'Enter amount'}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-500">Amount</p>
-                <p className="font-medium text-lg">
-                  {formik.values.amount
-                    ? new Intl.NumberFormat('en-PH', {
-                      style: 'currency',
-                      currency: 'PHP',
-                    }).format(formik.values.amount)
-                    : '₱0.00'}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-12 pt-4 border-t border-gray-300">
-              <div className="text-center">
-                <p className="text-sm text-gray-500">Authorized Signature</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <div style={{ display: 'none' }}>
         <CheckPrintPreview
           ref={printRef}
