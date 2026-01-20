@@ -220,15 +220,14 @@ const BudgetSupplementalPage = () => {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+              : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+                : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                  : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                    : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                      : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                        : 'bg-gray-100 text-gray-800'
+            }`}
         >
           {value}
         </span>
@@ -289,7 +288,7 @@ const BudgetSupplementalPage = () => {
   //   },
   // ];
   const handleBSPAction = async (info, action) => {
-    setIsLoading(true);    
+    setIsLoading(true);
     // Properly format action strings for messages
     const actionPast = action === 'approve' ? 'approved' : 'rejected';
     const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
@@ -298,15 +297,7 @@ const BudgetSupplementalPage = () => {
         `/budgetSupplemental/${action}`,
         {
           ID: info.ID,
-          LinkID: info.LinkID,
-          Reason: action === 'reject' ? 'Rejected by user' : 'Approved by user',
-          approvalProgress: info.ApprovalProgress || 1,
-          varApprovalLink: info.LinkID,
-          varLinkID: info.LinkID,
-          approvalOrder: 1, // Default for single approver workflow
-          numberOfApproverPerSequence: 1, // Default for single approver workflow
-          varTransactionApprovalVersion: info.ApprovalVersion || 1,
-          varBudgetID: info.Budget?.ID
+          Reason: action === 'reject' ? 'Rejected by user' : 'Approved by user'
         }
       );
       console.log(`${action}d:`, response.data);

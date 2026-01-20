@@ -144,72 +144,71 @@ const BudgetAllotmentPage = () => {
   };
 
   const columns = [
-      {
-        key: 'InvoiceNumber',
-        header: 'Invoice Number',
-        sortable: true,
-        className: 'text-neutral-900 font-medium',
-        render: (value) => (
-          <span className="text-neutral-900 font-medium">{value || 'N/A'}</span>
-        ),
-      },
-      {
-        key: 'Status',
-        header: 'Status',
-        sortable: true,
-        render: (value) => (
-          <span
-            className={`px-2 py-1 rounded ${
-              value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-                : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-                : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-                : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-                : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-                : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-                : 'bg-gray-100 text-gray-800'
+    {
+      key: 'InvoiceNumber',
+      header: 'Invoice Number',
+      sortable: true,
+      className: 'text-neutral-900 font-medium',
+      render: (value) => (
+        <span className="text-neutral-900 font-medium">{value || 'N/A'}</span>
+      ),
+    },
+    {
+      key: 'Status',
+      header: 'Status',
+      sortable: true,
+      render: (value) => (
+        <span
+          className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+              : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+                : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                  : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                    : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                      : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                        : 'bg-gray-100 text-gray-800'
             }`}
-          >
-            {value}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: 'InvoiceDate',
+      header: 'Invoice Date',
+      sortable: true,
+      render: (value) => {
+        if (!value) return <span className="text-neutral-400">N/A</span>;
+        const date = new Date(value);
+        return (
+          <span className="text-neutral-700">
+            {date.toLocaleDateString('en-US', {
+              month: '2-digit',
+              day: '2-digit',
+              year: 'numeric',
+            })}
           </span>
-        ),
+        );
       },
-      {
-        key: 'InvoiceDate',
-        header: 'Invoice Date',
-        sortable: true,
-        render: (value) => {
-          if (!value) return <span className="text-neutral-400">N/A</span>;
-          const date = new Date(value);
-          return (
-            <span className="text-neutral-700">
-              {date.toLocaleDateString('en-US', {
-                month: '2-digit',
-                day: '2-digit',
-                year: 'numeric',
-              })}
-            </span>
-          );
-        },
-      },
-      {
-        key: 'Total',
-        header: 'Total',
-        sortable: true,
-        className: 'text-right font-semibold',
-        render: (value) => (
-          <span className="text-right font-semibold text-primary-700">
-            {formatCurrency(value)}
-          </span>
-        ),
-      },
-      {
-        key: 'Budget',
-        header: 'Budget Name',
-        render: (_, row) => (
-          <span className="text-neutral-700">{row.Budget?.Name || 'N/A'}</span>
-        ),
-      },
-    ];
+    },
+    {
+      key: 'Total',
+      header: 'Total',
+      sortable: true,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    {
+      key: 'Budget',
+      header: 'Budget Name',
+      render: (_, row) => (
+        <span className="text-neutral-700">{row.Budget?.Name || 'N/A'}</span>
+      ),
+    },
+  ];
 
   // const actions = [
   //   Edit && {
@@ -230,13 +229,6 @@ const BudgetAllotmentPage = () => {
         `/budgetAllotment/${action}`,
         {
           ID: dv.ID,
-          approvalProgress: dv.ApprovalProgress || 1,
-          varApprovalLink: dv.LinkID,
-          varLinkID: dv.LinkID,
-          approvalOrder: 1,
-          numberOfApproverPerSequence: 1,
-          varTransactionApprovalVersion: dv.ApprovalVersion || 1,
-          varBudgetID: dv.Budget?.ID,
           Reason: action === 'reject' ? 'Rejected by user' : 'Approved by user'
         }
       );
