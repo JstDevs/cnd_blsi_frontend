@@ -13,6 +13,7 @@ import { useModulePermissions } from '@/utils/useModulePremission';
 import {
   fetchRealPropertyTaxes,
   saveRealPropertyTax,
+  voidRealPropertyTax,
 } from '@/features/collections/realPropertyTaxSlice';
 import { fetchGeneralRevisions } from '@/features/settings/generalRevisionSlice';
 import { fetchCustomers } from '@/features/settings/customersSlice';
@@ -102,13 +103,13 @@ function RealPropertyTaxPage() {
     let bgColor = 'bg-neutral-100 text-neutral-800';
 
     switch (value) {
-      case 'Requested':   bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700';      break;
-      case 'Approved':    bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800';    break;
-      case 'Posted':      bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100';    break;
-      case 'Rejected':    bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';          break;
-      case 'Void':        bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300';   break;
-      case 'Cancelled':   bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800';    break;
-      default:            break;
+      case 'Requested': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
+      case 'Approved': bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'; break;
+      case 'Posted': bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
+      case 'Rejected': bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'; break;
+      case 'Void': bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
+      case 'Cancelled': bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'; break;
+      default: break;
     }
 
     return (
@@ -180,40 +181,62 @@ function RealPropertyTaxPage() {
 
   const actions = (row) => {
     const actionList = [];
+    const status = row.Status?.toLowerCase() || '';
 
-    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+    // Void status - only show View
+    if (status === 'void') {
       actionList.push({
-        icon: PencilIcon,
-        title: 'Edit',
-        onClick: () => handleEditProperty(row),
-        className:
-          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+        icon: EyeIcon,
+        title: 'View',
+        onClick: () => handleViewProperty(row),
+        className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
       });
-    } else if (row.Status === 'Requested') {
+      return actionList;
+    }
+
+    // Rejected - show Edit and Void
+    if (status.includes('rejected') && Edit) {
+      actionList.push(
+        {
+          icon: PencilIcon,
+          title: 'Edit',
+          onClick: () => handleEditProperty(row),
+          className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+        },
+        {
+          icon: TrashIcon,
+          title: 'Void',
+          onClick: () => handleVoid(row),
+          className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+        }
+      );
+    }
+    // Requested - show Post and Reject
+    else if (status === 'requested') {
       actionList.push(
         {
           icon: CheckLine,
           title: 'Post',
           onClick: () => handleRPTAction(row, 'approve'),
-          className:
-            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+          className: 'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
         },
         {
           icon: X,
           title: 'Reject',
           onClick: () => handleRPTAction(row, 'reject'),
-          className:
-            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+          className: 'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
         }
       );
     }
+
+    // Always show View
     actionList.push({
       icon: EyeIcon,
       title: 'View',
       onClick: () => handleViewProperty(row),
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     });
+
     return actionList;
   };
   const handleSubmitSuccess = async (payload) => {
@@ -229,6 +252,23 @@ function RealPropertyTaxPage() {
       toast.error('Failed to save property. Please try again.');
     }
   };
+
+  const handleVoid = async (row) => {
+    if (!window.confirm('Are you sure you want to void this Real Property Tax Receipt??'))
+      return;
+
+    setIsLoadingReceipt(true);
+    try {
+      await dispatch(voidRealPropertyTax({ id: row.ID })).unwrap();
+      dispatch(fetchRealPropertyTaxes());
+      toast.success('Real Property Tax Receipt voided successfully.');
+    } catch (error) {
+      toast.error(`Error voiding Real Property Tax Receipt: ${error}`);
+    } finally {
+      setIsLoadingReceipt(false);
+    }
+  }
+
   const individualOptions = customers?.map((customer) => ({
     value: customer.ID,
     label:

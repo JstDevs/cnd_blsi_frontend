@@ -4,6 +4,9 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import Modal from '../../components/common/Modal';
 import DataTable from '../../components/common/DataTable';
 import RealPropertyTaxForm from '../../components/forms/RealPropertyTaxForm';
+import { fetchRealPropertyTaxes } from '@/features/collections/realPropertyTaxSlice';
+import toast from 'react-hot-toast';
+import { c } from 'vite/dist/node/types.d-aGj9QkWt';
 
 function RealPropertyTaxPage() {
   const dispatch = useDispatch();
@@ -116,6 +119,8 @@ function RealPropertyTaxPage() {
     // Implement delete functionality
     console.log('Delete record:', record);
   };
+
+
 
   const handleSubmit = async (values) => {
     try {

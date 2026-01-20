@@ -57,6 +57,18 @@ export const addButtonTDNumber = createAsyncThunk(
   }
 );
 
+export const voidRealPropertyTax = createAsyncThunk(
+  'realPropertyTax/voidRealPropertyTax',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await axios.post('/real-property-tax/void', payload);
+      return { id: payload.id, ...res.data };
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
 const initialState = {
   realPropertyTaxes: [],
   isLoading: false,
@@ -88,6 +100,14 @@ const realPropertyTaxSlice = createSlice({
       .addCase(saveRealPropertyTax.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+      })
+      .addCase(voidRealPropertyTax.fulfilled, (state, action) => {
+        const index = state.realPropertyTaxes.findIndex(
+          (item) => item.ID === action.payload.id
+        );
+        if (index !== -1) {
+          state.realPropertyTaxes[index].Status = 'Void';
+        }
       })
       .addCase(saveRealPropertyTax.fulfilled, (state, action) => {
         state.isLoading = false;
