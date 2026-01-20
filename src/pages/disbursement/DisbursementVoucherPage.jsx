@@ -308,7 +308,8 @@ function DisbursementVoucherPage() {
       toast.success(`Disbursement Voucher ${action}d successfully`);
     } catch (error) {
       console.error(`Error ${action}ing disbursement voucher:`, error);
-      toast.error(`Error ${action}ing disbursement voucher`);
+      const errMsg = error.response?.data?.error || error.response?.data?.message || `Error ${action}ing disbursement voucher`;
+      toast.error(errMsg);
     } finally {
       setApprovalLoading(false);
     }

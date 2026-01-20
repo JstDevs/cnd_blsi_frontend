@@ -92,17 +92,9 @@ function FundUtilizationPage() {
     const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
 
     try {
-      // For approval, we might need more details if the backend expects them
-      // Based on typical pattern, passing the whole row or specific IDs
       const payload = {
         ID: row.ID,
-        LinkID: row.LinkID,
-        ApprovalLinkID: row.Transaction?.ApprovalLinkID || '', // Adjust based on your backend logic
-        ApprovalProgress: (row.Transaction?.ApprovalProgress || 0) + 1,
-        ApprovalOrder: row.Transaction?.ApprovalOrder || 1,
-        NumberOfApproverPerSequence: row.Transaction?.NumberOfApproverPerSequence || 1,
         FundsID: row.FundsID,
-        ApprovalVersion: row.Transaction?.ApprovalVersion,
       };
 
       if (action === 'reject') {
@@ -116,7 +108,8 @@ function FundUtilizationPage() {
       dispatch(fetchFundUtilizations());
     } catch (error) {
       console.error(`Error ${actionPresent} FURS:`, error);
-      toast.error(error.response?.data?.error || `Error ${actionPresent} FURS`);
+      const errMsg = error.response?.data?.error || error.response?.data?.message || `Error ${actionPresent} FURS`;
+      toast.error(errMsg);
     }
   };
 

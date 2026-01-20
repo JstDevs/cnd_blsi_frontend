@@ -247,13 +247,7 @@ function ObligationRequestPage() {
         endpoint: 'postTransaction',
         payload: {
           ID: dv.ID,
-          LinkID: dv.LinkID,
-          ApprovalLinkID: dv.LinkID,
-          ApprovalProgress: dv.ApprovalProgress || '1',
-          ApprovalOrder: dv.ApprovalOrder || '1',
-          NumberOfApproverPerSequence: dv.NumberOfApproverPerSequence || '1',
-          FundsID: dv.FundsID || '2',
-          ApprovalVersion: dv.ApprovalVersion || '1',
+          FundsID: dv.FundsID,
         },
         successMsg: 'Obligation Request approved successfully',
         errorMsg: 'Error approving Obligation Request',
@@ -262,8 +256,7 @@ function ObligationRequestPage() {
         endpoint: 'rejectTransaction',
         payload: {
           ID: dv.ID,
-          ApprovalLinkID: dv.LinkID,
-          reasonForRejection: dv.reasonForRejection || 'ANY REASON',
+          Reason: 'Rejected by user',
         },
         successMsg: 'Obligation Request rejected successfully',
         errorMsg: 'Error rejecting Obligation Request',
@@ -290,7 +283,7 @@ function ObligationRequestPage() {
       dispatch(fetchObligationRequests()); // update list if needed
       toast.success(config.successMsg);
     } catch (error) {
-      const errMsg = error.response?.data?.message || config.errorMsg;
+      const errMsg = error.response?.data?.error || error.response?.data?.message || config.errorMsg;
       console.error(errMsg, error);
       toast.error(errMsg);
     } finally {
