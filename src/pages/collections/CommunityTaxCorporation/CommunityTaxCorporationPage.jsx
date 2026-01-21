@@ -404,7 +404,7 @@ function CommunityTaxCorporationPage() {
               </div>
             </div>
             <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-end gap-2 w-full">
-              <div className="sm:w-auto w-full">
+              <div className="sm:w-96 w-full">
                 <SearchableDropdown
                   options={
                     vendorDetails?.map((vendors) => ({
