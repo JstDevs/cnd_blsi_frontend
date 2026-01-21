@@ -10,6 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const MARRIAGE_SERVICE_RECEIPT_SCHEMA = Yup.object().shape({
   InvoiceNumber: Yup.string().required('Invoice number is required'),
   CustomerName: Yup.string().required('Customer is required'),
+  CustomerID: Yup.number().nullable(),
   CustomerAge: Yup.number()
     .required('Age is required')
     .positive('Age must be positive')
@@ -17,7 +18,7 @@ const MARRIAGE_SERVICE_RECEIPT_SCHEMA = Yup.object().shape({
   Remarks: Yup.string().required('Remarks are required'),
   InvoiceDate: Yup.date().required('Invoice date is required'),
   Cenomar: Yup.string().required('CENOMAR is required'),
-  MarrytoID: Yup.string().required('"Marry to" is required'),
+  MarrytoID: Yup.number().nullable(),
   MarrytoName: Yup.string().required('"Marry to Name" is required'),
   MarrytoAge: Yup.number()
     .required('Age is required')
