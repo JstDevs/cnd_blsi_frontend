@@ -36,9 +36,9 @@ const BusinessPermitFormFields = ({
             name="modeOfPayment"
             type="radio"
             options={[
-              { value: 'annually', label: 'Annually' },
+              { value: 'annually',      label: 'Annually' },
               { value: 'semi-annually', label: 'Semi-Annually' },
-              { value: 'quarterly', label: 'Quarterly' },
+              { value: 'quarterly',     label: 'Quarterly' },
             ]}
             value={formData.modeOfPayment}
             onChange={(value) => handleInputChange('modeOfPayment', value)}
