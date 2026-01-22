@@ -4,6 +4,7 @@ import { Formik, Form, FieldArray, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Select from 'react-select';
 import FormField from '../../components/common/FormField';
+import SearchableDropdown from '../../components/common/SearchableDropdown';
 import ObligationRequestAddItemForm from './ObligationRequestAddItemForm';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
@@ -35,7 +36,7 @@ const disbursementVoucherSchema = Yup.object().shape({
   obrNo: Yup.string(),
   obrDate: Yup.date().required('Date is required'),
   payeeType: Yup.string().required('Payee type is required'),
-  payeeId: Yup.string().required('Payee selection is required'),
+  payeeId: Yup.number().nullable(),
   responsibilityCenter: Yup.string().required(
     'Responsibility Center is required'
   ),
@@ -111,13 +112,12 @@ function ObligationRequestForm({
       initialData?.paymentDate || new Date().toISOString().split('T')[0],
     payeeType: initialData?.payeeType || '',
     payeeName: initialData?.payeeName || '',
+    payeeAddress: initialData?.payeeAddress || '',
     payeeId: initialData?.payeeId || '',
     // -------------PROJECT AND FUNDS IDs ------------
     project: initialData?.ProjectID || '',
     fund: initialData?.FundsID || '',
     fiscalYear: initialData?.FiscalYearID || '',
-
-    payeeAddress: initialData?.payeeAddress || '',
     officeUnitProject: initialData?.officeUnitProject || '',
     orsNumber: initialData?.orsNumber || '',
     responsibilityCenter: initialData?.ResponsibilityCenter || '',
@@ -169,32 +169,62 @@ function ObligationRequestForm({
 
     const fd = new FormData();
 
+    // Handle payee IDs and determine PayeeType
     if (values.payeeType === 'Employee') {
-      fd.append('EmployeeID', values.payeeId);
+      if (values.payeeId) {
+        // Existing employee
+        fd.append('EmployeeID', values.payeeId);
+        fd.append('PayeeType', 'Employee');
+      } else {
+        // New employee - will be created in backend
+        fd.append('EmployeeID', '');
+        fd.append('PayeeType', 'NewEmployee');
+      }
       fd.append('VendorID', '');
       fd.append('CustomerID', '');
     } else if (values.payeeType === 'Vendor') {
+      if (values.payeeId) {
+        // Existing vendor
+        fd.append('VendorID', values.payeeId);
+        fd.append('PayeeType', 'Vendor');
+      } else {
+        // New vendor
+        fd.append('VendorID', '');
+        fd.append('PayeeType', 'NewVendor');
+      }
       fd.append('EmployeeID', '');
-      fd.append('VendorID', values.payeeId);
       fd.append('CustomerID', '');
     } else if (values.payeeType === 'Individual') {
+      if (values.payeeId) {
+        // Existing individual
+        fd.append('CustomerID', values.payeeId);
+        fd.append('PayeeType', 'Individual');
+      } else {
+        // New individual
+        fd.append('CustomerID', '');
+        fd.append('PayeeType', 'New');
+      }
       fd.append('EmployeeID', '');
       fd.append('VendorID', '');
-      fd.append('CustomerID', values.payeeId);
     }
 
-    fd.append('PayeeType', values.payeeType);
-    fd.append(
-      'Payee',
-      selectedPayee?.Name ||
-      selectedPayee?.FirstName +
-      ' ' +
-      selectedPayee?.MiddleName +
-      ' ' +
-      selectedPayee?.LastName ||
-      ''
-    );
-    fd.append('Address', selectedPayee?.StreetAddress || '');
+    // Send payee name and address
+    if (!values.payeeId) {
+      // New payee - send typed name
+      console.log('Sending NEW payee - Name:', values.payeeName, 'Type:', values.payeeType);
+      fd.append('Payee', values.payeeName || '');
+      fd.append('Address', 'N/A'); // Default address for new payees
+    } else {
+      // Existing payee - use selectedPayee data
+      console.log('Sending EXISTING payee - ID:', values.payeeId, 'Name:', selectedPayee?.Name || selectedPayee?.FirstName);
+      fd.append(
+        'Payee',
+        selectedPayee?.Name ||
+        (selectedPayee?.FirstName + ' ' + selectedPayee?.MiddleName + ' ' + selectedPayee?.LastName) ||
+        ''
+      );
+      fd.append('Address', selectedPayee?.StreetAddress || '');
+    }
     fd.append('InvoiceNumber', values.obrNo);
     fd.append('InvoiceDate', values.obrDate);
     // Enforce Header RC to match the first Item's RC if available
@@ -428,27 +458,32 @@ function ObligationRequestForm({
                     {/* Payee List */}
                     {values.payeeType && (
                       <div className="lg:col-span-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Select {selectedPayeeType?.label}{' '}
-                          <span className="text-red-500">*</span>
-                        </label>
-
-                        <Select
+                        <SearchableDropdown
+                          label={`Select ${selectedPayeeType?.label}`}
+                          name="payee"
                           options={getPayeeOptions(values.payeeType)}
-                          value={
-                            getPayeeOptions(values.payeeType).find(
-                              (p) => p.value === values.payeeId
-                            ) || null
-                          }
-                          onChange={(option) => handlePayeeSelect(option.value)}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
+                          value={values.payeeName}
+                          onSelect={(value) => {
+                            const selectedOption = getPayeeOptions(values.payeeType).find(
+                              (option) => option.value === value
+                            );
+                            if (selectedOption) {
+                              // Existing payee selected
+                              setFieldValue('payeeName', selectedOption.label || '');
+                              setFieldValue('payeeId', selectedOption.value || '');
+                              handlePayeeSelect(selectedOption.value); // Update selectedPayee state
+                            } else {
+                              // New payee typed - not in list
+                              setFieldValue('payeeName', value);
+                              setFieldValue('payeeId', null); // Signal new payee
+                              setSelectedPayee(null);
+                            }
+                          }}
+                          selectedValue={values.payeeId || values.payeeName}
+                          error={errors.payeeId}
+                          touched={touched.payeeId}
+                          required
                         />
-                        {errors.payeeType && touched.payeeType && (
-                          <p className="mt-1 text-sm text-red-600">
-                            {errors.payeeType}
-                          </p>
-                        )}
                       </div>
                     )}
 
