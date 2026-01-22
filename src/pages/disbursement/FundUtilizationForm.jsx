@@ -201,10 +201,12 @@ function FundUtilizationForm({
     // Send payee name and address
     if (!values.payeeId) {
       // New payee - send typed name
+      console.log('FURS - Sending NEW payee - Name:', values.payeeName, 'Type:', values.payeeType);
       fd.append('Payee', values.payeeName || '');
       fd.append('Address', 'N/A');
     } else {
       // Existing payee
+      console.log('FURS - Sending EXISTING payee - ID:', values.payeeId);
       fd.append(
         'Payee',
         selectedPayee?.Name ||
