@@ -122,8 +122,13 @@ function DisbursementVoucherDetails({ dv, linkedOBR, onClose, onEdit }) {
               <dt className="text-sm font-medium text-neutral-500">
                 Mode of Payment
               </dt>
-              <dd className="text-sm text-neutral-900 col-span-2">
+              <dd className="text-sm text-neutral-900 col-span-2 flex items-center gap-2">
                 {dv.modeOfPayment}
+                {(dv.modeOfPayment === 'Check' || dv.ModeOfPayment === 'Check') && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                    Check Requested
+                  </span>
+                )}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">

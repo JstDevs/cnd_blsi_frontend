@@ -64,6 +64,7 @@ function DisbursementVoucherForm({
   unitOptions = [],
   taxCodeOptions = [],
   budgetOptions = [],
+  bankOptions = [],
   taxCodeFull = [],
   chartOfAccountsOptions = [],
 }) {
@@ -1360,17 +1361,23 @@ function DisbursementVoucherForm({
                   {selectedModeOfPayment === 'Check' && (
                     <>
                       {/* Bank */}
-                      <FormField
-                        type="text"
-                        label="Bank"
-                        name="bank"
-                        value={values.bank}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={errors.bank}
-                        touched={touched.bank}
-                        required={selectedModeOfPayment === 'Check'}
-                      />
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Bank <span className="text-red-500">*</span>
+                        </label>
+                        <Select
+                          options={bankOptions}
+                          value={bankOptions.find(opt => opt.value === values.bank)}
+                          onChange={(option) => setFieldValue('bank', option.value)}
+                          onBlur={() => setFieldTouched('bank', true)}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          placeholder="Select Bank"
+                        />
+                        {errors.bank && touched.bank && (
+                          <p className="mt-1 text-sm text-red-600">{errors.bank}</p>
+                        )}
+                      </div>
 
                       {/* Check Number */}
                       <FormField
@@ -1384,6 +1391,13 @@ function DisbursementVoucherForm({
                         touched={touched.checkNumber}
                         required={selectedModeOfPayment === 'Check'}
                       />
+
+                      <div className="flex items-center md:col-span-1 mt-6">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                          <CheckCircleIcon className="w-3 h-3 mr-1" />
+                          Check Requested
+                        </span>
+                      </div>
                     </>
                   )}
 

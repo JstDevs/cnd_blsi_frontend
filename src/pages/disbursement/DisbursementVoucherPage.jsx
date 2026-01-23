@@ -23,6 +23,7 @@ import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import { fetchBanks } from '@/features/settings/bankSlice';
 import { statusLabel } from '../userProfile';
 import { CheckLine, TrashIcon, X } from 'lucide-react';
 import axiosInstance from '@/utils/axiosInstance';
@@ -51,6 +52,7 @@ function DisbursementVoucherPage() {
   const { taxCodes } = useSelector((state) => state.taxCodes);
   const { itemUnits } = useSelector((state) => state.itemUnits);
   const { budgets } = useSelector((state) => state.budget);
+  const { banks } = useSelector((state) => state.banks);
   const chartOfAccounts = useSelector(
     (state) => state.chartOfAccounts?.accounts || []
   );
@@ -74,6 +76,7 @@ function DisbursementVoucherPage() {
     dispatch(fetchItemUnits());
     dispatch(fetchBudgets());
     dispatch(fetchAccounts());
+    dispatch(fetchBanks());
   }, [dispatch]);
 
   const handleCreateDV = () => {
@@ -499,6 +502,10 @@ function DisbursementVoucherPage() {
               budgetOptions={budgets.map((code) => ({
                 value: code.ID,
                 label: code.Name,
+              }))}
+              bankOptions={banks.map((bank) => ({
+                value: bank.ID,
+                label: bank.Name,
               }))}
               taxCodeFull={taxCodes}
               onCancel={handleBackToList}
