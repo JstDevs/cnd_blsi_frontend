@@ -277,10 +277,28 @@ function BusinessPermitPage() {
           toast.error(`Failed to update: ${err}`);
         });
     } else {
-      // Create new
+      // Create new   
+        // const docID = 42;
+        // let statusValue = '';
+        // const matrixExists = await db.ApprovalMatrix.findOne({
+        // where: {
+        //     DocumentTypeID: docID,
+        //     Active: 1,
+        // },
+        // transaction: t
+        // });
+        
+        // statusValue = matrixExists ? 'Requested' : 'Posted';
+
+        // req.body.status = statusValue;
+
+      // const response = checkStatus();
+      // const statusValue = response.data.status;
+      const statusValue = "Requested";
+
       const dataToSave = {
         ...formData,
-        status: 'Requested' // Explicitly set initial status
+        status: statusValue // Explicitly set initial status
       };
 
       dispatch(addBusinessPermit(dataToSave))

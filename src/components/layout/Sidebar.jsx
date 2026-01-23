@@ -18,7 +18,7 @@ import {
   ReceiptPercentIcon,
 } from '@heroicons/react/24/outline';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
-import { CalculatorIcon, ChartBar, CoinsIcon, Ellipsis, LayoutDashboardIcon, ReceiptTextIcon, BanknoteIcon, Settings, HandCoinsIcon } from 'lucide-react';
+import { CalculatorIcon, ChartBar, CoinsIcon, Ellipsis, LayoutDashboardIcon, ReceiptTextIcon, BanknoteIcon, Settings, HandCoinsIcon, ClipboardListIcon, FileChartColumnIcon, FileChartColumnIncreasingIcon } from 'lucide-react';
 
 const DashboardIcon = LayoutDashboardIcon;
 const DisbursementIcon = BanknoteIcon;
@@ -102,7 +102,7 @@ const navigation = [
   },
   {
     name: 'Reports',
-    icon: ChartBar,
+    icon: FileChartColumnIcon,
     submenu: [
       { name: 'Disbursement Journals',      href: '/disbursement/disbursement-journals',  moduleId: 23, }, // Check & Cash Disbursement?
       { name: 'General Ledger',             href: '/reports/general-ledger',              moduleId: 24, },
