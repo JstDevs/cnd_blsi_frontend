@@ -14,7 +14,7 @@ import { convertAmountToWords } from '@/utils/amountToWords';
 import toast from 'react-hot-toast';
 
 const validationSchema = Yup.object().shape({
-  ownerId: Yup.number().required('Owner ID is required'),
+  ownerId: Yup.number().nullable(), // Allow empty for manual input (backend auto-creates)
   basicGeneralYearID: Yup.number().required('Basic general year is required'),
   T_D_No: Yup.string().required('Tax declaration number is required'),
   IsNew: Yup.boolean().required(),
@@ -497,14 +497,22 @@ const RealPropertyTaxForm = ({
                 options={individualOptions}
                 value={values.CustomerName}
                 onSelect={(value) => {
-                  const selectedOption = individualOptions.find(
-                    (option) => option.value === value
-                  );
-                  setFieldValue('CustomerName', selectedOption?.label || '');
-                  setFieldValue('ownerId', selectedOption?.value || '');
+                  // ✅ Support manual input: if value is a string (new name), allow it
+                  if (typeof value === 'string' && !individualOptions.find(opt => opt.value === value)) {
+                    // Manual input - new customer name
+                    setFieldValue('CustomerName', value);
+                    setFieldValue('ownerId', ''); // Empty ownerId triggers backend auto-creation
+                  } else {
+                    // Existing customer selected from dropdown
+                    const selectedOption = individualOptions.find(
+                      (option) => option.value === value
+                    );
+                    setFieldValue('CustomerName', selectedOption?.label || '');
+                    setFieldValue('ownerId', selectedOption?.value || '');
+                  }
                 }}
                 className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                selectedValue={values.ownerId}
+                selectedValue={values.CustomerName}
                 error={errors.CustomerName}
                 required
                 touched={touched.CustomerName}
