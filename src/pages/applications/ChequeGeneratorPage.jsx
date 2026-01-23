@@ -639,23 +639,31 @@ function ChequeGeneratorPage() {
                     placeholder="Select Disbursement Voucher"
                     name="dv"
                     selectedValue={formik.values.dv}
-                    onSelect={(value, option) => {
+                    onSelect={(value) => {
                       formik.setFieldValue('dv', value);
-                      if (option && option.raw) {
-                        const dv = option.raw;
-                        // Auto-fill logic
-                        const payeeName = dv.Payee || (dv.Vendor?.Name || (dv.Employee ? `${dv.Employee.FirstName} ${dv.Employee.LastName}` : (dv.Customer?.Name || '')));
+
+                      const selectedDV = pendingDVs.find(d => d.LinkID === value);
+
+                      if (selectedDV) {
+                        const payeeName = selectedDV.Payee || (selectedDV.Vendor?.Name || (selectedDV.Employee ? `${selectedDV.Employee.FirstName} ${selectedDV.Employee.LastName}` : (selectedDV.Customer?.Name || '')));
                         formik.setFieldValue('payee', payeeName);
-                        formik.setFieldValue('amount', dv.Total);
-                        if (dv.BankID) {
-                          formik.setFieldValue('bank', dv.BankID.toString());
+                        formik.setFieldValue('amount', selectedDV.Total || '');
+
+                        const bID = selectedDV.BankID || selectedDV.bankID;
+                        if (bID) {
+                          formik.setFieldValue('bank', bID.toString());
                         }
-                        if (dv.Remarks) {
-                          formik.setFieldValue('particulars', dv.Remarks);
+
+                        const cNum = selectedDV.CheckNumber || selectedDV.checkNumber;
+                        if (cNum) {
+                          formik.setFieldValue('checkNumber', cNum);
                         }
-                        // If DV has OBR, maybe we can auto-fill that too if the field exists
-                        if (dv.ObligationRequestNumber) {
-                          formik.setFieldValue('obr', dv.ObligationRequestNumber);
+
+                        if (selectedDV.Remarks) {
+                          formik.setFieldValue('particulars', selectedDV.Remarks);
+                        }
+                        if (selectedDV.ObligationRequestNumber) {
+                          formik.setFieldValue('obr', selectedDV.ObligationRequestNumber);
                         }
                       }
                     }}
