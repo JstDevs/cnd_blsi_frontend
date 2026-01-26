@@ -143,11 +143,20 @@ function GeneralLedgerPage() {
 
   const actions = (row) => {
     const actionList = [];
-    if (row.ap_ar === 'Journal Entry Voucher' && row.transaction_id) {
+    if (
+      (row.ap_ar === 'Journal Entry Voucher' ||
+        row.ap_ar === 'Burial Receipt' ||
+        row.ap_ar === 'Marriage Receipt') &&
+      row.transaction_id
+    ) {
       actionList.push({
         icon: EyeIcon,
-        title: 'View JEV',
-        onClick: () => handleViewJEV(row.transaction_id),
+        title: `View ${row.ap_ar}`,
+        onClick: () => {
+          if (row.ap_ar === 'Journal Entry Voucher') handleViewJEV(row.transaction_id);
+          if (row.ap_ar === 'Burial Receipt') handleViewBurial(row.link_id);
+          if (row.ap_ar === 'Marriage Receipt') handleViewMarriage(row.link_id);
+        },
         className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
       });
     }
@@ -160,6 +169,16 @@ function GeneralLedgerPage() {
     }).catch((err) => {
       toast.error(err || 'Failed to fetch JEV details');
     });
+  };
+
+  const handleViewBurial = (linkID) => {
+    // Navigate to burial record page or show modal
+    navigate(`/burial-records?linkID=${linkID}`);
+  };
+
+  const handleViewMarriage = (linkID) => {
+    // Navigate to marriage record page or show modal
+    navigate(`/marriage-records?linkID=${linkID}`);
   };
 
   // Handle export to Excel
