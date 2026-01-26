@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import PageTransition from '../components/common/PageTransition';
 import Sidebar from '../components/layout/Sidebar';
 import Header from '../components/layout/Header';
 
@@ -68,7 +70,11 @@ function DashboardLayout() {
 
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
           <div className="py-6 px-4 sm:px-6 lg:px-8">
-            <Outlet />
+            <AnimatePresence mode="wait">
+              <PageTransition key={location.pathname}>
+                <Outlet />
+              </PageTransition>
+            </AnimatePresence>
           </div>
         </main>
       </div>
