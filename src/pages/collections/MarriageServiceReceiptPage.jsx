@@ -11,6 +11,7 @@ import {
   rejectMarriageRecord,
 } from '@/features/collections/MarriageSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
@@ -20,6 +21,7 @@ import { PrinterIcon } from 'lucide-react';
 function MarriageServiceReceiptPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const location = useLocation();
   const dispatch = useDispatch();
   const { records: marriageRecords, isLoading } = useSelector(
     (state) => state.marriageRecords
@@ -33,6 +35,24 @@ function MarriageServiceReceiptPage() {
     dispatch(fetchMarriageRecords());
     dispatch(fetchCustomers());
   }, [dispatch]);
+
+  // Handle auto-select via linkID query param
+  useEffect(() => {
+    if (!isLoading && marriageRecords?.length > 0) {
+      const searchParams = new URLSearchParams(location.search);
+      const linkID = searchParams.get('linkID');
+
+      if (linkID) {
+        const matched = marriageRecords.find(
+          (r) => r.LinkID?.toString() === linkID.toString()
+        );
+        if (matched) {
+          setSelectedReceipt(matched);
+          setIsModalOpen(true);
+        }
+      }
+    }
+  }, [isLoading, marriageRecords, location.search]);
 
   const printRef = useRef();
   const handlePrint = useReactToPrint({
@@ -82,7 +102,7 @@ function MarriageServiceReceiptPage() {
         ? toast.success('Marriage Receipt Updated Successfully')
         : toast.success('Marriage Receipt Added Successfully');
       dispatch(fetchMarriageRecords());
-            dispatch(fetchCustomers());
+      dispatch(fetchCustomers());
     } catch (error) {
       toast.error(error.message || 'Something went wrong');
     } finally {

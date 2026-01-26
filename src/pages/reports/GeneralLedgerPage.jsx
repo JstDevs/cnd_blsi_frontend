@@ -173,12 +173,12 @@ function GeneralLedgerPage() {
 
   const handleViewBurial = (linkID) => {
     // Navigate to burial record page or show modal
-    navigate(`/burial-records?linkID=${linkID}`);
+    navigate(`/collections/burial-service-receipts?linkID=${linkID}`);
   };
 
   const handleViewMarriage = (linkID) => {
     // Navigate to marriage record page or show modal
-    navigate(`/marriage-records?linkID=${linkID}`);
+    navigate(`/collections/marriage-service-receipts?linkID=${linkID}`);
   };
 
   // Handle export to Excel
