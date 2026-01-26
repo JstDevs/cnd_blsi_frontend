@@ -7,8 +7,13 @@ import {
   fetchGeneralLedgers,
   resetGeneralLedgerState,
 } from '../../features/reports/generalLedgerSlice';
+import { fetchJournalEntryById } from '../../features/disbursement/journalEntrySlice';
 import { fetchFunds } from '../../features/budget/fundsSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import { fetchDepartments } from '../../features/settings/departmentSlice';
+import Modal from '../../components/common/Modal';
+import JournalEntryForm from '../../components/forms/JournalEntryForm';
+import { EyeIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,8 +24,27 @@ function GeneralLedgerPage() {
   const { generalLedgers, isLoading, error } = useSelector(
     (state) => state.generalLedger
   );
+  const { selectedJournalEntry, isLoading: isJEVLoading } = useSelector(
+    (state) => state.journalEntries
+  );
   const { funds } = useSelector((state) => state.funds);
   const { accounts } = useSelector((state) => state.chartOfAccounts);
+  const { departments } = useSelector((state) => state.departments);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // hardcoded in old software (copied from JournalEntryPage)
+  const typeOptions = [
+    { label: 'Cash Disbursement', value: 'Cash Disbursement' },
+    { label: 'Check Disbursement', value: 'Check Disbursement' },
+    { label: 'Collection', value: 'Collection' },
+    { label: 'Others', value: 'Others' },
+  ];
+  const fundOptions = [
+    { label: 'General Fund', value: '1' },
+    { label: 'Trust Fund', value: '2' },
+    { label: 'Special Education Fund', value: '3' },
+  ];
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -34,6 +58,7 @@ function GeneralLedgerPage() {
     dispatch(resetGeneralLedgerState());
     dispatch(fetchFunds());
     dispatch(fetchAccounts());
+    dispatch(fetchDepartments());
   }, [dispatch]);
 
   // Table columns definition
@@ -116,6 +141,27 @@ function GeneralLedgerPage() {
     },
   ];
 
+  const actions = (row) => {
+    const actionList = [];
+    if (row.ap_ar === 'Journal Entry Voucher' && row.transaction_id) {
+      actionList.push({
+        icon: EyeIcon,
+        title: 'View JEV',
+        onClick: () => handleViewJEV(row.transaction_id),
+        className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+    }
+    return actionList;
+  };
+
+  const handleViewJEV = (id) => {
+    dispatch(fetchJournalEntryById(id)).unwrap().then(() => {
+      setIsModalOpen(true);
+    }).catch((err) => {
+      toast.error(err || 'Failed to fetch JEV details');
+    });
+  };
+
   // Handle export to Excel
   const handleExport = async (values) => {
     // console.log({ values });
@@ -170,8 +216,10 @@ function GeneralLedgerPage() {
       <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
         <GeneralLedgerForm
           funds={funds}
-          accountOptions={accounts.map((acc) => ({
-            value: acc.ID,
+          accountOptions={Array.from(
+            new Map(accounts.map((acc) => [acc.AccountCode, acc])).values()
+          ).map((acc) => ({
+            value: acc.AccountCode,
             label: `${acc.AccountCode} - ${acc.Name}`,
           }))}
           onExportExcel={handleExport}
@@ -190,10 +238,64 @@ function GeneralLedgerPage() {
         <DataTable
           columns={columns}
           data={generalLedgers}
+          actions={actions}
           loading={isLoading}
           pagination={true}
         />
       </div>
+
+      <Modal
+        size="xxxl"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="View Journal Entry Voucher"
+      >
+        {isJEVLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          </div>
+        ) : selectedJournalEntry ? (
+          <JournalEntryForm
+            typeOptions={typeOptions}
+            fundOptions={fundOptions}
+            centerOptions={departments
+              .filter((dept) => dept.Active)
+              .map((dept) => ({ label: dept.Name, value: dept.ID }))}
+            accountOptions={accounts
+              .filter((acc) => acc.Active)
+              .map((acc) => ({
+                label: acc.AccountCode + ' ' + acc.Name,
+                value: acc.ID,
+              }))}
+            initialData={{
+              ...selectedJournalEntry,
+              AccountingEntries:
+                selectedJournalEntry.JournalEntries?.map((entry) => {
+                  const matchedAccount = accounts.find(
+                    (acc) =>
+                      acc.AccountCode === entry.AccountCode &&
+                      acc.Name === entry.AccountName
+                  );
+
+                  return {
+                    ResponsibilityCenter: entry.ResponsibilityCenter || '',
+                    AccountExplanation: matchedAccount?.ID || '',
+                    PR: entry.PR || '',
+                    Debit: entry.Debit || 0,
+                    Credit: entry.Credit || 0,
+                  };
+                }) || [],
+            }}
+            onClose={() => setIsModalOpen(false)}
+            onSubmit={() => { }}
+            isReadOnly={true}
+          />
+        ) : (
+          <div className="text-center py-8 text-neutral-500">
+            No JEV data found.
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

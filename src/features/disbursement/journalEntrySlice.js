@@ -30,6 +30,32 @@ export const fetchJournalEntries = createAsyncThunk(
   }
 );
 
+export const fetchJournalEntryById = createAsyncThunk(
+  'journalEntries/fetchJournalEntryById',
+  async (id, thunkAPI) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await fetch(`${API_URL}/journalEntryVoucher/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 export const addJournalEntry = createAsyncThunk(
   'journalEntries/addJournalEntry',
   async (journalEntry, thunkAPI) => {
@@ -165,6 +191,7 @@ const journalEntriesSlice = createSlice({
   name: 'journalEntries',
   initialState: {
     journalEntries: [],
+    selectedJournalEntry: null, // For single JEV view
     isLoading: false,
     error: null,
   },
@@ -274,6 +301,18 @@ const journalEntriesSlice = createSlice({
       .addCase(rejectJournalEntry.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to reject journal entry';
+      })
+      .addCase(fetchJournalEntryById.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchJournalEntryById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.selectedJournalEntry = action.payload;
+      })
+      .addCase(fetchJournalEntryById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Failed to fetch journal entry';
       });
   },
 });
