@@ -271,7 +271,7 @@ function GeneralReceiptPage() {
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     });
 
-    if (row.Status === 'Posted' || row.Status === 'Requested') {
+    if (row.Status === 'Posted') {
       actionList.push({
         icon: BookOpenIcon,
         title: 'View GL',
