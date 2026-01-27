@@ -34,6 +34,19 @@ function MarriageServiceReceiptPage() {
     dispatch(fetchCustomers());
   }, [dispatch]);
 
+  const handleViewGL = (row) => {
+    setShowGLModal(true);
+    dispatch(fetchGeneralLedgers({
+      LinkID: row.LinkID,
+      FundID: row.FundsID,
+      CutOffDate: row.InvoiceDate || new Date().toISOString().split('T')[0]
+    }));
+  };
+
+  const handleCloseGLModal = () => {
+    setShowGLModal(false);
+  };
+
   // Handle auto-select via linkID query param
   useEffect(() => {
     if (!isLoading && marriageRecords?.length > 0) {
