@@ -1231,53 +1231,89 @@ function ChequeGeneratorPage() {
           employees={employees}
         />
       </div>
-      {/* General Ledger Entries Modal */}
       <Modal
         isOpen={showGLModal}
         onClose={handleCloseGLModal}
         title="General Ledger Entries"
-        size="7xl"
+        size="4xl"
       >
-        <div className="p-1">
-          <DataTable
-            columns={[
-              { key: 'fund', header: 'Fund', className: 'font-bold' },
-              { key: 'ledger_item', header: 'Ledger Item' },
-              { key: 'account_name', header: 'Account Name' },
-              { key: 'account_code', header: 'Code' },
-              {
-                key: 'debit',
-                header: 'Debit',
-                className: 'text-right font-bold',
-                render: (val) => val > 0 ? `₱${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'
-              },
-              {
-                key: 'credit',
-                header: 'Credit',
-                className: 'text-right font-bold',
-                render: (val) => val > 0 ? `₱${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'
-              },
-            ]}
-            data={generalLedgers}
-            isLoading={isGLLoading}
-            showFooter={true}
-            footerData={{
-              fund: '',
-              ledger_item: '',
-              account_name: '',
-              account_code: 'TOTAL',
-              debit: `₱${generalLedgers.reduce((sum, item) => sum + Number(item.debit || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-              credit: `₱${generalLedgers.reduce((sum, item) => sum + Number(item.credit || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-            }}
-          />
-          <div className="flex justify-end mt-4">
-            <button
-              onClick={handleCloseGLModal}
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
-            >
-              Close
-            </button>
-          </div>
+        <div className="overflow-hidden border border-neutral-200 rounded-xl shadow-sm my-2">
+          {isGLLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <ArrowPathIcon className="h-8 w-8 animate-spin text-neutral-400" />
+              <span className="ml-2 text-neutral-500">Loading ledger data...</span>
+            </div>
+          ) : (
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Fund</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Ledger Item</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Account Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Code</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">Debit</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">Credit</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-neutral-200">
+                {generalLedgers && generalLedgers.length > 0 ? (
+                  generalLedgers.map((item, index) => (
+                    <tr key={index} className="hover:bg-neutral-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-neutral-900">
+                        {item.fund}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {item.ledger_item}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                        {item.account_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 font-mono">
+                        {item.account_code}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900 font-medium tabular-nums">
+                        {Number(item.debit) > 0 ? `₱${Number(item.debit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900 font-medium tabular-nums">
+                        {Number(item.credit) > 0 ? `₱${Number(item.credit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-12 text-center text-sm text-neutral-500">
+                      <div className="flex flex-col items-center justify-center">
+                        <BookOpenIcon className="h-10 w-10 text-neutral-300 mb-2" />
+                        <p>No ledger records found for this transaction.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+              {generalLedgers && generalLedgers.length > 0 && (
+                <tfoot className="bg-neutral-50 font-semibold text-neutral-900">
+                  <tr>
+                    <td colSpan="4" className="px-6 py-3 text-right text-xs uppercase tracking-wider text-neutral-500">Total</td>
+                    <td className="px-6 py-3 text-right text-sm tabular-nums text-primary-700">
+                      ₱{(generalLedgers.reduce((acc, curr) => acc + (Number(curr.debit) || 0), 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-6 py-3 text-right text-sm tabular-nums text-primary-700">
+                      ₱{(generalLedgers.reduce((acc, curr) => acc + (Number(curr.credit) || 0), 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          )}
+        </div>
+        <div className="flex justify-end pt-4 border-t border-neutral-200 mt-4">
+          <button
+            type="button"
+            onClick={handleCloseGLModal}
+            className="btn btn-primary px-6"
+          >
+            Close
+          </button>
         </div>
       </Modal>
     </div>
