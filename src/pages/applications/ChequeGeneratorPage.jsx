@@ -32,6 +32,9 @@ import { convertAmountToWords } from '@/utils/amountToWords';
 import axiosInstance from '@/utils/axiosInstance';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { useReactToPrint } from 'react-to-print';
+import { fetchGeneralLedgers } from '@/features/reports/generalLedgerSlice';
+import { BookOpenIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import Modal from '@/components/common/Modal';
 const API_URL = import.meta.env.VITE_API_URL;
 // Validation schema
 const chequeSchema = Yup.object().shape({
@@ -70,6 +73,8 @@ function ChequeGeneratorPage() {
   );
   // ---------------------USE MODULE PERMISSIONS------------------START (ChequeGeneratorPage - MODULE ID = 16 )
   const { Add, Edit, Delete, Print } = useModulePermissions(33);
+  const [showGLModal, setShowGLModal] = useState(false);
+  const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
   // Formik initialization
   const formik = useFormik({
     initialValues: {
@@ -396,6 +401,23 @@ function ChequeGeneratorPage() {
     }
   };
 
+  const handleViewGL = (row) => {
+    if (!row.DisbursementID) {
+      toast.error('No linked Disbursement Voucher found for this cheque.');
+      return;
+    }
+    setShowGLModal(true);
+    dispatch(fetchGeneralLedgers({
+      LinkID: row.DisbursementID,
+      FundID: row.Disbursement?.FundsID || '',
+      CutOffDate: row.Disbursement?.InvoiceDate || row.CheckDate
+    }));
+  };
+
+  const handleCloseGLModal = () => {
+    setShowGLModal(false);
+  };
+
   const actions = (row) => {
     const actionList = [];
     const status = row.Status?.toLowerCase() || '';
@@ -408,6 +430,15 @@ function ChequeGeneratorPage() {
         className:
           'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
       });
+
+      if (status.includes('posted')) {
+        actionList.push({
+          icon: BookOpenIcon,
+          title: 'View GL',
+          onClick: () => handleViewGL(row),
+          className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+        });
+      }
       return actionList;
     }
 
@@ -506,9 +537,9 @@ function ChequeGeneratorPage() {
                       </>
                     ) : (
                       <>
-                      <SaveIcon className="h-5 w-5 mr-2" />
-                      Save
-                    </> )}
+                        <SaveIcon className="h-5 w-5 mr-2" />
+                        Save
+                      </>)}
                   </button>
                 )}
                 {/* ?? EDIT BUTTON  */}
@@ -522,7 +553,7 @@ function ChequeGeneratorPage() {
                       className="btn btn-primary max-sm:w-full"
                       disabled={formik.isSubmitting}
                     >
-                       {formik.isSubmitting ? (
+                      {formik.isSubmitting ? (
                         <>
                           <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                           Updating...
@@ -1199,6 +1230,55 @@ function ChequeGeneratorPage() {
           employees={employees}
         />
       </div>
+      {/* General Ledger Entries Modal */}
+      <Modal
+        isOpen={showGLModal}
+        onClose={handleCloseGLModal}
+        title="General Ledger Entries"
+        size="7xl"
+      >
+        <div className="p-1">
+          <DataTable
+            columns={[
+              { key: 'fund', header: 'Fund', className: 'font-bold' },
+              { key: 'ledger_item', header: 'Ledger Item' },
+              { key: 'account_name', header: 'Account Name' },
+              { key: 'account_code', header: 'Code' },
+              {
+                key: 'debit',
+                header: 'Debit',
+                className: 'text-right font-bold',
+                render: (val) => val > 0 ? `₱${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'
+              },
+              {
+                key: 'credit',
+                header: 'Credit',
+                className: 'text-right font-bold',
+                render: (val) => val > 0 ? `₱${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'
+              },
+            ]}
+            data={generalLedgers}
+            isLoading={isGLLoading}
+            showFooter={true}
+            footerData={{
+              fund: '',
+              ledger_item: '',
+              account_name: '',
+              account_code: 'TOTAL',
+              debit: `₱${generalLedgers.reduce((sum, item) => sum + Number(item.debit || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+              credit: `₱${generalLedgers.reduce((sum, item) => sum + Number(item.credit || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            }}
+          />
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={handleCloseGLModal}
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
