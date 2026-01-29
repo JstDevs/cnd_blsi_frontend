@@ -552,6 +552,9 @@ function JournalEntryPage() {
       </Modal>
     </div>
   );
+
 }
+
+
 
 export default JournalEntryPage;

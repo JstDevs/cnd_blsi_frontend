@@ -12,6 +12,7 @@ import {
 import toast from 'react-hot-toast';
 import axiosInstance from '@/utils/axiosInstance';
 import DataTable from '../../components/common/DataTable';
+import Modal  from '@/components/common/Modal';
 import FundUtilizationForm from './FundUtilizationForm';
 import { fetchFundUtilizations } from '@/features/disbursement/fundUtilizationSlice';
 import { fetchEmployees } from '../../features/settings/employeeSlice';
@@ -28,6 +29,7 @@ import { fetchBudgets } from '@/features/budget/budgetSlice';
 import { statusLabel } from '../userProfile';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import FundUtilizationDetails from './FundUtilizationDetails';
+import { c } from 'vite/dist/node/types.d-aGj9QkWt';
 
 function FundUtilizationPage() {
   const dispatch = useDispatch();
@@ -49,6 +51,8 @@ function FundUtilizationPage() {
   const { budgets } = useSelector((state) => state.budget);
 
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
+  const [isVoidModalOpen, setIsVoidModalOpen] = useState(false);
+  const [rowToVoid, setRowToVoid] = useState(null);
   const [currentObligationRequest, setCurrentObligationRequest] =
     useState(null);
 
@@ -113,20 +117,45 @@ function FundUtilizationPage() {
     }
   };
 
-  const handleDelete = async (row) => {
-    if (!window.confirm('Are you sure you want to void this Request?')) return;
+  // const handleDelete = async (row) => {
+  //   if (!window.confirm('Are you sure you want to void this Request?')) return;
+  //   try {
+  //     await axiosInstance.post('/fundUtilizationRequest/void', {
+  //       ID: row.ID,
+  //       ApprovalLinkID: row.Transaction?.ApprovalLinkID || '',
+  //     });
+  //     toast.success('Fund Utilization Request voided successfully');
+  //     dispatch(fetchFundUtilizations());
+  //   } catch (error) {
+  //     console.error('Error voiding FURS:', error);
+  //     toast.error(error.response?.data?.error || 'Error voiding FURS');
+  //   }
+  // };
+
+    const handleDelete = (row) => {
+    setRowToVoid(row);
+    setIsVoidModalOpen(true);
+  }
+
+  const confirmVoid = async () => {
+    if (!rowToVoid) return;
+
     try {
       await axiosInstance.post('/fundUtilizationRequest/void', {
-        ID: row.ID,
-        ApprovalLinkID: row.Transaction?.ApprovalLinkID || '',
+        ID: rowToVoid.ID,
+        ApprovalLinkID: rowToVoid.Transaction?.ApprovalLinkID || '',
       });
       toast.success('Fund Utilization Request voided successfully');
       dispatch(fetchFundUtilizations());
     } catch (error) {
       console.error('Error voiding FURS:', error);
       toast.error(error.response?.data?.error || 'Error voiding FURS');
+    } finally {
+      // Closing the Modal
+      setIsVoidModalOpen(false);
+      setRowToVoid(null);
     }
-  };
+  }
 
   // Format amount as Philippine Peso
   const formatCurrency = (amount) => {
