@@ -12,7 +12,7 @@ import {
 import toast from 'react-hot-toast';
 import axiosInstance from '@/utils/axiosInstance';
 import DataTable from '../../components/common/DataTable';
-import Modal  from '@/components/common/Modal';
+import Modal from '@/components/common/Modal';
 import FundUtilizationForm from './FundUtilizationForm';
 import { fetchFundUtilizations } from '@/features/disbursement/fundUtilizationSlice';
 import { fetchEmployees } from '../../features/settings/employeeSlice';
@@ -29,7 +29,7 @@ import { fetchBudgets } from '@/features/budget/budgetSlice';
 import { statusLabel } from '../userProfile';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import FundUtilizationDetails from './FundUtilizationDetails';
-import { c } from 'vite/dist/node/types.d-aGj9QkWt';
+
 
 function FundUtilizationPage() {
   const dispatch = useDispatch();
@@ -132,7 +132,7 @@ function FundUtilizationPage() {
   //   }
   // };
 
-    const handleDelete = (row) => {
+  const handleDelete = (row) => {
     setRowToVoid(row);
     setIsVoidModalOpen(true);
   }
@@ -476,7 +476,27 @@ function FundUtilizationPage() {
           </div>
         </div>
       )}
+      <Modal isOpen={isVoidModalOpen} onClose={() => setIsVoidModalOpen(false)} title="Confirm Void" size='sm'>
+        <div className='space-y-4'>
+          <p className="text-neutral-600">
+            Are you sure you want to void this Fund Utilization Request?
+          </p>
 
+          <div className='flex justify-end gap-3 mt-6'>
+            <button type="button" className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md hover:bg-neutral-50"
+              onClick={() => setIsVoidModalOpen(false)}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+              onClick={confirmVoid}
+            >
+              Void
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
