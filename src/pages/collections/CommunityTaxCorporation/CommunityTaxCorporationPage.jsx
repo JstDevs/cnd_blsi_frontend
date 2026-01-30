@@ -23,6 +23,8 @@ import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { useReactToPrint } from 'react-to-print';
 import CTCCorporatePrintPreview from './CTCCorporatePrintPreview';
+import { fetchGeneralLedgers } from '@/features/reports/generalLedgerSlice';
+import { BookOpenIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 function CommunityTaxCorporationPage() {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
@@ -33,6 +35,7 @@ function CommunityTaxCorporationPage() {
   const [isLoadingCTCActions, setIsLoadingCTCActions] = useState(false);
   const [isNewVendor, setIsNewVendor] = useState(false);
   const [newVendorName, setNewVendorName] = useState('');
+  const [showGLModal, setShowGLModal] = useState(false);
   // ---------------------USE MODULE PERMISSIONS------------------START (CommunityTaxCorporationPage - MODULE ID =  35 )
   const { Add, Edit, Delete, Print } = useModulePermissions(35);
   const { records: certificates, isLoading: certificatesLoading } = useSelector(
@@ -41,6 +44,7 @@ function CommunityTaxCorporationPage() {
   const { vendorDetails, isLoading } = useSelector(
     (state) => state.vendorDetails
   );
+  const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
   const dispatch = useDispatch();
   const printRef = useRef();
   const handlePrint = useReactToPrint({
@@ -262,6 +266,20 @@ function CommunityTaxCorporationPage() {
       setIsLoadingCTCActions(false);
     }
   };
+
+  const handleViewGL = (row) => {
+    setShowGLModal(true);
+    dispatch(fetchGeneralLedgers({
+      LinkID: row.LinkID,
+      FundID: row.FundsID || '',
+      CutOffDate: row.InvoiceDate
+    }));
+  };
+
+  const handleCloseGLModal = () => {
+    setShowGLModal(false);
+  };
+
   const actions = (row) => {
     const actionList = [];
 
@@ -305,6 +323,17 @@ function CommunityTaxCorporationPage() {
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     });
+
+    if (row.Status.toLowerCase().includes('posted')) {
+      actionList.push({
+        icon: BookOpenIcon,
+        title: 'View GL',
+        onClick: () => handleViewGL(row),
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+    }
+
     return actionList;
   };
   const handleShowList = () => {
@@ -519,87 +548,96 @@ function CommunityTaxCorporationPage() {
 
       {/* Modal for General Ledger View */}
       <Modal
-        isOpen={showListModal}
-        onClose={handleCloseListModal}
-        title="General Ledger View"
-        size="lg"
+        isOpen={showGLModal}
+        onClose={handleCloseGLModal}
+        title="General Ledger Entries"
+        size="4xl"
       >
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fund Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ledger Item
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Account Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Account Code
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Debit
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Credit
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Document Type Name
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  General Fund
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  Community Tax
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  Community Tax
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  4-01-01-050
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  0
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  96.00
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  Community Tax
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  General Fund
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  Cash - Local Tr...
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  Cash - Local Tr...
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  1-01-01-010
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  96.00
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  0
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  Community Tax
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="overflow-hidden border border-neutral-200 rounded-xl shadow-sm my-2">
+          {isGLLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <ArrowPathIcon className="h-8 w-8 animate-spin text-neutral-400" />
+              <span className="ml-2 text-neutral-500">Loading ledger data...</span>
+            </div>
+          ) : (
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Fund</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Ledger Item</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Account Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Code</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">Debit</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">Credit</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-neutral-200">
+                {generalLedgers && generalLedgers.length > 0 ? (
+                  generalLedgers.map((item, index) => (
+                    <tr key={index} className="hover:bg-neutral-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-neutral-900">
+                        {item.fund}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                        {item.ledger_item}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                        {item.account_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 font-mono">
+                        {item.account_code}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900 font-medium tabular-nums">
+                        {Number(item.debit) > 0 ? (
+                          <span className="text-primary-700">
+                            ₱{Number(item.debit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        ) : '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900 font-medium tabular-nums">
+                        {Number(item.credit) > 0 ? (
+                          <span className="text-secondary-700">
+                            ₱{Number(item.credit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        ) : '-'}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-12 text-center text-sm text-neutral-500">
+                      <div className="flex flex-col items-center justify-center">
+                        <BookOpenIcon className="h-10 w-10 text-neutral-300 mb-2" />
+                        <p>No ledger records found for this transaction.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+              {generalLedgers && generalLedgers.length > 0 && (
+                <tfoot className="bg-neutral-50 font-semibold text-neutral-900">
+                  <tr>
+                    <td colSpan="4" className="px-6 py-3 text-right text-xs uppercase tracking-wider text-neutral-500">Total</td>
+                    <td className="px-6 py-3 text-right text-sm tabular-nums text-primary-700">
+                      ₱{(generalLedgers.reduce((acc, curr) => acc + (Number(curr.debit) || 0), 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-6 py-3 text-right text-sm tabular-nums text-secondary-700">
+                      ₱{(generalLedgers.reduce((acc, curr) => acc + (Number(curr.credit) || 0), 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          )}
+        </div>
+        <div className="flex justify-end pt-4 border-t border-neutral-200 mt-4">
+          <button
+            type="button"
+            onClick={handleCloseGLModal}
+            className="btn btn-primary px-6"
+          >
+            Close
+          </button>
         </div>
       </Modal>
 
