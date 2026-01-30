@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import Button from '@/components/common/Button';
 import DataTable from '@/components/common/DataTable';
 import Modal from '@/components/common/Modal';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 import PublicMarketTicketForm from '@/components/forms/PublicMarketTicketForm';
 import {
   deletePublicMarketTicket,
@@ -23,6 +24,15 @@ const PublicMarketTicketPage = () => {
   const { Add, Edit, Delete } = useModulePermissions(68);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
+
+  // Confirmation modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({
+    title: '',
+    message: '',
+    onConfirm: () => { },
+    isDestructive: false
+  });
 
   const { tickets, isLoading, error } = useSelector(
     (state) => state.publicMarketTicketing
@@ -50,35 +60,61 @@ const PublicMarketTicketPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteTicket = async (ticket) => {
-    if (!window.confirm('Are you sure you want to void this ticket?')) return;
-    try {
-      await dispatch(deletePublicMarketTicket(ticket.ID)).unwrap();
-      toast.success('Ticket voided successfully');
-      dispatch(fetchPublicMarketTickets());
-    } catch (error) {
-      toast.error(error.message || 'Failed to void ticket');
-    }
+  const handleDeleteTicket = (ticket) => {
+    setConfirmConfig({
+      title: 'Void Ticket',
+      message: 'Are you sure you want to void this public market ticket? This action cannot be undone.',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          await dispatch(deletePublicMarketTicket(ticket.ID)).unwrap();
+          toast.success('Ticket voided successfully');
+          dispatch(fetchPublicMarketTickets());
+          setIsConfirmModalOpen(false);
+        } catch (error) {
+          toast.error(error.message || 'Failed to void ticket');
+        }
+      }
+    });
+    setIsConfirmModalOpen(true);
   };
 
-  const handleApprove = async (ticket) => {
-    try {
-      await dispatch(approvePublicMarketTicket(ticket.ID)).unwrap();
-      toast.success('Ticket approved successfully');
-      dispatch(fetchPublicMarketTickets());
-    } catch (error) {
-      toast.error(error.message || 'Failed to approve ticket');
-    }
+  const handleApprove = (ticket) => {
+    setConfirmConfig({
+      title: 'Approve Ticket',
+      message: 'Are you sure you want to approve this public market ticket?',
+      isDestructive: false,
+      onConfirm: async () => {
+        try {
+          await dispatch(approvePublicMarketTicket(ticket.ID)).unwrap();
+          toast.success('Ticket approved successfully');
+          dispatch(fetchPublicMarketTickets());
+          setIsConfirmModalOpen(false);
+        } catch (error) {
+          toast.error(error.message || 'Failed to approve ticket');
+        }
+      }
+    });
+    setIsConfirmModalOpen(true);
   };
 
-  const handleReject = async (ticket) => {
-    try {
-      await dispatch(rejectPublicMarketTicket(ticket.ID)).unwrap();
-      toast.success('Ticket rejected successfully');
-      dispatch(fetchPublicMarketTickets());
-    } catch (error) {
-      toast.error(error.message || 'Failed to reject ticket');
-    }
+  const handleReject = (ticket) => {
+    setConfirmConfig({
+      title: 'Reject Ticket',
+      message: 'Are you sure you want to reject this public market ticket?',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          await dispatch(rejectPublicMarketTicket(ticket.ID)).unwrap();
+          toast.success('Ticket rejected successfully');
+          dispatch(fetchPublicMarketTickets());
+          setIsConfirmModalOpen(false);
+        } catch (error) {
+          toast.error(error.message || 'Failed to reject ticket');
+        }
+      }
+    });
+    setIsConfirmModalOpen(true);
   };
 
   const columns = [
@@ -241,6 +277,15 @@ const PublicMarketTicketPage = () => {
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        isDestructive={confirmConfig.isDestructive}
+      />
     </>
   );
 };

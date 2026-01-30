@@ -16,11 +16,26 @@ import {
   rejectBusinessPermit,
 } from '../../features/applications/businessPermitSlice';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 function BusinessPermitPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPermit, setCurrentPermit] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Confirmation modal states
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({
+    title: '',
+    message: '',
+    onConfirm: () => { },
+    isDestructive: false
+  });
+
+  // Rejection modal states
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [pendingPermit, setPendingPermit] = useState(null);
   // ---------------------USE MODULE PERMISSIONS------------------START (BusinessPermitPage - MODULE ID = 29 )
   const { Add, Edit, Delete } = useModulePermissions(29);
   const dispatch = useDispatch();
@@ -213,37 +228,59 @@ function BusinessPermitPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeletePermit = async (permit) => {
-    if (window.confirm('Are you sure you want to void this business permit? This action cannot be undone.')) {
-      try {
-        await dispatch(deleteBusinessPermit(permit.id)).unwrap();
-        toast.success('Business permit voided successfully');
-      } catch (error) {
-        toast.error(error.message || 'Failed to void');
+  const handleDeletePermit = (permit) => {
+    setConfirmConfig({
+      title: 'Void Business Permit',
+      message: 'Are you sure you want to void this business permit? This action cannot be undone.',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          await dispatch(deleteBusinessPermit(permit.id)).unwrap();
+          toast.success('Business permit voided successfully');
+          setIsConfirmModalOpen(false);
+        } catch (error) {
+          toast.error(error.message || 'Failed to void');
+        }
       }
-    }
+    });
+    setIsConfirmModalOpen(true);
   };
 
-  const handleApprove = async (permit) => {
-    if (window.confirm('Are you sure you want to approve this business permit?')) {
-      try {
-        await dispatch(approveBusinessPermit(permit.id)).unwrap();
-        toast.success('Business permit approved and posted successfully');
-      } catch (error) {
-        toast.error(error.message || 'Failed to approve');
+  const handleApprove = (permit) => {
+    setConfirmConfig({
+      title: 'Approve Business Permit',
+      message: 'Are you sure you want to approve this business permit?',
+      isDestructive: false,
+      onConfirm: async () => {
+        try {
+          await dispatch(approveBusinessPermit(permit.id)).unwrap();
+          toast.success('Business permit approved and posted successfully');
+          setIsConfirmModalOpen(false);
+        } catch (error) {
+          toast.error(error.message || 'Failed to approve');
+        }
       }
-    }
+    });
+    setIsConfirmModalOpen(true);
   };
 
-  const handleReject = async (permit) => {
-    const reason = window.prompt('Please enter the reason for rejection:');
-    if (reason !== null) {
-      try {
-        await dispatch(rejectBusinessPermit({ id: permit.id, reason })).unwrap();
-        toast.success('Business permit rejected successfully');
-      } catch (error) {
-        toast.error(error.message || 'Failed to reject');
-      }
+  const handleReject = (permit) => {
+    setPendingPermit(permit);
+    setRejectionReason('');
+    setIsRejectModalOpen(true);
+  };
+
+  const submitRejection = async () => {
+    if (!rejectionReason.trim()) {
+      toast.error('Please enter a reason for rejection');
+      return;
+    }
+    try {
+      await dispatch(rejectBusinessPermit({ id: pendingPermit.id, reason: rejectionReason })).unwrap();
+      toast.success('Business permit rejected successfully');
+      setIsRejectModalOpen(false);
+    } catch (error) {
+      toast.error(error.message || 'Failed to reject');
     }
   };
 
@@ -278,19 +315,19 @@ function BusinessPermitPage() {
         });
     } else {
       // Create new   
-        // const docID = 42;
-        // let statusValue = '';
-        // const matrixExists = await db.ApprovalMatrix.findOne({
-        // where: {
-        //     DocumentTypeID: docID,
-        //     Active: 1,
-        // },
-        // transaction: t
-        // });
-        
-        // statusValue = matrixExists ? 'Requested' : 'Posted';
+      // const docID = 42;
+      // let statusValue = '';
+      // const matrixExists = await db.ApprovalMatrix.findOne({
+      // where: {
+      //     DocumentTypeID: docID,
+      //     Active: 1,
+      // },
+      // transaction: t
+      // });
 
-        // req.body.status = statusValue;
+      // statusValue = matrixExists ? 'Requested' : 'Posted';
+
+      // req.body.status = statusValue;
 
       // const response = checkStatus();
       // const statusValue = response.data.status;
@@ -380,6 +417,53 @@ function BusinessPermitPage() {
           handleFileUpload={handleFileUpload}
           handleRemoveAttachment={handleRemoveAttachment}
         />
+      </Modal>
+
+      {/* Confirmation Modal for Void/Approve */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        isDestructive={confirmConfig.isDestructive}
+      />
+
+      {/* Rejection Reason Modal */}
+      <Modal
+        isOpen={isRejectModalOpen}
+        onClose={() => setIsRejectModalOpen(false)}
+        title="Reject Business Permit"
+        size="md"
+      >
+        <div className="p-4">
+          <label className="block text-sm font-medium text-neutral-700 mb-2">
+            Reason for Rejection
+          </label>
+          <textarea
+            className="w-full border border-neutral-300 rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm"
+            rows="4"
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Please provide a reason for rejecting this permit..."
+          />
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              className="btn btn-secondary px-4 py-2"
+              onClick={() => setIsRejectModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md text-sm font-semibold text-white bg-error-600 hover:bg-error-700 shadow-sm transition-colors"
+              onClick={submitRejection}
+            >
+              Confirm Reject
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
