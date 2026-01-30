@@ -53,6 +53,13 @@ import PaymentTermsPage from './pages/settings/PaymentTermsPage';
 import IndustryPage from './pages/settings/IndustryPage';
 import Customer from './pages/settings/Customer';
 // Setting --> real Prohject
+
+// Report Settings
+import SignatoriesPage from './pages/settings/DepartmentPage';
+import LogoImagesPage from './pages/settings/DepartmentPage';
+import WatermarksPage from './pages/settings/DepartmentPage';
+import DataSourcePage from './pages/settings/DataSourcePage';
+
 // import TaxDeclaration from "./pages/settings/RealProject/TaxDeclaration";
 import TaxDeclarationPage from './pages/settings/TaxDeclarationPage';
 import GeneralRevision from './pages/settings/RealProject/GeneralRevision';
@@ -247,10 +254,10 @@ function App() {
 
 
           {/*---------------- Report Settings --------------- */}
-          {/* <Route  path="/settings/signatories"      element={<SignatoriesPage     />} /> */}
-          {/* <Route  path="/settings/logos-and-images" element={<LogosAndImagesPage  />} /> */}
-          {/* <Route  path="/settings/watermarks"       element={<WatermarksPage      />} /> */}
-          {/* <Route  path="/settings/data-sources"     element={<DataSourcesPage     />} /> */}
+          <Route  path="/settings/signatories"      element={<SignatoriesPage />} />
+          <Route  path="/settings/logos-and-images" element={<LogoImagesPage  />} />
+          <Route  path="/settings/watermarks"       element={<WatermarksPage  />} />
+          <Route  path="/settings/data-sources"     element={<DataSourcePage  />} />
 
 
           {/*---------------- Real Property Settings --------------- */}
