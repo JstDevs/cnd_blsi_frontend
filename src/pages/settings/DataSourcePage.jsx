@@ -23,7 +23,7 @@ const DataSourcePage = () => {
   const dispatch = useDispatch();
   // ---------------------USE MODULE PERMISSIONS------------------START (PpeSuppliersPage - MODULE ID = 96 )
   const { Edit } = useModulePermissions(58);
-  useEffect(() => {fetchDataSource()}, [dispatch]);
+  useEffect(() => { fetchDataSource() }, [dispatch]);
 
   const API_URL = import.meta.env.VITE_API_URL;
   const fetchDataSource = async () => {
@@ -40,50 +40,27 @@ const DataSourcePage = () => {
       }
       const data = await response.json();
       console.log('Data Source info received:', data); // Debug log
-      setDatasource(data);
+      setDatasource(prev => ({ ...prev, ...data }));
     } catch (error) {
       console.error('Error loading Data Source info:', error);
       toast.error('Failed to load Data Source info');
     }
   };
-  
+
   const updateDataSource = async (values) => {
     try {
       const token = sessionStorage.getItem('token');
-      const formData = new FormData();
-      
-      // Append fields (but skip Logo field if we have a new file)
-      Object.entries(values).forEach(([key, val]) => {
-        if (val !== null && val !== undefined) {
-          // Skip Logo field if we're uploading a new file
-          if (key === 'Logo' && file) {
-            return; // Don't append old Logo URL if we have a new file
-          }
-          formData.append(key, val);
-        }
-      });
+      const isNew = !values.ID;
+      const method = isNew ? 'POST' : 'PUT';
+      const url = isNew ? `${API_URL}/dataSource` : `${API_URL}/dataSource/${values.ID}`;
 
-      // Append file (if selected) - this will replace the old Logo
-      if (file) {
-        console.log('Appending file to FormData:', file.name, file.type, file.size); // Debug log
-        formData.append('Logo', file);
-      } else {
-        console.log('No file selected for upload'); // Debug log
-      }
-
-      // Debug: Log FormData contents
-      console.log('FormData entries:');
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]));
-      }
-
-      const response = await fetch(`${API_URL}/dataSource/${values.ID}`, {
-        method: 'PUT',
+      const response = await fetch(url, {
+        method: method,
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
-          // Do not manually set Content-Type! Let browser set it with boundary
         },
-        body: formData,
+        body: JSON.stringify(values),
       });
 
       if (!response.ok) {
@@ -100,7 +77,7 @@ const DataSourcePage = () => {
 
       const updated = await response.json();
       console.log('Update response:', updated); // Debug log
-      
+
       setDatasource(updated);
       return true;
     } catch (error) {
@@ -111,7 +88,7 @@ const DataSourcePage = () => {
   };
 
   const [datasource, setDatasource] = useState({
-    ID: '1',
+    ID: null,
     InformationOne: '',
     InformationTwo: '',
     InformationThree: '',
@@ -131,14 +108,11 @@ const DataSourcePage = () => {
 
     onSubmit: async (values, { setSubmitting }) => {
       const success = await updateDataSource(values);
-      // if (success) {
-      //   setIsEditing(false);
-      //   if (fileInputRef.current) {
-      //     fileInputRef.current.value = ''; // Reset file input
-      //   }
-      //   toast.success('Data Sources updated successfully');
-      //   fetchDataSource();
-      // }
+      if (success) {
+        setIsEditing(false);
+        toast.success('Data Sources updated successfully');
+        fetchDataSource();
+      }
       setSubmitting(false);
     },
   });
@@ -147,7 +121,7 @@ const DataSourcePage = () => {
     formik.resetForm();
     setIsEditing(false);
     fetchDataSource();
-  };  
+  };
 
 
   return (
@@ -157,7 +131,7 @@ const DataSourcePage = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-                {/* <div className="p-2 bg-primary-100 rounded-lg">
+              {/* <div className="p-2 bg-primary-100 rounded-lg">
                   <Building className="h-6 w-6 text-primary-600" />
                 </div> */}
               <div>
@@ -210,7 +184,7 @@ const DataSourcePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                 <FormField
                   label="Information One"
-                  name="Code"
+                  name="InformationOne"
                   value={formik.values.InformationOne}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -219,7 +193,7 @@ const DataSourcePage = () => {
                 />
                 <FormField
                   label="Information Two"
-                  name="Name"
+                  name="InformationTwo"
                   value={formik.values.InformationTwo}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -228,7 +202,7 @@ const DataSourcePage = () => {
                 />
                 <FormField
                   label="Information Three"
-                  name="TIN"
+                  name="InformationThree"
                   value={formik.values.InformationThree}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -237,7 +211,7 @@ const DataSourcePage = () => {
                 />
                 <FormField
                   label="Information Four"
-                  name="RDO"
+                  name="InformationFour"
                   value={formik.values.InformationFour}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -246,7 +220,7 @@ const DataSourcePage = () => {
                 />
                 <FormField
                   label="Information Five"
-                  name="StreetAddress"
+                  name="InformationFive"
                   value={formik.values.InformationFive}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -255,7 +229,7 @@ const DataSourcePage = () => {
                 />
                 <FormField
                   label="Information Six"
-                  name="StreetAddress"
+                  name="InformationSix"
                   value={formik.values.InformationSix}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -265,7 +239,7 @@ const DataSourcePage = () => {
 
                 <FormField
                   label="Information Seven"
-                  name="MunicipalityID"
+                  name="InformationSeven"
                   value={formik.values.InformationSeven}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -275,7 +249,7 @@ const DataSourcePage = () => {
 
                 <FormField
                   label="Information Eight"
-                  name="ProvinceID"
+                  name="InformationEight"
                   value={formik.values.InformationEight}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -285,7 +259,7 @@ const DataSourcePage = () => {
 
                 <FormField
                   label="Information Nine"
-                  name="RegionID"
+                  name="InformationNine"
                   value={formik.values.InformationNine}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -295,7 +269,7 @@ const DataSourcePage = () => {
 
                 <FormField
                   label="Information Ten"
-                  name="ZIPCode"
+                  name="InformationTen"
                   value={formik.values.InformationTen}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
