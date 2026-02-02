@@ -265,7 +265,7 @@ const LogoImagesPage = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">
-                  Image and Logos
+                  Images and Logos
                 </h1>
                 <p className="text-neutral-500 font-medium">
                   Manage branding logos and interface backgrounds used throughout the system
