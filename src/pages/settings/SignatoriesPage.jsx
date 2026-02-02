@@ -87,10 +87,30 @@ const SignatoriesPage = () => {
     }
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const filteredSignatories = signatoriesList.filter(item =>
     item.DocumentType?.Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.DocumentTypeID?.toString().includes(searchTerm)
   );
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredSignatories.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredSignatories.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  // Reset to page 1 when searching
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const renderSignatorySelect = (item, field) => (
     <select
@@ -179,8 +199,8 @@ const SignatoriesPage = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-neutral-100">
-              {filteredSignatories.length > 0 ? (
-                filteredSignatories.map((item) => (
+              {currentItems.length > 0 ? (
+                currentItems.map((item) => (
                   <tr key={item.ID} className="hover:bg-neutral-50/50 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -231,6 +251,45 @@ const SignatoriesPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Section */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 bg-neutral-50/50 border-t border-neutral-100 flex items-center justify-between">
+            <div className="text-sm text-neutral-500 font-medium">
+              Showing <span className="text-neutral-900">{indexOfFirstItem + 1}</span> to <span className="text-neutral-900">{Math.min(indexOfLastItem, filteredSignatories.length)}</span> of <span className="text-neutral-900">{filteredSignatories.length}</span> documents
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 text-sm font-bold text-neutral-700 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Previous
+              </button>
+              <div className="flex items-center gap-1">
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => handlePageChange(i + 1)}
+                    className={`w-8 h-8 flex items-center justify-center text-sm font-bold rounded-lg transition-all ${currentPage === i + 1
+                        ? 'bg-primary-600 text-white'
+                        : 'text-neutral-600 hover:bg-neutral-100'
+                      }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 text-sm font-bold text-neutral-700 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="mt-6 p-4 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-4">
