@@ -1,35 +1,27 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import {
-  Building,
-  Edit as EditIcon,
-  X,
-  Mail,
-  Phone,
-  Globe,
-  MapPin,
   FileText,
   Save,
-  Upload,
-  Image as ImageIcon,
+  CheckCircle2,
+  XCircle,
+  RefreshCw,
 } from 'lucide-react';
-import FormField from '../../components/common/FormField';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
 
 const Watermarks = () => {
   const dispatch = useDispatch();
-  // ---------------------USE MODULE PERMISSIONS------------------START (PpeSuppliersPage - MODULE ID = 96 )
   const { Edit } = useModulePermissions(58);
-  useEffect(() => {fetchWatermarks()}, [dispatch]);
+  const [watermarksList, setWatermarksList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
+
   const fetchWatermarks = async () => {
+    setIsLoading(true);
     try {
       const token = sessionStorage.getItem('token');
-
       const response = await fetch(`${API_URL}/watermarks`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -39,97 +31,52 @@ const Watermarks = () => {
         throw new Error('Failed to fetch Watermarks info');
       }
       const data = await response.json();
-      console.log('Watermarks info received:', data); // Debug log
-      setWatermarks(data);
+      setWatermarksList(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error loading Watermarks info:', error);
       toast.error('Failed to load Watermarks info');
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  const updateWatermarks = async (values) => {
+
+  useEffect(() => {
+    fetchWatermarks();
+  }, [dispatch]);
+
+  const toggleWatermark = async (item) => {
+    if (!Edit) return;
+
+    const newStatus = item.Confidential === 1 ? 0 : 1;
     try {
       const token = sessionStorage.getItem('token');
-      const formData = new FormData();
-
-      // Debug: Log FormData contents
-      console.log('FormData entries:');
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]));
-      }
-
-      const response = await fetch(`${API_URL}/watermarks/${values.ID}`, {
+      const response = await fetch(`${API_URL}/watermarks/${item.ID}`, {
         method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
-          // Do not manually set Content-Type! Let browser set it with boundary
         },
-        body: formData,
+        body: JSON.stringify({
+          ...item,
+          Confidential: newStatus
+        }),
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response error:', errorText); // Debug log
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          errorData = { message: errorText || 'Failed to update Watermarks' };
-        }
-        throw new Error(errorData.message || 'Failed to update Watermarks');
+        throw new Error('Failed to update watermark status');
       }
 
-      const updated = await response.json();
-      console.log('Update response:', updated); // Debug log
-      
-      setWatermarks(updated);
-      return true;
+      // Update local state
+      setWatermarksList(prev => prev.map(w =>
+        w.ID === item.ID ? { ...w, Confidential: newStatus } : w
+      ));
+
+      toast.success(`${item.DocumentType?.Name || 'Document'} watermark ${newStatus === 1 ? 'enabled' : 'disabled'}`);
     } catch (error) {
       console.error('Update error:', error);
-      toast.error(error.message || 'Failed to update Watermarks. Please try again.');
-      return false;
+      toast.error('Failed to update watermark status');
     }
   };
-
-  const [watermarks, setWatermarks] = useState({
-    ID: '1',
-    InformationOne: '',
-    InformationTwo: '',
-    InformationThree: '',
-    InformationFour: '',
-    InformationFive: '',
-    InformationSix: '',
-    InformationSeven: '',
-    InformationEight: '',
-    InformationNine: '',
-    InformationTen: '',
-  });
-
-  const [isEditing, setIsEditing] = useState(false);
-  const formik = useFormik({
-    initialValues: watermarks,
-    enableReinitialize: true,
-
-    onSubmit: async (values, { setSubmitting }) => {
-      // const success = await updateWatermarks(values);
-      // if (success) {
-      //   setIsEditing(false);
-      //   if (fileInputRef.current) {
-      //     fileInputRef.current.value = ''; // Reset file input
-      //   }
-      //   toast.success('Watermarks updated successfully');
-      //   fetchWatermarks();
-      // }
-      setSubmitting(false);
-    },
-  });
-
-  const handleCancelEdit = () => {
-    formik.resetForm();
-    setIsEditing(false);
-    fetchWatermarks();
-  };  
-
 
   return (
     <div className="page-container">
@@ -140,220 +87,96 @@ const Watermarks = () => {
             <div className="flex items-center gap-3">
               <div>
                 <h1 className="text-3xl font-bold text-neutral-900">
-                  Watermarks
+                  Report Watermarks
                 </h1>
                 <p className="text-sm text-neutral-600 mt-0.5">
-                  Set whether the printable document will have a watermark.
+                  Enable or disable watermarks for specific document types.
                 </p>
               </div>
             </div>
           </div>
-          {Edit && !isEditing && (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="btn btn-primary flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
-            >
-              <EditIcon className="h-5 w-5" />
-              Edit Information
-            </button>
-          )}
+          <button
+            onClick={fetchWatermarks}
+            className="btn btn-outline flex items-center gap-2"
+            disabled={isLoading}
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
         </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
-        {/* Card Header */}
-        <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary-600" />
-              <h2 className="text-lg font-semibold text-neutral-900">
-                Report Watermarks
-              </h2>
-            </div>
-            {isEditing && (
-              <button
-                onClick={handleCancelEdit}
-                className="text-neutral-600 hover:text-neutral-900 flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
-              >
-                <X className="h-4 w-4" />
-                Cancel
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="p-6">
-          {isEditing ? (
-            <form onSubmit={formik.handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                <FormField
-                  label="Information One"
-                  name="InformationOne"
-                  value={formik.values.InformationOne}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationOne}
-                  touched={formik.touched.InformationOne}
-                />
-                
-                <FormField
-                  label="Information Two"
-                  name="InformationTwo"
-                  value={formik.values.InformationTwo}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationTwo}
-                  touched={formik.touched.InformationTwo}
-                />
-
-                <FormField
-                  label="Information Three"
-                  name="InformationThree"
-                  value={formik.values.InformationThree}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationThree}
-                  touched={formik.touched.InformationThree}
-                />
-
-                <FormField
-                  label="Information Four"
-                  name="InformationFour"
-                  value={formik.values.InformationFour}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationFour}
-                  touched={formik.touched.InformationFour}
-                />
-
-                <FormField
-                  label="Information Five"
-                  name="InformationFive"
-                  value={formik.values.InformationFive}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationFive}
-                  touched={formik.touched.InformationFive}
-                />
-
-                <FormField
-                  label="Information Six"
-                  name="InformationSix"
-                  value={formik.values.InformationSix}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationSix}
-                  touched={formik.touched.InformationSix}
-                />
-
-                <FormField
-                  label="Information Seven"
-                  name="InformationSeven"
-                  value={formik.values.InformationSeven}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationSeven}
-                  touched={formik.touched.InformationSeven}
-                />
-
-                <FormField
-                  label="Information Eight"
-                  name="InformationEight"
-                  value={formik.values.InformationEight}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationEight}
-                  touched={formik.touched.InformationEight}
-                />
-
-                <FormField
-                  label="Information Nine"
-                  name="InformationNine"
-                  value={formik.values.InformationNine}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationNine}
-                  touched={formik.touched.InformationNine}
-                />
-
-                <FormField
-                  label="Information Ten"
-                  name="InformationTen"
-                  value={formik.values.InformationTen}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.errors.InformationTen}
-                  touched={formik.touched.InformationTen}
-                />
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-6 border-t border-neutral-200 col-span-full">
-                <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                  className="btn btn-outline flex items-center gap-2"
-                >
-                  <X className="h-4 w-4" />
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary flex items-center gap-2"
-                  disabled={formik.isSubmitting}
-                >
-                  <Save className="h-4 w-4" />
-                  {formik.isSubmitting ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="space-y-6">
-              <div>
-                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information One</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationOne || '—'}</p>
-                  </div>
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information Two</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationTwo || '—'}</p>
-                  </div>
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information Three</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationThree || '—'}</p>
-                  </div>
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information Four</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationFour || '—'}</p>
-                  </div>
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information Five</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationFive || '—'}</p>
-                  </div>
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information Six</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationSix || '—'}</p>
-                  </div>
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information Seven</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationSeven || '—'}</p>
-                  </div>
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information Eight</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationEight || '—'}</p>
-                  </div>
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information Nine</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationNine || '—'}</p>
-                  </div>
-                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Information Ten</p>
-                    <p className="text-base font-semibold text-neutral-900">{watermarks.InformationTen || '—'}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-neutral-200">
+            <thead className="bg-neutral-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                  Document Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                  Document ID
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                  Watermark Status
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-neutral-200">
+              {watermarksList.length > 0 ? (
+                watermarksList.map((item) => (
+                  <tr key={item.ID} className="hover:bg-neutral-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <FileText className="h-5 w-5 text-neutral-400 mr-3" />
+                        <span className="text-sm font-semibold text-neutral-900">
+                          {item.DocumentType?.Name || 'Unknown Document'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                      {item.DocumentID}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      {item.Confidential === 1 ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          Enabled
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-800">
+                          <XCircle className="h-3 w-3 mr-1" />
+                          Disabled
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {Edit && (
+                        <button
+                          onClick={() => toggleWatermark(item)}
+                          className={`btn btn-sm ${item.Confidential === 1
+                              ? 'btn-outline text-red-600 hover:bg-red-50 hover:text-red-700'
+                              : 'btn-primary'
+                            }`}
+                        >
+                          {item.Confidential === 1 ? 'Disable' : 'Enable'}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="px-6 py-12 text-center text-neutral-500 italic">
+                    {isLoading ? 'Loading watermarks...' : 'No watermark settings found.'}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -361,4 +184,3 @@ const Watermarks = () => {
 };
 
 export default Watermarks;
-
