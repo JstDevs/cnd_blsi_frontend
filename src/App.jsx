@@ -56,7 +56,7 @@ import Customer from './pages/settings/Customer';
 
 // Report Settings
 import SignatoriesPage from './pages/settings/DepartmentPage';
-import LogoImagesPage from './pages/settings/DepartmentPage';
+import LogoImagesPage from './pages/settings/LogoImagesPage';
 import WatermarksPage from './pages/settings/WatermarksPage';
 import DataSourcePage from './pages/settings/DataSourcePage';
 
