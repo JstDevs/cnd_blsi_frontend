@@ -3,51 +3,68 @@ import { useDispatch } from 'react-redux';
 import {
   FileText,
   Save,
-  CheckCircle2,
-  XCircle,
+  Users,
   RefreshCw,
+  Search,
+  UserCheck,
+  Loader2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
 
-const Signatories = () => {
+const SignatoriesPage = () => {
   const dispatch = useDispatch();
   const { Edit } = useModulePermissions(58);
   const [signatoriesList, setSignatoriesList] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const fetchSignatories = async () => {
+  const fetchData = async () => {
     setIsLoading(true);
     try {
       const token = sessionStorage.getItem('token');
-      const response = await fetch(`${API_URL}/signatories`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch Signatories info');
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Fetch Signatories and Employees in parallel
+      const [signatoriesRes, employeesRes] = await Promise.all([
+        fetch(`${API_URL}/signatories`, { headers }),
+        fetch(`${API_URL}/employee`, { headers })
+      ]);
+
+      if (!signatoriesRes.ok || !employeesRes.ok) {
+        throw new Error('Failed to fetch required data');
       }
-      const data = await response.json();
-      setSignatoriesList(Array.isArray(data) ? data : []);
+
+      const signatoriesData = await signatoriesRes.json();
+      const employeesData = await employeesRes.json();
+
+      setSignatoriesList(Array.isArray(signatoriesData) ? signatoriesData : []);
+      setEmployees(Array.isArray(employeesData) ? employeesData : []);
     } catch (error) {
-      console.error('Error loading Signatories info:', error);
-      toast.error('Failed to load Signatories info');
+      console.error('Error loading data:', error);
+      toast.error('Failed to load signatories or employees list');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSignatories();
+    fetchData();
   }, [dispatch]);
 
-  const toggleSignatories = async (item) => {
-    if (!Edit) return;
+  const handleSignatoryChange = (signatoryID, field, employeeID) => {
+    setSignatoriesList(prev => prev.map(item =>
+      item.ID === signatoryID ? { ...item, [field]: employeeID } : item
+    ));
+  };
 
-    const newStatus = item.Confidential === 1 ? 0 : 1;
+  const handleSave = async (item) => {
+    if (!Edit) return;
+    setIsSaving(true);
     try {
       const token = sessionStorage.getItem('token');
       const response = await fetch(`${API_URL}/signatories/${item.ID}`, {
@@ -56,113 +73,142 @@ const Signatories = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...item,
-          Confidential: newStatus
-        }),
+        body: JSON.stringify(item),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update Signatories status');
-      }
+      if (!response.ok) throw new Error('Failed to update signatories');
 
-      // Update local state
-      setSignatoriesList(prev => prev.map(w =>
-        w.ID === item.ID ? { ...w, Confidential: newStatus } : w
-      ));
-
-      toast.success(`${item.DocumentType?.Name || 'Document'} Signatories ${newStatus === 1 ? 'enabled' : 'disabled'}`);
+      toast.success(`Signatories for ${item.DocumentType?.Name || 'Document'} updated`);
     } catch (error) {
-      console.error('Update error:', error);
-      toast.error('Failed to update Signatories status');
+      console.error('Save error:', error);
+      toast.error('Failed to save changes');
+    } finally {
+      setIsSaving(false);
     }
   };
 
+  const filteredSignatories = signatoriesList.filter(item =>
+    item.DocumentType?.Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.DocumentTypeID?.toString().includes(searchTerm)
+  );
+
+  const renderSignatorySelect = (item, field) => (
+    <select
+      className="text-xs border-neutral-200 rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full bg-neutral-50 p-1.5"
+      value={item[field] || ''}
+      onChange={(e) => handleSignatoryChange(item.ID, field, e.target.value)}
+      disabled={!Edit}
+    >
+      <option value="">None</option>
+      {employees.map(emp => (
+        <option key={emp.ID} value={emp.ID}>
+          {emp.FirstName} {emp.LastName}
+        </option>
+      ))}
+    </select>
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 text-primary-600 animate-spin" />
+          <p className="text-neutral-500 font-medium">Loading signatories...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="page-container">
+    <div className="p-6 max-w-[1600px] mx-auto">
       {/* Header Section */}
-      <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary-50 rounded-xl">
+                <Users className="h-7 w-7 text-primary-600" />
+              </div>
               <div>
-                <h1 className="text-3xl font-bold text-neutral-900">
-                  Report Signatories
+                <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">
+                  Report Signatories Manager
                 </h1>
-                <p className="text-sm text-neutral-600 mt-0.5">
-                  Enable or disable signatories for specific document types.
+                <p className="text-neutral-500 font-medium text-sm">
+                  Assign presiding officers and authorized signatories for all system documents
                 </p>
               </div>
             </div>
           </div>
-          <button
-            onClick={fetchSignatories}
-            className="btn btn-outline flex items-center gap-2"
-            disabled={isLoading}
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
+
+          <div className="flex items-center gap-3">
+            <div className="relative group min-w-[300px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 group-focus-within:text-primary-500 transition-colors" />
+              <input
+                type="text"
+                placeholder="Search document type..."
+                className="w-full pl-10 pr-4 py-2 bg-white border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <button
+              onClick={fetchData}
+              className="p-2.5 text-neutral-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all active:scale-95"
+              title="Refresh Data"
+            >
+              <RefreshCw className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-neutral-50/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                  Document Type
+                <th className="px-6 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider w-[250px]">
+                  Document / Form
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                  Document ID
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                  Signatories Status
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                  Action
-                </th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 1</th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 2</th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 3</th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 4</th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 5</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-neutral-500 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-neutral-200">
-              {signatoriesList.length > 0 ? (
-                signatoriesList.map((item) => (
-                  <tr key={item.ID} className="hover:bg-neutral-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <FileText className="h-5 w-5 text-neutral-400 mr-3" />
-                        <span className="text-sm font-semibold text-neutral-900">
-                          {item.DocumentType?.Name || 'Unknown Document'}
-                        </span>
+            <tbody className="bg-white divide-y divide-neutral-100">
+              {filteredSignatories.length > 0 ? (
+                filteredSignatories.map((item) => (
+                  <tr key={item.ID} className="hover:bg-neutral-50/50 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-1.5 bg-neutral-100 rounded-lg group-hover:bg-primary-50 transition-colors">
+                          <FileText className="h-4 w-4 text-neutral-500 group-hover:text-primary-600" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-neutral-900 leading-tight">
+                            {item.DocumentType?.Name || 'Unknown Document'}
+                          </div>
+                          <div className="text-[10px] text-neutral-400 font-medium">ID: {item.DocumentTypeID}</div>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                      {item.DocumentID}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      {item.Confidential === 1 ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Enabled
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-800">
-                          <XCircle className="h-3 w-3 mr-1" />
-                          Disabled
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-2 py-4">{renderSignatorySelect(item, 'EmployeeOne')}</td>
+                    <td className="px-2 py-4">{renderSignatorySelect(item, 'EmployeeTwo')}</td>
+                    <td className="px-2 py-4">{renderSignatorySelect(item, 'EmployeeThree')}</td>
+                    <td className="px-2 py-4">{renderSignatorySelect(item, 'EmployeeFour')}</td>
+                    <td className="px-2 py-4">{renderSignatorySelect(item, 'EmployeeFive')}</td>
+                    <td className="px-6 py-4 text-right">
                       {Edit && (
                         <button
-                          onClick={() => toggleSignatories(item)}
-                          className={`btn btn-sm ${item.Confidential === 1
-                              ? 'btn-outline text-red-600 hover:bg-red-50 hover:text-red-700'
-                              : 'btn-primary'
-                            }`}
+                          onClick={() => handleSave(item)}
+                          disabled={isSaving}
+                          className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-all active:scale-90"
+                          title="Save changes for this document"
                         >
-                          {item.Confidential === 1 ? 'Disable' : 'Enable'}
+                          <Save className="h-5 w-5" />
                         </button>
                       )}
                     </td>
@@ -170,8 +216,15 @@ const Signatories = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="px-6 py-12 text-center text-neutral-500 italic">
-                    {isLoading ? 'Loading signatories...' : 'No Signatories settings found.'}
+                  <td colSpan="8" className="px-6 py-16 text-center">
+                    <div className="flex flex-col items-center">
+                      <div className="p-3 bg-neutral-50 rounded-full mb-3">
+                        <UserCheck className="h-6 w-6 text-neutral-300" />
+                      </div>
+                      <p className="text-neutral-500 font-medium italic">
+                        {searchTerm ? `No results for "${searchTerm}"` : 'No signatory settings found.'}
+                      </p>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -179,8 +232,21 @@ const Signatories = () => {
           </table>
         </div>
       </div>
+
+      <div className="mt-6 p-4 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-4">
+        <div className="p-2 bg-white rounded-lg shadow-sm">
+          <Users className="h-5 w-5 text-amber-600" />
+        </div>
+        <div>
+          <h4 className="font-bold text-amber-900">Signatory Configuration Guide</h4>
+          <p className="text-sm text-amber-800 mt-0.5">
+            Select the appropriate employees from the dropdowns for each document.
+            Click the <Save className="h-3 w-3 inline" /> disk icon on the right to save changes for an individual row.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Signatories;
+export default SignatoriesPage;
