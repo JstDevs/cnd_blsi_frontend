@@ -347,7 +347,7 @@ function SidebarMenu({
                 className={clsx(
                   'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                   isActive(item.href)
-                    ? 'bg-primary-50 text-primary-700 border-l-4 border-primary-500'
+                    ? 'bg-primary-600 text-primary-50 border-l-4 border-secondary-300'
                     : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900',
                   level > 0 && 'pl-2' // Adjust padding for nested items
                 )}
@@ -357,7 +357,7 @@ function SidebarMenu({
                     className={clsx(
                       'mr-3 h-5 w-5 flex-shrink-0',
                       isActive(item.href)
-                        ? 'text-primary-500'
+                        ? 'text-primary-50'
                         : 'text-neutral-400 group-hover:text-neutral-500'
                     )}
                   />
