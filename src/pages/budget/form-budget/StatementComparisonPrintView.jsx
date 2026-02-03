@@ -12,31 +12,35 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
   };
 
   data.forEach((row) => {
-    totals.Original += row.Original || 0;
-    totals.Final += row.Final || 0;
-    totals.Difference += row.Difference || 0;
-    totals.Actual += row.Actual || 0;
-    totals.Difference2 += row['Difference 2'] || 0;
+    totals.Original += Number(row.Original) || 0;
+    totals.Final += Number(row.Final) || 0;
+    totals.Difference += Number(row.Difference) || 0;
+    totals.Actual += Number(row.Actual) || 0;
+    totals.Difference2 += Number(row.Difference2) || 0;
   });
 
   return (
     <div ref={ref} className="p-6 text-black text-sm">
-      <h2 className="text-center font-bold">Municipality of __________</h2>
-      <h3 className="text-center">
+      <h2 className="text-center">
+        Municipality of [LGU]
+      </h2>
+      <h3 className="text-center font-bold">
         Statement of Comparison of Budget and Actual Amounts
       </h3>
-      <p className="text-center mb-4">For the Year Ended {fiscalYear?.Name}</p>
+      <p className="text-center mb-4">
+        For the Year Ended [{fiscalYear?.Name} - MMMM dd, yyyy]
+      </p>
 
       <table className="w-full border-collapse border text-xs">
         <thead>
           <tr>
-            <th className="border p-2">Particular</th>
-            <th className="border p-2">Notes</th>
-            <th className="border p-2">Budget Amounts - Original</th>
-            <th className="border p-2">Budget Amounts - Final</th>
-            <th className="border p-2">Difference (Original vs Final)</th>
-            <th className="border p-2">Actual Amounts</th>
-            <th className="border p-2">Difference (Final vs Actual)</th>
+            <th className="border p-2">Code             </th>
+            <th className="border p-2">Major Group      </th>
+            <th className="border p-2">Original Budget  </th>
+            <th className="border p-2">Final Budget     </th>
+            <th className="border p-2">Difference       </th>
+            <th className="border p-2">Actual Amounts   </th>
+            <th className="border p-2">Difference       </th>
           </tr>
         </thead>
         <tbody>
@@ -45,19 +49,19 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
               <td className="border p-2">{row.Category}</td>
               <td className="border p-2">{row.Subtype}</td>
               <td className="border p-2 text-right">
-                {row.Original?.toLocaleString('en-PH')}
+                {Number(row.Original || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
               <td className="border p-2 text-right">
-                {row.Final?.toLocaleString('en-PH')}
+                {Number(row.Final || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
               <td className="border p-2 text-right">
-                {row.Difference?.toLocaleString('en-PH')}
+                {Number(row.Difference || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
               <td className="border p-2 text-right">
-                {row.Actual?.toLocaleString('en-PH')}
+                {Number(row.Actual || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
               <td className="border p-2 text-right">
-                {row['Difference 2']?.toLocaleString('en-PH')}
+                {Number(row.Difference2 || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
             </tr>
           ))}
@@ -65,22 +69,22 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
           {/* Totals */}
           <tr className="font-bold">
             <td className="border p-2 text-right" colSpan={2}>
-              Total Appropriations
+              Total Appropriationersssss
             </td>
             <td className="border p-2 text-right">
-              {totals.Original.toLocaleString('en-PH')}
+              {totals.Original.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
             <td className="border p-2 text-right">
-              {totals.Final.toLocaleString('en-PH')}
+              {totals.Final.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
             <td className="border p-2 text-right">
-              {totals.Difference.toLocaleString('en-PH')}
+              {totals.Difference.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
             <td className="border p-2 text-right">
-              {totals.Actual.toLocaleString('en-PH')}
+              {totals.Actual.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
             <td className="border p-2 text-right">
-              {totals.Difference2.toLocaleString('en-PH')}
+              {totals.Difference2.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
           </tr>
         </tbody>
