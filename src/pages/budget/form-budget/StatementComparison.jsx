@@ -37,7 +37,17 @@ function StatementComparison() {
     { key: 'Subtype',           header: 'Subtype',            sortable: true },
     { key: 'Category',          header: 'Category',           sortable: true },
     { key: 'ChartOfAccounts',   header: 'Chart of Accounts',  sortable: true },
-    { key: 'AccountCode',       header: 'Account Code',       sortable: true },
+    { 
+      key: 'AccountCode',       
+      header: 'Account Code',       
+      sortable: true,
+      className: 'text-center font-bold',
+      render: (value) => (
+        <span className="text-center font-bold">
+          {value}
+        </span>
+      ),
+    },
     // { 
     //   key: 'Original',          
     //   header: 'Original',           
@@ -75,31 +85,56 @@ function StatementComparison() {
       key: 'Original_Sum',
       header: 'Original Budget',
       sortable: true,
-      render: formatCurrency,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
       key: 'Final_Sum',
       header: 'Final Budget',
       sortable: true,
-      render: formatCurrency,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
       key: 'Difference_Sum',
       header: 'Difference',
       sortable: true,
-      render: formatCurrency,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
       key: 'Actual_Sum',
       header: 'Actual Amount',
       sortable: true,
-      render: formatCurrency,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
       key: 'Difference2_Sum',
       header: 'Difference ',
       sortable: true,
-      render: formatCurrency,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     // { key: 'Municipality', header: 'Municipality', sortable: true },
     // { key: 'Province', header: 'Province', sortable: true },
