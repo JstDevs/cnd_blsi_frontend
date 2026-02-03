@@ -38,6 +38,11 @@ function TravelOrderPage() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [currentTravelOrder, setCurrentTravelOrder] = useState(null);
   const [isTOPActionLoading, setIsTOPActionLoading] = useState(false);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+
+
   // ---------------------USE MODULE PERMISSIONS------------------START (TravelOrderPage - MODULE ID = 80 )
   const { Add, Edit, Delete } = useModulePermissions(80);
 
@@ -489,12 +494,16 @@ function TravelOrderPage() {
     );
   };
 
-  const handleTOPAction = async (row, action) => {
+  const handleTOPAction = async (row, action, reason = '') => {
     setIsTOPActionLoading(true);
     try {
+      const payload = { ID: row.ID };
+      if (action === 'reject' && reason) {
+        payload.Reason = reason;
+      }
       const response = await axiosInstance.post(
         `/travelorder/${action}`,
-        { ID: row.ID }
+        payload
       );
       console.log(`${action}d:`, response.data);
       dispatch(fetchTravelOrders());
@@ -506,6 +515,23 @@ function TravelOrderPage() {
       setIsTOPActionLoading(false);
     }
   };
+
+  const confirmApprove = async () => {
+    if (currentTravelOrder) {
+      await handleTOPAction(currentTravelOrder, 'approve');
+      setIsApproveModalOpen(false);
+      setCurrentTravelOrder(null);
+    }
+  };
+
+  const confirmReject = async () => {
+    if (currentTravelOrder) {
+      await handleTOPAction(currentTravelOrder, 'reject', rejectionReason);
+      setIsRejectModalOpen(false);
+      setCurrentTravelOrder(null);
+      setRejectionReason('');
+    }
+  }
 
   const actions = (row) => {
     const actionList = [];
@@ -530,14 +556,20 @@ function TravelOrderPage() {
         {
           icon: CheckLine,
           title: 'Approve',
-          onClick: () => handleTOPAction(row, 'approve'),
+          onClick: (rowData) => {
+            setCurrentTravelOrder(rowData);
+            setIsApproveModalOpen(true);
+          },
           className:
             'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
         },
         {
           icon: X,
           title: 'Reject',
-          onClick: () => handleTOPAction(row, 'reject'),
+          onClick: (rowData) => {
+            setCurrentTravelOrder(rowData);
+            setIsRejectModalOpen(true);
+          },
           className:
             'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
         }
@@ -644,6 +676,78 @@ function TravelOrderPage() {
             className="btn btn-danger"
           >
             Void
+          </button>
+        </div>
+      </Modal>
+
+      {/* Approve Confirmation Modal */}
+      <Modal
+        isOpen={isApproveModalOpen}
+        onClose={() => setIsApproveModalOpen(false)}
+        title="Confirm Approval"
+      >
+        <div className="py-3">
+          <p className="text-neutral-700">
+            Are you sure you want to approve Travel Order "{currentTravelOrder?.InvoiceNumber}"?
+          </p>
+        </div>
+        <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <button
+            type="button"
+            onClick={() => setIsApproveModalOpen(false)}
+            className="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmApprove}
+            className="btn btn-primary"
+          >
+            Approve
+          </button>
+        </div>
+      </Modal>
+
+      {/* Reject Confirmation Modal */}
+      <Modal
+        isOpen={isRejectModalOpen}
+        onClose={() => {
+          setIsRejectModalOpen(false);
+          setRejectionReason('');
+        }}
+        title="Reject Travel Order"
+      >
+        <div className="py-3">
+          <p className="text-neutral-700 mb-3">
+            Please provide a reason for rejecting "{currentTravelOrder?.InvoiceNumber}":
+          </p>
+          <textarea
+            className="form-input w-full"
+            rows="3"
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Enter reason here..."
+          />
+        </div>
+        <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <button
+            type="button"
+            onClick={() => {
+              setIsRejectModalOpen(false);
+              setRejectionReason('');
+            }}
+            className="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmReject}
+            className="btn btn-danger"
+            disabled={!rejectionReason.trim()}
+          >
+            Reject
           </button>
         </div>
       </Modal>
