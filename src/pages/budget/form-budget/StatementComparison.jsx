@@ -41,7 +41,7 @@ function StatementComparison() {
       key: 'AccountCode',       
       header: 'Account Code',       
       sortable: true,
-      className: 'text-center font-bold',
+      className: 'text-left font-bold',
       render: (value) => (
         <span className="text-center font-bold">
           {value}
@@ -109,7 +109,7 @@ function StatementComparison() {
       sortable: true,
       className: 'text-right font-semibold',
       render: (value) => (
-        <span className="text-right font-semibold text-primary-700">
+        <span className="text-right font-semibold text-accent-700">
           {formatCurrency(value)}
         </span>
       ),
@@ -131,7 +131,7 @@ function StatementComparison() {
       sortable: true,
       className: 'text-right font-semibold',
       render: (value) => (
-        <span className="text-right font-semibold text-primary-700">
+        <span className="text-right font-semibold text-accent-700">
           {formatCurrency(value)}
         </span>
       ),

@@ -57,8 +57,13 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
         <tbody>
           {data.map((row, idx) => (
             <tr key={idx}>
-              <td className="border border-white p-0.5">{row.ChartOfAccounts}</td>
-              <td className="border border-white p-0.5"> </td>
+              <td className="border border-white p-0.5" colSpan={2}>
+                {row.ChartOfAccounts}
+              </td>
+              {/* 
+              <td className="border border-white p-0.5"> 
+                
+              </td> */}
               <td className="border border-white p-0.5 text-right">
                 {Number(row.Original || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
@@ -80,7 +85,7 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
           {/* Totals */}
           <tr className="font-bold">
             <td className="border border-white p-0.5 text-right" colSpan={2}>
-              Total Appropriationersssss
+              Total Appropriations
             </td>
             <td className="border border-white p-0.5 text-right">
               {totals.Original.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
