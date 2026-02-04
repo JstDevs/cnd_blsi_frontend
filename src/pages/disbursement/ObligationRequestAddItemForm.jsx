@@ -50,16 +50,16 @@ function ObligationRequestAddItemForm({
     onSubmit: (vals) => {
       const sBudget = formBudgets.find(b => String(b.ID) === String(vals.ChargeAccountID));
       if (sBudget) {
-          const appro = parseFloat(sBudget.Appropriation || 0);
-          const used = parseFloat(sBudget.PreEncumbrance || 0) + parseFloat(sBudget.Encumbrance || 0);
-          const available = appro - used;
-          
-          // Check if Subtotal exceeds Available
-          if (parseFloat(vals.subtotal) > available) {
-             // You can use toast or alert
-             alert(`Insufficient budget! You only have ${formatCurrency(available)} remaining.`);
-             return; // STOP execution
-          }
+        const allotmentBalance = parseFloat(sBudget.AllotmentBalance || 0);
+        const used = parseFloat(sBudget.PreEncumbrance || 0);
+        const available = allotmentBalance - used;
+
+        // Check if Subtotal exceeds Available
+        if (parseFloat(vals.subtotal) > available) {
+          // You can use toast or alert
+          alert(`Insufficient budget! You only have ${formatCurrency(available)} remaining.`);
+          return; // STOP execution
+        }
       }
 
       // Find a default tax if none is selected (since field is hidden)
@@ -158,11 +158,10 @@ function ObligationRequestAddItemForm({
 
   const availableBalance = useMemo(() => {
     if (!selectedBudget) return 0;
-    const appropriation = parseFloat(selectedBudget.Appropriation || 0);
+    const allotmentBalance = parseFloat(selectedBudget.AllotmentBalance || 0);
     const preEncumbrance = parseFloat(selectedBudget.PreEncumbrance || 0);
-    const encumbrance = parseFloat(selectedBudget.Encumbrance || 0);
 
-    return appropriation - (preEncumbrance + encumbrance);
+    return allotmentBalance - preEncumbrance;
   }, [selectedBudget]);
 
   // Filter budgets based on Selected Responsibility Center
@@ -232,13 +231,13 @@ function ObligationRequestAddItemForm({
           />
 
           {/* Start */}
-            {selectedBudget && (
-              <div className="text-xs mt-1 text-gray-600">
-                Available Balance: <span className={`font-semibold ${availableBalance < formik.values.subtotal ? 'text-red-600' : 'text-green-600'}`}>
-                  {formatCurrency(availableBalance)}
-                </span>
-                </div>
-            )}
+          {selectedBudget && (
+            <div className="text-xs mt-1 text-gray-600">
+              Available Balance: <span className={`font-semibold ${availableBalance < formik.values.subtotal ? 'text-red-600' : 'text-green-600'}`}>
+                {formatCurrency(availableBalance)}
+              </span>
+            </div>
+          )}
 
           {formik.touched.ChargeAccountID && formik.errors.ChargeAccountID && (
             <p className="text-red-500 text-sm">
